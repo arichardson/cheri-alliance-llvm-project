@@ -1305,6 +1305,7 @@ private:
     }
 
     if (II.isLaunderOrStripInvariantGroup()) {
+      insertUse(II, Offset, AllocSize, true);
       enqueueUsers(II);
       return;
     }
@@ -3636,7 +3637,8 @@ private:
   }
 
   bool visitIntrinsicInst(IntrinsicInst &II) {
-    assert((II.isLifetimeStartOrEnd() || II.isDroppable()) &&
+    assert((II.isLifetimeStartOrEnd() || II.isLaunderOrStripInvariantGroup() ||
+            II.isDroppable()) &&
            "Unexpected intrinsic!");
     LLVM_DEBUG(dbgs() << "    original: " << II << "\n");
 
@@ -3649,6 +3651,9 @@ private:
       OldPtr->dropDroppableUsesIn(II);
       return true;
     }
+
+    if (II.isLaunderOrStripInvariantGroup())
+      return true;
 
     assert(II.getArgOperand(1) == OldPtr);
     // Lifetime intrinsics are only promotable if they cover the whole alloca.
