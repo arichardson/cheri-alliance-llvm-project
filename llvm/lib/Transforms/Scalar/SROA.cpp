@@ -1305,7 +1305,7 @@ private:
     }
 
     if (II.isLaunderOrStripInvariantGroup()) {
-      insertUse(II, Offset, AllocSize, true);
+      insertUse(II, Offset, AllocSize, false, false, true);
       enqueueUsers(II);
       return;
     }
