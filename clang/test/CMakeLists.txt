@@ -134,6 +134,8 @@ if( NOT CLANG_BUILT_STANDALONE )
     llvm-readtapi
     llvm-strip
     llvm-symbolizer
+    llvm-windres
+    obj2yaml
     opt
     split-file
     yaml2obj
