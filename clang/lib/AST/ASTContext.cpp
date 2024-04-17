@@ -12478,8 +12478,13 @@ QualType ASTContext::getRealTypeForBitwidth(unsigned DestWidth,
 }
 
 void ASTContext::setManglingNumber(const NamedDecl *ND, unsigned Number) {
-  if (Number > 1)
-    MangleNumbers[ND] = Number;
+  if (Number <= 1)
+    return;
+
+  MangleNumbers[ND] = Number;
+
+  if (Listener)
+    Listener->AddedManglingNumber(ND, Number);
 }
 
 unsigned ASTContext::getManglingNumber(const NamedDecl *ND,
@@ -12498,8 +12503,13 @@ unsigned ASTContext::getManglingNumber(const NamedDecl *ND,
 }
 
 void ASTContext::setStaticLocalNumber(const VarDecl *VD, unsigned Number) {
-  if (Number > 1)
-    StaticLocalNumbers[VD] = Number;
+  if (Number <= 1)
+    return;
+
+  StaticLocalNumbers[VD] = Number;
+
+  if (Listener)
+    Listener->AddedStaticLocalNumbers(VD, Number);
 }
 
 unsigned ASTContext::getStaticLocalNumber(const VarDecl *VD) const {
