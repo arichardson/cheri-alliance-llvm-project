@@ -3079,6 +3079,7 @@ bool RISCVInstrInfo::shouldOutlineFromFunctionByDefault(
 
 std::optional<outliner::OutlinedFunction>
 RISCVInstrInfo::getOutliningCandidateInfo(
+    const MachineModuleInfo &MMI,
     std::vector<outliner::Candidate> &RepeatedSequenceLocs) const {
 
   // First we need to filter out candidates where the X5 register (IE t0) can't
@@ -3117,8 +3118,9 @@ RISCVInstrInfo::getOutliningCandidateInfo(
 }
 
 outliner::InstrType
-RISCVInstrInfo::getOutliningTypeImpl(MachineBasicBlock::iterator &MBBI,
-                                 unsigned Flags) const {
+RISCVInstrInfo::getOutliningTypeImpl(const MachineModuleInfo &MMI,
+                                     MachineBasicBlock::iterator &MBBI,
+                                     unsigned Flags) const {
   MachineInstr &MI = *MBBI;
   MachineBasicBlock *MBB = MI.getParent();
   const TargetRegisterInfo *TRI =
