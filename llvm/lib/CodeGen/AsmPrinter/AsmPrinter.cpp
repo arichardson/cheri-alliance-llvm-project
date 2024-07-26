@@ -438,6 +438,7 @@ bool AsmPrinter::doInitialization(Module &M) {
   MMI = MMIWP ? &MMIWP->getMMI() : nullptr;
   HasSplitStack = false;
   HasNoSplitStack = false;
+  DbgInfoAvailable = !M.debug_compile_units().empty();
 
   AddrLabelSymbols = nullptr;
 
@@ -543,8 +544,7 @@ bool AsmPrinter::doInitialization(Module &M) {
     if (EmitCodeView && TM.getTargetTriple().isOSWindows())
       DebugHandlers.push_back(std::make_unique<CodeViewDebug>(this));
     if (!EmitCodeView || M.getDwarfVersion()) {
-      assert(MMI && "MMI could not be nullptr here!");
-      if (MMI->hasDebugInfo()) {
+      if (hasDebugInfo()) {
         DD = new DwarfDebug(this);
         DebugHandlers.push_back(std::unique_ptr<DwarfDebug>(DD));
       }
@@ -1343,8 +1343,7 @@ AsmPrinter::getFunctionCFISectionType(const Function &F) const {
   if (MAI->usesCFIWithoutEH() && F.hasUWTable())
     return CFISection::EH;
 
-  assert(MMI != nullptr && "Invalid machine module info");
-  if (MMI->hasDebugInfo() || TM.Options.ForceDwarfFrameSection)
+  if (hasDebugInfo() || TM.Options.ForceDwarfFrameSection)
     return CFISection::Debug;
 
   return CFISection::None;
@@ -1749,8 +1748,8 @@ static bool needFuncLabelsForEH(const MachineFunction &MF) {
 }
 
 static bool needFuncLabels(const MachineFunction &MF,
-                           const MachineModuleInfo &MMI) {
-  return MF.getMMI().hasDebugInfo() || needFuncLabelsForEH(MF);
+                           const AsmPrinter& Asm) {
+  return Asm.hasDebugInfo() || needFuncLabelsForEH(MF);
 }
 
 /// EmitFunctionBody - This method emits the body and trailer for a
@@ -2013,7 +2012,7 @@ void AsmPrinter::emitFunctionBody() {
   // are automatically sized.
   bool EmitFunctionSize = MAI->hasDotTypeDotSizeDirective() && !TT.isWasm();
 
-  if (needFuncLabels(*MF, *MMI) || EmitFunctionSize) {
+  if (EmitFunctionSize || needFuncLabels(*MF, *this)) {
     // Create a symbol for the end of function.
     CurrentFnEnd = createTempSymbol("func_end");
     OutStreamer->emitLabel(CurrentFnEnd);
@@ -2684,7 +2683,7 @@ void AsmPrinter::SetupMachineFunction(MachineFunction &MF) {
   if (F.hasFnAttribute("patchable-function-entry") ||
       F.hasFnAttribute("function-instrument") ||
       F.hasFnAttribute("xray-instruction-threshold") ||
-      needFuncLabels(MF, *MMI) || NeedsLocalForSize ||
+      needFuncLabels(MF, *this) || NeedsLocalForSize ||
       MF.getTarget().Options.EmitStackSizeSection ||
       MF.getTarget().Options.BBAddrMap || MF.hasBBLabels()) {
     CurrentFnBegin = createTempSymbol("func_begin");
