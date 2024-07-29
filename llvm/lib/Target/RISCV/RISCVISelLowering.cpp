@@ -1540,7 +1540,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
     setTargetDAGCombine({ISD::UMAX, ISD::UMIN, ISD::SMAX, ISD::SMIN});
 
   if ((Subtarget.hasStdExtZbs() && Subtarget.is64Bit()) ||
-      Subtarget.hasStdExtV())
+      Subtarget.hasVInstructions())
     setTargetDAGCombine(ISD::TRUNCATE);
 
   if (Subtarget.hasStdExtZbkb())
