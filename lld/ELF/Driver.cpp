@@ -103,6 +103,8 @@ void Ctx::reset() {
   lazyBitcodeFiles.clear();
   inputSections.clear();
   ehInputSections.clear();
+
+  symAux.clear();
   duplicates.clear();
   nonPrevailingSyms.clear();
   whyExtractRecords.clear();
@@ -139,7 +141,6 @@ bool link(ArrayRef<const char *> args, llvm::raw_ostream &stdoutOS,
     symtab = SymbolTable();
 
     outputSections.clear();
-    symAux.clear();
 
     in.reset();
 
@@ -158,7 +159,7 @@ bool link(ArrayRef<const char *> args, llvm::raw_ostream &stdoutOS,
   config = ConfigWrapper();
   script = ScriptWrapper();
 
-  symAux.emplace_back();
+  elf::ctx.symAux.emplace_back();
 
   partitions.clear();
   partitions.emplace_back();
