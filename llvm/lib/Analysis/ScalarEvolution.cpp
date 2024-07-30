@@ -12128,8 +12128,10 @@ bool ScalarEvolution::isImpliedCondOperandsViaNoOverflow(
   // C)".
 
   std::optional<APInt> LDiff = computeConstantDifference(LHS, FoundLHS);
+  if (!LDiff)
+    return false;
   std::optional<APInt> RDiff = computeConstantDifference(RHS, FoundRHS);
-  if (!LDiff || !RDiff || *LDiff != *RDiff)
+  if (!RDiff || *LDiff != *RDiff)
     return false;
 
   if (LDiff->isMinValue())
