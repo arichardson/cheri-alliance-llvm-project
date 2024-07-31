@@ -3392,7 +3392,7 @@ bool MIParser::parseMachineMemoryOperand(MachineMemOperand *&Dest) {
     if (expectAndConsume(MIToken::rparen))
       return true;
 
-    Size = MemoryType.getSizeInBytes();
+    Size = MemoryType.getSizeInBytes().getKnownMinValue();
   }
 
   MachinePointerInfo Ptr = MachinePointerInfo();
