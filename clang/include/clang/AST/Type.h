@@ -2563,6 +2563,7 @@ public:
   bool isFunctionNoProtoType() const { return getAs<FunctionNoProtoType>(); }
   bool isFunctionProtoType() const { return getAs<FunctionProtoType>(); }
   bool isPointerType() const;
+  bool isPointerOrReferenceType() const;
   /// Returns true if this type is a CHERI capability type.
   /// If \p IncludeIntCap
   /// is true this also includes __uintcap_t and __intcap_t, otherwise it will
@@ -8191,6 +8192,10 @@ inline bool Type::isFunctionType() const {
 
 inline bool Type::isPointerType() const {
   return isa<PointerType>(CanonicalType);
+}
+
+inline bool Type::isPointerOrReferenceType() const {
+  return isPointerType() || isReferenceType();
 }
 
 inline bool Type::isAnyPointerType() const {
