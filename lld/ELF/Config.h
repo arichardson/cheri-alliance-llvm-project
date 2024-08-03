@@ -42,6 +42,7 @@ class ELFFileBase;
 class SharedFile;
 class InputSectionBase;
 class EhInputSection;
+class Defined;
 class Symbol;
 class BitcodeCompiler;
 class OutputSection;
@@ -513,6 +514,54 @@ struct Ctx {
     OutputSection *finiArray;
   };
   OutSections out;
+
+  // Some linker-generated symbols need to be created as
+  // Defined symbols.
+  struct ElfSym {
+    // __bss_start
+    Defined *bss;
+
+    // etext and _etext
+    Defined *etext1;
+    Defined *etext2;
+
+    // edata and _edata
+    Defined *edata1;
+    Defined *edata2;
+
+    // end and _end
+    Defined *end1;
+    Defined *end2;
+
+    // The _GLOBAL_OFFSET_TABLE_ symbol is defined by target convention to
+    // be at some offset from the base of the .got section, usually 0 or
+    // the end of the .got.
+    Defined *globalOffsetTable;
+
+    // _gp, _gp_disp and __gnu_local_gp symbols. Only for MIPS.
+    Defined *mipsGp;
+    Defined *mipsGpDisp;
+    Defined *mipsLocalGp;
+
+    // The _CHERI_CAPABILITY_TABLE_ symbol points to the beginning of the
+    // .captable section. Only for MIPS.
+    Defined *mipsCheriCapabilityTable;
+
+    // __global_pointer$ for RISC-V.
+    Defined *riscvGlobalPointer;
+
+    // __rel{,a}_iplt_{start,end} symbols.
+    Defined *relaIpltStart;
+    Defined *relaIpltEnd;
+
+    // _TLS_MODULE_BASE_ on targets that support TLSDESC.
+    Defined *tlsModuleBase;
+
+    // __rela_dyn_{start,end} symbols.
+    Defined *relaDynStart;
+    Defined *relaDynEnd;
+  };
+  ElfSym sym;
 
   SmallVector<std::unique_ptr<MemoryBuffer>> memoryBuffers;
   SmallVector<ELFFileBase *, 0> objectFiles;

@@ -127,25 +127,6 @@ std::string lld::verboseToString(const Symbol *b, uint64_t symOffset) {
   return msg;
 }
 
-Defined *ElfSym::bss;
-Defined *ElfSym::etext1;
-Defined *ElfSym::etext2;
-Defined *ElfSym::edata1;
-Defined *ElfSym::edata2;
-Defined *ElfSym::end1;
-Defined *ElfSym::end2;
-Defined *ElfSym::globalOffsetTable;
-Defined *ElfSym::mipsGp;
-Defined *ElfSym::mipsGpDisp;
-Defined *ElfSym::mipsLocalGp;
-Defined *ElfSym::mipsCheriCapabilityTable;
-Defined *ElfSym::riscvGlobalPointer;
-Defined *ElfSym::relaIpltStart;
-Defined *ElfSym::relaIpltEnd;
-Defined *ElfSym::tlsModuleBase;
-Defined *ElfSym::relaDynStart;
-Defined *ElfSym::relaDynEnd;
-
 static uint64_t getSymVA(const Symbol &sym, int64_t addend) {
   switch (sym.kind()) {
   case Symbol::DefinedKind: {
@@ -269,7 +250,7 @@ uint64_t Symbol::getPltVA() const {
 
 uint64_t Symbol::getMipsCheriCapTableVA(const InputSectionBase *isec,
                                         uint64_t offset) const {
-  return ElfSym::mipsCheriCapabilityTable->getVA() +
+  return ctx.sym.mipsCheriCapabilityTable->getVA() +
          getMipsCheriCapTableOffset(isec, offset);
 }
 

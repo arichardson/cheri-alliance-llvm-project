@@ -681,7 +681,7 @@ static Relocation *getRISCVPCRelHi20(const Symbol *sym, uint64_t addend) {
 // target-specific adjustment to produce a thread-pointer-relative offset.
 static int64_t getTlsTpOffset(const Symbol &s) {
   // On targets that support TLSDESC, _TLS_MODULE_BASE_@tpoff = 0.
-  if (&s == ElfSym::tlsModuleBase)
+  if (&s == ctx.sym.tlsModuleBase)
     return 0;
 
   // There are 2 TLS layouts. Among targets we support, x86 uses TLS Variant 2
@@ -970,12 +970,12 @@ uint64_t InputSectionBase::getRelocTargetVA(const InputFile *file, RelType type,
     assert(a == 0 && "capability table index relocs should not have addends");
     return sym.getMipsCheriCapTableOffset(isec, offset);
   case R_MIPS_CHERI_CAPTAB_REL:
-    if (!ElfSym::mipsCheriCapabilityTable) {
+    if (!ctx.sym.mipsCheriCapabilityTable) {
       error("cannot compute difference between non-existent "
             "CheriCapabilityTable and symbol " + toString(sym));
       return sym.getVA(a);
     }
-    return sym.getVA(a) - ElfSym::mipsCheriCapabilityTable->getVA();
+    return sym.getVA(a) - ctx.sym.mipsCheriCapabilityTable->getVA();
   case R_MIPS_CHERI_CAPTAB_TLSGD:
     assert(a == 0 && "capability table index relocs should not have addends");
     return in.mipsCheriCapTable->getDynTlsOffset(sym);
