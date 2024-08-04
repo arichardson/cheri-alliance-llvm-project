@@ -95,6 +95,7 @@ add_custom_target(unwind-test-binaries DEPENDS ${_LIBUNWIND_TEST_BINARIES})
 
 
 pythonize_bool(LIBUNWIND_ENABLE_CET)
+pythonize_bool(LIBUNWIND_ENABLE_GCS)
 pythonize_bool(LIBUNWIND_ENABLE_THREADS)
 pythonize_bool(LIBUNWIND_TEST_ENABLE_EXCEPTIONS)
 pythonize_bool(LIBUNWIND_USES_ARM_EHABI)
