@@ -476,7 +476,7 @@ public:
   }
 #endif
 
-#if defined(_LIBUNWIND_USE_CET)
+#if defined(_LIBUNWIND_USE_CET) || defined(_LIBUNWIND_USE_GCS)
   virtual void *get_registers() {
     _LIBUNWIND_ABORT("get_registers not implemented");
   }
@@ -963,7 +963,7 @@ public:
   virtual uintptr_t getDataRelBase();
 #endif
 
-#if defined(_LIBUNWIND_USE_CET)
+#if defined(_LIBUNWIND_USE_CET) || defined(_LIBUNWIND_USE_GCS)
   virtual void *get_registers() { return &_registers; }
 #endif
 
@@ -3062,7 +3062,7 @@ bool UnwindCursor<A, R>::isReadableAddr(const pint_t addr) const {
 }
 #endif
 
-#if defined(_LIBUNWIND_USE_CET)
+#if defined(_LIBUNWIND_USE_CET) || defined(_LIBUNWIND_USE_GCS)
 extern "C" void *__libunwind_cet_get_registers(unw_cursor_t *cursor) {
   AbstractUnwindCursor *co = (AbstractUnwindCursor *)cursor;
   return co->get_registers();
