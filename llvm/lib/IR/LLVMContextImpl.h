@@ -1608,7 +1608,6 @@ public:
   DenseMap<std::pair<Type *, ElementCount>, VectorType *> VectorTypes;
   PointerType *AS0PointerType = nullptr; // AddrSpace = 0
   DenseMap<unsigned, PointerType *> PointerTypes;
-  DenseMap<std::pair<Type *, unsigned>, PointerType *> LegacyPointerTypes;
   SmallDenseMap<unsigned, SizedCapabilityType *, 1> SizedCapabilityTypes;
   DenseMap<std::pair<Type *, unsigned>, TypedPointerType *> ASTypedPointerTypes;
 
