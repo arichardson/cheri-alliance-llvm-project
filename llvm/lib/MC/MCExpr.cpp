@@ -639,6 +639,7 @@ static void AttemptToFoldSymbolOffsetDifference(
   // .size/.fill), disable the fast path.
   bool Layout = Asm->hasLayout();
   if (Layout && (InSet || !SecA.hasInstructions() || IgnoreRISCV ||
+                 !Asm->getBackend().allowLinkerRelaxation() ||
                  !(Asm->getContext().getTargetTriple().isRISCV() ||
                    Asm->getContext().getTargetTriple().isLoongArch()))) {
     // If both symbols are in the same fragment, return the difference of their
