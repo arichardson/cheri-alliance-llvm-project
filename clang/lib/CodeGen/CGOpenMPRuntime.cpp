@@ -6041,8 +6041,9 @@ const Expr *CGOpenMPRuntime::getNumTeamsExprForTargetDirective(
             dyn_cast_or_null<OMPExecutableDirective>(ChildStmt)) {
       if (isOpenMPTeamsDirective(NestedDir->getDirectiveKind())) {
         if (NestedDir->hasClausesOfKind<OMPNumTeamsClause>()) {
-          const Expr *NumTeams =
-              NestedDir->getSingleClause<OMPNumTeamsClause>()->getNumTeams();
+          const Expr *NumTeams = NestedDir->getSingleClause<OMPNumTeamsClause>()
+                                     ->getNumTeams()
+                                     .front();
           if (NumTeams->isIntegerConstantExpr(CGF.getContext()))
             if (auto Constant =
                     NumTeams->getIntegerConstantExpr(CGF.getContext()))
@@ -6067,7 +6068,7 @@ const Expr *CGOpenMPRuntime::getNumTeamsExprForTargetDirective(
   case OMPD_target_teams_distribute_parallel_for_simd: {
     if (D.hasClausesOfKind<OMPNumTeamsClause>()) {
       const Expr *NumTeams =
-          D.getSingleClause<OMPNumTeamsClause>()->getNumTeams();
+          D.getSingleClause<OMPNumTeamsClause>()->getNumTeams().front();
       if (NumTeams->isIntegerConstantExpr(CGF.getContext()))
         if (auto Constant = NumTeams->getIntegerConstantExpr(CGF.getContext()))
           MinTeamsVal = MaxTeamsVal = Constant->getExtValue();
