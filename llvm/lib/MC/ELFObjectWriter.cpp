@@ -1034,8 +1034,6 @@ uint64_t ELFWriter::writeObject(MCAssembler &Asm) {
       if (RelSection)
         Members.second.push_back(RelSection->getOrdinal());
     }
-
-    OWriter.TargetObjectWriter->addTargetSectionFlags(Ctx, Section);
   }
 
   for (auto &[Group, Members] : Groups) {
