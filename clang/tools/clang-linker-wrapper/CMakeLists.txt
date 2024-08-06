@@ -31,6 +31,7 @@ add_clang_tool(clang-linker-wrapper
 
   DEPENDS
   ${tablegen_deps}
+  EXPORT_SYMBOLS_FOR_PLUGINS
   )
 
 set(CLANG_LINKER_WRAPPER_LIB_DEPS
@@ -45,4 +46,3 @@ target_link_libraries(clang-linker-wrapper
 # TODO: port this to remove getUnqual
 remove_definitions(-DLLVM_NO_DEFAULT_ADDRESS_SPACE)
 
-export_executable_symbols_for_plugins(clang-linker-wrapper)
