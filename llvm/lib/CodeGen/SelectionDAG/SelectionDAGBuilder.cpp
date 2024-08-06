@@ -4311,6 +4311,7 @@ void SelectionDAGBuilder::visitGetElementPtr(const User &I) {
   SDValue N = getValue(Op0);
   SDLoc dl = getCurSDLoc();
   auto &TLI = DAG.getTargetLoweringInfo();
+  GEPNoWrapFlags NW = cast<GEPOperator>(I).getNoWrapFlags();
 
   // FIXME: This does not work on GEPs with vectors and fat pointers, but CHERI
   // currently doesn't have a vector unit so that is probably not a problem.
@@ -4347,7 +4348,8 @@ void SelectionDAGBuilder::visitGetElementPtr(const User &I) {
         // In an inbounds GEP with an offset that is nonnegative even when
         // interpreted as signed, assume there is no unsigned overflow.
         SDNodeFlags Flags;
-        if (int64_t(Offset) >= 0 && cast<GEPOperator>(I).isInBounds())
+        if (NW.hasNoUnsignedWrap() ||
+            (int64_t(Offset) >= 0 && NW.hasNoUnsignedSignedWrap()))
           Flags.setNoUnsignedWrap(true);
 
         N = DAG.getNode(ISD::ADD, dl, N.getValueType(), N,
@@ -4388,7 +4390,8 @@ void SelectionDAGBuilder::visitGetElementPtr(const User &I) {
         // In an inbounds GEP with an offset that is nonnegative even when
         // interpreted as signed, assume there is no unsigned overflow.
         SDNodeFlags Flags;
-        if (Offs.isNonNegative() && cast<GEPOperator>(I).isInBounds())
+        if (NW.hasNoUnsignedWrap() ||
+            (Offs.isNonNegative() && NW.hasNoUnsignedSignedWrap()))
           Flags.setNoUnsignedWrap(true);
 
         OffsVal = DAG.getSExtOrTrunc(OffsVal, dl, N.getValueType());
