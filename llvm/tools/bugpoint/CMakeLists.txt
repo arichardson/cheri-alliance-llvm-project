@@ -37,6 +37,6 @@ add_llvm_tool(bugpoint
   DEPENDS
   intrinsics_gen
   SUPPORT_PLUGINS
+  EXPORT_SYMBOLS_FOR_PLUGINS
   )
 add_definitions(-DLLVM_NO_DEFAULT_ADDRESS_SPACE)
-export_executable_symbols_for_plugins(bugpoint)
