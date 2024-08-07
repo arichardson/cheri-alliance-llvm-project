@@ -226,7 +226,8 @@ struct Config {
   bool allowUndefinedCapRelocs = false;
   bool fatLTOObjects;
   bool androidPackDynRelocs = false;
-  bool armThumbPLTs = false;
+  bool armHasArmISA = false;
+  bool armHasThumb2ISA = false;
   bool armHasBlx = false;
   bool armHasMovtMovw = false;
   bool armJ1J2BranchEncoding = false;
