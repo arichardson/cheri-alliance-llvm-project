@@ -2984,7 +2984,7 @@ void SelectionDAGBuilder::visitJumpTable(SwitchCG::JumpTable &JT) {
   const DataLayout &TD = DAG.getDataLayout();
   const auto &TLI = DAG.getTargetLoweringInfo();
   EVT PTy = TLI.getPointerTy(TD, TD.getDefaultGlobalsAddressSpace());
-  EVT IndexTy = TLI.getPointerRangeTy(TD , TD.getProgramAddressSpace());
+  EVT IndexTy = TLI.getJumpTableRegTy(TD);
   SDValue Index =
       DAG.getCopyFromReg(getControlRoot(), *JT.SL, JT.Reg, IndexTy);
   SDValue Table = DAG.getJumpTable(JT.JTI, PTy);
@@ -3017,9 +3017,11 @@ void SelectionDAGBuilder::visitJumpTableHeader(SwitchCG::JumpTable &JT,
   SwitchOp =
       DAG.getZExtOrTrunc(Sub, dl, TLI.getPointerRangeTy(DAG.getDataLayout()));
 
-  unsigned JumpTableReg = FuncInfo.CreateReg(TLI.getPointerRangeTy(DAG.getDataLayout()));
-  SDValue CopyTo = DAG.getCopyToReg(getControlRoot(), dl,
-                                    JumpTableReg, SwitchOp);
+  unsigned JumpTableReg =
+      FuncInfo.CreateReg(TLI.getJumpTableRegTy(DAG.getDataLayout()));
+  SDValue CopyTo =
+      DAG.getCopyToReg(getControlRoot(), dl, JumpTableReg, SwitchOp);
+
   JT.Reg = JumpTableReg;
 
   if (!JTH.FallthroughUnreachable) {
