@@ -2734,8 +2734,6 @@ void CXXNameMangler::mangleQualifiers(Qualifiers Quals, const DependentAddressSp
     //   <type> ::= U <OpenCL-addrspace>
     //   <type> ::= U <CUDA-addrspace>
 
-    llvm::Triple Triple = getASTContext().getTargetInfo().getTriple();
-
     SmallString<64> ASString;
     LangAS AS = Quals.getAddressSpace();
 
@@ -2807,7 +2805,7 @@ void CXXNameMangler::mangleQualifiers(Qualifiers Quals, const DependentAddressSp
         // For z/OS, there are no special mangling rules applied to the ptr32
         // qualifier. Ex: void foo(int * __ptr32 p) -> _Z3f2Pi. The mangling for
         // "p" is treated the same as a regular integer pointer.
-        if (!Triple.isOSzOS())
+        if (!getASTContext().getTargetInfo().getTriple().isOSzOS())
           ASString = "ptr32_uptr";
         break;
       case LangAS::ptr64:
