@@ -52,9 +52,9 @@ void test_onelevel_helper(union CallData foo) {
 // CHECK-LABEL: @test_onelevel(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[FOO:%.*]] = alloca [[UNION_CALLDATA:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[C:%.*]] = getelementptr inbounds [[STRUCT_ANON:%.*]], ptr addrspace(200) [[FOO]], i32 0, i32 0
+// CHECK-NEXT:    [[C:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON:%.*]], ptr addrspace(200) [[FOO]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) @.str, ptr addrspace(200) [[C]], align 16
-// CHECK-NEXT:    [[I:%.*]] = getelementptr inbounds [[STRUCT_ANON]], ptr addrspace(200) [[FOO]], i32 0, i32 1
+// CHECK-NEXT:    [[I:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON]], ptr addrspace(200) [[FOO]], i32 0, i32 1
 // CHECK-NEXT:    store i32 9, ptr addrspace(200) [[I]], align 16
 // CHECK-NEXT:    call void @test_onelevel_helper(ptr addrspace(200) inreg [[FOO]])
 // CHECK-NEXT:    ret void
@@ -69,7 +69,7 @@ void test_onelevel() {
 // CHECK-LABEL: @test_zerolevels_helper(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[S:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[S_COERCE:%.*]], ptr addrspace(200) [[COERCE_DIVE]], align 16
 // CHECK-NEXT:    ret void
 //
@@ -80,7 +80,7 @@ void test_zerolevels_helper(union semun s) {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[S:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
 // CHECK-NEXT:    store ptr addrspace(200) @.str, ptr addrspace(200) [[S]], align 16
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
 // CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[COERCE_DIVE]], align 16
 // CHECK-NEXT:    call void @test_zerolevels_helper(ptr addrspace(200) inreg [[TMP0]])
 // CHECK-NEXT:    ret void
@@ -94,9 +94,9 @@ void test_zerolevels() {
 // CHECK-LABEL: @test_twolevels_dive_helper(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[D:%.*]] = alloca [[UNION_DEEPDIVE:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_DEEPDIVE]], ptr addrspace(200) [[D]], i32 0, i32 0
-// CHECK-NEXT:    [[COERCE_DIVE1:%.*]] = getelementptr inbounds [[STRUCT_ANON_0:%.*]], ptr addrspace(200) [[COERCE_DIVE]], i32 0, i32 0
-// CHECK-NEXT:    [[COERCE_DIVE2:%.*]] = getelementptr inbounds [[STRUCT_ANON_1:%.*]], ptr addrspace(200) [[COERCE_DIVE1]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_DEEPDIVE]], ptr addrspace(200) [[D]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE1:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_0:%.*]], ptr addrspace(200) [[COERCE_DIVE]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE2:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_1:%.*]], ptr addrspace(200) [[COERCE_DIVE1]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[D_COERCE:%.*]], ptr addrspace(200) [[COERCE_DIVE2]], align 16
 // CHECK-NEXT:    ret void
 //
@@ -107,12 +107,12 @@ void test_twolevels_dive_helper(union DeepDive d) {
 // CHECK-LABEL: @test_twolevels_dive(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[D:%.*]] = alloca [[UNION_DEEPDIVE:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[B:%.*]] = getelementptr inbounds [[STRUCT_ANON_0:%.*]], ptr addrspace(200) [[D]], i32 0, i32 0
-// CHECK-NEXT:    [[STR:%.*]] = getelementptr inbounds [[STRUCT_ANON_1:%.*]], ptr addrspace(200) [[B]], i32 0, i32 0
+// CHECK-NEXT:    [[B:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_0:%.*]], ptr addrspace(200) [[D]], i32 0, i32 0
+// CHECK-NEXT:    [[STR:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_1:%.*]], ptr addrspace(200) [[B]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) @.str, ptr addrspace(200) [[STR]], align 16
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_DEEPDIVE]], ptr addrspace(200) [[D]], i32 0, i32 0
-// CHECK-NEXT:    [[COERCE_DIVE1:%.*]] = getelementptr inbounds [[STRUCT_ANON_0]], ptr addrspace(200) [[COERCE_DIVE]], i32 0, i32 0
-// CHECK-NEXT:    [[COERCE_DIVE2:%.*]] = getelementptr inbounds [[STRUCT_ANON_1]], ptr addrspace(200) [[COERCE_DIVE1]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_DEEPDIVE]], ptr addrspace(200) [[D]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE1:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_0]], ptr addrspace(200) [[COERCE_DIVE]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE2:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_1]], ptr addrspace(200) [[COERCE_DIVE1]], i32 0, i32 0
 // CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[COERCE_DIVE2]], align 16
 // CHECK-NEXT:    call void @test_twolevels_dive_helper(ptr addrspace(200) inreg [[TMP0]])
 // CHECK-NEXT:    ret void
@@ -136,8 +136,8 @@ void test_twolevels_nodive_helper(union DeepNoDive d) {
 // CHECK-LABEL: @test_twolevels_nodive(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[D:%.*]] = alloca [[UNION_DEEPNODIVE:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[B:%.*]] = getelementptr inbounds [[STRUCT_ANON_2:%.*]], ptr addrspace(200) [[D]], i32 0, i32 0
-// CHECK-NEXT:    [[STR:%.*]] = getelementptr inbounds [[STRUCT_ANON_3:%.*]], ptr addrspace(200) [[B]], i32 0, i32 0
+// CHECK-NEXT:    [[B:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_2:%.*]], ptr addrspace(200) [[D]], i32 0, i32 0
+// CHECK-NEXT:    [[STR:%.*]] = getelementptr inbounds nuw [[STRUCT_ANON_3:%.*]], ptr addrspace(200) [[B]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) @.str, ptr addrspace(200) [[STR]], align 16
 // CHECK-NEXT:    call void @test_twolevels_nodive_helper(ptr addrspace(200) inreg [[D]])
 // CHECK-NEXT:    ret void
@@ -157,7 +157,7 @@ void test_twolevels_nodive() {
 // CHECK-LABEL: @test_semun_read_int(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[S:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[S_COERCE:%.*]], ptr addrspace(200) [[COERCE_DIVE]], align 16
 // CHECK-NEXT:    [[TMP0:%.*]] = load i32, ptr addrspace(200) [[S]], align 16
 // CHECK-NEXT:    [[ADD:%.*]] = add nsw i32 [[TMP0]], 1
@@ -178,10 +178,10 @@ extern int semun_pass_int_helper(union semun s);
 // CHECK-LABEL: @test_semun_pass_int(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[S:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[S_COERCE:%.*]], ptr addrspace(200) [[COERCE_DIVE]], align 16
 // CHECK-NEXT:    store i32 1234, ptr addrspace(200) [[S]], align 16
-// CHECK-NEXT:    [[COERCE_DIVE1:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE1:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
 // CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[COERCE_DIVE1]], align 16
 // CHECK-NEXT:    [[CALL:%.*]] = call signext i32 @semun_pass_int_helper(ptr addrspace(200) inreg [[TMP0]])
 // CHECK-NEXT:    ret i32 [[CALL]]
@@ -201,7 +201,7 @@ int test_semun_pass_int(union semun s) {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[DOTCOMPOUNDLITERAL:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
 // CHECK-NEXT:    store i32 1234, ptr addrspace(200) [[DOTCOMPOUNDLITERAL]], align 16
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[DOTCOMPOUNDLITERAL]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[DOTCOMPOUNDLITERAL]], i32 0, i32 0
 // CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[COERCE_DIVE]], align 16
 // CHECK-NEXT:    [[CALL:%.*]] = call signext i32 @semun_pass_int_helper(ptr addrspace(200) inreg [[TMP0]])
 // CHECK-NEXT:    ret i32 [[CALL]]
@@ -224,7 +224,7 @@ int test_semun_pass_int_2() {
 // CHECK-LABEL: @test_semun_read_cap(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[S:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
-// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
+// CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[S]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[S_COERCE:%.*]], ptr addrspace(200) [[COERCE_DIVE]], align 16
 // CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[S]], align 16
 // CHECK-NEXT:    [[ADD_PTR:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[TMP0]], i64 1

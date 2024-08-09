@@ -207,9 +207,9 @@ int data_ptr_dereferece(A *a, int A::*ptr) {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[PTR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR1:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], align 16
 // CHECK-NEXT:    store { ptr addrspace(200), i64 } [[PTR1]], ptr addrspace(200) [[PTR_ADDR]], align 16
@@ -239,9 +239,9 @@ bool func_ptr_is_nonnull(AMemberFuncPtr ptr) {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[PTR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR1:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], align 16
 // CHECK-NEXT:    store { ptr addrspace(200), i64 } [[PTR1]], ptr addrspace(200) [[PTR_ADDR]], align 16
@@ -274,14 +274,14 @@ bool func_ptr_is_null(AMemberFuncPtr ptr) {
 // CHECK-NEXT:    [[PTR2:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR1_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR2_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR1_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR1_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR11:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], align 16
-// CHECK-NEXT:    [[TMP2:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP2:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR2_COERCE0]], ptr addrspace(200) [[TMP2]], align 16
-// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR2_COERCE1]], ptr addrspace(200) [[TMP3]], align 16
 // CHECK-NEXT:    [[PTR22:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], align 16
 // CHECK-NEXT:    store { ptr addrspace(200), i64 } [[PTR11]], ptr addrspace(200) [[PTR1_ADDR]], align 16
@@ -327,14 +327,14 @@ bool func_ptr_equal(AMemberFuncPtr ptr1, AMemberFuncPtr ptr2) {
 // CHECK-NEXT:    [[PTR2:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR1_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR2_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR1_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR1_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR11:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR1]], align 16
-// CHECK-NEXT:    [[TMP2:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP2:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR2_COERCE0]], ptr addrspace(200) [[TMP2]], align 16
-// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR2_COERCE1]], ptr addrspace(200) [[TMP3]], align 16
 // CHECK-NEXT:    [[PTR22:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR2]], align 16
 // CHECK-NEXT:    store { ptr addrspace(200), i64 } [[PTR11]], ptr addrspace(200) [[PTR1_ADDR]], align 16
@@ -379,9 +379,9 @@ bool func_ptr_not_equal(AMemberFuncPtr ptr1, AMemberFuncPtr ptr2) {
 // CHECK-NEXT:    [[PTR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[A_ADDR:%.*]] = alloca ptr addrspace(200), align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR1:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], align 16
 // CHECK-NEXT:    store ptr addrspace(200) [[A]], ptr addrspace(200) [[A_ADDR]], align 16
@@ -453,9 +453,9 @@ AMemberFuncPtr return_func_ptr() {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[PTR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR1:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], align 16
 // CHECK-NEXT:    store { ptr addrspace(200), i64 } [[PTR1]], ptr addrspace(200) [[PTR_ADDR]], align 16
@@ -474,9 +474,9 @@ void take_func_ptr(AMemberFuncPtr ptr) {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[PTR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
 // CHECK-NEXT:    [[PTR_ADDR:%.*]] = alloca { ptr addrspace(200), i64 }, align 16, addrspace(200)
-// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 0
 // CHECK-NEXT:    store ptr addrspace(200) [[PTR_COERCE0]], ptr addrspace(200) [[TMP0]], align 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], i32 0, i32 1
 // CHECK-NEXT:    store i64 [[PTR_COERCE1]], ptr addrspace(200) [[TMP1]], align 16
 // CHECK-NEXT:    [[PTR1:%.*]] = load { ptr addrspace(200), i64 }, ptr addrspace(200) [[PTR]], align 16
 // CHECK-NEXT:    store { ptr addrspace(200), i64 } [[PTR1]], ptr addrspace(200) [[PTR_ADDR]], align 16
