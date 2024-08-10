@@ -26,16 +26,16 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 template <class _Tp>
 _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 _Tp __rotl(_Tp __x, int __s) _NOEXCEPT {
   static_assert(__libcpp_is_unsigned_integer<_Tp>::value, "__rotl requires an unsigned integer type");
-  const int __N = numeric_limits<_Tp>::digits;
-  int __r       = __s % __N;
+  const int __n = numeric_limits<_Tp>::digits;
+  int __r       = __s % __n;
 
   if (__r == 0)
     return __x;
 
   if (__r > 0)
-    return (__x << __r) | (__x >> (__N - __r));
+    return (__x << __r) | (__x >> (__n - __r));
 
-  return (__x >> -__r) | (__x << (__N + __r));
+  return (__x >> -__r) | (__x << (__n + __r));
 }
 
 #if __has_feature(capabilities)
@@ -50,16 +50,16 @@ unsigned __intcap __rotr(unsigned __intcap __t, int __cnt) _NOEXCEPT {
 template <class _Tp>
 _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 _Tp __rotr(_Tp __x, int __s) _NOEXCEPT {
   static_assert(__libcpp_is_unsigned_integer<_Tp>::value, "__rotr requires an unsigned integer type");
-  const int __N = numeric_limits<_Tp>::digits;
-  int __r       = __s % __N;
+  const int __n = numeric_limits<_Tp>::digits;
+  int __r       = __s % __n;
 
   if (__r == 0)
     return __x;
 
   if (__r > 0)
-    return (__x >> __r) | (__x << (__N - __r));
+    return (__x >> __r) | (__x << (__n - __r));
 
-  return (__x << -__r) | (__x >> (__N + __r));
+  return (__x << -__r) | (__x >> (__n + __r));
 }
 
 #if _LIBCPP_STD_VER >= 20
