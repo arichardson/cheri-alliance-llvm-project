@@ -45,7 +45,6 @@ namespace llvm {
 
 class GlobalVariable;
 class LLVMContext;
-class Module;
 class StructLayout;
 class Triple;
 class Value;
@@ -197,9 +196,6 @@ public:
     reset(LayoutDescription);
   }
 
-  /// Initialize target data from properties stored in the module.
-  explicit DataLayout(const Module *M);
-
   DataLayout(const DataLayout &DL) { *this = DL; }
 
   ~DataLayout(); // Not virtual, do not subclass this class
@@ -208,8 +204,6 @@ public:
 
   bool operator==(const DataLayout &Other) const;
   bool operator!=(const DataLayout &Other) const { return !(*this == Other); }
-
-  void init(const Module *M);
 
   /// Parse a data layout string (with fallback to default values).
   void reset(StringRef LayoutDescription);
