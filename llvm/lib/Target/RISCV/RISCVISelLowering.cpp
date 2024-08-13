@@ -3038,7 +3038,7 @@ lowerVectorFTRUNC_FCEIL_FFLOOR_FROUND(SDValue Op, SelectionDAG &DAG,
   // Determine the largest integer that can be represented exactly. This and
   // values larger than it don't have any fractional bits so don't need to
   // be converted.
-  const fltSemantics &FltSem = DAG.EVTToAPFloatSemantics(ContainerVT);
+  const fltSemantics &FltSem = ContainerVT.getFltSemantics();
   unsigned Precision = APFloat::semanticsPrecision(FltSem);
   APFloat MaxVal = APFloat(FltSem);
   MaxVal.convertFromAPInt(APInt::getOneBitSet(Precision, Precision - 1),
@@ -3148,7 +3148,7 @@ lowerVectorStrictFTRUNC_FCEIL_FFLOOR_FROUND(SDValue Op, SelectionDAG &DAG,
   // Determine the largest integer that can be represented exactly. This and
   // values larger than it don't have any fractional bits so don't need to
   // be converted.
-  const fltSemantics &FltSem = DAG.EVTToAPFloatSemantics(ContainerVT);
+  const fltSemantics &FltSem = ContainerVT.getFltSemantics();
   unsigned Precision = APFloat::semanticsPrecision(FltSem);
   APFloat MaxVal = APFloat(FltSem);
   MaxVal.convertFromAPInt(APInt::getOneBitSet(Precision, Precision - 1),
@@ -3228,7 +3228,7 @@ lowerFTRUNC_FCEIL_FFLOOR_FROUND(SDValue Op, SelectionDAG &DAG,
   // Create an integer the size of the mantissa with the MSB set. This and all
   // values larger than it don't have any fractional bits so don't need to be
   // converted.
-  const fltSemantics &FltSem = DAG.EVTToAPFloatSemantics(VT);
+  const fltSemantics &FltSem = VT.getFltSemantics();
   unsigned Precision = APFloat::semanticsPrecision(FltSem);
   APFloat MaxVal = APFloat(FltSem);
   MaxVal.convertFromAPInt(APInt::getOneBitSet(Precision, Precision - 1),
@@ -9918,8 +9918,7 @@ SDValue RISCVTargetLowering::lowerFPVECREDUCE(SDValue Op,
                                 DAG.getConstant(0, DL, XLenVT), ISD::SETEQ);
   return DAG.getSelect(
       DL, ResVT, NoNaNs, Res,
-      DAG.getConstantFP(APFloat::getNaN(DAG.EVTToAPFloatSemantics(ResVT)), DL,
-                        ResVT));
+      DAG.getConstantFP(APFloat::getNaN(ResVT.getFltSemantics()), DL, ResVT));
 }
 
 SDValue RISCVTargetLowering::lowerVPREDUCE(SDValue Op,
@@ -9968,8 +9967,7 @@ SDValue RISCVTargetLowering::lowerVPREDUCE(SDValue Op,
   MVT ResVT = Res.getSimpleValueType();
   return DAG.getSelect(
       DL, ResVT, NoNaNs, Res,
-      DAG.getConstantFP(APFloat::getNaN(DAG.EVTToAPFloatSemantics(ResVT)), DL,
-                        ResVT));
+      DAG.getConstantFP(APFloat::getNaN(ResVT.getFltSemantics()), DL, ResVT));
 }
 
 SDValue RISCVTargetLowering::lowerINSERT_SUBVECTOR(SDValue Op,
