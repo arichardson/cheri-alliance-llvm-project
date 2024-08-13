@@ -26,6 +26,7 @@
 namespace llvm {
   class LLVMContext;
   class Type;
+  struct fltSemantics;
 
   /// Extended Value Type. Capable of holding value types which are not native
   /// for any processor (such as the i12345 type), as well as the types an MVT
@@ -520,6 +521,10 @@ namespace llvm {
           return L.V.SimpleTy < R.V.SimpleTy;
       }
     };
+
+    /// Returns an APFloat semantics tag appropriate for the value type. If this
+    /// is a vector type, the element semantics are returned.
+    const fltSemantics &getFltSemantics() const;
 
   private:
     // Methods for handling the Extended-type case in functions above.
