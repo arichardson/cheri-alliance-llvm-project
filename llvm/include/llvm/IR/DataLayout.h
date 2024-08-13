@@ -187,14 +187,10 @@ private:
   /// if the string is malformed.
   Error parseSpecifier(StringRef Desc);
 
-  // Free all internal data structures.
-  void clear();
-
 public:
-  /// Constructs a DataLayout from a specification string. See reset().
-  explicit DataLayout(StringRef LayoutDescription) {
-    reset(LayoutDescription);
-  }
+  /// Constructs a DataLayout from a specification string.
+  /// WARNING: Aborts execution if the string is malformed. Use parse() instead.
+  explicit DataLayout(StringRef LayoutString);
 
   DataLayout(const DataLayout &DL) { *this = DL; }
 
@@ -204,9 +200,6 @@ public:
 
   bool operator==(const DataLayout &Other) const;
   bool operator!=(const DataLayout &Other) const { return !(*this == Other); }
-
-  /// Parse a data layout string (with fallback to default values).
-  void reset(StringRef LayoutDescription);
 
   /// Parse a data layout string and return the layout. Return an error
   /// description on failure.
