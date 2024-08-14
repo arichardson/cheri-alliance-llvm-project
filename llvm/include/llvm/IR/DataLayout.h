@@ -149,7 +149,6 @@ private:
   AlignmentsTy IntAlignments;
   AlignmentsTy FloatAlignments;
   AlignmentsTy VectorAlignments;
-  LayoutAlignElem StructAlignment;
 
   /// The string representation used to create this DataLayout
   std::string StringRepresentation;
@@ -158,6 +157,10 @@ private:
   PointersTy Pointers;
 
   const PointerAlignElem &getPointerAlignElem(uint32_t AddressSpace) const;
+
+  // Struct type ABI and preferred alignments. The default spec is "a:8:64".
+  Align StructABIAlignment = Align::Constant<1>();
+  Align StructPrefAlignment = Align::Constant<8>();
 
   // The StructType -> StructLayout map.
   mutable void *LayoutMap = nullptr;
