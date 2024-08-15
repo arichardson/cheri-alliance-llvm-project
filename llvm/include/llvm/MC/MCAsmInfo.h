@@ -344,21 +344,6 @@ protected:
   ///   .long a
   bool SetDirectiveSuppressesReloc = false;
 
-  /// False if the assembler requires that we use
-  /// \code
-  ///   Lc = a - b
-  ///   .long Lc
-  /// \endcode
-  //
-  /// instead of
-  //
-  /// \code
-  ///   .long a - b
-  /// \endcode
-  ///
-  ///  Defaults to true.
-  bool HasAggressiveSymbolFolding = true;
-
   /// True is .comm's and .lcomms optional alignment is to be specified in bytes
   /// instead of log2(n).  Defaults to true.
   bool COMMDirectiveAlignmentIsInBytes = true;
@@ -718,8 +703,6 @@ public:
   bool doesSetDirectiveSuppressReloc() const {
     return SetDirectiveSuppressesReloc;
   }
-
-  bool hasAggressiveSymbolFolding() const { return HasAggressiveSymbolFolding; }
 
   bool getCOMMDirectiveAlignmentIsInBytes() const {
     return COMMDirectiveAlignmentIsInBytes;
