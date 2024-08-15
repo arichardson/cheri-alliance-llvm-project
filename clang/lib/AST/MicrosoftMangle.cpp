@@ -2971,6 +2971,7 @@ void MicrosoftCXXNameMangler::mangleFunctionType(const FunctionType *T,
       if (const auto *AT = ResultType->getContainedAutoType()) {
         assert(AT->getKeyword() == AutoTypeKeyword::Auto &&
                "should only need to mangle auto!");
+        (void)AT;
         Out << '?';
         mangleQualifiers(ResultType.getLocalQualifiers(), /*IsMember=*/false);
         Out << '?';
@@ -2989,7 +2990,7 @@ void MicrosoftCXXNameMangler::mangleFunctionType(const FunctionType *T,
       // SourceRange Range)` for details.
       auto UseClangMangling = [](QualType ResultType) {
         QualType T = ResultType;
-        while (const auto *PT = dyn_cast<PointerType>(T.getTypePtr())) {
+        while (isa<PointerType>(T.getTypePtr())) {
           T = T->getPointeeType();
           if (T.getQualifiers().hasAddressSpace())
             return true;
