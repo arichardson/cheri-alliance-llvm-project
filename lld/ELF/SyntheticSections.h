@@ -524,7 +524,8 @@ public:
   }
   /// Add a dynamic relocation using the target address of \p sym as the addend
   /// if \p sym is non-preemptible. Otherwise add a relocation against \p sym.
-  void addAddendOnlyRelocIfNonPreemptible(RelType dynType, InputSectionBase &sec,
+  void addAddendOnlyRelocIfNonPreemptible(RelType dynType,
+                                          InputSectionBase &isec,
                                           uint64_t offsetInSec, Symbol &sym,
                                           RelType addendRelType);
   template <bool shard = false>
