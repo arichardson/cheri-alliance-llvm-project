@@ -5270,9 +5270,9 @@ void SelectionDAGBuilder::visitTargetIntrinsic(const CallInst &I,
   // readnone, but the lowering code will expect the chain based on the
   // definition.
   const Function *F = I.getCalledFunction();
-  bool MayAccessMemory = !F->doesNotAccessMemory();
-  bool HasChain = MayAccessMemory || F->hasSideEffects();
-  bool OnlyLoad = MayAccessMemory && F->onlyReadsMemory();
+  bool HasChain = !F->doesNotAccessMemory();
+  bool OnlyLoad =
+      HasChain && F->onlyReadsMemory() && F->willReturn() && F->doesNotThrow();
 
   // Build the operand list.
   SmallVector<SDValue, 8> Ops;
