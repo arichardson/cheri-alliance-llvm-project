@@ -1314,7 +1314,7 @@ void IntrinsicIDOperandMatcher::emitPredicateOpcodes(MatchTable &Table,
   Table << MatchTable::Opcode("GIM_CheckIntrinsicID")
         << MatchTable::Comment("MI") << MatchTable::ULEB128Value(InsnVarID)
         << MatchTable::Comment("Op") << MatchTable::ULEB128Value(OpIdx)
-        << MatchTable::NamedValue(2, "Intrinsic::" + II->EnumName)
+        << MatchTable::NamedValue(2, "Intrinsic::" + II->EnumName.str())
         << MatchTable::LineBreak;
 }
 
@@ -2105,7 +2105,7 @@ void IntrinsicIDRenderer::emitRenderOpcodes(MatchTable &Table,
                                             RuleMatcher &Rule) const {
   Table << MatchTable::Opcode("GIR_AddIntrinsicID") << MatchTable::Comment("MI")
         << MatchTable::ULEB128Value(InsnID)
-        << MatchTable::NamedValue(2, "Intrinsic::" + II->EnumName)
+        << MatchTable::NamedValue(2, "Intrinsic::" + II->EnumName.str())
         << MatchTable::LineBreak;
 }
 
