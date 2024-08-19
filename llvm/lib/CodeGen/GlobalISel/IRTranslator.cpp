@@ -3891,6 +3891,7 @@ bool IRTranslator::runOnMachineFunction(MachineFunction &CurMF) {
                                F.getSubprogram(), &F.getEntryBlock());
     R << "unable to translate in big endian mode";
     reportTranslationError(*MF, *TPC, *ORE, R);
+    return false;
   }
 
   // Release the per-function state when we return, whether we succeeded or not.
