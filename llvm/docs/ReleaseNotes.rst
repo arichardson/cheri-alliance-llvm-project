@@ -84,7 +84,7 @@ Changes to the LLVM IR
   <https://llvm.org/docs/LangRef.html#pointer-authentication-constants>`_ to
   represent pointers with signature embedded into it.
 * Added `pointer authentication operand bundles
-  <https://llvm.org/docs/LangRef.html#pointer-authentication-operand-bundles>`_. 
+  <https://llvm.org/docs/LangRef.html#pointer-authentication-operand-bundles>`_.
 
 Changes to LLVM infrastructure
 ------------------------------
@@ -113,6 +113,8 @@ Changes to TableGen
 Changes to Interprocedural Optimizations
 ----------------------------------------
 
+* Hot cold region splitting analysis improvements for overlapping cold regions.
+
 Changes to the AArch64 Backend
 ------------------------------
 
@@ -120,7 +122,7 @@ Changes to the AArch64 Backend
   Cortex-A725, Cortex-X925, Neoverse-N3, Neoverse-V3 and Neoverse-V3AE CPUs.
 
 * ``-mbranch-protection=standard`` now enables FEAT_PAuth_LR by
-  default when the feature is enabled. The new behaviour results 
+  default when the feature is enabled. The new behaviour results
   in ``standard`` being equal to ``bti+pac-ret+pc`` when ``+pauth-lr``
   is passed as part of ``-mcpu=`` options.
 
@@ -193,6 +195,16 @@ Changes to the MIPS Backend
 
 Changes to the PowerPC Backend
 ------------------------------
+
+* PPC big-endian Linux now supports ``-fpatchable-function-entry``.
+* PPC AIX now supports local-dynamic TLS mode.
+* PPC AIX saves the Git revision in binaries when built with LLVM_APPEND_VC_REV=ON.
+* PPC AIX now supports toc-data attribute for large code model.
+* PPC AIX now supports passing arguments by value having greater alignment than
+  the pointer size. Currently only compatible with the IBM XL C compiler.
+* Add support for the per global code model attribute on AIX.
+* Support spilling non-volatile registers for traceback table accuracy on AIX.
+* Codegen improvements and bug fixes.
 
 Changes to the RISC-V Backend
 -----------------------------
@@ -427,8 +439,8 @@ Changes to the LLVM tools
   <https://github.com/llvm/llvm-project/pull/92835>`_).
 
 * llvm-cov now generates HTML report with JavaScript code to allow simple
-  jumping between uncovered parts (lines/regions/branches) of code 
-  using buttons on top-right corner of the page or using keys (L/R/B or 
+  jumping between uncovered parts (lines/regions/branches) of code
+  using buttons on top-right corner of the page or using keys (L/R/B or
   jumping in reverse direction with shift+L/R/B). (`#95662
   <https://github.com/llvm/llvm-project/pull/95662>`_).
 
@@ -436,8 +448,7 @@ Changes to the LLVM tools
   be disabled by ``--no-verify-note-sections``. (`#90458
   <https://github.com/llvm/llvm-project/pull/90458>`).
 
-* llvm-objcopy now supports ``--gap-fill`` and ``--pad-to`` options, for
-  ELF input and binary output files only.
+* llvm-objdump now supports the ``--file-headers`` option for XCOFF object files.
 
 Changes to LLDB
 ---------------------------------
