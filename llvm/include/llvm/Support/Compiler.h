@@ -39,10 +39,6 @@
 # define __has_builtin(x) 0
 #endif
 
-#ifndef __has_include
-# define __has_include(x) 0
-#endif
-
 /// \macro LLVM_ALIGN_VALUE
 /// Specify that a pointer will always point to (or reference will always bind
 /// to) objects with at least the provided power-of-two alignment.
