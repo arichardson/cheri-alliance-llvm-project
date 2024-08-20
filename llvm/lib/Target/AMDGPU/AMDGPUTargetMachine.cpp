@@ -1809,7 +1809,8 @@ void AMDGPUCodeGenPassBuilder::addIRPasses(AddIRPass &addPass) const {
       (AMDGPUAtomicOptimizerStrategy != ScanOptions::None))
     addPass(AMDGPUAtomicOptimizerPass(TM, AMDGPUAtomicOptimizerStrategy));
 
-  addPass(AtomicExpandPass());
+  // FIXME: Adding atomic-expand manages to break -passes=atomic-expand
+  // addPass(AtomicExpandPass(TM));
 
   if (TM.getOptLevel() > CodeGenOptLevel::None) {
     addPass(AMDGPUPromoteAllocaPass(TM));
