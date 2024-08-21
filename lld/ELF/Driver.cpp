@@ -125,6 +125,7 @@ void Ctx::reset() {
   needsTlsLd.store(false, std::memory_order_relaxed);
   scriptSymOrderCounter = 1;
   scriptSymOrder.clear();
+  ppc64noTocRelax.clear();
   ltoAllVtablesHaveTypeInfos = false;
 }
 
