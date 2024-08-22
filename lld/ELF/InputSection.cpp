@@ -447,7 +447,7 @@ void InputSection::copyRelocations(uint8_t *buf) {
 template <class ELFT, class RelTy, class RelIt>
 void InputSection::copyRelocations(uint8_t *buf,
                                    llvm::iterator_range<RelIt> rels) {
-  const TargetInfo &target = *elf::target;
+  const TargetInfo &target = *elf::ctx.target;
   InputSectionBase *sec = getRelocatedSection();
   (void)sec->contentMaybeDecompress(); // uncompress if needed
 
@@ -1028,7 +1028,7 @@ void InputSectionBase::addRelocCap(const Relocation &r) {
 template <class ELFT, class RelTy>
 void InputSection::relocateNonAlloc(uint8_t *buf, Relocs<RelTy> rels) {
   const unsigned bits = sizeof(typename ELFT::uint) * 8;
-  const TargetInfo &target = *elf::target;
+  const TargetInfo &target = *elf::ctx.target;
   const auto emachine = config->emachine;
   const bool isDebug = isDebugSection(*this);
   const bool isDebugLine = isDebug && name == ".debug_line";
@@ -1181,7 +1181,7 @@ void InputSectionBase::relocate(uint8_t *buf, uint8_t *bufEnd) {
     adjustSplitStackFunctionPrologues<ELFT>(buf, bufEnd);
 
   if (flags & SHF_ALLOC) {
-    target->relocateAlloc(*this, buf);
+    ctx.target->relocateAlloc(*this, buf);
     return;
   }
 
@@ -1276,8 +1276,8 @@ void InputSectionBase::adjustSplitStackFunctionPrologues(uint8_t *buf,
 
     if (Defined *f = getEnclosingFunction(rel.offset)) {
       prologues.insert(f);
-      if (target->adjustPrologueForCrossSplitStack(buf + f->value, end,
-                                                   f->stOther))
+      if (ctx.target->adjustPrologueForCrossSplitStack(buf + f->value, end,
+                                                       f->stOther))
         continue;
       if (!getFile<ELFT>()->someNoSplitStack)
         error(lld::toString(this) + ": " + f->getName() +
@@ -1286,7 +1286,7 @@ void InputSectionBase::adjustSplitStackFunctionPrologues(uint8_t *buf,
     }
   }
 
-  if (target->needsMoreStackNonSplit)
+  if (ctx.target->needsMoreStackNonSplit)
     switchMorestackCallsToMorestackNonSplit(prologues, morestackCalls);
 }
 

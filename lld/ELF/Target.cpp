@@ -38,8 +38,6 @@ using namespace llvm::ELF;
 using namespace lld;
 using namespace lld::elf;
 
-const TargetInfo *elf::target;
-
 std::string lld::toString(RelType type) {
   auto machine = elf::config->emachine;
   if (machine == EM_MIPS && type > 0xff) {

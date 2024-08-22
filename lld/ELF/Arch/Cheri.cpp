@@ -531,7 +531,7 @@ void MipsCheriCapTableSection::writeTo(uint8_t *buf) {
   // it in. For the TLS part, assignValuesAndAddCapTableSymbols adds any static
   // relocations needed, and should be procesed by relocateAlloc.
   // TODO: Fill in the raw capability bits and use CBuildCap
-  target->relocateAlloc(*this, buf);
+  ctx.target->relocateAlloc(*this, buf);
 }
 
 static Defined *findMatchingFunction(const InputSectionBase *isec,
@@ -774,8 +774,8 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
     // relocation instead which allows the runtime linker to create non-unique
     // plt stubs.
     RelType elfCapabilityReloc = it.second.usedInCallExpr
-                                     ? *target->symbolicCapCallRel
-                                     : *target->symbolicCapRel;
+                                     ? *ctx.target->symbolicCapCallRel
+                                     : *ctx.target->symbolicCapRel;
     // All capability call relocations should end up in the pltrel section
     // rather than the normal relocation section to make processing of PLT
     // relocations in RTLD more efficient.
@@ -832,18 +832,18 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
     uint64_t offset = *cti.index * config->wordsize;
     if (s == nullptr) {
       if (!config->shared)
-        addConstant({R_ADDEND, target->symbolicRel, offset, 1, s});
+        addConstant({R_ADDEND, ctx.target->symbolicRel, offset, 1, s});
       else
-        ctx.mainPart->relaDyn->addReloc({target->tlsModuleIndexRel, this, offset});
+        ctx.mainPart->relaDyn->addReloc({ctx.target->tlsModuleIndexRel, this, offset});
     } else {
       // When building a shared library we still need a dynamic relocation
       // for the module index. Therefore only checking for
       // s->isPreemptible is not sufficient (this happens e.g. for
       // thread-locals that have been marked as local through a linker script)
       if (!s->isPreemptible && !config->shared)
-        addConstant({R_ADDEND, target->symbolicRel, offset, 1, s});
+        addConstant({R_ADDEND, ctx.target->symbolicRel, offset, 1, s});
       else
-        ctx.mainPart->relaDyn->addSymbolReloc(target->tlsModuleIndexRel, *this,
+        ctx.mainPart->relaDyn->addSymbolReloc(ctx.target->tlsModuleIndexRel, *this,
                                           offset, *s);
 
       offset += config->wordsize;
@@ -851,9 +851,9 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
       // However, we can skip writing the TLS offset reloc for non-preemptible
       // symbols since it is known even in shared libraries
       if (!s->isPreemptible)
-        addConstant({R_ABS, target->tlsOffsetRel, offset, 0, s});
+        addConstant({R_ABS, ctx.target->tlsOffsetRel, offset, 0, s});
       else
-        ctx.mainPart->relaDyn->addSymbolReloc(target->tlsOffsetRel, *this, offset,
+        ctx.mainPart->relaDyn->addSymbolReloc(ctx.target->tlsOffsetRel, *this, offset,
                                           *s);
     }
   }
@@ -868,10 +868,10 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
     // for the TP-relative offset as we don't know how much other data will
     // be allocated before us in the static TLS block.
     if (!s->isPreemptible && !config->shared)
-      addConstant({R_TPREL, target->symbolicRel, offset, 0, s});
+      addConstant({R_TPREL, ctx.target->symbolicRel, offset, 0, s});
     else
       ctx.mainPart->relaDyn->addAddendOnlyRelocIfNonPreemptible(
-          target->tlsGotRel, *this, offset, *s, target->symbolicRel);
+          ctx.target->tlsGotRel, *this, offset, *s, ctx.target->symbolicRel);
   }
 
   valuesAssigned = true;
@@ -968,8 +968,8 @@ void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
 
 static void writeCatableRelocationFragments(InputSectionBase *sec, Symbol *sym,
                                      uint64_t offset) {
-  sec->addReloc({R_CHERI_CAPFRAG_ADDR, target->symbolicRel, offset, 0, sym});
-  sec->addReloc({R_CHERI_CAPFRAG_META, target->symbolicRel,
+  sec->addReloc({R_CHERI_CAPFRAG_ADDR, ctx.target->symbolicRel, offset, 0, sym});
+  sec->addReloc({R_CHERI_CAPFRAG_META, ctx.target->symbolicRel,
                  offset + config->wordsize, 0, sym});
 }
 
@@ -987,7 +987,7 @@ static bool needsCheriMipsTrampoline(RelType type, const Symbol &sym) {
   if (config->emachine != EM_MIPS)
     return false;
 
-  if (!sym.isFunc() || type == *target->symbolicCapCallRel)
+  if (!sym.isFunc() || type == *ctx.target->symbolicCapCallRel)
     return false;
 
   // In static binaries we do not need PLT stubs for function pointers since
@@ -1042,7 +1042,7 @@ void addRelativeCapabilityRelocation(
                                       type);
     return;
   }
-  bool isCode = type == target->symbolicCodeCapRel;
+  bool isCode = type == ctx.target->symbolicCodeCapRel;
   assert(!sym || !sym->isPreemptible);
   // assert(!config->useRelativeElfCheriRelocs &&
   //        "relative ELF capability relocations not currently implemented");
@@ -1054,7 +1054,7 @@ void addRelativeCapabilityRelocation(
     RelocationBaseSection &oSec =
         sym->includeInDynsym() ? *ctx.mainPart->relaDyn : *in.relaDyn;
     oSec.addReloc(DynamicReloc::AgainstSymbol, R_RISCV_CHERI_RELATIVE, isec,
-                  offsetInSec, *sym, addend, expr, target->symbolicRel);
+                  offsetInSec, *sym, addend, expr, ctx.target->symbolicRel);
     writeCatableRelocationFragments(&isec, sym, offsetInSec);
     return;
   }
