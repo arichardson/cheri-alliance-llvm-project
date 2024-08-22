@@ -780,7 +780,7 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
     // rather than the normal relocation section to make processing of PLT
     // relocations in RTLD more efficient.
     RelocationBaseSection &dynRelSec =
-        it.second.usedInCallExpr ? *in.relaPlt : *mainPart->relaDyn;
+        it.second.usedInCallExpr ? *in.relaPlt : *ctx.mainPart->relaDyn;
     if (targetSym->isPreemptible)
       dynRelSec.addSymbolReloc(elfCapabilityReloc, *this, off, *targetSym);
     else if (targetSym->isUndefWeak())
@@ -834,7 +834,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
       if (!config->shared)
         addConstant({R_ADDEND, target->symbolicRel, offset, 1, s});
       else
-        mainPart->relaDyn->addReloc({target->tlsModuleIndexRel, this, offset});
+        ctx.mainPart->relaDyn->addReloc({target->tlsModuleIndexRel, this, offset});
     } else {
       // When building a shared library we still need a dynamic relocation
       // for the module index. Therefore only checking for
@@ -843,7 +843,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
       if (!s->isPreemptible && !config->shared)
         addConstant({R_ADDEND, target->symbolicRel, offset, 1, s});
       else
-        mainPart->relaDyn->addSymbolReloc(target->tlsModuleIndexRel, *this,
+        ctx.mainPart->relaDyn->addSymbolReloc(target->tlsModuleIndexRel, *this,
                                           offset, *s);
 
       offset += config->wordsize;
@@ -853,7 +853,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
       if (!s->isPreemptible)
         addConstant({R_ABS, target->tlsOffsetRel, offset, 0, s});
       else
-        mainPart->relaDyn->addSymbolReloc(target->tlsOffsetRel, *this, offset,
+        ctx.mainPart->relaDyn->addSymbolReloc(target->tlsOffsetRel, *this, offset,
                                           *s);
     }
   }
@@ -870,7 +870,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
     if (!s->isPreemptible && !config->shared)
       addConstant({R_TPREL, target->symbolicRel, offset, 0, s});
     else
-      mainPart->relaDyn->addAddendOnlyRelocIfNonPreemptible(
+      ctx.mainPart->relaDyn->addAddendOnlyRelocIfNonPreemptible(
           target->tlsGotRel, *this, offset, *s, target->symbolicRel);
   }
 
@@ -1038,7 +1038,7 @@ void addRelativeCapabilityRelocation(
               verboseToString(sym));
 
     sym = &getCheriMipsTrampolineSym(type, *sym);
-    mainPart->relaDyn->addSymbolReloc(type, isec, offsetInSec, *sym, addend,
+    ctx.mainPart->relaDyn->addSymbolReloc(type, isec, offsetInSec, *sym, addend,
                                       type);
     return;
   }
@@ -1052,7 +1052,7 @@ void addRelativeCapabilityRelocation(
     if (config->emachine != EM_RISCV)
       error("Relative Relocs method not implemented yet!");
     RelocationBaseSection &oSec =
-        sym->includeInDynsym() ? *mainPart->relaDyn : *in.relaDyn;
+        sym->includeInDynsym() ? *ctx.mainPart->relaDyn : *in.relaDyn;
     oSec.addReloc(DynamicReloc::AgainstSymbol, R_RISCV_CHERI_RELATIVE, isec,
                   offsetInSec, *sym, addend, expr, target->symbolicRel);
     writeCatableRelocationFragments(&isec, sym, offsetInSec);
