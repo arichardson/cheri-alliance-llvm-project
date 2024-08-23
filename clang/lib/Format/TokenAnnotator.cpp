@@ -5482,6 +5482,14 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
     return true;
   }
 
+  // Ignores the first parameter as this will be handled separately by
+  // BreakFunctionDefinitionParameters or AlignAfterOpenBracket.
+  if (Style.BinPackParameters == FormatStyle::BPPS_AlwaysOnePerLine &&
+      Line.MightBeFunctionDecl && !Left.opensScope() &&
+      startsNextParameter(Right, Style)) {
+    return true;
+  }
+
   const auto *BeforeLeft = Left.Previous;
   const auto *AfterRight = Right.Next;
 
