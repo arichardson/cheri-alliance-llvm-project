@@ -2528,7 +2528,8 @@ bool RISCVDAGToDAGISel::SelectFrameRegImmCommon(SDValue Addr, SDValue &Base,
 static bool selectConstantAddr(SelectionDAG *CurDAG, const SDLoc &DL,
                                const MVT VT, const RISCVSubtarget *Subtarget,
                                SDValue Addr, SDValue &Base, SDValue &Offset,
-                               bool IsPrefetch = false) {
+                               bool IsPrefetch = false,
+                               bool IsRV32Zdinx = false) {
   if (!isa<ConstantSDNode>(Addr) || !VT.isInteger())
     return false;
 
@@ -2541,6 +2542,8 @@ static bool selectConstantAddr(SelectionDAG *CurDAG, const SDLoc &DL,
   int64_t Hi = (uint64_t)CVal - (uint64_t)Lo12;
   if (!Subtarget->is64Bit() || isInt<32>(Hi)) {
     if (IsPrefetch && (Lo12 & 0b11111) != 0)
+      return false;
+    if (IsRV32Zdinx && !isInt<12>(Lo12 + 4))
       return false;
 
     if (Hi) {
@@ -2565,6 +2568,8 @@ static bool selectConstantAddr(SelectionDAG *CurDAG, const SDLoc &DL,
     return false;
   Lo12 = Seq.back().getImm();
   if (IsPrefetch && (Lo12 & 0b11111) != 0)
+    return false;
+  if (IsRV32Zdinx && !isInt<12>(Lo12 + 4))
     return false;
 
   // Drop the last instruction.
@@ -2658,6 +2663,7 @@ bool RISCVDAGToDAGISel::SelectFrameAddrRegImm(SDValue Addr, SDValue &Base,
                                               SDValue &Offset) {
   return SelectFrameRegImmCommon(Addr, Base, Offset, Subtarget->getXLenVT());
 }
+
 bool RISCVDAGToDAGISel::SelectCapFrameAddrRegImm(SDValue Cap, SDValue &Base,
                                                  SDValue &Offset) {
   return SelectFrameRegImmCommon(Cap, Base, Offset,
@@ -2665,7 +2671,7 @@ bool RISCVDAGToDAGISel::SelectCapFrameAddrRegImm(SDValue Cap, SDValue &Base,
 }
 
 bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
-                                           SDValue &Offset, EVT PtrVT, bool IsINX) {
+                                           SDValue &Offset, EVT PtrVT, bool IsRV32Zdinx) {
   if (Addr.getValueType().isFatPointer() != PtrVT.isFatPointer())
     return false;
   if (SelectFrameIndexCommon(Addr, Base, Offset, PtrVT))
@@ -2675,12 +2681,36 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
   MVT XLenVT = Subtarget->getXLenVT();
 
   if (Addr.getOpcode() == RISCVISD::ADD_LO) {
-    Base = Addr.getOperand(0);
-    Offset = Addr.getOperand(1);
-    return true;
+    // If this is non RV32Zdinx we can always fold.
+    if (!IsRV32Zdinx) {
+      Base = Addr.getOperand(0);
+      Offset = Addr.getOperand(1);
+      return true;
+    }
+
+    // For RV32Zdinx we need to have more than 4 byte alignment so we can add 4
+    // to the offset when we expand in RISCVExpandPseudoInsts.
+    if (auto *GA = dyn_cast<GlobalAddressSDNode>(Addr.getOperand(1))) {
+      const DataLayout &DL = CurDAG->getDataLayout();
+      Align Alignment = commonAlignment(
+          GA->getGlobal()->getPointerAlignment(DL), GA->getOffset());
+      if (Alignment > 4) {
+        Base = Addr.getOperand(0);
+        Offset = Addr.getOperand(1);
+        return true;
+      }
+    }
+    if (auto *CP = dyn_cast<ConstantPoolSDNode>(Addr.getOperand(1))) {
+      Align Alignment = commonAlignment(CP->getAlign(), CP->getOffset());
+      if (Alignment > 4) {
+        Base = Addr.getOperand(0);
+        Offset = Addr.getOperand(1);
+        return true;
+      }
+    }
   }
 
-  int64_t RV32ZdinxRange = IsINX ? 4 : 0;
+  int64_t RV32ZdinxRange = IsRV32Zdinx ? 4 : 0;
   if (CurDAG->isBaseWithConstantOffset(Addr)) {
     int64_t CVal = cast<ConstantSDNode>(Addr.getOperand(1))->getSExtValue();
     if (isInt<12>(CVal) && isInt<12>(CVal + RV32ZdinxRange)) {
@@ -2696,7 +2726,8 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
           const DataLayout &DL = CurDAG->getDataLayout();
           Align Alignment = commonAlignment(
               GA->getGlobal()->getPointerAlignment(DL), GA->getOffset());
-          if (CVal == 0 || Alignment > CVal) {
+          if ((CVal == 0 || Alignment > CVal) &&
+              (!IsRV32Zdinx || Alignment > (CVal + 4))) {
             int64_t CombinedOffset = CVal + GA->getOffset();
             Base = Base.getOperand(0);
             Offset = CurDAG->getTargetGlobalAddress(
@@ -2724,7 +2755,7 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
     // Handle immediates in the range [-4096,-2049] or [2048, 4094]. We can use
     // an ADDI for part of the offset and fold the rest into the load/store.
     // This mirrors the AddiPair PatFrag in RISCVInstrInfo.td.
-    if (isInt<12>(CVal / 2) && isInt<12>(CVal - CVal / 2)) {
+    if (CVal >= -4096 && CVal <= (4094 - RV32ZdinxRange)) {
       int64_t Adj = CVal < 0 ? -2048 : 2047;
       const bool HasZCheriPureCap =
           Subtarget->hasFeature(RISCV::FeatureStdExtZCheriPureCap);
@@ -2749,7 +2780,7 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
     // instructions.
     if (isWorthFoldingAdd(Addr) &&
         selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget,
-                           Addr.getOperand(1), Base, Offset)) {
+                           Addr.getOperand(1), Base, Offset, /*IsPrefetch=*/false, RV32ZdinxRange)) {
       // Insert an ADD instruction with the materialized Hi52 bits.
       Base = SDValue(CurDAG->getMachineNode(RISCV::ADD, DL, XLenVT,
                                             Addr.getOperand(0), Base),
@@ -2759,7 +2790,7 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
   }
 
   if (selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget, Addr, Base,
-                         Offset))
+                         Offset, /*IsPrefetch=*/false, RV32ZdinxRange))
     return true;
 
   Base = Addr;
@@ -2828,7 +2859,7 @@ bool RISCVDAGToDAGISel::SelectRegImmLsb00000Common(SDValue Addr, SDValue &Base,
     }
 
     if (selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget,
-                           Addr.getOperand(1), Base, Offset, true)) {
+                           Addr.getOperand(1), Base, Offset, /*IsPrefetch=*/ true)) {
       // Insert an ADD instruction with the materialized Hi52 bits.
       unsigned Opc = RISCV::getPtrAddInst(*Subtarget);
       Base = SDValue(
@@ -2837,7 +2868,8 @@ bool RISCVDAGToDAGISel::SelectRegImmLsb00000Common(SDValue Addr, SDValue &Base,
     }
   }
 
-  if (selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget, Addr, Base, Offset, true))
+  if (selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget, Addr, Base, Offset,
+                         /*IsPrefetch=*/true))
     return true;
 
   Base = Addr;

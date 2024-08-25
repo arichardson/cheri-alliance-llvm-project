@@ -55,8 +55,8 @@ public:
   bool SelectRegImmCommon(SDValue Addr, SDValue &Base, SDValue &Offset,
                           EVT PtrVT, bool IsINX);
   bool SelectAddrRegImm(SDValue Addr, SDValue &Base, SDValue &Offset,
-                        bool IsINX = false);
-  bool SelectAddrRegImmINX(SDValue Addr, SDValue &Base, SDValue &Offset) {
+                        bool IsRV32Zdinx = false);
+  bool SelectAddrRegImmRV32Zdinx(SDValue Addr, SDValue &Base, SDValue &Offset) {
     return SelectAddrRegImm(Addr, Base, Offset, true);
   }
   bool SelectCapRegImm(SDValue Addr, SDValue &Base, SDValue &Offset);
