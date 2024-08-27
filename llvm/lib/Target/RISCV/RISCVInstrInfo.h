@@ -86,13 +86,15 @@ public:
   // TODO: add MachineInstr::MIFlag to the base class function.
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator MBBI,
                    const DebugLoc &DL, MCRegister DstReg, MCRegister SrcReg,
-                   bool KillSrc, MachineInstr::MIFlag Flag) const;
+                   bool KillSrc, MachineInstr::MIFlag Flag,
+                   bool RenamableDest = false, bool RenamableSrc = false) const;
 
   void copyPhysReg(MachineBasicBlock &MBB, MachineBasicBlock::iterator MBBI,
                    const DebugLoc &DL, MCRegister DstReg, MCRegister SrcReg,
-                   bool KillSrc) const override {
-    copyPhysReg(MBB, MBBI, DL, DstReg, SrcReg, KillSrc, MachineInstr::NoFlags);
+                   bool KillSrc, bool RenamableDest = false, bool RenamableSrc = false) const override {
+    copyPhysReg(MBB, MBBI, DL, DstReg, SrcReg, KillSrc, MachineInstr::NoFlags, RenamableDest, RenamableSrc);
   }
+
 
   void storeRegToStackSlot(MachineBasicBlock &MBB,
                            MachineBasicBlock::iterator MBBI, Register SrcReg,
