@@ -95,7 +95,6 @@ public:
     copyPhysReg(MBB, MBBI, DL, DstReg, SrcReg, KillSrc, MachineInstr::NoFlags, RenamableDest, RenamableSrc);
   }
 
-
   void storeRegToStackSlot(MachineBasicBlock &MBB,
                            MachineBasicBlock::iterator MBBI, Register SrcReg,
                            bool IsKill, int FrameIndex,

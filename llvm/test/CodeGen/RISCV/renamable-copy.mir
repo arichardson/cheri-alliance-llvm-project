@@ -19,7 +19,7 @@ body:             |
     ; RV32: liveins: $x11
     ; RV32-NEXT: {{  $}}
     ; RV32-NEXT: $x10 = ADDI renamable $x11, 0
-    ; RV32-NEXT: PseudoRET implicit $x11
+    ; RV32-NEXT: PseudoRET implicit $x10
     ;
     ; RV64-LABEL: name: foo
     ; RV64: liveins: $x11
