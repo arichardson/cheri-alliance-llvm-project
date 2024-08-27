@@ -1182,7 +1182,7 @@ Status ScriptInterpreterPythonImpl::SetBreakpointCommandCallbackFunction(
   llvm::Expected<unsigned> maybe_args =
       GetMaxPositionalArgumentsForCallable(function_name);
   if (!maybe_args) {
-    error.SetErrorStringWithFormat(
+    error = Status::FromErrorStringWithFormat(
         "could not get num args: %s",
         llvm::toString(maybe_args.takeError()).c_str());
     return error;
@@ -1195,16 +1195,16 @@ Status ScriptInterpreterPythonImpl::SetBreakpointCommandCallbackFunction(
     function_signature += "(frame, bp_loc, extra_args, internal_dict)";
   } else if (max_args >= 3) {
     if (extra_args_sp) {
-      error.SetErrorString("cannot pass extra_args to a three argument callback"
-                          );
+      error = Status::FromErrorStringWithFormat(
+          "cannot pass extra_args to a three argument callback");
       return error;
     }
     uses_extra_args = false;
     function_signature += "(frame, bp_loc, internal_dict)";
   } else {
-    error.SetErrorStringWithFormat("expected 3 or 4 argument "
-                                   "function, %s can only take %zu",
-                                   function_name, max_args);
+    error = Status::FromErrorStringWithFormat("expected 3 or 4 argument "
+                                              "function, %s can only take %zu",
+                                              function_name, max_args);
     return error;
   }
 
@@ -1304,12 +1304,12 @@ Status ScriptInterpreterPythonImpl::GenerateFunction(const char *signature,
   Status error;
   int num_lines = input.GetSize();
   if (num_lines == 0) {
-    error.SetErrorString("No input data.");
+    error = Status::FromErrorString("No input data.");
     return error;
   }
 
   if (!signature || *signature == 0) {
-    error.SetErrorString("No output function name.");
+    error = Status::FromErrorString("No output function name.");
     return error;
   }
 
@@ -1336,8 +1336,9 @@ Status ScriptInterpreterPythonImpl::GenerateFunction(const char *signature,
       sstr.Printf("    __return_val = %s", input.GetStringAtIndex(0));
       auto_generated_function.AppendString(sstr.GetData());
     } else {
-      return Status("ScriptInterpreterPythonImpl::GenerateFunction(is_callback="
-                    "true) = ERROR: python function is multiline.");
+      return Status::FromErrorString(
+          "ScriptInterpreterPythonImpl::GenerateFunction(is_callback="
+          "true) = ERROR: python function is multiline.");
     }
   } else {
     auto_generated_function.AppendString(
@@ -1665,12 +1666,12 @@ StructuredData::GenericSP ScriptInterpreterPythonImpl::CreateScriptedStopHook(
     const StructuredDataImpl &args_data, Status &error) {
 
   if (!target_sp) {
-    error.SetErrorString("No target for scripted stop-hook.");
+    error = Status::FromErrorString("No target for scripted stop-hook.");
     return StructuredData::GenericSP();
   }
 
   if (class_name == nullptr || class_name[0] == '\0') {
-    error.SetErrorString("No class name for scripted stop-hook.");
+    error = Status::FromErrorString("No class name for scripted stop-hook.");
     return StructuredData::GenericSP();
   }
 
@@ -1678,7 +1679,8 @@ StructuredData::GenericSP ScriptInterpreterPythonImpl::CreateScriptedStopHook(
       GetPythonInterpreter(m_debugger);
 
   if (!python_interpreter) {
-    error.SetErrorString("No script interpreter for scripted stop-hook.");
+    error = Status::FromErrorString(
+        "No script interpreter for scripted stop-hook.");
     return StructuredData::GenericSP();
   }
 
@@ -1714,7 +1716,7 @@ StructuredData::ObjectSP
 ScriptInterpreterPythonImpl::LoadPluginModule(const FileSpec &file_spec,
                                               lldb_private::Status &error) {
   if (!FileSystem::Instance().Exists(file_spec)) {
-    error.SetErrorString("no such file");
+    error = Status::FromErrorString("no such file");
     return StructuredData::ObjectSP();
   }
 
@@ -1832,7 +1834,7 @@ Status ScriptInterpreterPythonImpl::GenerateBreakpointCommandCallbackData(
   StreamString sstr;
   Status error;
   if (user_input.GetSize() == 0) {
-    error.SetErrorString("No input data.");
+    error = Status::FromErrorString("No input data.");
     return error;
   }
 
@@ -2246,11 +2248,11 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     Status &error) {
   bool ret_val;
   if (!process) {
-    error.SetErrorString("no process");
+    error = Status::FromErrorString("no process");
     return false;
   }
   if (!impl_function || !impl_function[0]) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2261,7 +2263,7 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
         impl_function, m_dictionary_name.c_str(), process->shared_from_this(),
         output);
     if (!ret_val)
-      error.SetErrorString("python script evaluation failed");
+      error = Status::FromErrorString("python script evaluation failed");
   }
   return ret_val;
 }
@@ -2270,11 +2272,11 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     const char *impl_function, Thread *thread, std::string &output,
     Status &error) {
   if (!thread) {
-    error.SetErrorString("no thread");
+    error = Status::FromErrorString("no thread");
     return false;
   }
   if (!impl_function || !impl_function[0]) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2287,7 +2289,7 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     output = std::move(*result);
     return true;
   }
-  error.SetErrorString("python script evaluation failed");
+  error = Status::FromErrorString("python script evaluation failed");
   return false;
 }
 
@@ -2296,11 +2298,11 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     Status &error) {
   bool ret_val;
   if (!target) {
-    error.SetErrorString("no thread");
+    error = Status::FromErrorString("no thread");
     return false;
   }
   if (!impl_function || !impl_function[0]) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2311,7 +2313,7 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     ret_val = SWIGBridge::LLDBSWIGPythonRunScriptKeywordTarget(
         impl_function, m_dictionary_name.c_str(), target_sp, output);
     if (!ret_val)
-      error.SetErrorString("python script evaluation failed");
+      error = Status::FromErrorString("python script evaluation failed");
   }
   return ret_val;
 }
@@ -2320,11 +2322,11 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     const char *impl_function, StackFrame *frame, std::string &output,
     Status &error) {
   if (!frame) {
-    error.SetErrorString("no frame");
+    error = Status::FromErrorString("no frame");
     return false;
   }
   if (!impl_function || !impl_function[0]) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2337,7 +2339,7 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     output = std::move(*result);
     return true;
   }
-  error.SetErrorString("python script evaluation failed");
+  error = Status::FromErrorString("python script evaluation failed");
   return false;
 }
 
@@ -2346,11 +2348,11 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     Status &error) {
   bool ret_val;
   if (!value) {
-    error.SetErrorString("no value");
+    error = Status::FromErrorString("no value");
     return false;
   }
   if (!impl_function || !impl_function[0]) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2360,7 +2362,7 @@ bool ScriptInterpreterPythonImpl::RunScriptFormatKeyword(
     ret_val = SWIGBridge::LLDBSWIGPythonRunScriptKeywordValue(
         impl_function, m_dictionary_name.c_str(), value->GetSP(), output);
     if (!ret_val)
-      error.SetErrorString("python script evaluation failed");
+      error = Status::FromErrorString("python script evaluation failed");
   }
   return ret_val;
 }
@@ -2389,7 +2391,7 @@ bool ScriptInterpreterPythonImpl::LoadScriptingModule(
                                          .SetSetLLDBGlobals(false);
 
   if (!pathname || !pathname[0]) {
-    error.SetErrorString("empty path");
+    error = Status::FromErrorString("empty path");
     return false;
   }
 
@@ -2456,14 +2458,16 @@ bool ScriptInterpreterPythonImpl::LoadScriptingModule(
       // if not a valid file of any sort, check if it might be a filename still
       // dot can't be used but / and \ can, and if either is found, reject
       if (strchr(pathname, '\\') || strchr(pathname, '/')) {
-        error.SetErrorStringWithFormatv("invalid pathname '{0}'", pathname);
+        error = Status::FromErrorStringWithFormatv("invalid pathname '{0}'",
+                                                   pathname);
         return false;
       }
       // Not a filename, probably a package of some sort, let it go through.
       possible_package = true;
     } else if (is_directory(st) || is_regular_file(st)) {
       if (module_file.GetDirectory().IsEmpty()) {
-        error.SetErrorStringWithFormatv("invalid directory name '{0}'", pathname);
+        error = Status::FromErrorStringWithFormatv(
+            "invalid directory name '{0}'", pathname);
         return false;
       }
       if (llvm::Error e =
@@ -2473,7 +2477,8 @@ bool ScriptInterpreterPythonImpl::LoadScriptingModule(
       }
       module_name = module_file.GetFilename().GetCString();
     } else {
-      error.SetErrorString("no known way to import this module specification");
+      error = Status::FromErrorString(
+          "no known way to import this module specification");
       return false;
     }
   }
@@ -2488,13 +2493,13 @@ bool ScriptInterpreterPythonImpl::LoadScriptingModule(
   }
 
   if (!possible_package && module_name.find('.') != llvm::StringRef::npos) {
-    error.SetErrorStringWithFormat(
+    error = Status::FromErrorStringWithFormat(
         "Python does not allow dots in module names: %s", module_name.c_str());
     return false;
   }
 
   if (module_name.find('-') != llvm::StringRef::npos) {
-    error.SetErrorStringWithFormat(
+    error = Status::FromErrorStringWithFormat(
         "Python discourages dashes in module names: %s", module_name.c_str());
     return false;
   }
@@ -2537,7 +2542,7 @@ bool ScriptInterpreterPythonImpl::LoadScriptingModule(
   if (!SWIGBridge::LLDBSwigPythonCallModuleInit(
           module_name.c_str(), m_dictionary_name.c_str(),
           m_debugger.shared_from_this())) {
-    error.SetErrorString("calling __lldb_init_module failed");
+    error = Status::FromErrorString("calling __lldb_init_module failed");
     return false;
   }
 
@@ -2605,7 +2610,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedCommand(
     lldb_private::CommandReturnObject &cmd_retobj, Status &error,
     const lldb_private::ExecutionContext &exe_ctx) {
   if (!impl_function) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2613,7 +2618,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedCommand(
   lldb::ExecutionContextRefSP exe_ctx_ref_sp(new ExecutionContextRef(exe_ctx));
 
   if (!debugger_sp.get()) {
-    error.SetErrorString("invalid Debugger pointer");
+    error = Status::FromErrorString("invalid Debugger pointer");
     return false;
   }
 
@@ -2636,7 +2641,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedCommand(
   }
 
   if (!ret_val)
-    error.SetErrorString("unable to execute script function");
+    error = Status::FromErrorString("unable to execute script function");
   else if (cmd_retobj.GetStatus() == eReturnStatusFailed)
     return false;
 
@@ -2650,7 +2655,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedCommand(
     lldb_private::CommandReturnObject &cmd_retobj, Status &error,
     const lldb_private::ExecutionContext &exe_ctx) {
   if (!impl_obj_sp || !impl_obj_sp->IsValid()) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2658,7 +2663,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedCommand(
   lldb::ExecutionContextRefSP exe_ctx_ref_sp(new ExecutionContextRef(exe_ctx));
 
   if (!debugger_sp.get()) {
-    error.SetErrorString("invalid Debugger pointer");
+    error = Status::FromErrorString("invalid Debugger pointer");
     return false;
   }
 
@@ -2681,7 +2686,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedCommand(
   }
 
   if (!ret_val)
-    error.SetErrorString("unable to execute script function");
+    error = Status::FromErrorString("unable to execute script function");
   else if (cmd_retobj.GetStatus() == eReturnStatusFailed)
     return false;
 
@@ -2695,7 +2700,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedParsedCommand(
     lldb_private::CommandReturnObject &cmd_retobj, Status &error,
     const lldb_private::ExecutionContext &exe_ctx) {
   if (!impl_obj_sp || !impl_obj_sp->IsValid()) {
-    error.SetErrorString("no function to execute");
+    error = Status::FromErrorString("no function to execute");
     return false;
   }
 
@@ -2703,7 +2708,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedParsedCommand(
   lldb::ExecutionContextRefSP exe_ctx_ref_sp(new ExecutionContextRef(exe_ctx));
 
   if (!debugger_sp.get()) {
-    error.SetErrorString("invalid Debugger pointer");
+    error = Status::FromErrorString("invalid Debugger pointer");
     return false;
   }
 
@@ -2732,7 +2737,7 @@ bool ScriptInterpreterPythonImpl::RunScriptBasedParsedCommand(
   }
 
   if (!ret_val)
-    error.SetErrorString("unable to execute script function");
+    error = Status::FromErrorString("unable to execute script function");
   else if (cmd_retobj.GetStatus() == eReturnStatusFailed)
     return false;
 
