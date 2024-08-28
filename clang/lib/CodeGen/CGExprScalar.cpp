@@ -39,7 +39,6 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/FixedPointBuilder.h"
 #include "llvm/IR/Function.h"
-#include "llvm/IR/GEPNoWrapFlags.h"
 #include "llvm/IR/GetElementPtrTypeIterator.h"
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Intrinsics.h"
@@ -6326,11 +6325,8 @@ CodeGenFunction::EmitCheckedInBoundsGEP(llvm::Type *ElemTy, Value *Ptr,
                                         SourceLocation Loc, const Twine &Name) {
   const auto &DL = CGM.getDataLayout();
   llvm::Type *PtrTy = Ptr->getType();
-  llvm::GEPNoWrapFlags NWFlags = llvm::GEPNoWrapFlags::inBounds();
-  if (!SignedIndices && !IsSubtraction)
-    NWFlags |= llvm::GEPNoWrapFlags::noUnsignedWrap();
 
-  Value *GEPVal = Builder.CreateGEP(ElemTy, Ptr, IdxList, Name, NWFlags);
+  Value *GEPVal = Builder.CreateInBoundsGEP(ElemTy, Ptr, IdxList, Name);
   if (SanOpts.has(SanitizerKind::CheriUnrepresentable) &&
       DL.isFatPointer(PtrTy)) {
     // We still perform this check with zero offsets for CHERI capabilities
@@ -6450,13 +6446,8 @@ Address CodeGenFunction::EmitCheckedInBoundsGEP(
     Address Addr, ArrayRef<Value *> IdxList, llvm::Type *elementType,
     bool SignedIndices, bool IsSubtraction, SourceLocation Loc, CharUnits Align,
     const Twine &Name) {
-  if (!SanOpts.has(SanitizerKind::PointerOverflow)) {
-    llvm::GEPNoWrapFlags NWFlags = llvm::GEPNoWrapFlags::inBounds();
-    if (!SignedIndices && !IsSubtraction)
-      NWFlags |= llvm::GEPNoWrapFlags::noUnsignedWrap();
-
-    return Builder.CreateGEP(Addr, IdxList, elementType, Align, Name, NWFlags);
-  }
+  if (!SanOpts.has(SanitizerKind::PointerOverflow))
+    return Builder.CreateInBoundsGEP(Addr, IdxList, elementType, Align, Name);
 
   return RawAddress(
       EmitCheckedInBoundsGEP(Addr.getElementType(), Addr.emitRawPointer(*this),

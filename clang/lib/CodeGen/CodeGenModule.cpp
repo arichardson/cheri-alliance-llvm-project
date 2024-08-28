@@ -4548,8 +4548,8 @@ void CodeGenModule::emitCPUDispatchDefinition(GlobalDecl GD) {
     // Fix up function declarations that were created for cpu_specific before
     // cpu_dispatch was known
     if (!isa<llvm::GlobalIFunc>(IFunc)) {
-      auto *GI = llvm::GlobalIFunc::create(DeclTy, AS, Linkage, "", ResolverFunc,
-                                           &getModule());
+      auto *GI = llvm::GlobalIFunc::create(DeclTy, AS, Linkage, "",
+                                           ResolverFunc, &getModule());
       replaceDeclarationWith(IFunc, GI);
       IFunc = GI;
     }
@@ -6268,9 +6268,8 @@ void CodeGenModule::emitIFuncDefinition(GlobalDecl GD) {
                               /*ForVTable=*/false);
   unsigned AS = getTypes().getTargetAddressSpace(D->getType());
   llvm::Type *DeclTy = getTypes().ConvertTypeForMem(D->getType());
-  llvm::GlobalIFunc *GIF =
-      llvm::GlobalIFunc::create(DeclTy, AS, llvm::Function::ExternalLinkage,
-                                "", Resolver, &getModule());
+  llvm::GlobalIFunc *GIF = llvm::GlobalIFunc::create(
+      DeclTy, AS, llvm::Function::ExternalLinkage, "", Resolver, &getModule());
   if (Entry) {
     if (GIF->getResolver() == Entry) {
       Diags.Report(IFA->getLocation(), diag::err_cyclic_alias) << 1;
