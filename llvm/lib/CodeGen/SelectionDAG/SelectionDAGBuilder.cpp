@@ -7007,8 +7007,7 @@ void SelectionDAGBuilder::visitIntrinsicCall(const CallInst &I,
     SDValue Result;
     Result = DAG.getNode(
         ISD::FPTRUNC_ROUND, sdl, VT, getValue(I.getArgOperand(0)),
-        DAG.getTargetConstant((int)*RoundMode, sdl,
-                              TLI.getPointerRangeTy(DAG.getDataLayout())));
+        DAG.getTargetConstant((int)*RoundMode, sdl, MVT::i32));
     setValue(&I, Result);
 
     return;
