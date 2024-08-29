@@ -1947,6 +1947,9 @@ bool DAGTypeLegalizer::PromoteIntegerOperand(SDNode *N, unsigned OpNo) {
   case ISD::EXTRACT_VECTOR_ELT: Res = PromoteIntOp_EXTRACT_VECTOR_ELT(N); break;
   case ISD::INTTOPTR:
                           Res = PromoteIntOp_INTTOPTR(N);break;
+  case ISD::FAKE_USE:
+    Res = PromoteIntOp_FAKE_USE(N);
+    break;
   case ISD::INSERT_VECTOR_ELT:
     Res = PromoteIntOp_INSERT_VECTOR_ELT(N, OpNo);
     break;
@@ -2938,7 +2941,7 @@ void DAGTypeLegalizer::ExpandIntegerResult(SDNode *N, unsigned ResNo) {
   case ISD::USHLSAT: ExpandIntRes_SHLSAT(N, Lo, Hi); break;
 
   case ISD::AVGCEILS:
-  case ISD::AVGCEILU: 
+  case ISD::AVGCEILU:
   case ISD::AVGFLOORS:
   case ISD::AVGFLOORU: ExpandIntRes_AVG(N, Lo, Hi); break;
 
@@ -5301,6 +5304,9 @@ bool DAGTypeLegalizer::ExpandIntegerOperand(SDNode *N, unsigned OpNo) {
   case ISD::BR_CC:             Res = ExpandIntOp_BR_CC(N); break;
   case ISD::BUILD_VECTOR:      Res = ExpandOp_BUILD_VECTOR(N); break;
   case ISD::EXTRACT_ELEMENT:   Res = ExpandOp_EXTRACT_ELEMENT(N); break;
+  case ISD::FAKE_USE:
+    Res = ExpandOp_FAKE_USE(N);
+    break;
   case ISD::INSERT_VECTOR_ELT: Res = ExpandOp_INSERT_VECTOR_ELT(N); break;
   case ISD::SCALAR_TO_VECTOR:  Res = ExpandOp_SCALAR_TO_VECTOR(N); break;
   case ISD::EXPERIMENTAL_VP_SPLAT:
@@ -6135,6 +6141,19 @@ SDValue DAGTypeLegalizer::PromoteIntOp_INSERT_SUBVECTOR(SDNode *N) {
   V0 = DAG.getAnyExtOrTrunc(V0, dl, PromVT);
   SDValue Ext = DAG.getNode(ISD::INSERT_SUBVECTOR, dl, PromVT, V0, V1, Idx);
   return DAG.getAnyExtOrTrunc(Ext, dl, N->getValueType(0));
+}
+
+// FIXME: We wouldn't need this if clang could promote short integers
+// that are arguments to FAKE_USE.
+SDValue DAGTypeLegalizer::PromoteIntOp_FAKE_USE(SDNode *N) {
+  SDLoc dl(N);
+  SDValue V0 = N->getOperand(0);
+  SDValue V1 = N->getOperand(1);
+  EVT InVT1 = V1.getValueType();
+  SDValue VPromoted =
+      DAG.getNode(ISD::ANY_EXTEND, dl,
+                  TLI.getTypeToTransformTo(*DAG.getContext(), InVT1), V1);
+  return DAG.getNode(N->getOpcode(), dl, N->getValueType(0), V0, VPromoted);
 }
 
 SDValue DAGTypeLegalizer::PromoteIntOp_EXTRACT_SUBVECTOR(SDNode *N) {
