@@ -2426,6 +2426,7 @@ bool CXXNameMangler::mangleUnresolvedTypeOrSimpleId(QualType Ty,
   case Type::Paren:
   case Type::Attributed:
   case Type::BTFTagAttributed:
+  case Type::HLSLAttributedResource:
   case Type::Auto:
   case Type::DeducedTemplateSpecialization:
   case Type::PackExpansion:
