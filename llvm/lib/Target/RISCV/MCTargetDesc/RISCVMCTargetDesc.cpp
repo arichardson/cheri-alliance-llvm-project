@@ -87,7 +87,7 @@ static MCAsmInfo *createRISCVMCAsmInfo(const MCRegisterInfo &MRI,
   else
     SPReg = RISCV::X2;
 
-  MCRegister SP = MRI.getDwarfRegNum(SPReg, true);
+  unsigned SP = MRI.getDwarfRegNum(SPReg, true);
   MCCFIInstruction Inst = MCCFIInstruction::cfiDefCfa(nullptr, SP, 0);
   MAI->addInitialFrameState(Inst);
 
