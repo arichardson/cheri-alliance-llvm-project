@@ -1656,6 +1656,8 @@ void SCCPInstVisitor::visitGetElementPtrInst(GetElementPtrInst &I) {
 
   if (Constant *C = ConstantFoldInstOperands(&I, Operands, DL))
     markConstant(&I, C);
+  else
+    markOverdefined(&I);
 }
 
 void SCCPInstVisitor::visitAllocaInst(AllocaInst &I) {
