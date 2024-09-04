@@ -3169,8 +3169,9 @@ void TreePattern::dump() const { print(errs()); }
 
 CodeGenDAGPatterns::CodeGenDAGPatterns(RecordKeeper &R,
                                        PatternRewriterFn PatternRewriter)
-    : Records(R), Target(R), LegalVTS(Target.getLegalValueTypes()),
-      LegalPtrVTS(ComputeLegalPtrTypes()), PatternRewriter(PatternRewriter) {
+    : Records(R), Target(R), Intrinsics(R),
+      LegalVTS(Target.getLegalValueTypes()), LegalPtrVTS(ComputeLegalPtrTypes()),
+      PatternRewriter(PatternRewriter) {
 
   Intrinsics = CodeGenIntrinsicTable(Records);
   ParseNodeInfo();
