@@ -1152,10 +1152,8 @@ void CGOpenMPRuntime::emitUserDefinedReduction(
         /*IsCombiner=*/false);
   }
   UDRMap.try_emplace(D, Combiner, Initializer);
-  if (CGF) {
-    auto &Decls = FunctionUDRMap.FindAndConstruct(CGF->CurFn);
-    Decls.second.push_back(D);
-  }
+  if (CGF)
+    FunctionUDRMap[CGF->CurFn].push_back(D);
 }
 
 std::pair<llvm::Function *, llvm::Function *>
@@ -1435,10 +1433,8 @@ llvm::Value *CGOpenMPRuntime::getThreadID(CodeGenFunction &CGF,
         ThreadID = CGF.EmitLoadOfScalar(LVal, Loc);
         // If value loaded in entry block, cache it and use it everywhere in
         // function.
-        if (CGF.Builder.GetInsertBlock() == TopBlock) {
-          auto &Elem = OpenMPLocThreadIDMap.FindAndConstruct(CGF.CurFn);
-          Elem.second.ThreadID = ThreadID;
-        }
+        if (CGF.Builder.GetInsertBlock() == TopBlock)
+          OpenMPLocThreadIDMap[CGF.CurFn].ThreadID = ThreadID;
         return ThreadID;
       }
     }
@@ -8645,8 +8641,7 @@ public:
           const MapData &BaseData = CI == CE ? L : L1;
           OMPClauseMappableExprCommon::MappableExprComponentListRef SubData =
               SI == SE ? Components : Components1;
-          auto &OverlappedElements = OverlappedData.FindAndConstruct(&BaseData);
-          OverlappedElements.getSecond().push_back(SubData);
+          OverlappedData[&BaseData].push_back(SubData);
         }
       }
     }
@@ -9321,10 +9316,8 @@ void CGOpenMPRuntime::emitUserDefinedMapper(const OMPDeclareMapperDecl *D,
   MapperCGF.EmitBlock(DoneBB, /*IsFinished=*/true);
   MapperCGF.FinishFunction();
   UDMMap.try_emplace(D, Fn);
-  if (CGF) {
-    auto &Decls = FunctionUDMMap.FindAndConstruct(CGF->CurFn);
-    Decls.second.push_back(D);
-  }
+  if (CGF)
+    FunctionUDMMap[CGF->CurFn].push_back(D);
 }
 
 /// Emit the array initialization or deletion portion for user-defined mapper
