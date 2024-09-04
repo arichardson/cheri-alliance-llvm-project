@@ -6025,12 +6025,15 @@ class PackIndexingType final
   QualType Pattern;
   Expr *IndexExpr;
 
-  unsigned Size;
+  unsigned Size : 31;
+
+  LLVM_PREFERRED_TYPE(bool)
+  unsigned ExpandsToEmptyPack : 1;
 
 protected:
   friend class ASTContext; // ASTContext creates these.
   PackIndexingType(const ASTContext &Context, QualType Canonical,
-                   QualType Pattern, Expr *IndexExpr,
+                   QualType Pattern, Expr *IndexExpr, bool ExpandsToEmptyPack,
                    ArrayRef<QualType> Expansions = {});
 
 public:
@@ -6054,6 +6057,8 @@ public:
 
   bool hasSelectedType() const { return getSelectedIndex() != std::nullopt; }
 
+  bool expandsToEmptyPack() const { return ExpandsToEmptyPack; }
+
   ArrayRef<QualType> getExpansions() const {
     return {getExpansionsPtr(), Size};
   }
@@ -6066,10 +6071,10 @@ public:
     if (hasSelectedType())
       getSelectedType().Profile(ID);
     else
-      Profile(ID, Context, getPattern(), getIndexExpr());
+      Profile(ID, Context, getPattern(), getIndexExpr(), expandsToEmptyPack());
   }
   static void Profile(llvm::FoldingSetNodeID &ID, const ASTContext &Context,
-                      QualType Pattern, Expr *E);
+                      QualType Pattern, Expr *E, bool ExpandsToEmptyPack);
 
 private:
   const QualType *getExpansionsPtr() const {
