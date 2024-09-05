@@ -265,7 +265,7 @@ bool copy_file_impl(FileDescriptor& read_fd, FileDescriptor& write_fd, error_cod
 #endif // copy_file_impl implementation
 
 } // end anonymous namespace
-} // end namespace detail
+} // namespace detail
 
 bool __copy_file(const path& from, const path& to, copy_options options, error_code* ec) {
   using detail::FileDescriptor;
@@ -743,7 +743,7 @@ uintmax_t remove_all_impl(path const& p, error_code& ec) {
   return count;
 }
 
-} // end namespace
+} // namespace
 
 uintmax_t __remove_all(const path& p, error_code* ec) {
   ErrorHandler<uintmax_t> err("remove_all", ec, &p);
@@ -838,7 +838,7 @@ uintmax_t remove_all_impl(int parent_directory, const path& p, error_code& ec) {
   return 0;
 }
 
-} // end namespace
+} // namespace
 
 uintmax_t __remove_all(const path& p, error_code* ec) {
   ErrorHandler<uintmax_t> err("remove_all", ec, &p);
