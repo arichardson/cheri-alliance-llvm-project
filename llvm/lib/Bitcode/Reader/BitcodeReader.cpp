@@ -2689,7 +2689,11 @@ Error BitcodeReader::parseTypeTableBody() {
           return error("Integer parameter too large");
         IntParams.push_back(Record[i]);
       }
-      ResultTy = TargetExtType::get(Context, TypeName, TypeParams, IntParams);
+      auto TTy =
+          TargetExtType::getOrError(Context, TypeName, TypeParams, IntParams);
+      if (auto E = TTy.takeError())
+        return E;
+      ResultTy = *TTy;
       TypeName.clear();
       break;
     }
