@@ -138,25 +138,26 @@
 // in a portable way by the language itself.
 namespace __sanitizer {
 
-#if defined(_WIN64)
+#if defined(__UINTPTR_TYPE__)
+typedef __UINTPTR_TYPE__ uptr;
+typedef __INTPTR_TYPE__ sptr;
+typedef unsigned long vaddr;
+#elif defined(_WIN64)
 // 64-bit Windows uses LLP64 data model.
 typedef unsigned long long uptr;
 typedef signed long long sptr;
+typedef unsigned long vaddr;
+#elif defined(_WIN32)
+typedef unsigned int uptr;
+typedef signed int sptr;
+typedef unsigned long vaddr;
 #elif defined(__CHERI_PURE_CAPABILITY__)
 typedef __uintcap_t uptr;
 typedef __intcap_t sptr;
 typedef unsigned long vaddr;
 #else
-#  if (SANITIZER_WORDSIZE == 64) || SANITIZER_APPLE
-typedef unsigned long uptr;
-typedef signed long sptr;
-typedef unsigned long vaddr;
-#  else
-typedef unsigned int uptr;
-typedef signed int sptr;
-typedef unsigned int vaddr;
-#  endif
-#endif  // defined(_WIN64)
+#  error Unsupported compiler, missing __UINTPTR_TYPE__
+#endif  // defined(__UINTPTR_TYPE__)
 #if defined(__x86_64__)
 // Since x32 uses ILP32 data model in 64-bit hardware mode, we must use
 // 64-bit pointer to unwind stack frame.
