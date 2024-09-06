@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "RISCVCallingConv.h"
+#include "MCTargetDesc/RISCVBaseInfo.h"
 #include "RISCVSubtarget.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/MC/MCRegister.h"
@@ -252,11 +253,15 @@ static MCRegister allocateRVVReg(MVT ValVT, unsigned ValNo, CCState &State,
 }
 
 // Implements the RISC-V calling convention. Returns true upon failure.
-bool llvm::CC_RISCV(const DataLayout &DL, RISCVABI::ABI ABI, unsigned ValNo,
-                    MVT ValVT, MVT LocVT, CCValAssign::LocInfo LocInfo,
-                    ISD::ArgFlagsTy ArgFlags, CCState &State, bool IsFixed,
-                    bool IsRet, Type *OrigTy, const RISCVTargetLowering &TLI) {
-  const RISCVSubtarget &Subtarget = TLI.getSubtarget();
+bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
+                    CCValAssign::LocInfo LocInfo, ISD::ArgFlagsTy ArgFlags,
+                    CCState &State, bool IsFixed, bool IsRet, Type *OrigTy) {
+  const MachineFunction &MF = State.getMachineFunction();
+  const DataLayout &DL = MF.getDataLayout();
+  const RISCVSubtarget &Subtarget = MF.getSubtarget<RISCVSubtarget>();
+  const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();
+  const RISCVABI::ABI ABI = Subtarget.getTargetABI();
+
   unsigned XLen = DL.getLargestLegalIntTypeSizeInBits();
   assert(XLen == 32 || XLen == 64);
   MVT XLenVT = XLen == 32 ? MVT::i32 : MVT::i64;
@@ -566,20 +571,21 @@ bool llvm::CC_RISCV(const DataLayout &DL, RISCVABI::ABI ABI, unsigned ValNo,
 
 // FastCC has less than 1% performance improvement for some particular
 // benchmark. But theoretically, it may have benefit for some cases.
-bool llvm::CC_RISCV_FastCC(const DataLayout &DL, RISCVABI::ABI ABI,
-                           unsigned ValNo, MVT ValVT, MVT LocVT,
+bool llvm::CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
                            CCValAssign::LocInfo LocInfo,
                            ISD::ArgFlagsTy ArgFlags, CCState &State,
-                           bool IsFixed, bool IsRet, Type *OrigTy,
-                           const RISCVTargetLowering &TLI) {
+                           bool IsFixed, bool IsRet, Type *OrigTy) {
+  const MachineFunction &MF = State.getMachineFunction();
+  const RISCVSubtarget &Subtarget = MF.getSubtarget<RISCVSubtarget>();
+  const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();
+  RISCVABI::ABI ABI = Subtarget.getTargetABI();
+
   if (LocVT == MVT::i32 || LocVT == MVT::i64) {
     if (MCRegister Reg = State.AllocateReg(getFastCCArgGPRs(ABI))) {
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
     }
   }
-
-  const RISCVSubtarget &Subtarget = TLI.getSubtarget();
 
   if (LocVT == MVT::f16 && Subtarget.hasStdExtZfhmin()) {
     static const MCPhysReg FPR16List[] = {
