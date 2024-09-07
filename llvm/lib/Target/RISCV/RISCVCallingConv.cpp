@@ -262,9 +262,8 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();
   const RISCVABI::ABI ABI = Subtarget.getTargetABI();
 
-  unsigned XLen = DL.getLargestLegalIntTypeSizeInBits();
-  assert(XLen == 32 || XLen == 64);
-  MVT XLenVT = XLen == 32 ? MVT::i32 : MVT::i64;
+  unsigned XLen = Subtarget.getXLen();
+  MVT XLenVT = Subtarget.getXLenVT();
   MVT CLenVT = Subtarget.hasStdExtZCheriPureCapOrCheri() ? Subtarget.typeForCapabilities()
                                     : MVT();
   bool IsPureCap = RISCVABI::isCheriPureCapABI(ABI);
