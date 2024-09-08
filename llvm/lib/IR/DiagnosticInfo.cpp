@@ -375,6 +375,10 @@ void DiagnosticInfoUnsupported::print(DiagnosticPrinter &DP) const {
   DP << Str;
 }
 
+void DiagnosticInfoInstrumentation::print(DiagnosticPrinter &DP) const {
+  DP << Msg;
+}
+
 void DiagnosticInfoCheriInefficient::print(DiagnosticPrinter &DP) const {
   std::string Str;
   raw_string_ostream OS(Str);
