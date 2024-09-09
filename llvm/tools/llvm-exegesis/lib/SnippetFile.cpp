@@ -37,7 +37,7 @@ namespace {
 class BenchmarkCodeStreamer : public MCStreamer, public AsmCommentConsumer {
 public:
   explicit BenchmarkCodeStreamer(
-      MCContext *Context, const DenseMap<StringRef, unsigned> &RegNameToRegNo,
+      MCContext *Context, const DenseMap<StringRef, MCRegister> &RegNameToRegNo,
       BenchmarkCode *Result)
       : MCStreamer(*Context), RegNameToRegNo(RegNameToRegNo), Result(Result) {}
 
@@ -216,7 +216,7 @@ private:
     return 0;
   }
 
-  const DenseMap<StringRef, unsigned> &RegNameToRegNo;
+  const DenseMap<StringRef, MCRegister> &RegNameToRegNo;
   BenchmarkCode *const Result;
   unsigned InvalidComments = 0;
 };
