@@ -1033,7 +1033,7 @@ protected:
     setValueSubclassData(Storage);
   }
 
-  Instruction(Type *Ty, unsigned iType, Use *Ops, unsigned NumOps,
+  Instruction(Type *Ty, unsigned iType, AllocInfo AllocInfo,
               InsertPosition InsertBefore = nullptr);
 
 private:
