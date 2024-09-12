@@ -585,13 +585,6 @@ bool llvm::CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
   const RISCVTargetLowering &TLI = *Subtarget.getTargetLowering();
   RISCVABI::ABI ABI = Subtarget.getTargetABI();
 
-  if (LocVT == MVT::i32 || LocVT == MVT::i64) {
-    if (MCRegister Reg = State.AllocateReg(getFastCCArgGPRs(ABI))) {
-      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
-      return false;
-    }
-  }
-
   if ((LocVT == MVT::f16 && Subtarget.hasStdExtZfhmin()) ||
       (LocVT == MVT::bf16 && Subtarget.hasStdExtZfbfmin())) {
     static const MCPhysReg FPR16List[] = {
@@ -640,6 +633,8 @@ bool llvm::CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
     }
   }
 
+  MVT XLenVT = Subtarget.getXLenVT();
+
   // Check if there is an available GPR before hitting the stack.
   if ((LocVT == MVT::f16 && Subtarget.hasStdExtZhinxmin()) ||
       (LocVT == MVT::f32 && Subtarget.hasStdExtZfinx()) ||
@@ -647,7 +642,7 @@ bool llvm::CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
        Subtarget.hasStdExtZdinx())) {
     if (MCRegister Reg = State.AllocateReg(getFastCCArgGPRs(ABI))) {
       if (LocVT.getSizeInBits() != Subtarget.getXLen()) {
-        LocVT = Subtarget.getXLenVT();
+        LocVT = XLenVT;
         State.addLoc(
             CCValAssign::getCustomReg(ValNo, ValVT, Reg, LocVT, LocInfo));
         return false;
@@ -657,22 +652,32 @@ bool llvm::CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
     }
   }
 
-  if (LocVT == MVT::f16 || LocVT == MVT::bf16) {
-    int64_t Offset2 = State.AllocateStack(2, Align(2));
-    State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset2, LocVT, LocInfo));
-    return false;
+  ArrayRef<MCPhysReg> ArgGPRs = getFastCCArgGPRs(ABI);
+
+  if (LocVT.isVector()) {
+    if (MCRegister Reg = allocateRVVReg(ValVT, ValNo, State, TLI)) {
+      // Fixed-length vectors are located in the corresponding scalable-vector
+      // container types.
+      if (LocVT.isFixedLengthVector())
+        LocVT = TLI.getContainerForFixedLengthVector(LocVT);
+      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
+      return false;
+    }
+
+    // Pass scalable vectors indirectly. Pass fixed vectors indirectly if we
+    // have a free GPR.
+    if (LocVT.isScalableVector() ||
+        State.getFirstUnallocated(ArgGPRs) != ArgGPRs.size()) {
+      LocInfo = CCValAssign::Indirect;
+      LocVT = XLenVT;
+    }
   }
 
-  if (LocVT == MVT::i32 || LocVT == MVT::f32) {
-    int64_t Offset4 = State.AllocateStack(4, Align(4));
-    State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset4, LocVT, LocInfo));
-    return false;
-  }
-
-  if (LocVT == MVT::i64 || LocVT == MVT::f64) {
-    int64_t Offset5 = State.AllocateStack(8, Align(8));
-    State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset5, LocVT, LocInfo));
-    return false;
+  if (LocVT == XLenVT) {
+    if (MCRegister Reg = State.AllocateReg(getFastCCArgGPRs(ABI))) {
+      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
+      return false;
+    }
   }
   if (LocVT.isFatPointer()) {
     unsigned CLen = LocVT.getSizeInBits();
@@ -680,41 +685,11 @@ bool llvm::CC_RISCV_FastCC(unsigned ValNo, MVT ValVT, MVT LocVT,
     State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset6, LocVT, LocInfo));
     return false;
   }
-
-  if (LocVT.isVector()) {
-    if (MCRegister Reg = allocateRVVReg(ValVT, ValNo, State, TLI)) {
-      // Fixed-length vectors are located in the corresponding scalable-vector
-      // container types.
-      if (ValVT.isFixedLengthVector())
-        LocVT = TLI.getContainerForFixedLengthVector(LocVT);
-      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
-      return false;
-    }
-
-    // Try and pass the address via a "fast" GPR.
-    if (MCRegister GPRReg = State.AllocateReg(getFastCCArgGPRs(ABI))) {
-      LocInfo = CCValAssign::Indirect;
-      LocVT = Subtarget.getXLenVT();
-      State.addLoc(CCValAssign::getReg(ValNo, ValVT, GPRReg, LocVT, LocInfo));
-      return false;
-    }
-
-    // Pass scalable vectors indirectly by storing the pointer on the stack.
-    if (ValVT.isScalableVector()) {
-      LocInfo = CCValAssign::Indirect;
-      LocVT = Subtarget.getXLenVT();
-      unsigned XLen = Subtarget.getXLen();
-      int64_t StackOffset = State.AllocateStack(XLen / 8, Align(XLen / 8));
-      State.addLoc(
-          CCValAssign::getMem(ValNo, ValVT, StackOffset, LocVT, LocInfo));
-      return false;
-    }
-
-    // Pass fixed-length vectors on the stack.
-    auto StackAlign = MaybeAlign(ValVT.getScalarSizeInBits() / 8).valueOrOne();
-    int64_t StackOffset = State.AllocateStack(ValVT.getStoreSize(), StackAlign);
-    State.addLoc(
-        CCValAssign::getMem(ValNo, ValVT, StackOffset, LocVT, LocInfo));
+  if (LocVT == XLenVT || LocVT == MVT::f16 || LocVT == MVT::bf16 ||
+      LocVT == MVT::f32 || LocVT == MVT::f64 || LocVT.isFixedLengthVector()) {
+    Align StackAlign = MaybeAlign(ValVT.getScalarSizeInBits() / 8).valueOrOne();
+    int64_t Offset = State.AllocateStack(LocVT.getStoreSize(), StackAlign);
+    State.addLoc(CCValAssign::getMem(ValNo, ValVT, Offset, LocVT, LocInfo));
     return false;
   }
 
