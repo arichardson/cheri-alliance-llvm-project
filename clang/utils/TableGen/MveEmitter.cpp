@@ -1584,7 +1584,6 @@ void EmitterBase::EmitBuiltinCG(raw_ostream &OS) {
     CodeGenParamAllocator ParamAllocPrelim{&MG.ParamTypes, &OI.ParamValues};
     raw_string_ostream OS(MG.Code);
     Int.genCode(OS, ParamAllocPrelim, 1);
-    OS.flush();
 
     MergeableGroupsPrelim[MG].insert(OI);
   }
@@ -1656,7 +1655,6 @@ void EmitterBase::EmitBuiltinCG(raw_ostream &OS) {
                                        &ParamNumbers};
       raw_string_ostream OS(MG.Code);
       Int->genCode(OS, ParamAlloc, 2);
-      OS.flush();
 
       MergeableGroups[MG].insert(OI);
     }
