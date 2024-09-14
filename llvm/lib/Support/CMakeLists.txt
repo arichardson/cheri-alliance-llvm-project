@@ -213,6 +213,7 @@ add_llvm_component_library(LLVMSupport
   NativeFormatting.cpp
   OptimizedStructLayout.cpp
   Optional.cpp
+  OptionStrCmp.cpp
   PGOOptions.cpp
   Parallel.cpp
   PluginLoader.cpp
