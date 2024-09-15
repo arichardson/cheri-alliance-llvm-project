@@ -16274,8 +16274,8 @@ SDValue DAGCombiner::visitFADDForFMACombine(SDNode *N) {
 
   // Floating-point multiply-add without intermediate rounding.
   bool HasFMA =
-      TLI.isFMAFasterThanFMulAndFAdd(DAG.getMachineFunction(), VT) &&
-      (!LegalOperations || matcher.isOperationLegalOrCustom(ISD::FMA, VT));
+      (!LegalOperations || matcher.isOperationLegalOrCustom(ISD::FMA, VT)) &&
+      TLI.isFMAFasterThanFMulAndFAdd(DAG.getMachineFunction(), VT);
 
   // No valid opcode, do not combine.
   if (!HasFMAD && !HasFMA)
@@ -16511,8 +16511,8 @@ SDValue DAGCombiner::visitFSUBForFMACombine(SDNode *N) {
 
   // Floating-point multiply-add without intermediate rounding.
   bool HasFMA =
-      TLI.isFMAFasterThanFMulAndFAdd(DAG.getMachineFunction(), VT) &&
-      (!LegalOperations || matcher.isOperationLegalOrCustom(ISD::FMA, VT));
+      (!LegalOperations || matcher.isOperationLegalOrCustom(ISD::FMA, VT)) &&
+      TLI.isFMAFasterThanFMulAndFAdd(DAG.getMachineFunction(), VT);
 
   // No valid opcode, do not combine.
   if (!HasFMAD && !HasFMA)
@@ -16842,8 +16842,8 @@ SDValue DAGCombiner::visitFMULForFMADistributiveCombine(SDNode *N) {
   // Floating-point multiply-add without intermediate rounding.
   bool HasFMA =
       isContractableFMUL(Options, SDValue(N, 0)) &&
-      TLI.isFMAFasterThanFMulAndFAdd(DAG.getMachineFunction(), VT) &&
-      (!LegalOperations || TLI.isOperationLegalOrCustom(ISD::FMA, VT));
+      (!LegalOperations || TLI.isOperationLegalOrCustom(ISD::FMA, VT)) &&
+      TLI.isFMAFasterThanFMulAndFAdd(DAG.getMachineFunction(), VT);
 
   // Floating-point multiply-add with intermediate rounding. This can result
   // in a less precise result due to the changed rounding order.
