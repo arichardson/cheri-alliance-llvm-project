@@ -2923,7 +2923,7 @@ template <class ELFT> void Writer<ELFT>::openFile() {
       << "section sizes:\n";
     for (OutputSection *os : ctx.outputSections)
       s << os->name << ' ' << os->size << "\n";
-    error(s.str());
+    error(msg);
     return;
   }
 
