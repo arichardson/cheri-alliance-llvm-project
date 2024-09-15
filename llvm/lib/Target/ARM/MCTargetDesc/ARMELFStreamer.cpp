@@ -83,7 +83,7 @@ class ARMTargetAsmStreamer : public ARMTargetStreamer {
   void emitSetFP(unsigned FpReg, unsigned SpReg, int64_t Offset = 0) override;
   void emitMovSP(unsigned Reg, int64_t Offset = 0) override;
   void emitPad(int64_t Offset) override;
-  void emitRegSave(const SmallVectorImpl<unsigned> &RegList,
+  void emitRegSave(const SmallVectorImpl<MCRegister> &RegList,
                    bool isVector) override;
   void emitUnwindRaw(int64_t Offset,
                      const SmallVectorImpl<uint8_t> &Opcodes) override;
@@ -169,8 +169,8 @@ void ARMTargetAsmStreamer::emitPad(int64_t Offset) {
   OS << "\t.pad\t#" << Offset << '\n';
 }
 
-void ARMTargetAsmStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
-                                       bool isVector) {
+void ARMTargetAsmStreamer::emitRegSave(
+    const SmallVectorImpl<MCRegister> &RegList, bool isVector) {
   assert(RegList.size() && "RegList should not be empty");
   if (isVector)
     OS << "\t.vsave\t{";
@@ -425,7 +425,7 @@ private:
   void emitSetFP(unsigned FpReg, unsigned SpReg, int64_t Offset = 0) override;
   void emitMovSP(unsigned Reg, int64_t Offset = 0) override;
   void emitPad(int64_t Offset) override;
-  void emitRegSave(const SmallVectorImpl<unsigned> &RegList,
+  void emitRegSave(const SmallVectorImpl<MCRegister> &RegList,
                    bool isVector) override;
   void emitUnwindRaw(int64_t Offset,
                      const SmallVectorImpl<uint8_t> &Opcodes) override;
@@ -496,7 +496,7 @@ public:
   void emitSetFP(unsigned NewFpReg, unsigned NewSpReg, int64_t Offset = 0);
   void emitMovSP(unsigned Reg, int64_t Offset = 0);
   void emitPad(int64_t Offset);
-  void emitRegSave(const SmallVectorImpl<unsigned> &RegList, bool isVector);
+  void emitRegSave(const SmallVectorImpl<MCRegister> &RegList, bool isVector);
   void emitUnwindRaw(int64_t Offset, const SmallVectorImpl<uint8_t> &Opcodes);
   void emitFill(const MCExpr &NumBytes, uint64_t FillValue,
                 SMLoc Loc) override {
@@ -768,8 +768,8 @@ void ARMTargetELFStreamer::emitPad(int64_t Offset) {
   getStreamer().emitPad(Offset);
 }
 
-void ARMTargetELFStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
-                                       bool isVector) {
+void ARMTargetELFStreamer::emitRegSave(
+    const SmallVectorImpl<MCRegister> &RegList, bool isVector) {
   getStreamer().emitRegSave(RegList, isVector);
 }
 
@@ -1423,17 +1423,17 @@ void ARMELFStreamer::emitPad(int64_t Offset) {
 
 static std::pair<unsigned, unsigned>
 collectHWRegs(const MCRegisterInfo &MRI, unsigned Idx,
-              const SmallVectorImpl<unsigned> &RegList, bool IsVector,
+              const SmallVectorImpl<MCRegister> &RegList, bool IsVector,
               uint32_t &Mask_) {
   uint32_t Mask = 0;
   unsigned Count = 0;
   while (Idx > 0) {
-    unsigned Reg = RegList[Idx - 1];
+    MCRegister Reg = RegList[Idx - 1];
     if (Reg == ARM::RA_AUTH_CODE)
       break;
-    Reg = MRI.getEncodingValue(Reg);
-    assert(Reg < (IsVector ? 32U : 16U) && "Register out of range");
-    unsigned Bit = (1u << Reg);
+    unsigned RegEnc = MRI.getEncodingValue(Reg);
+    assert(RegEnc < (IsVector ? 32U : 16U) && "Register out of range");
+    unsigned Bit = (1u << RegEnc);
     if ((Mask & Bit) == 0) {
       Mask |= Bit;
       ++Count;
@@ -1445,7 +1445,7 @@ collectHWRegs(const MCRegisterInfo &MRI, unsigned Idx,
   return {Idx, Count};
 }
 
-void ARMELFStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
+void ARMELFStreamer::emitRegSave(const SmallVectorImpl<MCRegister> &RegList,
                                  bool IsVector) {
   uint32_t Mask;
   unsigned Idx, Count;
