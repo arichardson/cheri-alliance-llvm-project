@@ -105,6 +105,7 @@ void Ctx::reset() {
   outputSections.clear();
   partitions.clear();
 
+  in.reset();
   sym = ElfSym{};
 
   memoryBuffers.clear();
@@ -153,8 +154,6 @@ bool link(ArrayRef<const char *> args, llvm::raw_ostream &stdoutOS,
     elf::ctx.reset();
     elf::ctx.partitions.emplace_back();
     symtab = SymbolTable();
-
-    in.reset();
 
     SharedFile::vernauxNum = 0;
   };
