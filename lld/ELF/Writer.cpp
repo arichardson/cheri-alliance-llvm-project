@@ -124,7 +124,7 @@ static void removeEmptyPTLoad(SmallVector<PhdrEntry *, 0> &phdrs) {
 void elf::copySectionsIntoPartitions() {
   SmallVector<InputSectionBase *, 0> newSections;
   const size_t ehSize = ctx.ehInputSections.size();
-  for (unsigned part = 2; part != partitions.size() + 1; ++part) {
+  for (unsigned part = 2; part != ctx.partitions.size() + 1; ++part) {
     for (InputSectionBase *s : ctx.inputSections) {
       if (!(s->flags & SHF_ALLOC) || !s->isLive() || s->type != SHT_NOTE)
         continue;
@@ -338,7 +338,7 @@ template <class ELFT> void Writer<ELFT>::run() {
   // Remove empty PT_LOAD to avoid causing the dynamic linker to try to mmap a
   // 0 sized region. This has to be done late since only after assignAddresses
   // we know the size of the sections.
-  for (Partition &part : partitions)
+  for (Partition &part : ctx.partitions)
     removeEmptyPTLoad(part.phdrs);
 
   if (!config->oFormatBinary)
@@ -346,7 +346,7 @@ template <class ELFT> void Writer<ELFT>::run() {
   else
     assignFileOffsetsBinary();
 
-  for (Partition &part : partitions)
+  for (Partition &part : ctx.partitions)
     setPhdrs(part);
 
   // Handle --print-map(-M)/--Map and --cref. Dump them before checkSections()
@@ -902,7 +902,7 @@ template <class ELFT> void Writer<ELFT>::setReservedSymbolSections() {
   auto isLarge = [](OutputSection *osec) {
     return config->emachine == EM_X86_64 && osec->flags & SHF_X86_64_LARGE;
   };
-  for (Partition &part : partitions) {
+  for (Partition &part : ctx.partitions) {
     for (PhdrEntry *p : part.phdrs) {
       if (p->p_type != PT_LOAD)
         continue;
@@ -1501,7 +1501,7 @@ template <class ELFT> void Writer<ELFT>::finalizeAddressDependentContent() {
   // increasing. Anything here must be repeatable, since spilling may change
   // section order.
   const auto finalizeOrderDependentContent = [this] {
-    for (Partition &part : partitions)
+    for (Partition &part : ctx.partitions)
       finalizeSynthetic(part.armExidx.get());
     resolveShfLinkOrder();
   };
@@ -1543,7 +1543,7 @@ template <class ELFT> void Writer<ELFT>::finalizeAddressDependentContent() {
     if (in.mipsGot)
       in.mipsGot->updateAllocSize();
 
-    for (Partition &part : partitions) {
+    for (Partition &part : ctx.partitions) {
       // The R_AARCH64_AUTH_RELATIVE has a smaller addend field as bits [63:32]
       // encode the signing schema. We've put relocations in .relr.auth.dyn
       // during RelocationScanner::processAux, but the target VA for some of
@@ -1868,7 +1868,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     // earlier.
     {
       llvm::TimeTraceScope timeScope("Finalize .eh_frame");
-      for (Partition &part : partitions)
+      for (Partition &part : ctx.partitions)
         finalizeSynthetic(part.ehFrame.get());
     }
   }
@@ -1979,7 +1979,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
         in.symTab->addSymbol(sym);
 
       if (sym->includeInDynsym()) {
-        partitions[sym->partition - 1].dynSymTab->addSymbol(sym);
+        ctx.partitions[sym->partition - 1].dynSymTab->addSymbol(sym);
         if (auto *file = dyn_cast_or_null<SharedFile>(sym->file))
           if (file->isNeeded && !sym->isUndefined())
             addVerneed(sym);
@@ -1988,7 +1988,8 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
 
     // We also need to scan the dynamic relocation tables of the other
     // partitions and add any referenced symbols to the partition's dynsym.
-    for (Partition &part : MutableArrayRef<Partition>(partitions).slice(1)) {
+    for (Partition &part :
+         MutableArrayRef<Partition>(ctx.partitions).slice(1)) {
       DenseSet<Symbol *> syms;
       for (const SymbolTableEntry &e : part.dynSymTab->getSymbols())
         syms.insert(e.sym);
@@ -2036,7 +2037,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
         symtab.addSymbol(Undefined{ctx.internalFile, "__tls_get_addr",
                                    STB_GLOBAL, STV_DEFAULT, STT_NOTYPE});
     sym->isPreemptible = true;
-    partitions[0].dynSymTab->addSymbol(sym);
+    ctx.partitions[0].dynSymTab->addSymbol(sym);
   }
 
   // This is a bit of a hack. A value of 0 means undef, so we set it
@@ -2049,7 +2050,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
   // The headers have to be created before finalize as that can influence the
   // image base and the dynamic section on mips includes the image base.
   if (!config->relocatable && !config->oFormatBinary) {
-    for (Partition &part : partitions) {
+    for (Partition &part : ctx.partitions) {
       part.phdrs = ctx.script->hasPhdrsCommands() ? ctx.script->createPhdrs()
                                                   : createPhdrs(part);
       if (config->emachine == EM_ARM) {
@@ -2108,7 +2109,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
 
     // Dynamic section must be the last one in this list and dynamic
     // symbol table section (dynSymTab) must be the first one.
-    for (Partition &part : partitions) {
+    for (Partition &part : ctx.partitions) {
       if (part.relaDyn) {
         part.relaDyn->mergeRels();
         // Compute DT_RELACOUNT to be used by part.dynamic.
@@ -2588,7 +2589,7 @@ template <class ELFT> void Writer<ELFT>::fixSectionAlignments() {
     }
   };
 
-  for (Partition &part : partitions) {
+  for (Partition &part : ctx.partitions) {
     prev = nullptr;
     for (const PhdrEntry *p : part.phdrs)
       if (p->p_type == PT_LOAD && p->firstSec) {
@@ -2654,7 +2655,7 @@ template <class ELFT> void Writer<ELFT>::assignFileOffsets() {
   uint64_t off = ctx.out.elfHeader->size + ctx.out.programHeaders->size;
 
   PhdrEntry *lastRX = nullptr;
-  for (Partition &part : partitions)
+  for (Partition &part : ctx.partitions)
     for (PhdrEntry *p : part.phdrs)
       if (p->p_type == PT_LOAD && (p->p_flags & PF_X))
         lastRX = p;
@@ -2964,7 +2965,7 @@ static void fillTrap(uint8_t *i, uint8_t *end) {
 // We'll leave other pages in segments as-is because the rest will be
 // overwritten by output sections.
 template <class ELFT> void Writer<ELFT>::writeTrapInstr() {
-  for (Partition &part : partitions) {
+  for (Partition &part : ctx.partitions) {
     // Fill the last page.
     for (PhdrEntry *p : part.phdrs)
       if (p->p_type == PT_LOAD && (p->p_flags & PF_X))
@@ -3041,7 +3042,7 @@ template <class ELFT> void Writer<ELFT>::writeBuildId() {
     return;
 
   if (config->buildId == BuildIdKind::Hexstring) {
-    for (Partition &part : partitions)
+    for (Partition &part : ctx.partitions)
       part.buildId->writeBuildId(config->buildIdVector);
     return;
   }
@@ -3081,7 +3082,7 @@ template <class ELFT> void Writer<ELFT>::writeBuildId() {
   default:
     llvm_unreachable("unknown BuildIdKind");
   }
-  for (Partition &part : partitions)
+  for (Partition &part : ctx.partitions)
     part.buildId->writeBuildId(output);
 }
 
