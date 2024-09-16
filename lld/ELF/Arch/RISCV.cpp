@@ -245,9 +245,9 @@ void RISCV::writeGotPlt(uint8_t *buf, const Symbol &s) const {
     return;
 
   if (config->is64)
-    write64le(buf, in.plt->getVA());
+    write64le(buf, ctx.in.plt->getVA());
   else
-    write32le(buf, in.plt->getVA());
+    write32le(buf, ctx.in.plt->getVA());
 }
 
 void RISCV::writeIgotPlt(uint8_t *buf, const Symbol &s) const {
@@ -269,7 +269,7 @@ void RISCV::writePltHeader(uint8_t *buf) const {
   // l[wdc] (c)t0, Ptrsize((c)t0); (c)t0 = link_map
   // (c)jr (c)t3
   // (if shift == 0): nop
-  uint32_t offset = in.gotPlt->getVA() - in.plt->getVA();
+  uint32_t offset = ctx.in.gotPlt->getVA() - ctx.in.plt->getVA();
   uint32_t ptrload =
       config->isCheriAbi
           ? (!config->zCheriRiscvV9 ? CLC : (config->is64 ? CLC_128 : CLC_64))
@@ -1271,8 +1271,8 @@ mergeAttributesSection(const SmallVector<InputSectionBase *, 0> &sections) {
   unsigned firstStackAlignValue = 0, xlen = 0;
   bool hasArch = false;
 
-  in.riscvAttributes = std::make_unique<RISCVAttributesSection>();
-  auto &merged = static_cast<RISCVAttributesSection &>(*in.riscvAttributes);
+  ctx.in.riscvAttributes = std::make_unique<RISCVAttributesSection>();
+  auto &merged = static_cast<RISCVAttributesSection &>(*ctx.in.riscvAttributes);
 
   // Collect all tags values from attributes section.
   const auto &attributesTags = RISCVAttrs::getRISCVAttributeTags();

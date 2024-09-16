@@ -105,6 +105,7 @@ void Ctx::reset() {
   outputSections.clear();
   partitions.clear();
 
+  ctx.in.reset();
   sym = ElfSym{};
 
   memoryBuffers.clear();
@@ -153,8 +154,6 @@ bool link(ArrayRef<const char *> args, llvm::raw_ostream &stdoutOS,
     elf::ctx.reset();
     elf::ctx.partitions.emplace_back();
     symtab = SymbolTable();
-
-    in.reset();
 
     SharedFile::vernauxNum = 0;
   };
@@ -3217,8 +3216,8 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   // output sections in the usual way.
   if (!config->relocatable) {
     combineEhSections();
-    if (in.capRelocs)
-      ctx.inputSections.push_back(in.capRelocs.get());
+    if (ctx.in.capRelocs)
+      ctx.inputSections.push_back(ctx.in.capRelocs.get());
   }
 
   // Merge .riscv.attributes sections.

@@ -277,7 +277,7 @@ public:
   bool isNeeded() const override {
     if (config->capTableScope == CapTableScopePolicy::All)
       return false;
-    return in.mipsCheriCapTable && in.mipsCheriCapTable->isNeeded();
+    return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded();
   }
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override;

@@ -780,7 +780,7 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
     // rather than the normal relocation section to make processing of PLT
     // relocations in RTLD more efficient.
     RelocationBaseSection &dynRelSec =
-        it.second.usedInCallExpr ? *in.relaPlt : *ctx.mainPart->relaDyn;
+        it.second.usedInCallExpr ? *ctx.in.relaPlt : *ctx.mainPart->relaDyn;
     if (targetSym->isPreemptible)
       dynRelSec.addSymbolReloc(elfCapabilityReloc, *this, off, *targetSym);
     else if (targetSym->isUndefWeak())
@@ -889,11 +889,11 @@ size_t MipsCheriCapTableMappingSection::getSize() const {
   if (!isNeeded())
     return 0;
   size_t count = 0;
-  if (!in.symTab) {
+  if (!ctx.in.symTab) {
     error("Cannot use " + this->name + " without .symtab section!");
     return 0;
   }
-  for (const SymbolTableEntry &ste : in.symTab->getSymbols()) {
+  for (const SymbolTableEntry &ste : ctx.in.symTab->getSymbols()) {
     if (!ste.sym->isDefined() || !ste.sym->isFunc())
       continue;
     count++;
@@ -903,9 +903,9 @@ size_t MipsCheriCapTableMappingSection::getSize() const {
 
 void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
   assert(config->capTableScope != CapTableScopePolicy::All);
-  if (!in.mipsCheriCapTable)
+  if (!ctx.in.mipsCheriCapTable)
     return;
-  if (!in.symTab) {
+  if (!ctx.in.symTab) {
     error("Cannot write " + this->name + " without .symtab section!");
     return;
   }
@@ -914,18 +914,18 @@ void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
   std::vector<CaptableMappingEntry> entries;
   // Note: Symtab->getSymbols() only returns the symbols in .dynsym. We need
   // to use In.sym()tab instead since we also want to add all local functions!
-  for (const SymbolTableEntry &ste : in.symTab->getSymbols()) {
+  for (const SymbolTableEntry &ste : ctx.in.symTab->getSymbols()) {
     Symbol* sym = ste.sym;
     if (!sym->isDefined() || !sym->isFunc())
       continue;
     const MipsCheriCapTableSection::CaptableMap *capTableMap = nullptr;
     if (config->capTableScope == CapTableScopePolicy::Function) {
-      auto it = in.mipsCheriCapTable->perFunctionEntries.find(sym);
-      if (it != in.mipsCheriCapTable->perFunctionEntries.end())
+      auto it = ctx.in.mipsCheriCapTable->perFunctionEntries.find(sym);
+      if (it != ctx.in.mipsCheriCapTable->perFunctionEntries.end())
         capTableMap = &it->second;
     } else if (config->capTableScope == CapTableScopePolicy::File) {
-      auto it = in.mipsCheriCapTable->perFileEntries.find(sym->file);
-      if (it != in.mipsCheriCapTable->perFileEntries.end())
+      auto it = ctx.in.mipsCheriCapTable->perFileEntries.find(sym->file);
+      if (it != ctx.in.mipsCheriCapTable->perFileEntries.end())
         capTableMap = &it->second;
     } else {
       llvm_unreachable("Invalid mode!");
@@ -997,11 +997,11 @@ static bool needsCheriMipsTrampoline(RelType type, const Symbol &sym) {
   if (!hasDynamicLinker())
     return false;
 
-  if (!in.mipsAbiFlags)
+  if (!ctx.in.mipsAbiFlags)
     return false;
 
   std::optional<unsigned> abi;
-  invokeELFT(getMipsCheriAbiVariant, abi, *in.mipsAbiFlags);
+  invokeELFT(getMipsCheriAbiVariant, abi, *ctx.in.mipsAbiFlags);
   if (!abi)
     return false;
 
@@ -1052,13 +1052,13 @@ void addRelativeCapabilityRelocation(
     if (config->emachine != EM_RISCV)
       error("Relative Relocs method not implemented yet!");
     RelocationBaseSection &oSec =
-        sym->includeInDynsym() ? *ctx.mainPart->relaDyn : *in.relaDyn;
+        sym->includeInDynsym() ? *ctx.mainPart->relaDyn : *ctx.in.relaDyn;
     oSec.addReloc(DynamicReloc::AgainstSymbol, R_RISCV_CHERI_RELATIVE, isec,
                   offsetInSec, *sym, addend, expr, ctx.target->symbolicRel);
     writeCatableRelocationFragments(&isec, sym, offsetInSec);
     return;
   }
-  in.capRelocs->addCapReloc(isCode, {&isec, offsetInSec}, {symOrSec, 0u},
+  ctx.in.capRelocs->addCapReloc(isCode, {&isec, offsetInSec}, {symOrSec, 0u},
                             addend);
 }
 

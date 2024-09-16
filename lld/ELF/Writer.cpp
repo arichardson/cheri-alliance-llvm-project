@@ -503,8 +503,8 @@ static void demoteAndCopyLocalSymbols() {
 
       if (dr->section && !dr->section->isLive())
         demoteDefined(*dr, sectionIndexMap);
-      else if (in.symTab && includeInSymtab(*b) && shouldKeepInSymtab(*dr))
-        in.symTab->addSymbol(b);
+      else if (ctx.in.symTab && includeInSymtab(*b) && shouldKeepInSymtab(*dr))
+        ctx.in.symTab->addSymbol(b);
     }
   }
 }
@@ -551,7 +551,7 @@ template <class ELFT> void Writer<ELFT>::addSectionSymbols() {
         makeDefined(isec->file, "", STB_LOCAL, /*stOther=*/0, STT_SECTION,
                     /*value=*/0, /*size=*/0, &osec);
     sym->isSectionStartSymbol = true;
-    in.symTab->addSymbol(sym);
+    ctx.in.symTab->addSymbol(sym);
   }
 }
 
@@ -598,7 +598,7 @@ bool elf::isRelroSection(const OutputSection *sec) {
   // .got contains pointers to external symbols. They are resolved by
   // the dynamic linker when a module is loaded into memory, and after
   // that they are not expected to change. So, it can be in RELRO.
-  if (in.got && sec == in.got->getParent())
+  if (ctx.in.got && sec == ctx.in.got->getParent())
     return true;
 
   // .toc is a GOT-ish section for PowerPC64. Their contents are accessed
@@ -613,18 +613,18 @@ bool elf::isRelroSection(const OutputSection *sec) {
   // by default resolved lazily, so we usually cannot put it into RELRO.
   // However, if "-z now" is given, the lazy symbol resolution is
   // disabled, which enables us to put it into RELRO.
-  if (sec == in.gotPlt->getParent())
+  if (sec == ctx.in.gotPlt->getParent())
     return config->zNow;
 
   // Similarly the CHERI capability table is also relro since the capabilities
   // in the table need to be initialized at runtime to set the tag bits
-  if (in.mipsCheriCapTable && sec == in.mipsCheriCapTable->getParent()) {
+  if (ctx.in.mipsCheriCapTable && sec == ctx.in.mipsCheriCapTable->getParent()) {
     // Without -z now, the PLT stubs can update the captable entries so we
     // can't mark it as relro. It can also be relro for static binaries:
     return config->zNow || !config->isPic;
   }
 
-  if (in.relroPadding && sec == in.relroPadding->getParent())
+  if (ctx.in.relroPadding && sec == ctx.in.relroPadding->getParent())
     return true;
 
   // .dynamic section contains data for the dynamic linker, and
@@ -875,10 +875,10 @@ template <class ELFT> void Writer<ELFT>::setReservedSymbolSections() {
   if (ctx.sym.globalOffsetTable) {
     // The _GLOBAL_OFFSET_TABLE_ symbol is defined by target convention usually
     // to the start of the .got or .got.plt section.
-    InputSection *sec = in.gotPlt.get();
+    InputSection *sec = ctx.in.gotPlt.get();
     if (!ctx.target->gotBaseSymInGotPlt)
-      sec = in.mipsGot ? cast<InputSection>(in.mipsGot.get())
-                       : cast<InputSection>(in.got.get());
+      sec = ctx.in.mipsGot ? cast<InputSection>(ctx.in.mipsGot.get())
+                           : cast<InputSection>(ctx.in.got.get());
     ctx.sym.globalOffsetTable->section = sec;
   }
 
@@ -890,10 +890,10 @@ template <class ELFT> void Writer<ELFT>::setReservedSymbolSections() {
   }
 
   // __rela_dyn_{start,end} symbols if needed.
-  if (ctx.sym.relaDynStart && in.relaDyn->isNeeded()) {
-    ctx.sym.relaDynStart->section = in.relaDyn.get();
-    ctx.sym.relaDynEnd->section = in.relaDyn.get();
-    ctx.sym.relaDynEnd->value = in.relaDyn->getSize();
+  if (ctx.sym.relaDynStart && ctx.in.relaDyn->isNeeded()) {
+    ctx.sym.relaDynStart->section = ctx.in.relaDyn.get();
+    ctx.sym.relaDynEnd->section = ctx.in.relaDyn.get();
+    ctx.sym.relaDynEnd->value = ctx.in.relaDyn->getSize();
     ctx.sym.relaDynEnd->isSectionStartSymbol = false;
   }
 
@@ -1011,7 +1011,7 @@ findOrphanPos(SmallVectorImpl<SectionCommand *>::iterator b,
 
   // As a special case, place .relro_padding before the SymbolAssignment using
   // DATA_SEGMENT_RELRO_END, if present.
-  if (in.relroPadding && sec == in.relroPadding->getParent()) {
+  if (ctx.in.relroPadding && sec == ctx.in.relroPadding->getParent()) {
     auto i = std::find_if(b, e, [=](SectionCommand *a) {
       if (auto *assign = dyn_cast<SymbolAssignment>(a))
         return assign->dataSegmentRelroEnd;
@@ -1539,9 +1539,9 @@ template <class ELFT> void Writer<ELFT>::finalizeAddressDependentContent() {
       changed |= a32p.createFixes();
     }
 
-    finalizeSynthetic(in.got.get());
-    if (in.mipsGot)
-      in.mipsGot->updateAllocSize();
+    finalizeSynthetic(ctx.in.got.get());
+    if (ctx.in.mipsGot)
+      ctx.in.mipsGot->updateAllocSize();
 
     for (Partition &part : ctx.partitions) {
       // The R_AARCH64_AUTH_RELATIVE has a smaller addend field as bits [63:32]
@@ -1854,13 +1854,13 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
       }
     }
 
-    if (config->emachine == EM_MIPS && in.mipsCheriCapTable) {
+    if (config->emachine == EM_MIPS && ctx.in.mipsCheriCapTable) {
       // When creating relocatable output we should not define the
       // _CHERI_CAPABILITY_TABLE_ symbol because otherwise we get duplicate
       // symbol errors when linking that into a final executable
       if (!config->relocatable)
         ctx.sym.mipsCheriCapabilityTable =
-            addOptionalRegular(captableSym, in.mipsCheriCapTable.get(), 0);
+            addOptionalRegular(captableSym, ctx.in.mipsCheriCapTable.get(), 0);
     }
 
     // This responsible for splitting up .eh_frame section into
@@ -1899,30 +1899,30 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     // Do the cap table index assignment
     // Must come before CapRelocs->finalizeContents() because it can add
     // __cap_relocs
-    if (in.mipsCheriCapTable) {
+    if (ctx.in.mipsCheriCapTable) {
       // Ensure that we always have a _CHERI_CAPABILITY_TABLE_ symbol if the
       // cap table exists. This makes llvm-objdump more useful since it can now
       // print the target of a cap table load
       if (!ctx.sym.mipsCheriCapabilityTable &&
-          in.mipsCheriCapTable->isNeeded()) {
+          ctx.in.mipsCheriCapTable->isNeeded()) {
         ctx.sym.mipsCheriCapabilityTable = cast<Defined>(symtab.addSymbol(
             Defined{nullptr, captableSym, STB_LOCAL, STV_HIDDEN, STT_NOTYPE, 0,
-                    0, in.mipsCheriCapTable.get()}));
+                    0, ctx.in.mipsCheriCapTable.get()}));
         ctx.sym.mipsCheriCapabilityTable->isSectionStartSymbol = true;
         assert(!ctx.sym.mipsCheriCapabilityTable->isPreemptible);
       }
-      in.mipsCheriCapTable->assignValuesAndAddCapTableSymbols();
+      ctx.in.mipsCheriCapTable->assignValuesAndAddCapTableSymbols();
     }
 
     // Now handle __cap_relocs (must be before RelaDyn because it might
     // result in new dynamic relocations being added)
-    if (in.capRelocs) {
-      finalizeSynthetic(in.capRelocs.get());
+    if (ctx.in.capRelocs) {
+      finalizeSynthetic(ctx.in.capRelocs.get());
     }
-    if (in.plt && in.plt->isNeeded())
-      in.plt->addSymbols();
-    if (in.iplt && in.iplt->isNeeded())
-      in.iplt->addSymbols();
+    if (ctx.in.plt && ctx.in.plt->isNeeded())
+      ctx.in.plt->addSymbols();
+    if (ctx.in.iplt && ctx.in.iplt->isNeeded())
+      ctx.in.iplt->addSymbols();
 
     if (config->unresolvedSymbolsInShlib != UnresolvedPolicy::Ignore) {
       auto diagnose =
@@ -1975,8 +1975,8 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
         continue;
       if (!config->relocatable)
         sym->binding = sym->computeBinding();
-      if (in.symTab)
-        in.symTab->addSymbol(sym);
+      if (ctx.in.symTab)
+        ctx.in.symTab->addSymbol(sym);
 
       if (sym->includeInDynsym()) {
         ctx.partitions[sym->partition - 1].dynSymTab->addSymbol(sym);
@@ -2000,8 +2000,8 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     }
   }
 
-  if (in.mipsGot)
-    in.mipsGot->build();
+  if (ctx.in.mipsGot)
+    ctx.in.mipsGot->build();
 
   removeUnusedSyntheticSections();
   ctx.script->diagnoseOrphanHandling();
@@ -2010,16 +2010,17 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
   sortSections();
 
   // Create a list of OutputSections, assign sectionIndex, and populate
-  // in.shStrTab. If -z nosectionheader is specified, drop non-ALLOC sections.
+  // ctx.in.shStrTab. If -z nosectionheader is specified, drop non-ALLOC
+  // sections.
   for (SectionCommand *cmd : ctx.script->sectionCommands)
     if (auto *osd = dyn_cast<OutputDesc>(cmd)) {
       OutputSection *osec = &osd->osec;
-      if (!in.shStrTab && !(osec->flags & SHF_ALLOC))
+      if (!ctx.in.shStrTab && !(osec->flags & SHF_ALLOC))
         continue;
       ctx.outputSections.push_back(osec);
       osec->sectionIndex = ctx.outputSections.size();
-      if (in.shStrTab)
-        osec->shName = in.shStrTab->addString(osec->name);
+      if (ctx.in.shStrTab)
+        osec->shName = ctx.in.shStrTab->addString(osec->name);
     }
 
   // Prefer command line supplied address over other constraints.
@@ -2091,21 +2092,21 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
   {
     llvm::TimeTraceScope timeScope("Finalize synthetic sections");
 
-    finalizeSynthetic(in.bss.get());
-    finalizeSynthetic(in.bssRelRo.get());
-    finalizeSynthetic(in.symTabShndx.get());
-    finalizeSynthetic(in.shStrTab.get());
-    finalizeSynthetic(in.strTab.get());
-    finalizeSynthetic(in.got.get());
-    finalizeSynthetic(in.mipsGot.get());
-    finalizeSynthetic(in.igotPlt.get());
-    finalizeSynthetic(in.gotPlt.get());
-    finalizeSynthetic(in.relaPlt.get());
-    finalizeSynthetic(in.plt.get());
-    finalizeSynthetic(in.iplt.get());
-    finalizeSynthetic(in.ppc32Got2.get());
-    finalizeSynthetic(in.partIndex.get());
-    finalizeSynthetic(in.relaDyn.get());
+    finalizeSynthetic(ctx.in.bss.get());
+    finalizeSynthetic(ctx.in.bssRelRo.get());
+    finalizeSynthetic(ctx.in.symTabShndx.get());
+    finalizeSynthetic(ctx.in.shStrTab.get());
+    finalizeSynthetic(ctx.in.strTab.get());
+    finalizeSynthetic(ctx.in.got.get());
+    finalizeSynthetic(ctx.in.mipsGot.get());
+    finalizeSynthetic(ctx.in.igotPlt.get());
+    finalizeSynthetic(ctx.in.gotPlt.get());
+    finalizeSynthetic(ctx.in.relaPlt.get());
+    finalizeSynthetic(ctx.in.plt.get());
+    finalizeSynthetic(ctx.in.iplt.get());
+    finalizeSynthetic(ctx.in.ppc32Got2.get());
+    finalizeSynthetic(ctx.in.partIndex.get());
+    finalizeSynthetic(ctx.in.relaDyn.get());
 
     // Dynamic section must be the last one in this list and dynamic
     // symbol table section (dynSymTab) must be the first one.
@@ -2170,14 +2171,14 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     llvm::TimeTraceScope timeScope("Finalize synthetic sections");
     // finalizeAddressDependentContent may have added local symbols to the
     // static symbol table.
-    finalizeSynthetic(in.symTab.get());
-    finalizeSynthetic(in.debugNames.get());
-    finalizeSynthetic(in.ppc64LongBranchTarget.get());
-    finalizeSynthetic(in.armCmseSGSection.get());
+    finalizeSynthetic(ctx.in.symTab.get());
+    finalizeSynthetic(ctx.in.debugNames.get());
+    finalizeSynthetic(ctx.in.ppc64LongBranchTarget.get());
+    finalizeSynthetic(ctx.in.armCmseSGSection.get());
   }
 
   // Relaxation to delete inter-basic block jumps created by basic block
-  // sections. Run after in.symTab is finalized as optimizeBasicBlockJumps
+  // sections. Run after ctx.in.symTab is finalized as optimizeBasicBlockJumps
   // can relax jump instructions based on symbol offset.
   if (config->optimizeBBJumps)
     optimizeBasicBlockJumps();
@@ -2268,9 +2269,9 @@ template <class ELFT> void Writer<ELFT>::addStartEndSymbols() {
   define("__fini_array_start", "__fini_array_end", ctx.out.finiArray);
   define("__ctors_start", "__ctors_end", findSection(".ctors"));
   define("__dtors_start", "__dtors_end", findSection(".dtors"));
-  if (in.mipsCheriCapTable)
+  if (ctx.in.mipsCheriCapTable)
     define("__cap_table_start", "__cap_table_end",
-           in.mipsCheriCapTable->getOutputSection());
+           ctx.in.mipsCheriCapTable->getOutputSection());
 
   // As a special case, don't unnecessarily retain .ARM.exidx, which would
   // create an empty PT_ARM_EXIDX.
@@ -2882,7 +2883,7 @@ template <class ELFT> void Writer<ELFT>::writeHeader() {
   eHdr->e_entry = getEntryAddr();
 
   // If -z nosectionheader is specified, omit the section header table.
-  if (!in.shStrTab)
+  if (!ctx.in.shStrTab)
     return;
   eHdr->e_shoff = sectionHeaderOff;
 
@@ -2902,7 +2903,7 @@ template <class ELFT> void Writer<ELFT>::writeHeader() {
   else
     eHdr->e_shnum = num;
 
-  uint32_t strTabIndex = in.shStrTab->getParent()->sectionIndex;
+  uint32_t strTabIndex = ctx.in.shStrTab->getParent()->sectionIndex;
   if (strTabIndex >= SHN_LORESERVE) {
     sHdrs->sh_link = strTabIndex;
     eHdr->e_shstrndx = SHN_XINDEX;
