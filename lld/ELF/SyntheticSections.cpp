@@ -5104,6 +5104,8 @@ template <class ELFT> void elf::createSyntheticSections() {
     add(*in.strTab);
 }
 
+InStruct elf::in;
+
 template void elf::splitSections<ELF32LE>();
 template void elf::splitSections<ELF32BE>();
 template void elf::splitSections<ELF64LE>();
