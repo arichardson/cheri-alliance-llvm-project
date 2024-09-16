@@ -1990,6 +1990,7 @@ void TypePrinter::printAttributedAfter(const AttributedType *T,
 
   case attr::HLSLResourceClass:
   case attr::HLSLROV:
+  case attr::HLSLContainedType:
     llvm_unreachable("HLSL resource type attributes handled separately");
 
   case attr::OpenCLPrivateAddressSpace:
@@ -2145,6 +2146,14 @@ void TypePrinter::printHLSLAttributedResourceAfter(
      << ")]]";
   if (Attrs.IsROV)
     OS << " [[hlsl::is_rov]]";
+
+  QualType ContainedTy = T->getContainedType();
+  if (!ContainedTy.isNull()) {
+    OS << " [[hlsl::contained_type(";
+    printBefore(ContainedTy, OS);
+    printAfter(ContainedTy, OS);
+    OS << ")]]";
+  }
 }
 
 void TypePrinter::printObjCInterfaceBefore(const ObjCInterfaceType *T,
