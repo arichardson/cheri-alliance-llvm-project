@@ -8624,8 +8624,7 @@ const SCEV *ScalarEvolution::BackedgeTakenInfo::getExact(
     Ops.push_back(BECount);
 
     if (Preds)
-      for (const auto *P : ENT.Predicates)
-        Preds->push_back(P);
+      append_range(*Preds, ENT.Predicates);
 
     assert((Preds || ENT.hasAlwaysTruePredicate()) &&
            "Predicate should be always true!");
@@ -8646,8 +8645,7 @@ ScalarEvolution::BackedgeTakenInfo::getExitNotTaken(
       if (ENT.hasAlwaysTruePredicate())
         return &ENT;
       else if (Predicates) {
-        for (const auto *P : ENT.Predicates)
-          Predicates->push_back(P);
+        append_range(*Predicates, ENT.Predicates);
         return &ENT;
       }
     }
@@ -8689,8 +8687,7 @@ const SCEV *ScalarEvolution::BackedgeTakenInfo::getSymbolicMax(
                "dominate latch!");
         ExitCounts.push_back(ExitCount);
         if (Predicates)
-          for (const auto *P : ENT.Predicates)
-            Predicates->push_back(P);
+          append_range(*Predicates, ENT.Predicates);
 
         assert((Predicates || ENT.hasAlwaysTruePredicate()) &&
                "Predicate should be always true!");
@@ -14834,8 +14831,7 @@ const SCEVAddRecExpr *ScalarEvolution::convertSCEVToAddRecWithPredicates(
 
   // Since the transformation was successful, we can now transfer the SCEV
   // predicates.
-  for (const auto *P : TransformPreds)
-    Preds.insert(P);
+  Preds.insert(TransformPreds.begin(), TransformPreds.end());
 
   return AddRec;
 }
