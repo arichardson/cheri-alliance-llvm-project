@@ -1990,6 +1990,7 @@ void TypePrinter::printAttributedAfter(const AttributedType *T,
 
   case attr::HLSLResourceClass:
   case attr::HLSLROV:
+  case attr::HLSLRawBuffer:
   case attr::HLSLContainedType:
     llvm_unreachable("HLSL resource type attributes handled separately");
 
@@ -2146,6 +2147,8 @@ void TypePrinter::printHLSLAttributedResourceAfter(
      << ")]]";
   if (Attrs.IsROV)
     OS << " [[hlsl::is_rov]]";
+  if (Attrs.RawBuffer)
+    OS << " [[hlsl::raw_buffer]]";
 
   QualType ContainedTy = T->getContainedType();
   if (!ContainedTy.isNull()) {
