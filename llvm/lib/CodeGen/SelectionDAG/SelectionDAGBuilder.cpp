@@ -3273,10 +3273,9 @@ void SelectionDAGBuilder::visitBitTestHeader(BitTestBlock &B,
 
 /// visitBitTestCase - this function produces one "bit test"
 void SelectionDAGBuilder::visitBitTestCase(BitTestBlock &BB,
-                                           MachineBasicBlock* NextMBB,
+                                           MachineBasicBlock *NextMBB,
                                            BranchProbability BranchProbToNext,
-                                           unsigned Reg,
-                                           BitTestCase &B,
+                                           Register Reg, BitTestCase &B,
                                            MachineBasicBlock *SwitchBB) {
   SDLoc dl = getCurSDLoc();
   MVT VT = BB.RegVT;
