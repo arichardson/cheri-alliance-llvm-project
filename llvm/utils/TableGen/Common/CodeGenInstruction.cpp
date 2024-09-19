@@ -500,8 +500,8 @@ CodeGenInstruction::CodeGenInstruction(const Record *R)
   isCodeGenOnly = R->getValueAsBit("isCodeGenOnly");
   isPseudo = R->getValueAsBit("isPseudo");
   isMeta = R->getValueAsBit("isMeta");
-  ImplicitDefs = R->getValueAsListOfDefs("Defs");
-  ImplicitUses = R->getValueAsListOfDefs("Uses");
+  ImplicitDefs = R->getValueAsListOfConstDefs("Defs");
+  ImplicitUses = R->getValueAsListOfConstDefs("Uses");
 
   // This flag is only inferred from the pattern.
   hasChain = false;
@@ -551,7 +551,7 @@ MVT::SimpleValueType CodeGenInstruction::HasOneImplicitDefWithKnownVT(
     return MVT::Other;
 
   // Check to see if the first implicit def has a resolvable type.
-  Record *FirstImplicitDef = ImplicitDefs[0];
+  const Record *FirstImplicitDef = ImplicitDefs[0];
   assert(FirstImplicitDef->isSubClassOf("Register"));
   const std::vector<ValueTypeByHwMode> &RegVTs =
       TargetInfo.getRegisterVTs(FirstImplicitDef);
