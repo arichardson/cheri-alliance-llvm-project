@@ -2347,8 +2347,7 @@ template <> struct DenseMapInfo<TargetInstrInfo::RegSubRegPair> {
 
   static bool isEqual(const TargetInstrInfo::RegSubRegPair &LHS,
                       const TargetInstrInfo::RegSubRegPair &RHS) {
-    return RegInfo::isEqual(LHS.Reg, RHS.Reg) &&
-           SubRegInfo::isEqual(LHS.SubReg, RHS.SubReg);
+    return LHS == RHS;
   }
 };
 
