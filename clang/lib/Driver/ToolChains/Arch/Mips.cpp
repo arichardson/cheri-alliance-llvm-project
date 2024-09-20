@@ -108,6 +108,9 @@ void mips::getMipsCPUAndABI(const ArgList &Args, const llvm::Triple &Triple,
     }
   }
 
+  if (ABIName.empty() && Triple.isABIN32())
+    ABIName = "n32";
+
   if (ABIName.empty() &&
       (Triple.getVendor() == llvm::Triple::MipsTechnologies ||
        Triple.getVendor() == llvm::Triple::ImaginationTechnologies)) {

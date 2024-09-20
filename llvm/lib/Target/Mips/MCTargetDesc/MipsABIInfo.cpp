@@ -77,7 +77,7 @@ MipsABIInfo MipsABIInfo::computeTargetABI(const Triple &TT, StringRef CPU,
     return MipsABIInfo::N64();
   if (Options.getABIName().starts_with("purecap"))
     return MipsABIInfo::CheriPureCap();
-  if (TT.getEnvironment() == llvm::Triple::GNUABIN32)
+  if (TT.getEnvironment() == llvm::Triple::GNUABIN32 || TT.isABIN32())
     return MipsABIInfo::N32();
   assert(Options.getABIName().empty() && "Unknown ABI option for MIPS");
   if (TT.getEnvironment() == llvm::Triple::CheriPurecap)
@@ -213,4 +213,3 @@ unsigned MipsABIInfo::GetEhDataReg(unsigned I) const {
 
   return IsN64() ? EhDataReg64[I] : EhDataReg[I];
 }
-
