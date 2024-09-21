@@ -120,12 +120,12 @@ RISCV::RISCV() {
   copyRel = R_RISCV_COPY;
   pltRel = R_RISCV_JUMP_SLOT;
   relativeRel = R_RISCV_RELATIVE;
-  if (config->isCheriAbi)
+  if (ctx.arg.isCheriAbi)
     relativeFuncRel = R_RISCV_FUNC_RELATIVE;
   iRelativeRel = R_RISCV_IRELATIVE;
   symbolicCapRel = R_RISCV_CHERI_CAPABILITY;
   symbolicCodeCapRel = R_RISCV_CHERI_CAPABILITY_CODE;
-  if (config->is64) {
+  if (ctx.arg.is64) {
     symbolicRel = R_RISCV_64;
     tlsModuleIndexRel = R_RISCV_TLS_DTPMOD64;
     tlsOffsetRel = R_RISCV_TLS_DTPREL64;
@@ -136,7 +136,7 @@ RISCV::RISCV() {
     tlsOffsetRel = R_RISCV_TLS_DTPREL32;
     tlsGotRel = R_RISCV_TLS_TPREL32;
   }
-  if (config->isCheriAbi)
+  if (ctx.arg.isCheriAbi)
     gotRel = *symbolicCapRel;
   else
     gotRel = symbolicRel;
@@ -145,7 +145,7 @@ RISCV::RISCV() {
 
   // .got[0] = _DYNAMIC
   gotHeaderEntriesNum = 1;
-  if (config->isCheriAbi)
+  if (ctx.arg.isCheriAbi)
     gotEntrySize = getCapabilitySize();
 
   // .got.plt[0] = _dl_runtime_resolve, .got.plt[1] = link_map
@@ -154,18 +154,18 @@ RISCV::RISCV() {
   pltHeaderSize = 32;
   pltEntrySize = 16;
   ipltEntrySize = 16;
-  if (config->isCheriAbi)
+  if (ctx.arg.isCheriAbi)
     gotEntrySize = getCapabilitySize();
 }
 
 static uint32_t getEFlags(InputFile *f) {
-  if (config->is64)
+  if (ctx.arg.is64)
     return cast<ObjFile<ELF64LE>>(f)->getObj().getHeader().e_flags;
   return cast<ObjFile<ELF32LE>>(f)->getObj().getHeader().e_flags;
 }
 
 int RISCV::getCapabilitySize() const {
-  return config->is64 ? 16 : 8;
+  return ctx.arg.is64 ? 16 : 8;
 }
 
 uint32_t RISCV::calcEFlags() const {
@@ -222,18 +222,18 @@ int64_t RISCV::getImplicitAddend(const uint8_t *buf, RelType type) const {
   case R_RISCV_RELATIVE:
   case R_RISCV_IRELATIVE:
   case R_RISCV_FUNC_RELATIVE:
-    return config->is64 ? read64le(buf) : read32le(buf);
+    return ctx.arg.is64 ? read64le(buf) : read32le(buf);
   case R_RISCV_NONE:
   case R_RISCV_JUMP_SLOT:
     // These relocations are defined as not having an implicit addend.
     return 0;
   case R_RISCV_TLSDESC:
-    return config->is64 ? read64le(buf + 8) : read32le(buf + 4);
+    return ctx.arg.is64 ? read64le(buf + 8) : read32le(buf + 4);
   }
 }
 
 void RISCV::writeGotHeader(uint8_t *buf) const {
-  if (config->is64)
+  if (ctx.arg.is64)
     write64le(buf, ctx.mainPart->dynamic->getVA());
   else
     write32le(buf, ctx.mainPart->dynamic->getVA());
@@ -241,18 +241,18 @@ void RISCV::writeGotHeader(uint8_t *buf) const {
 
 void RISCV::writeGotPlt(uint8_t *buf, const Symbol &s) const {
   // Initialised by __cap_relocs for CHERI
-  if (config->isCheriAbi)
+  if (ctx.arg.isCheriAbi)
     return;
 
-  if (config->is64)
+  if (ctx.arg.is64)
     write64le(buf, ctx.in.plt->getVA());
   else
     write32le(buf, ctx.in.plt->getVA());
 }
 
 void RISCV::writeIgotPlt(uint8_t *buf, const Symbol &s) const {
-  if (config->writeAddends) {
-    if (config->is64)
+  if (ctx.arg.writeAddends) {
+    if (ctx.arg.is64)
       write64le(buf, s.getVA());
     else
       write32le(buf, s.getVA());
@@ -271,16 +271,16 @@ void RISCV::writePltHeader(uint8_t *buf) const {
   // (if shift == 0): nop
   uint32_t offset = ctx.in.gotPlt->getVA() - ctx.in.plt->getVA();
   uint32_t ptrload =
-      config->isCheriAbi
-          ? (!config->zCheriRiscvV9 ? CLC : (config->is64 ? CLC_128 : CLC_64))
-          : (config->is64 ? LD : LW);
-  uint32_t ptraddi = config->isCheriAbi
-                         ? (config->zCheriRiscvV9 ? CIncOffsetImm : CADDI)
+      ctx.arg.isCheriAbi
+          ? (!ctx.arg.zCheriRiscvV9 ? CLC : (ctx.arg.is64 ? CLC_128 : CLC_64))
+          : (ctx.arg.is64 ? LD : LW);
+  uint32_t ptraddi = ctx.arg.isCheriAbi
+                         ? (ctx.arg.zCheriRiscvV9 ? CIncOffsetImm : CADDI)
                          : ADDI;
   // Shift is log2(pltsize / ptrsize), which is 0 for CHERI-128 so skipped
-  uint32_t shift = 2 - config->is64 - config->isCheriAbi;
-  uint32_t ptrsize = config->isCheriAbi ? config->capabilitySize
-                                        : config->wordsize;
+  uint32_t shift = 2 - ctx.arg.is64 - ctx.arg.isCheriAbi;
+  uint32_t ptrsize = ctx.arg.isCheriAbi ? ctx.arg.capabilitySize
+                                        : ctx.arg.wordsize;
   write32le(buf + 0, utype(AUIPC, X_T2, hi20(offset)));
   write32le(buf + 4, rtype(SUB, X_T1, X_T1, X_T3));
   write32le(buf + 8, itype(ptrload, X_T3, X_T2, lo12(offset)));
@@ -301,9 +301,9 @@ void RISCV::writePlt(uint8_t *buf, const Symbol &sym,
   // (c)jalr (c)t1, (c)t3
   // nop
   uint32_t ptrload =
-      config->isCheriAbi
-          ? (!config->zCheriRiscvV9 ? CLC : (config->is64 ? CLC_128 : CLC_64))
-          : (config->is64 ? LD : LW);
+      ctx.arg.isCheriAbi
+          ? (!ctx.arg.zCheriRiscvV9 ? CLC : (ctx.arg.is64 ? CLC_128 : CLC_64))
+          : (ctx.arg.is64 ? LD : LW);
   uint32_t entryva = sym.getGotPltVA();
   uint32_t offset = entryva - pltEntryAddr;
   write32le(buf + 0, utype(AUIPC, X_T3, hi20(offset)));
@@ -383,7 +383,7 @@ RelExpr RISCV::getRelExpr(const RelType type, const Symbol &s,
   case R_RISCV_TPREL_ADD:
   case R_RISCV_CHERI_TPREL_CINCOFFSET:
   case R_RISCV_RELAX:
-    return config->relax ? R_RELAX_HINT : R_NONE;
+    return ctx.arg.relax ? R_RELAX_HINT : R_NONE;
   case R_RISCV_SET_ULEB128:
   case R_RISCV_SUB_ULEB128:
     return R_RISCV_LEB128;
@@ -405,7 +405,7 @@ RelExpr RISCV::getRelExpr(const RelType type, const Symbol &s,
 }
 
 void RISCV::relocate(uint8_t *loc, const Relocation &rel, uint64_t val) const {
-  const unsigned bits = config->wordsize * 8;
+  const unsigned bits = ctx.arg.wordsize * 8;
 
   switch (rel.type) {
   case R_RISCV_32:
@@ -601,13 +601,13 @@ void RISCV::relocate(uint8_t *loc, const Relocation &rel, uint64_t val) const {
     return;
 
   case R_RISCV_TLS_DTPREL32:
-    if (config->isCheriAbi)
+    if (ctx.arg.isCheriAbi)
       write32le(loc, val);
     else
       write32le(loc, val - dtpOffset);
     break;
   case R_RISCV_TLS_DTPREL64:
-    if (config->isCheriAbi)
+    if (ctx.arg.isCheriAbi)
       write64le(loc, val);
     else
       write64le(loc, val - dtpOffset);
@@ -617,7 +617,7 @@ void RISCV::relocate(uint8_t *loc, const Relocation &rel, uint64_t val) const {
     return;
   case R_RISCV_TLSDESC:
     // The addend is stored in the second word.
-    if (config->is64)
+    if (ctx.arg.is64)
       write64le(loc + 8, val);
     else
       write32le(loc + 4, val);
@@ -626,7 +626,7 @@ void RISCV::relocate(uint8_t *loc, const Relocation &rel, uint64_t val) const {
   case R_RISCV_CHERI_CAPABILITY:
   case R_RISCV_CHERI_CAPABILITY_CODE:
     // Write a word within the capability
-    if (config->is64)
+    if (ctx.arg.is64)
       write64le(loc, val);
     else
       write32le(loc, val);
@@ -650,7 +650,7 @@ static void tlsdescToIe(uint8_t *loc, const Relocation &rel, uint64_t val) {
     write32le(loc, utype(AUIPC, X_A0, hi20(val))); // auipc a0,<hi20>
     break;
   case R_RISCV_TLSDESC_CALL:
-    if (config->is64)
+    if (ctx.arg.is64)
       write32le(loc, itype(LD, X_A0, X_A0, lo12(val))); // ld a0,<lo12>(a0)
     else
       write32le(loc, itype(LW, X_A0, X_A0, lo12(val))); // lw a0,<lo12>(a0)
@@ -840,7 +840,7 @@ static void relaxCall(const InputSection &sec, size_t i, uint64_t loc,
     sec.relaxAux->writes.push_back(0xa001); // c.j
     remove = 6;
   } else if (rvc && isInt<12>(displace) && rd == X_RA &&
-             !config->is64) { // RV32C only
+             !ctx.arg.is64) { // RV32C only
     sec.relaxAux->relocTypes[i] = R_RISCV_RVC_JUMP;
     sec.relaxAux->writes.push_back(0x2001); // c.jal
     remove = 6;
@@ -1007,7 +1007,7 @@ static bool relax(InputSection &sec) {
 // relaxation pass.
 bool RISCV::relaxOnce(int pass) const {
   llvm::TimeTraceScope timeScope("RISC-V relaxOnce");
-  if (config->relocatable)
+  if (ctx.arg.relocatable)
     return false;
 
   if (pass == 0)
