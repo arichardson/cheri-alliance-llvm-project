@@ -3278,5 +3278,5 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   }
 
   // Write the result to the file.
-  writeResult<ELFT>();
+  writeResult<ELFT>(ctx);
 }
