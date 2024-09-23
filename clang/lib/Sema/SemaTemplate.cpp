@@ -8639,6 +8639,7 @@ DeclResult Sema::ActOnClassTemplateSpecialization(
     return SkipBody->Previous;
 
   Specialization->setInvalidDecl(Invalid);
+  inferGslOwnerPointerAttribute(Specialization);
   return Specialization;
 }
 
