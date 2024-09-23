@@ -29,8 +29,6 @@ using namespace llvm::ELF;
 using namespace lld;
 using namespace lld::elf;
 
-SymbolTable elf::symtab;
-
 Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   assert(!original->includeInDynsym() && "Already included in dynsym?");
   assert(original->isFunc() && "This should only be used for functions");
@@ -49,11 +47,11 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   }
 
   std::string uniqueName = ("__cheri_fnptr_" + original->getName()).str();
-  for (int i = 2; symtab.find(uniqueName); i++) {
+  for (int i = 2; ctx.symtab->find(uniqueName); i++) {
     uniqueName = ("__cheri_fnptr" + Twine(i) + "_" + original->getName()).str();
   }
   StringRef newName = saver().save(uniqueName);
-  Symbol* newSym = symtab.insert(newName);
+  Symbol* newSym = ctx.symtab->insert(newName);
   newSym->resolve(cast<Defined>(*original));
   newSym->setName(newName); // resolve() changes the name to original->name
   newSym->binding = llvm::ELF::STB_GLOBAL;
@@ -72,7 +70,6 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   localSymbolsForDynsym[original] = cast<Defined>(newSym);
   return cast<Defined>(newSym);
 }
-
 
 void SymbolTable::wrap(Symbol *sym, Symbol *real, Symbol *wrap) {
   // Redirect __real_foo to the original foo and foo to the original __wrap_foo.

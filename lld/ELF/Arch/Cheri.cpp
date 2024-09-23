@@ -298,7 +298,7 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
   auto targetSym = target.sym();
   if (targetSize == 0 && !targetSym->isPreemptible) {
     StringRef name = targetSym->getName();
-    auto esym = symtab.find(std::string("size$") + std::string(name));
+    auto esym = ctx.symtab->find(std::string("size$") + std::string(name));
     if (esym) {
       auto def = dyn_cast<Defined>(esym);
       if (def && !def->section) {
@@ -744,7 +744,7 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
       refName = saver().save(name + "@CAPTABLE" + symContext);
     // XXXAR: This should no longer be necessary now that I am using addSyntheticLocal?
 #if 0
-    if (Symtab->find(RefName)) {
+    if (ctx.symtab->find(RefName)) {
       std::string NewRefName =
           (Name + "@CAPTABLE" + SymContext + "." + Twine(Index)).str();
       // XXXAR: for some reason we sometimes create more than one cap table entry
@@ -760,7 +760,7 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
                 "\n>>> Replacing with " + NewRefName);
       }
       RefName = std::move(NewRefName);
-      assert(!Symtab->find(RefName) && "RefName should be unique");
+      assert(!ctx.symtab->find(RefName) && "RefName should be unique");
     }
 #endif
     uint64_t off = index * ctx.arg.capabilitySize;
@@ -1017,7 +1017,7 @@ static Symbol &getCheriMipsTrampolineSym(RelType type, Symbol &sym) {
   if (sym.includeInDynsym())
     return sym;
 
-  Defined &newSym = *symtab.ensureSymbolWillBeInDynsym(&sym);
+  Defined &newSym = *ctx.symtab->ensureSymbolWillBeInDynsym(&sym);
   assert(newSym.isFunc() && "This should only be used for functions");
   assert(newSym.includeInDynsym());
   assert(newSym.binding == llvm::ELF::STB_GLOBAL);

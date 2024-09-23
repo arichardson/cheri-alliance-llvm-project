@@ -673,10 +673,10 @@ template <class ELFT> void ObjFile<ELFT>::parse(bool ignoreComdats) {
     if (flag && flag != GRP_COMDAT)
       fatal(toString(this) + ": unsupported SHT_GROUP format");
 
-    bool keepGroup =
-        (flag & GRP_COMDAT) == 0 || ignoreComdats ||
-        symtab.comdatGroups.try_emplace(CachedHashStringRef(signature), this)
-            .second;
+    bool keepGroup = (flag & GRP_COMDAT) == 0 || ignoreComdats ||
+                     ctx.symtab->comdatGroups
+                         .try_emplace(CachedHashStringRef(signature), this)
+                         .second;
     if (keepGroup) {
       if (!ctx.arg.resolveGroups)
         this->sections[i] = createInputSection(
@@ -823,8 +823,8 @@ void ObjFile<ELFT>::initializeSections(bool ignoreComdats,
       ArrayRef<Elf_Word> entries =
           cantFail(obj.template getSectionContentsAsArray<Elf_Word>(sec));
       if ((entries[0] & GRP_COMDAT) == 0 || ignoreComdats ||
-          symtab.comdatGroups.find(CachedHashStringRef(signature))->second ==
-              this)
+          ctx.symtab->comdatGroups.find(CachedHashStringRef(signature))
+                  ->second == this)
         selectedGroups.push_back(entries);
       break;
     }
@@ -1136,7 +1136,8 @@ void ObjFile<ELFT>::initializeSymbols(const object::ELFFile<ELFT> &obj) {
   // Some entries have been filled by LazyObjFile.
   for (size_t i = firstGlobal, end = eSyms.size(); i != end; ++i)
     if (!symbols[i])
-      symbols[i] = symtab.insert(CHECK(eSyms[i].getName(stringTable), this));
+      symbols[i] =
+          ctx.symtab->insert(CHECK(eSyms[i].getName(stringTable), this));
 
   // Perform symbol resolution on non-local symbols.
   SmallVector<unsigned, 32> undefineds;
@@ -1517,7 +1518,7 @@ template <class ELFT> void SharedFile::parse() {
   DenseMap<CachedHashStringRef, SharedFile *>::iterator it;
   bool wasInserted;
   std::tie(it, wasInserted) =
-      symtab.soNames.try_emplace(CachedHashStringRef(soName), this);
+      ctx.symtab->soNames.try_emplace(CachedHashStringRef(soName), this);
 
   // If a DSO appears more than once on the command line with and without
   // --as-needed, --no-as-needed takes precedence over --as-needed because a
@@ -1583,7 +1584,7 @@ template <class ELFT> void SharedFile::parse() {
         name = saver().save(
             (name + "@" + verName).toStringRef(versionedNameBuffer));
       }
-      Symbol *s = symtab.addSymbol(
+      Symbol *s = ctx.symtab->addSymbol(
           Undefined{this, name, sym.getBinding(), sym.st_other, sym.getType()});
       s->exportDynamic = true;
       if (sym.getBinding() != STB_WEAK &&
@@ -1607,7 +1608,7 @@ template <class ELFT> void SharedFile::parse() {
 
     uint32_t alignment = getAlignment<ELFT>(sections, sym);
     if (ver == idx) {
-      auto *s = symtab.addSymbol(
+      auto *s = ctx.symtab->addSymbol(
           SharedSymbol{*this, name, sym.getBinding(), sym.st_other,
                        sym.getType(), sym.st_value, sym.st_size, alignment});
       s->dsoDefined = true;
@@ -1625,7 +1626,7 @@ template <class ELFT> void SharedFile::parse() {
         reinterpret_cast<const Elf_Verdef *>(verdefs[idx])->getAux()->vda_name;
     versionedNameBuffer.clear();
     name = (name + "@" + verName).toStringRef(versionedNameBuffer);
-    auto *s = symtab.addSymbol(
+    auto *s = ctx.symtab->addSymbol(
         SharedSymbol{*this, saver().save(name), sym.getBinding(), sym.st_other,
                      sym.getType(), sym.st_value, sym.st_size, alignment});
     s->dsoDefined = true;
@@ -1760,7 +1761,7 @@ createBitcodeSymbol(Symbol *&sym, const std::vector<bool> &keptComdats,
     // this way LTO can reference the same string saver's copy rather than
     // keeping copies of its own.
     objSym.Name = uniqueSaver().save(objSym.getName());
-    sym = symtab.insert(objSym.getName());
+    sym = ctx.symtab->insert(objSym.getName());
   }
 
   int c = objSym.getComdatIndex();
@@ -1787,7 +1788,7 @@ void BitcodeFile::parse() {
   for (std::pair<StringRef, Comdat::SelectionKind> s : obj->getComdatTable()) {
     keptComdats.push_back(
         s.second == Comdat::NoDeduplicate ||
-        symtab.comdatGroups.try_emplace(CachedHashStringRef(s.first), this)
+        ctx.symtab->comdatGroups.try_emplace(CachedHashStringRef(s.first), this)
             .second);
   }
 
@@ -1819,7 +1820,7 @@ void BitcodeFile::parseLazy() {
     // keeping copies of its own.
     irSym.Name = uniqueSaver().save(irSym.getName());
     if (!irSym.isUndefined()) {
-      auto *sym = symtab.insert(irSym.getName());
+      auto *sym = ctx.symtab->insert(irSym.getName());
       sym->resolve(LazySymbol{*this});
       symbols[i] = sym;
     }
@@ -1856,15 +1857,15 @@ void BinaryFile::parse() {
 
   llvm::StringSaver &saver = lld::saver();
 
-  symtab.addAndCheckDuplicate(Defined{this, saver.save(s + "_start"),
-                                      STB_GLOBAL, STV_DEFAULT, STT_OBJECT, 0, 0,
-                                      section});
-  symtab.addAndCheckDuplicate(Defined{this, saver.save(s + "_end"), STB_GLOBAL,
-                                      STV_DEFAULT, STT_OBJECT, data.size(), 0,
-                                      section});
-  symtab.addAndCheckDuplicate(Defined{this, saver.save(s + "_size"), STB_GLOBAL,
-                                      STV_DEFAULT, STT_OBJECT, data.size(), 0,
-                                      nullptr});
+  ctx.symtab->addAndCheckDuplicate(Defined{this, saver.save(s + "_start"),
+                                           STB_GLOBAL, STV_DEFAULT, STT_OBJECT,
+                                           0, 0, section});
+  ctx.symtab->addAndCheckDuplicate(Defined{this, saver.save(s + "_end"),
+                                           STB_GLOBAL, STV_DEFAULT, STT_OBJECT,
+                                           data.size(), 0, section});
+  ctx.symtab->addAndCheckDuplicate(Defined{this, saver.save(s + "_size"),
+                                           STB_GLOBAL, STV_DEFAULT, STT_OBJECT,
+                                           data.size(), 0, nullptr});
 }
 
 InputFile *elf::createInternalFile(StringRef name) {
@@ -1911,7 +1912,7 @@ template <class ELFT> void ObjFile<ELFT>::parseLazy() {
   for (size_t i = firstGlobal, end = eSyms.size(); i != end; ++i) {
     if (eSyms[i].st_shndx == SHN_UNDEF)
       continue;
-    symbols[i] = symtab.insert(CHECK(eSyms[i].getName(stringTable), this));
+    symbols[i] = ctx.symtab->insert(CHECK(eSyms[i].getName(stringTable), this));
     symbols[i]->resolve(LazySymbol{*this});
     if (!lazy)
       break;
