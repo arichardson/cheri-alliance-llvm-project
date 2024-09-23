@@ -507,12 +507,6 @@ struct Config {
   llvm::SmallVector<std::pair<llvm::GlobPattern, llvm::StringRef>, 0>
       remapInputsWildcards;
 };
-struct ConfigWrapper {
-  Config c;
-  Config *operator->() { return &c; }
-};
-
-LLVM_LIBRARY_VISIBILITY extern ConfigWrapper config;
 
 // Some index properties of a symbol are stored separately in this auxiliary
 // struct to decrease sizeof(SymbolUnion) in the majority of cases.
@@ -572,7 +566,7 @@ struct InStruct {
 };
 
 struct Ctx {
-  Config &arg;
+  Config arg;
   LinkerDriver driver;
   LinkerScript *script;
   TargetInfo *target;
