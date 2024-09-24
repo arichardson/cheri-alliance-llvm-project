@@ -84,6 +84,8 @@ public:
 
   bool X86Sse2Avx = false;
 
+  std::optional<unsigned> OutputAsmVariant;
+
   EmitDwarfUnwindType EmitDwarfUnwind;
 
   int DwarfVersion = 0;
