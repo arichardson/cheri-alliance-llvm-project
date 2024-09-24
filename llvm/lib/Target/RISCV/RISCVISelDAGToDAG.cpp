@@ -2761,8 +2761,10 @@ bool RISCVDAGToDAGISel::SelectCapRegImm(SDValue Cap, SDValue &Base,
                             Subtarget->typeForCapabilities(), false);
 }
 
-bool RISCVDAGToDAGISel::SelectRegImmLsb00000Common(SDValue Addr, SDValue &Base,
-                                                   SDValue &Offset, EVT PtrVT) {
+/// Similar to SelectAddrRegImm, except that the least significant 5 bits of
+/// Offset should be all zeros.
+bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000Common(SDValue Addr, SDValue &Base,
+                                                       SDValue &Offset, EVT PtrVT) {
   if (SelectFrameIndexCommon(Addr, Base, Offset, PtrVT))
     return true;
 
@@ -2833,13 +2835,13 @@ bool RISCVDAGToDAGISel::SelectRegImmLsb00000Common(SDValue Addr, SDValue &Base,
 /// Offset shoule be all zeros.
 bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000(SDValue Addr, SDValue &Base,
                                                  SDValue &Offset) {
-  return SelectRegImmLsb00000Common(Addr, Base, Offset, Subtarget->getXLenVT());
+  return SelectAddrRegImmLsb00000Common(Addr, Base, Offset, Subtarget->getXLenVT());
 }
 
 bool RISCVDAGToDAGISel::SelectCapRegImmLsb00000(SDValue Addr, SDValue &Base,
                                                 SDValue &Offset) {
-  return SelectRegImmLsb00000Common(Addr, Base, Offset,
-                                    Subtarget->typeForCapabilities());
+  return SelectAddrRegImmLsb00000Common(Addr, Base, Offset,
+                                        Subtarget->typeForCapabilities());
 }
 
 bool RISCVDAGToDAGISel::SelectCSetBndImm(SDValue N, SDValue &Val) {
