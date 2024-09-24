@@ -107,7 +107,9 @@ extern struct ps_strings *__ps_strings;
 #  endif  // SANITIZER_NETBSD
 
 #  if SANITIZER_SOLARIS
+#    include <stddef.h>
 #    include <stdlib.h>
+#    include <sys/frame.h>
 #    include <thread.h>
 #    define environ _environ
 #  endif
@@ -2629,7 +2631,19 @@ static void GetPcSpBp(void *context, uptr *pc, uptr *sp, uptr *bp) {
 #    if SANITIZER_SOLARIS
   ucontext_t *ucontext = (ucontext_t *)context;
   *pc = ucontext->uc_mcontext.gregs[REG_PC];
-  *sp = ucontext->uc_mcontext.gregs[REG_O6] + STACK_BIAS;
+  *sp = ucontext->uc_mcontext.gregs[REG_SP] + STACK_BIAS;
+  // Avoid SEGV when dereferencing sp on stack overflow with non-faulting load.
+  // This requires a SPARC V9 CPU.  Cannot use #ASI_PNF here: only supported
+  // since clang-19.
+#      if defined(__sparcv9)
+  asm("ldxa [%[fp]] 0x82, %[bp]"
+#      else
+  asm("lduwa [%[fp]] 0x82, %[bp]"
+#      endif
+      : [bp] "=r"(*bp)
+      : [fp] "r"(&((struct frame *)*sp)->fr_savfp));
+  if (*bp)
+    *bp += STACK_BIAS;
 #    else
   // Historical BSDism here.
   struct sigcontext *scontext = (struct sigcontext *)context;
@@ -2640,8 +2654,8 @@ static void GetPcSpBp(void *context, uptr *pc, uptr *sp, uptr *bp) {
   *pc = scontext->si_regs.pc;
   *sp = scontext->si_regs.u_regs[14];
 #      endif
-#    endif
   *bp = (uptr)((uhwptr *)*sp)[14] + STACK_BIAS;
+#    endif
 #  elif defined(__mips__)
 # if SANITIZER_FREEBSD
   ucontext_t *ucontext = (ucontext_t*)context;
