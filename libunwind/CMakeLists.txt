@@ -67,6 +67,12 @@ set(LIBUNWIND_CXX_ABI "default" CACHE STRING "Name of the C++ ABI library to use
 set_property(CACHE LIBUNWIND_CXX_ABI PROPERTY STRINGS ;${CXXABIS})
 set(LIBUNWIND_USE_VERSION_SCRIPT "" CACHE PATH "version script to use when linking libunwind.so.")
 
+set(LIBUNWIND_LIBRARY_VERSION "1.0" CACHE STRING
+  "Version of libunwind. This will be reflected in the name of the shared library produced.
+   For example, -DLIBUNWIND_LIBRARY_VERSION=x.y will result in the library being named
+   libunwind.x.y.dylib, along with the usual symlinks pointing to that. On Apple platforms,
+   this also controls the linker's 'current_version' property.")
+
 if(MINGW)
   set(LIBUNWIND_DEFAULT_TEST_CONFIG "llvm-libunwind-mingw.cfg.in")
 elseif (LIBUNWIND_ENABLE_SHARED)
