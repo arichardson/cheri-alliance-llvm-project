@@ -20464,11 +20464,14 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
   // If the callee is a GlobalAddress/ExternalSymbol node, turn it into a
   // TargetGlobalAddress/TargetExternalSymbol node so that legalize won't
   // split it and then direct call can be matched by PseudoCALL.
+  bool CalleeIsLargeExternalSymbol = false;
   if (getTargetMachine().getCodeModel() == CodeModel::Large) {
     if (auto *S = dyn_cast<GlobalAddressSDNode>(Callee))
       Callee = getLargeGlobalAddress(S, DL, PtrVT, DAG);
-    else if (auto *S = dyn_cast<ExternalSymbolSDNode>(Callee))
+    else if (auto *S = dyn_cast<ExternalSymbolSDNode>(Callee)) {
       Callee = getLargeExternalSymbol(S, DL, PtrVT, DAG);
+      CalleeIsLargeExternalSymbol = true;
+    }
   } else if (GlobalAddressSDNode *S = dyn_cast<GlobalAddressSDNode>(Callee)) {
     const GlobalValue *GV = S->getGlobal();
     if (RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()) &&
@@ -20517,12 +20520,23 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
   // Emit the call.
   SDVTList NodeTys = DAG.getVTList(MVT::Other, MVT::Glue);
 
+  // Use software guarded branch for large code model non-indirect calls
+  // Tail call to external symbol will have a null CLI.CB and we need another
+  // way to determine the callsite type
+  bool NeedSWGuarded = false;
+  if (getTargetMachine().getCodeModel() == CodeModel::Large &&
+      Subtarget.hasStdExtZicfilp() &&
+      ((CLI.CB && !CLI.CB->isIndirectCall()) || CalleeIsLargeExternalSymbol))
+    NeedSWGuarded = true;
+
   if (IsTailCall) {
     MF.getFrameInfo().setHasTailCall();
     if (RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()))
       return DAG.getNode(RISCVISD::CAP_TAIL, DL, NodeTys, Ops);
     else {
-      SDValue Ret = DAG.getNode(RISCVISD::TAIL, DL, NodeTys, Ops);
+      unsigned CallOpc =
+          NeedSWGuarded ? RISCVISD::SW_GUARDED_TAIL : RISCVISD::TAIL;
+      SDValue Ret = DAG.getNode(CallOpc, DL, NodeTys, Ops);
       if (CLI.CFIType)
         Ret.getNode()->setCFIType(CLI.CFIType->getZExtValue());
       DAG.addNoMergeSiteInfo(Ret.getNode(), CLI.NoMerge);
@@ -20532,8 +20546,10 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
 
   if (RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()))
     Chain = DAG.getNode(RISCVISD::CAP_CALL, DL, NodeTys, Ops);
-  else
-    Chain = DAG.getNode(RISCVISD::CALL, DL, NodeTys, Ops);
+  else {
+    unsigned CallOpc = NeedSWGuarded ? RISCVISD::SW_GUARDED_CALL : RISCVISD::CALL;
+    Chain = DAG.getNode(CallOpc, DL, NodeTys, Ops);
+  }
 
   if (CLI.CFIType)
     Chain.getNode()->setCFIType(CLI.CFIType->getZExtValue());
@@ -20992,6 +21008,8 @@ const char *RISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
   NODE_NAME_CASE(CZERO_EQZ)
   NODE_NAME_CASE(CZERO_NEZ)
   NODE_NAME_CASE(SW_GUARDED_BRIND)
+  NODE_NAME_CASE(SW_GUARDED_CALL)
+  NODE_NAME_CASE(SW_GUARDED_TAIL)
   NODE_NAME_CASE(TUPLE_INSERT)
   NODE_NAME_CASE(TUPLE_EXTRACT)
   NODE_NAME_CASE(SF_VC_XV_SE)
