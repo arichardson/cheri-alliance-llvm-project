@@ -46,7 +46,7 @@ struct PhdrEntry {
 
 void addReservedSymbols(Ctx &ctx);
 bool includeInSymtab(const Symbol &b);
-unsigned getSectionRank(OutputSection &osec);
+unsigned getSectionRank(Ctx &, OutputSection &osec);
 
 bool isCheriAbi(const InputFile *f);
 
@@ -58,7 +58,7 @@ uint8_t getMipsIsaExt(uint64_t oldExt, llvm::StringRef oldFile, uint64_t newExt,
                       llvm::StringRef newFile);
 void checkMipsShlibCompatible(InputFile *f, uint64_t shlibCheriFlags,
                               uint64_t targetCheriFlags);
-bool isRelroSection(const OutputSection *sec);
+bool isRelroSection(Ctx& ctx, const OutputSection *sec);
 
 bool isMipsN32Abi(const InputFile *f);
 bool isMicroMips();

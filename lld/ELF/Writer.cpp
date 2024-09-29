@@ -312,7 +312,8 @@ static void demoteSymbolsAndComputeIsPreemptible(Ctx &ctx) {
   }
 }
 
-static OutputSection *findSection(StringRef name, unsigned partition = 1) {
+static OutputSection *findSection(Ctx &ctx, StringRef name,
+                                  unsigned partition = 1) {
   for (SectionCommand *cmd : ctx.script->sectionCommands)
     if (auto *osd = dyn_cast<OutputDesc>(cmd))
       if (osd->osec.name == name && osd->osec.partition == partition)
@@ -564,7 +565,7 @@ template <class ELFT> void Writer<ELFT>::addSectionSymbols() {
 //
 // This function returns true if a section needs to be put into a
 // PT_GNU_RELRO segment.
-bool elf::isRelroSection(const OutputSection *sec) {
+bool elf::isRelroSection(Ctx &ctx, const OutputSection *sec) {
   if (!ctx.arg.zRelro)
     return false;
   if (sec->relro)
@@ -677,7 +678,7 @@ enum RankFlags {
   RF_BSS = 1 << 7,
 };
 
-unsigned elf::getSectionRank(OutputSection &osec) {
+unsigned elf::getSectionRank(Ctx &ctx, OutputSection &osec) {
   unsigned rank = osec.partition * RF_PARTITION;
 
   // We want to put section specified by -T option first, so we
@@ -742,7 +743,7 @@ unsigned elf::getSectionRank(OutputSection &osec) {
     // TLS sections directly before the other RELRO sections.
     if (!(osec.flags & SHF_TLS))
       rank |= RF_NOT_TLS;
-    if (isRelroSection(&osec))
+    if (isRelroSection(ctx, &osec))
       osec.relro = true;
     else
       rank |= RF_NOT_RELRO;
@@ -950,8 +951,8 @@ template <class ELFT> void Writer<ELFT>::setReservedSymbolSections() {
   if (ctx.sym.bss) {
     // On RISC-V, set __bss_start to the start of .sbss if present.
     OutputSection *sbss =
-        ctx.arg.emachine == EM_RISCV ? findSection(".sbss") : nullptr;
-    ctx.sym.bss->section = sbss ? sbss : findSection(".bss");
+        ctx.arg.emachine == EM_RISCV ? findSection(ctx, ".sbss") : nullptr;
+    ctx.sym.bss->section = sbss ? sbss : findSection(ctx, ".bss");
   }
 
   // Setup MIPS _gp_disp/__gnu_local_gp symbols which should
@@ -1004,7 +1005,7 @@ static bool shouldSkip(SectionCommand *cmd) {
 // characteristics with their neighbors as possible. For example, if
 // both are rw, or both are tls.
 static SmallVectorImpl<SectionCommand *>::iterator
-findOrphanPos(SmallVectorImpl<SectionCommand *>::iterator b,
+findOrphanPos(Ctx &ctx, SmallVectorImpl<SectionCommand *>::iterator b,
               SmallVectorImpl<SectionCommand *>::iterator e) {
   // Place non-alloc orphan sections at the end. This matches how we assign file
   // offsets to non-alloc sections.
@@ -1086,7 +1087,8 @@ findOrphanPos(SmallVectorImpl<SectionCommand *>::iterator b,
 }
 
 // Adds random priorities to sections not already in the map.
-static void maybeShuffle(DenseMap<const InputSectionBase *, int> &order) {
+static void maybeShuffle(Ctx &ctx,
+                         DenseMap<const InputSectionBase *, int> &order) {
   if (ctx.arg.shuffleSections.empty())
     return;
 
@@ -1124,7 +1126,7 @@ static void maybeShuffle(DenseMap<const InputSectionBase *, int> &order) {
 }
 
 // Builds section order for handling --symbol-ordering-file.
-static DenseMap<const InputSectionBase *, int> buildSectionOrder() {
+static DenseMap<const InputSectionBase *, int> buildSectionOrder(Ctx &ctx) {
   DenseMap<const InputSectionBase *, int> sectionOrder;
   // Use the rarely used option --call-graph-ordering-file to sort sections.
   if (!ctx.arg.callGraphProfile.empty())
@@ -1183,7 +1185,7 @@ static DenseMap<const InputSectionBase *, int> buildSectionOrder() {
 
 // Sorts the sections in ISD according to the provided section order.
 static void
-sortISDBySectionOrder(InputSectionDescription *isd,
+sortISDBySectionOrder(Ctx &ctx, InputSectionDescription *isd,
                       const DenseMap<const InputSectionBase *, int> &order,
                       bool executableOutputSection) {
   SmallVector<InputSection *, 0> unorderedSections;
@@ -1257,7 +1259,7 @@ sortISDBySectionOrder(InputSectionDescription *isd,
     isd->sections.push_back(isec);
 }
 
-static void sortSection(OutputSection &osec,
+static void sortSection(Ctx &ctx, OutputSection &osec,
                         const DenseMap<const InputSectionBase *, int> &order) {
   StringRef name = osec.name;
 
@@ -1272,7 +1274,7 @@ static void sortSection(OutputSection &osec,
   if (!order.empty())
     for (SectionCommand *b : osec.commands)
       if (auto *isd = dyn_cast<InputSectionDescription>(b))
-        sortISDBySectionOrder(isd, order, osec.flags & SHF_EXECINSTR);
+        sortISDBySectionOrder(ctx, isd, order, osec.flags & SHF_EXECINSTR);
 
   if (ctx.script->hasSectionsCommand)
     return;
@@ -1301,11 +1303,11 @@ static void sortSection(OutputSection &osec,
 // sorting for special input sections. This also handles --symbol-ordering-file.
 template <class ELFT> void Writer<ELFT>::sortInputSections() {
   // Build the order once since it is expensive.
-  DenseMap<const InputSectionBase *, int> order = buildSectionOrder();
-  maybeShuffle(order);
+  DenseMap<const InputSectionBase *, int> order = buildSectionOrder(ctx);
+  maybeShuffle(ctx, order);
   for (SectionCommand *cmd : ctx.script->sectionCommands)
     if (auto *osd = dyn_cast<OutputDesc>(cmd))
-      sortSection(osd->osec, order);
+      sortSection(ctx, osd->osec, order);
 }
 
 template <class ELFT> void Writer<ELFT>::sortSections() {
@@ -1322,7 +1324,7 @@ template <class ELFT> void Writer<ELFT>::sortSections() {
 
   for (SectionCommand *cmd : ctx.script->sectionCommands)
     if (auto *osd = dyn_cast<OutputDesc>(cmd))
-      osd->osec.sortRank = getSectionRank(osd->osec);
+      osd->osec.sortRank = getSectionRank(ctx, osd->osec);
   if (!ctx.script->hasSectionsCommand) {
     // OutputDescs are mostly contiguous, but may be interleaved with
     // SymbolAssignments in the presence of INSERT commands.
@@ -1406,7 +1408,7 @@ template <class ELFT> void Writer<ELFT>::sortOrphanSections() {
   i = firstSectionOrDotAssignment;
 
   while (nonScriptI != e) {
-    auto pos = findOrphanPos(i, nonScriptI);
+    auto pos = findOrphanPos(ctx, i, nonScriptI);
     OutputSection *orphan = &cast<OutputDesc>(*nonScriptI)->osec;
 
     // As an optimization, find all sections with the same sort rank
@@ -1628,7 +1630,7 @@ template <class ELFT> void Writer<ELFT>::finalizeAddressDependentContent() {
 // update symbol values and sizes associated with these sections.  With basic
 // block sections, input sections can shrink when the jump instructions at
 // the end of the section are relaxed.
-static void fixSymbolsAfterShrinking() {
+static void fixSymbolsAfterShrinking(Ctx &ctx) {
   for (InputFile *File : ctx.objectFiles) {
     parallelForEach(File->getSymbols(), [&](Symbol *Sym) {
       auto *def = dyn_cast<Defined>(Sym);
@@ -1702,7 +1704,7 @@ template <class ELFT> void Writer<ELFT>::optimizeBasicBlockJumps() {
     }
   }
 
-  fixSymbolsAfterShrinking();
+  fixSymbolsAfterShrinking(ctx);
 
   for (OutputSection *osec : ctx.outputSections)
     for (InputSection *is : getInputSections(*osec, storage))
@@ -1775,9 +1777,9 @@ static Defined *addAbsolute(StringRef name) {
 template <class ELFT> void Writer<ELFT>::finalizeSections() {
   StringRef captableSym = "_CHERI_CAPABILITY_TABLE_";
   if (!ctx.arg.relocatable) {
-    ctx.out.preinitArray = findSection(".preinit_array");
-    ctx.out.initArray = findSection(".init_array");
-    ctx.out.finiArray = findSection(".fini_array");
+    ctx.out.preinitArray = findSection(ctx, ".preinit_array");
+    ctx.out.initArray = findSection(ctx, ".init_array");
+    ctx.out.finiArray = findSection(ctx, ".fini_array");
 
     // The linker needs to define SECNAME_start, SECNAME_end and SECNAME_stop
     // symbols for sections, so that the runtime can get the start and end
@@ -1823,7 +1825,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     // st_shndx arbitrarily to 1 (ctx.out.elfHeader).
     if (ctx.arg.emachine == EM_RISCV) {
       if (!ctx.arg.shared) {
-        OutputSection *sec = findSection(".sdata");
+        OutputSection *sec = findSection(ctx, ".sdata");
         addOptionalRegular(ctx, "__global_pointer$",
                            sec ? sec : ctx.out.elfHeader, 0x800, STV_DEFAULT);
         // Set riscvGlobalPointer to be used by the optional global pointer
@@ -2270,15 +2272,15 @@ template <class ELFT> void Writer<ELFT>::addStartEndSymbols() {
   define("__preinit_array_start", "__preinit_array_end", ctx.out.preinitArray);
   define("__init_array_start", "__init_array_end", ctx.out.initArray);
   define("__fini_array_start", "__fini_array_end", ctx.out.finiArray);
-  define("__ctors_start", "__ctors_end", findSection(".ctors"));
-  define("__dtors_start", "__dtors_end", findSection(".dtors"));
+  define("__ctors_start", "__ctors_end", findSection(ctx, ".ctors"));
+  define("__dtors_start", "__dtors_end", findSection(ctx, ".dtors"));
   if (ctx.in.mipsCheriCapTable)
     define("__cap_table_start", "__cap_table_end",
            ctx.in.mipsCheriCapTable->getOutputSection());
 
   // As a special case, don't unnecessarily retain .ARM.exidx, which would
   // create an empty PT_ARM_EXIDX.
-  if (OutputSection *sec = findSection(".ARM.exidx"))
+  if (OutputSection *sec = findSection(ctx, ".ARM.exidx"))
     define("__exidx_start", "__exidx_end", sec);
 }
 
@@ -2351,7 +2353,7 @@ SmallVector<PhdrEntry *, 0> Writer<ELFT>::createPhdrs(Partition &part) {
       addHdr(PT_PHDR, PF_R)->add(part.programHeaders->getParent());
 
     // PT_INTERP must be the second entry if exists.
-    if (OutputSection *cmd = findSection(".interp", partNo))
+    if (OutputSection *cmd = findSection(ctx, ".interp", partNo))
       addHdr(PT_INTERP, cmd->getPhdrFlags())->add(cmd);
 
     // Add the headers. We will remove them if they don't fit.
@@ -2374,7 +2376,7 @@ SmallVector<PhdrEntry *, 0> Writer<ELFT>::createPhdrs(Partition &part) {
   for (OutputSection *sec : ctx.outputSections) {
     if (sec->partition != partNo || !needsPtLoad(sec))
       continue;
-    if (isRelroSection(sec)) {
+    if (isRelroSection(ctx, sec)) {
       inRelroPhdr = true;
       if (!relroEnd)
         relRo->add(sec);
@@ -2468,17 +2470,17 @@ SmallVector<PhdrEntry *, 0> Writer<ELFT>::createPhdrs(Partition &part) {
   if (ctx.arg.osabi == ELFOSABI_OPENBSD) {
     // PT_OPENBSD_MUTABLE makes the dynamic linker fill the segment with
     // zero data, like bss, but it can be treated differently.
-    if (OutputSection *cmd = findSection(".openbsd.mutable", partNo))
+    if (OutputSection *cmd = findSection(ctx, ".openbsd.mutable", partNo))
       addHdr(PT_OPENBSD_MUTABLE, cmd->getPhdrFlags())->add(cmd);
 
     // PT_OPENBSD_RANDOMIZE makes the dynamic linker fill the segment
     // with random data.
-    if (OutputSection *cmd = findSection(".openbsd.randomdata", partNo))
+    if (OutputSection *cmd = findSection(ctx, ".openbsd.randomdata", partNo))
       addHdr(PT_OPENBSD_RANDOMIZE, cmd->getPhdrFlags())->add(cmd);
 
     // PT_OPENBSD_SYSCALLS makes the kernel and dynamic linker register
     // system call sites.
-    if (OutputSection *cmd = findSection(".openbsd.syscalls", partNo))
+    if (OutputSection *cmd = findSection(ctx, ".openbsd.syscalls", partNo))
       addHdr(PT_OPENBSD_SYSCALLS, cmd->getPhdrFlags())->add(cmd);
   }
 
@@ -2500,7 +2502,7 @@ SmallVector<PhdrEntry *, 0> Writer<ELFT>::createPhdrs(Partition &part) {
   if (ctx.arg.zWxneeded)
     addHdr(PT_OPENBSD_WXNEEDED, PF_X);
 
-  if (OutputSection *cmd = findSection(".note.gnu.property", partNo))
+  if (OutputSection *cmd = findSection(ctx, ".note.gnu.property", partNo))
     addHdr(PT_GNU_PROPERTY, PF_R)->add(cmd);
 
   // Create one PT_NOTE per a group of contiguous SHT_NOTE sections with the
@@ -2606,7 +2608,7 @@ template <class ELFT> void Writer<ELFT>::fixSectionAlignments() {
 // Compute an in-file position for a given section. The file offset must be the
 // same with its virtual address modulo the page size, so that the loader can
 // load executables without any address adjustment.
-static uint64_t computeFileOffset(OutputSection *os, uint64_t off) {
+static uint64_t computeFileOffset(Ctx &ctx, OutputSection *os, uint64_t off) {
   // The first section in a PT_LOAD has to have congruent offset and address
   // modulo the maximum page size.
   if (os->ptLoad && os->ptLoad->firstSec == os)
@@ -2669,7 +2671,7 @@ template <class ELFT> void Writer<ELFT>::assignFileOffsets() {
   for (OutputSection *sec : ctx.outputSections) {
     if (!(sec->flags & SHF_ALLOC))
       continue;
-    off = computeFileOffset(sec, off);
+    off = computeFileOffset(ctx, sec, off);
     sec->offset = off;
     if (sec->type != SHT_NOBITS)
       off += sec->size;
@@ -2852,7 +2854,7 @@ template <class ELFT> void Writer<ELFT>::checkSections() {
 // 3. the value of the symbol _start, if present;
 // 4. the number represented by the entry symbol, if it is a number;
 // 5. the address 0.
-static uint64_t getEntryAddr() {
+static uint64_t getEntryAddr(Ctx &ctx) {
   // Case 1, 2 or 3
   if (Symbol *b = ctx.symtab->find(ctx.arg.entry))
     return b->getVA();
@@ -2869,7 +2871,7 @@ static uint64_t getEntryAddr() {
   return 0;
 }
 
-static uint16_t getELFType() {
+static uint16_t getELFType(Ctx &ctx) {
   if (ctx.arg.isPic)
     return ET_DYN;
   if (ctx.arg.relocatable)
@@ -2882,8 +2884,8 @@ template <class ELFT> void Writer<ELFT>::writeHeader() {
   writePhdrs<ELFT>(ctx.bufferStart + sizeof(Elf_Ehdr), *ctx.mainPart);
 
   auto *eHdr = reinterpret_cast<Elf_Ehdr *>(ctx.bufferStart);
-  eHdr->e_type = getELFType();
-  eHdr->e_entry = getEntryAddr();
+  eHdr->e_type = getELFType(ctx);
+  eHdr->e_entry = getEntryAddr(ctx);
 
   // If -z nosectionheader is specified, omit the section header table.
   if (!ctx.in.shStrTab)
@@ -2957,9 +2959,10 @@ template <class ELFT> void Writer<ELFT>::writeSectionsBinary() {
       sec->writeTo<ELFT>(ctx.bufferStart + sec->offset, tg);
 }
 
-static void fillTrap(uint8_t *i, uint8_t *end) {
+static void fillTrap(std::array<uint8_t, 4> trapInstr, uint8_t *i,
+                     uint8_t *end) {
   for (; i + 4 <= end; i += 4)
-    memcpy(i, &ctx.target->trapInstr, 4);
+    memcpy(i, trapInstr.data(), 4);
 }
 
 // Fill the last page of executable segments with trap instructions
@@ -2974,6 +2977,7 @@ template <class ELFT> void Writer<ELFT>::writeTrapInstr() {
     for (PhdrEntry *p : part.phdrs)
       if (p->p_type == PT_LOAD && (p->p_flags & PF_X))
         fillTrap(
+            ctx.target->trapInstr,
             ctx.bufferStart + alignDown(p->firstSec->offset + p->p_filesz, 4),
             ctx.bufferStart + alignToPowerOf2(p->firstSec->offset + p->p_filesz,
                                               ctx.arg.maxPageSize));

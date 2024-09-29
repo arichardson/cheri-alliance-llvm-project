@@ -73,7 +73,7 @@ static PermissionKind getCapabilityPermissionKind(const Symbol &sym) {
     else
       kind = PK_FUNC;
   else if (auto *os = sym.getOutputSection()) {
-    if ((os->flags & SHF_WRITE) == 0 || isRelroSection(os)) {
+    if ((os->flags & SHF_WRITE) == 0 || isRelroSection(ctx, os)) {
       kind = PK_CONST;
     } else {
       kind = PK_OBJ;
@@ -474,7 +474,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
     } else if (os) {
       assert(!isTls);
       // if ((OS->getPhdrFlags() & PF_W) == 0) {
-      if (((os->flags & SHF_WRITE) == 0) || isRelroSection(os)) {
+      if (((os->flags & SHF_WRITE) == 0) || isRelroSection(ctx, os)) {
         permissions |= CapRelocPermission<ELFT>::readOnly;
       } else if (os->flags & SHF_EXECINSTR) {
         warn("Non-function __cap_reloc against symbol in section with "
