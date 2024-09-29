@@ -4085,7 +4085,7 @@ void MergeNoTailSection::finalizeContents() {
   });
 }
 
-template <class ELFT> void elf::splitSections() {
+template <class ELFT> void elf::splitSections(Ctx &ctx) {
   llvm::TimeTraceScope timeScope("Split sections");
   // splitIntoPieces needs to be called on each MergeInputSection
   // before calling finalizeContents().
@@ -4101,7 +4101,7 @@ template <class ELFT> void elf::splitSections() {
   });
 }
 
-void elf::combineEhSections() {
+void elf::combineEhSections(Ctx &ctx) {
   llvm::TimeTraceScope timeScope("Combine EH sections");
   for (EhInputSection *sec : ctx.ehInputSections) {
     EhFrameSection &eh = *sec->getPartition().ehFrame;
@@ -4647,7 +4647,7 @@ void InStruct::reset() {
   symTabShndx.reset();
 }
 
-static bool needsInterpSection() {
+static bool needsInterpSection(Ctx &ctx) {
   return !ctx.arg.relocatable && !ctx.arg.shared &&
          !ctx.arg.dynamicLinker.empty() && ctx.script->needsInterpSection();
 }
@@ -4665,7 +4665,7 @@ bool elf::hasMemtag() {
 // that ifuncs use in fully static executables.
 bool elf::canHaveMemtagGlobals() {
   return hasMemtag() &&
-         (ctx.arg.relocatable || ctx.arg.shared || needsInterpSection());
+         (ctx.arg.relocatable || ctx.arg.shared || needsInterpSection(ctx));
 }
 
 constexpr char kMemtagAndroidNoteName[] = "Android";
@@ -4804,11 +4804,11 @@ static Defined *addOptionalRegular(StringRef name, SectionBase *sec,
   return cast<Defined>(s);
 }
 
-template <class ELFT> void elf::createSyntheticSections() {
+template <class ELFT> void elf::createSyntheticSections(Ctx &ctx) {
   // Add the .interp section first because it is not a SyntheticSection.
   // The removeUnusedSyntheticSections() function relies on the
   // SyntheticSections coming last.
-  if (needsInterpSection()) {
+  if (needsInterpSection(ctx)) {
     for (size_t i = 1; i <= ctx.partitions.size(); ++i) {
       InputSection *sec = createInterpSection();
       sec->partition = i;
@@ -4816,7 +4816,7 @@ template <class ELFT> void elf::createSyntheticSections() {
     }
   }
 
-  auto add = [](SyntheticSection &sec) { ctx.inputSections.push_back(&sec); };
+  auto add = [&](SyntheticSection &sec) { ctx.inputSections.push_back(&sec); };
 
   if (ctx.arg.zSectionHeader)
     ctx.in.shStrTab = std::make_unique<StringTableSection>(".shstrtab", false);
@@ -5105,10 +5105,10 @@ template <class ELFT> void elf::createSyntheticSections() {
     add(*ctx.in.strTab);
 }
 
-template void elf::splitSections<ELF32LE>();
-template void elf::splitSections<ELF32BE>();
-template void elf::splitSections<ELF64LE>();
-template void elf::splitSections<ELF64BE>();
+template void elf::splitSections<ELF32LE>(Ctx &);
+template void elf::splitSections<ELF32BE>(Ctx &);
+template void elf::splitSections<ELF64LE>(Ctx &);
+template void elf::splitSections<ELF64BE>(Ctx &);
 
 template void EhFrameSection::iterateFDEWithLSDA<ELF32LE>(
     function_ref<void(InputSection &)>);
@@ -5134,10 +5134,10 @@ template void elf::writePhdrs<ELF32BE>(uint8_t *Buf, Partition &Part);
 template void elf::writePhdrs<ELF64LE>(uint8_t *Buf, Partition &Part);
 template void elf::writePhdrs<ELF64BE>(uint8_t *Buf, Partition &Part);
 
-template void elf::createSyntheticSections<ELF32LE>();
-template void elf::createSyntheticSections<ELF32BE>();
-template void elf::createSyntheticSections<ELF64LE>();
-template void elf::createSyntheticSections<ELF64BE>();
+template void elf::createSyntheticSections<ELF32LE>(Ctx &);
+template void elf::createSyntheticSections<ELF32BE>(Ctx &);
+template void elf::createSyntheticSections<ELF64LE>(Ctx &);
+template void elf::createSyntheticSections<ELF64BE>(Ctx &);
 
 template class elf::MipsAbiFlagsSection<ELF32LE>;
 template class elf::MipsAbiFlagsSection<ELF32BE>;
