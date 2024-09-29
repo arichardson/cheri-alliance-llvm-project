@@ -1737,7 +1737,7 @@ void RelocationBaseSection::addSymbolReloc(
     warn("capability relocation with non-zero addend (0x" +
          llvm::utohexstr(addend) + ") against preemptible function " +
          toString(sym) + "; this may not be supported by the runtime linker" +
-         getLocationMessage(isec, sym, offsetInSec));
+         getLocationMessage(ctx, isec, sym, offsetInSec));
 
   // .chericap initialises the memory to 0xcacacaca not 0, so if writing
   // addends we still need to write even it if zero (and must have an

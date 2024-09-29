@@ -156,12 +156,12 @@ struct JumpInstrMod {
 // Call reportUndefinedSymbols() after calling scanRelocations() to emit
 // the diagnostics.
 template <class ELFT> void scanRelocations(Ctx &ctx);
-template <class ELFT> void checkNoCrossRefs();
+template <class ELFT> void checkNoCrossRefs(Ctx &ctx);
 void reportUndefinedSymbols();
 void postScanRelocations(Ctx &ctx);
-void addGotEntry(Symbol &sym);
+void addGotEntry(Ctx &ctx, Symbol &sym);
 
-void hexagonTLSSymbolUpdate(ArrayRef<OutputSection *> outputSections);
+void hexagonTLSSymbolUpdate(Ctx &ctx);
 bool hexagonNeedsTLSSymbol(ArrayRef<OutputSection *> outputSections);
 
 class ThunkSection;
@@ -323,8 +323,8 @@ static inline int64_t getAddend(const typename ELFT::Crel &rel) {
   return rel.r_addend;
 }
 
-std::string getLocationMessage(const InputSectionBase &s, const Symbol &sym,
-                               uint64_t off);
+std::string getLocationMessage(Ctx& ctx, const InputSectionBase &s,
+                               const Symbol &sym, uint64_t off);
 
 
 template <typename RelTy>
