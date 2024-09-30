@@ -1558,7 +1558,7 @@ public:
 
     // Assume that target intrinsics are cheap.
     Intrinsic::ID IID = ICA.getID();
-    if (Function::isTargetIntrinsic(IID))
+    if (Intrinsic::isTargetIntrinsic(IID))
       return TargetTransformInfo::TCC_Basic;
 
     if (ICA.isTypeBasedOnly())
