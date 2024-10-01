@@ -281,6 +281,7 @@ copy("Headers") {
     "rdpruintrin.h",
     "rdseedintrin.h",
     "riscv_bitmanip.h",
+    "riscv_corev_alu.h",
     "riscv_crypto.h",
     "riscv_ntlh.h",
     "rtmintrin.h",
