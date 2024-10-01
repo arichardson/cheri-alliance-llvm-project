@@ -1994,7 +1994,7 @@ Value *llvm::emitMalloc(Value *Num, IRBuilderBase &B, const DataLayout &DL,
 }
 
 Value *llvm::emitCalloc(Value *Num, Value *Size, IRBuilderBase &B,
-                        const TargetLibraryInfo &TLI) {
+                        const TargetLibraryInfo &TLI, unsigned AddrSpace) {
   Module *M = B.GetInsertBlock()->getModule();
   if (!isLibFuncEmittable(M, &TLI, LibFunc_calloc))
     return nullptr;
