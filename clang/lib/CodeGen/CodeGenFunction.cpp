@@ -1807,6 +1807,8 @@ void CodeGenFunction::EmitBranchToCounterBlock(
   if (!InstrumentRegions || !isInstrumentedCondition(Cond))
     return EmitBranchOnBoolExpr(Cond, TrueBlock, FalseBlock, TrueCount, LH);
 
+  const Stmt *CntrStmt = (CntrIdx ? CntrIdx : Cond);
+
   llvm::BasicBlock *ThenBlock = nullptr;
   llvm::BasicBlock *ElseBlock = nullptr;
   llvm::BasicBlock *NextBlock = nullptr;
@@ -1859,7 +1861,7 @@ void CodeGenFunction::EmitBranchToCounterBlock(
   EmitBlock(CounterIncrBlock);
 
   // Increment corresponding counter; if index not provided, use Cond as index.
-  incrementProfileCounter(CntrIdx ? CntrIdx : Cond);
+  incrementProfileCounter(CntrStmt);
 
   // Go to the next block.
   EmitBranch(NextBlock);
