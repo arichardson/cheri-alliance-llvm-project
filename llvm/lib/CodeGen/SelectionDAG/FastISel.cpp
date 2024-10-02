@@ -397,6 +397,10 @@ Register FastISel::getRegForGEPIndex(MVT PtrVT, const Value *Idx) {
   return IdxN;
 }
 
+Register FastISel::getRegForGEPIndex(const Value *Idx) {
+  return getRegForGEPIndex(TLI.getPointerRangeTy(DL), Idx);
+}
+
 void FastISel::recomputeInsertPt() {
   if (getLastLocalValue()) {
     FuncInfo.InsertPt = getLastLocalValue();
