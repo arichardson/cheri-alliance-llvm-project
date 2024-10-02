@@ -1625,8 +1625,6 @@ static void computeKnownBitsFromOperator(const Operator *I,
                    Known3.isNonNegative())
             Known.makeNonNegative();
         }
-
-        break;
       }
     }
 
