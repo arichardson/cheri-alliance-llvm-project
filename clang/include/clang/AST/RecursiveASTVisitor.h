@@ -2876,6 +2876,7 @@ DEF_TRAVERSE_STMT(ParenListExpr, {})
 DEF_TRAVERSE_STMT(SYCLUniqueStableNameExpr, {
   TRY_TO(TraverseTypeLoc(S->getTypeSourceInfo()->getTypeLoc()));
 })
+DEF_TRAVERSE_STMT(OpenACCAsteriskSizeExpr, {})
 DEF_TRAVERSE_STMT(PredefinedExpr, {})
 DEF_TRAVERSE_STMT(ShuffleVectorExpr, {})
 DEF_TRAVERSE_STMT(ConvertVectorExpr, {})
