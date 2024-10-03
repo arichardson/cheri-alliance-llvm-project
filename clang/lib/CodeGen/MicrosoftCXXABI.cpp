@@ -3171,8 +3171,8 @@ MicrosoftCXXABI::GetVBaseOffsetFromVBPtr(CodeGenFunction &CGF,
     VBPtrAlign = CGF.getPointerAlign();
   }
 
-  llvm::Value *VBTable = Builder.CreateAlignedLoad(
-      CGM.Int32Ty->getPointerTo(0), VBPtr, VBPtrAlign, "vbtable");
+  llvm::Value *VBTable =
+      Builder.CreateAlignedLoad(CGM.UnqualPtrTy, VBPtr, VBPtrAlign, "vbtable");
 
   // Translate from byte offset to table index. It improves analyzability.
   llvm::Value *VBTableIndex = Builder.CreateAShr(
