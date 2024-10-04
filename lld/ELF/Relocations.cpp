@@ -104,8 +104,8 @@ std::string elf::getLocationMessage(Ctx &ctx, const InputSectionBase &s,
   return getLocation(ctx, s, sym, off);
 }
 
-void elf::reportRangeError(Ctx &, uint8_t *loc, const Relocation &rel, const Twine &v,
-                           int64_t min, uint64_t max) {
+void elf::reportRangeError(Ctx &ctx, uint8_t *loc, const Relocation &rel,
+                           const Twine &v, int64_t min, uint64_t max) {
   ErrorPlace errPlace = getErrorPlace(ctx, loc);
   std::string hint;
   if (rel.sym) {
@@ -617,7 +617,7 @@ static bool canSuggestExternCForCXX(StringRef ref, StringRef def) {
 // Suggest an alternative spelling of an "undefined symbol" diagnostic. Returns
 // the suggested symbol, which is either in the symbol table, or in the same
 // file of sym.
-static const Symbol *getAlternativeSpelling(const Undefined &sym,
+static const Symbol *getAlternativeSpelling(Ctx &ctx, const Undefined &sym,
                                             std::string &pre_hint,
                                             std::string &post_hint) {
   DenseMap<StringRef, const Symbol *> map;
@@ -794,7 +794,7 @@ static void reportUndefinedSymbol(Ctx &ctx, const UndefinedDiag &undef,
   if (correctSpelling) {
     std::string pre_hint = ": ", post_hint;
     if (const Symbol *corrected =
-            getAlternativeSpelling(sym, pre_hint, post_hint)) {
+            getAlternativeSpelling(ctx, sym, pre_hint, post_hint)) {
       msg += "\n>>> did you mean" + pre_hint + toString(*corrected) + post_hint;
       if (corrected->file)
         msg += "\n>>> defined in: " + toString(corrected->file);
@@ -892,13 +892,13 @@ RelType RelocationScanner::getMipsN32RelType(RelTy *&rel) const {
 }
 
 template <bool shard = false>
-static void addRelativeReloc(InputSectionBase &isec, uint64_t offsetInSec,
+static void addRelativeReloc(Ctx &ctx, InputSectionBase &isec, uint64_t offsetInSec,
                              Symbol &sym, int64_t addend, RelExpr expr,
                              RelType type) {
   if (expr == R_ABS_CAP) {
     if (shard) {
       std::lock_guard<std::mutex> lock(relocMutex);
-      addRelativeReloc(isec, offsetInSec, sym, addend, expr, type);
+      addRelativeReloc(ctx, isec, offsetInSec, sym, addend, expr, type);
       return;
     }
 
@@ -906,7 +906,6 @@ static void addRelativeReloc(InputSectionBase &isec, uint64_t offsetInSec,
                                     type);
     return;
   }
-
   Partition &part = isec.getPartition();
 
   if (sym.isTagged()) {
@@ -994,7 +993,7 @@ void elf::addGotEntry(Ctx &ctx, Symbol &sym) {
       (!ctx.arg.isCheriAbi && (!ctx.arg.isPic || isAbsolute(sym))))
     ctx.in.got->addConstant({expr, type, off, 0, &sym});
   else
-    addRelativeReloc(*ctx.in.got, off, sym, 0, expr, type);
+    addRelativeReloc(ctx, *ctx.in.got, off, sym, 0, expr, type);
 }
 
 static void addTpOffsetGotEntry(Ctx &ctx, Symbol &sym) {
@@ -1218,7 +1217,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
         ((rel == ctx.target->symbolicRel || rel == ctx.target->symbolicCapRel ||
           type == ctx.target->symbolicCodeCapRel) &&
          !sym.isPreemptible)) {
-      addRelativeReloc<true>(*sec, offset, sym, addend, expr, type);
+      addRelativeReloc<true>(ctx, *sec, offset, sym, addend, expr, type);
       return;
     }
     if (rel != 0) {
@@ -1533,7 +1532,7 @@ unsigned RelocationScanner::handleTlsRelocation(RelExpr expr, RelType type,
       // R_GOT needs a relative relocation for PIC on i386 and Hexagon.
       if (expr == R_GOT && ctx.arg.isPic &&
           !ctx.target->usesOnlyLowPageBits(type))
-        addRelativeReloc<true>(*sec, offset, sym, addend, expr, type);
+        addRelativeReloc<true>(ctx, *sec, offset, sym, addend, expr, type);
       else
         sec->addReloc({expr, type, offset, addend, &sym});
     }
