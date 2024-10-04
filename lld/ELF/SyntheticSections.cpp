@@ -538,7 +538,7 @@ static void writeCieFde(uint8_t *buf, ArrayRef<uint8_t> d) {
   write32(buf, d.size() - 4);
 }
 
-void EhFrameSection::finalizeContents() {
+void EhFrameSection::finalizeContents(Ctx &) {
   assert(!this->size); // Not finalized.
 
   switch (ctx.arg.ekind) {
@@ -740,7 +740,7 @@ uint64_t GotSection::getGlobalDynOffset(const Symbol &b) const {
   return b.getTlsGdIdx() * ctx.target->gotEntrySize;
 }
 
-void GotSection::finalizeContents() {
+void GotSection::finalizeContents(Ctx &) {
   if (ctx.arg.emachine == EM_PPC64 &&
       numEntries <= ctx.target->gotHeaderEntriesNum &&
       !ctx.sym.globalOffsetTable)
@@ -909,7 +909,7 @@ bool MipsGotSection::tryMergeGots(FileGot &dst, FileGot &src, bool isPrimary) {
   return true;
 }
 
-void MipsGotSection::finalizeContents() { updateAllocSize(); }
+void MipsGotSection::finalizeContents(Ctx &) { updateAllocSize(); }
 
 bool MipsGotSection::updateAllocSize() {
   size = headerEntriesNum * ctx.arg.wordsize;
@@ -1665,7 +1665,7 @@ DynamicSection<ELFT>::computeContents() {
   return entries;
 }
 
-template <class ELFT> void DynamicSection<ELFT>::finalizeContents() {
+template <class ELFT> void DynamicSection<ELFT>::finalizeContents(Ctx &) {
   if (OutputSection *sec = getPartition().dynStrTab->getParent())
     getParent()->link = sec->sectionIndex;
   this->size = computeContents().size() * this->entsize;
@@ -1787,7 +1787,7 @@ void RelocationBaseSection::partitionRels() {
                       relocs.begin();
 }
 
-void RelocationBaseSection::finalizeContents() {
+void RelocationBaseSection::finalizeContents(Ctx &) {
   SymbolTableBaseSection *symTab = getPartition().dynSymTab.get();
 
   // When linking glibc statically, .rel{,a}.plt contains R_*_IRELATIVE
@@ -2260,7 +2260,7 @@ static bool sortMipsSymbols(const SymbolTableEntry &l,
   return !l.sym->isInGot();
 }
 
-void SymbolTableBaseSection::finalizeContents() {
+void SymbolTableBaseSection::finalizeContents(Ctx &) {
   if (OutputSection *sec = strTabSec.getParent())
     getParent()->link = sec->sectionIndex;
 
@@ -2490,7 +2490,7 @@ bool SymtabShndxSection::isNeeded() const {
   return size >= SHN_LORESERVE;
 }
 
-void SymtabShndxSection::finalizeContents() {
+void SymtabShndxSection::finalizeContents(Ctx &) {
   getParent()->link = ctx.in.symTab->getParent()->sectionIndex;
 }
 
@@ -2532,7 +2532,7 @@ GnuHashTableSection::GnuHashTableSection()
     : SyntheticSection(SHF_ALLOC, SHT_GNU_HASH, ctx.arg.wordsize, ".gnu.hash") {
 }
 
-void GnuHashTableSection::finalizeContents() {
+void GnuHashTableSection::finalizeContents(Ctx &) {
   if (OutputSection *sec = getPartition().dynSymTab->getParent())
     getParent()->link = sec->sectionIndex;
 
@@ -2642,7 +2642,7 @@ HashTableSection::HashTableSection()
   this->entsize = 4;
 }
 
-void HashTableSection::finalizeContents() {
+void HashTableSection::finalizeContents(Ctx &) {
   SymbolTableBaseSection *symTab = getPartition().dynSymTab.get();
 
   if (OutputSection *sec = symTab->getParent())
@@ -3356,7 +3356,7 @@ void DebugNamesSection<ELFT>::getNameRelocs(
   }
 }
 
-template <class ELFT> void DebugNamesSection<ELFT>::finalizeContents() {
+template <class ELFT> void DebugNamesSection<ELFT>::finalizeContents(Ctx &) {
   // Get relocations of .debug_names sections.
   auto relocs = std::make_unique<DenseMap<uint32_t, uint32_t>[]>(numChunks);
   parallelFor(0, numChunks, [&](size_t i) {
@@ -3815,7 +3815,7 @@ StringRef VersionDefinitionSection::getFileDefName() {
   return ctx.arg.outputFile;
 }
 
-void VersionDefinitionSection::finalizeContents() {
+void VersionDefinitionSection::finalizeContents(Ctx &) {
   fileDefNameOff = getPartition().dynStrTab->addString(getFileDefName());
   for (const VersionDefinition &v : namedVersionDefs())
     verDefNameOffs.push_back(getPartition().dynStrTab->addString(v.name));
@@ -3871,7 +3871,7 @@ VersionTableSection::VersionTableSection()
   this->entsize = 2;
 }
 
-void VersionTableSection::finalizeContents() {
+void VersionTableSection::finalizeContents(Ctx &) {
   // At the moment of june 2016 GNU docs does not mention that sh_link field
   // should be set, but Sun docs do. Also readelf relies on this field.
   getParent()->link = getPartition().dynSymTab->getParent()->sectionIndex;
@@ -3920,7 +3920,7 @@ VersionNeedSection<ELFT>::VersionNeedSection()
     : SyntheticSection(SHF_ALLOC, SHT_GNU_verneed, sizeof(uint32_t),
                        ".gnu.version_r") {}
 
-template <class ELFT> void VersionNeedSection<ELFT>::finalizeContents() {
+template <class ELFT> void VersionNeedSection<ELFT>::finalizeContents(Ctx &) {
   for (SharedFile *f : ctx.sharedFiles) {
     if (f->vernauxs.empty())
       continue;
@@ -4008,7 +4008,7 @@ size_t MergeTailSection::getSize() const { return builder.getSize(); }
 
 void MergeTailSection::writeTo(uint8_t *buf) { builder.write(buf); }
 
-void MergeTailSection::finalizeContents() {
+void MergeTailSection::finalizeContents(Ctx &) {
   // Add all string pieces to the string table builder to create section
   // contents.
   for (MergeInputSection *sec : sections)
@@ -4041,7 +4041,7 @@ void MergeNoTailSection::writeTo(uint8_t *buf) {
 // value is different from T's. If that's the case, we can safely put S and
 // T into different string builders without worrying about merge misses.
 // We do it in parallel.
-void MergeNoTailSection::finalizeContents() {
+void MergeNoTailSection::finalizeContents(Ctx &) {
   // Initializes string table builders.
   for (size_t i = 0; i < numShards; ++i)
     shards.emplace_back(StringTableBuilder::RAW, llvm::Align(addralign));
@@ -4227,7 +4227,7 @@ static bool isDuplicateArmExidxSec(InputSection *prev, InputSection *cur) {
 // must be sorted in ascending order of address, Sentinel is set to the
 // InputSection with the highest address and any InputSections that have
 // mergeable .ARM.exidx table entries are removed from it.
-void ARMExidxSyntheticSection::finalizeContents() {
+void ARMExidxSyntheticSection::finalizeContents(Ctx &) {
   // Ensure that any fixed-point iterations after the first see the original set
   // of sections.
   if (!originalExecutableSections.empty())
@@ -4414,7 +4414,7 @@ bool PPC32Got2Section::isNeeded() const {
   return false;
 }
 
-void PPC32Got2Section::finalizeContents() {
+void PPC32Got2Section::finalizeContents(Ctx &) {
   // PPC32 may create multiple GOT sections for -fPIC/-fPIE, one per file in
   // .got2 . This function computes outSecOff of each .got2 to be used in
   // PPC32PltCallStub::writeTo(). The purpose of this empty synthetic section is
@@ -4589,7 +4589,7 @@ size_t PartitionIndexSection::getSize() const {
   return 12 * (ctx.partitions.size() - 1);
 }
 
-void PartitionIndexSection::finalizeContents() {
+void PartitionIndexSection::finalizeContents(Ctx &) {
   for (size_t i = 1; i != ctx.partitions.size(); ++i)
     ctx.partitions[i].nameStrTab =
         ctx.mainPart->dynStrTab->addString(ctx.partitions[i].name);

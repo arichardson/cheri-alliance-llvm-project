@@ -52,7 +52,7 @@ class EhFrameSection final : public SyntheticSection {
 public:
   EhFrameSection();
   void writeTo(uint8_t *buf) override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   bool isNeeded() const override { return !sections.empty(); }
   size_t getSize() const override { return size; }
 
@@ -106,7 +106,7 @@ class GotSection final : public SyntheticSection {
 public:
   GotSection();
   size_t getSize() const override { return size; }
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   bool isNeeded() const override;
   void writeTo(uint8_t *buf) override;
 
@@ -186,7 +186,7 @@ public:
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override { return size; }
   bool updateAllocSize() override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   bool isNeeded() const override;
 
   // Join separate GOTs built for each input file to generate
@@ -485,7 +485,7 @@ template <class ELFT> class DynamicSection final : public SyntheticSection {
 
 public:
   DynamicSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override { return size; }
 
@@ -546,7 +546,7 @@ public:
   size_t getRelativeRelocCount() const { return numRelativeRelocs; }
   void mergeRels();
   void partitionRels();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   static bool classof(const SectionBase *d) {
     return SyntheticSection::classof(d) &&
            (d->type == llvm::ELF::SHT_RELA || d->type == llvm::ELF::SHT_REL ||
@@ -648,7 +648,7 @@ struct SymbolTableEntry {
 class SymbolTableBaseSection : public SyntheticSection {
 public:
   SymbolTableBaseSection(StringTableSection &strTabSec);
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   size_t getSize() const override { return getNumSymbols() * entsize; }
   void addSymbol(Symbol *sym);
   unsigned getNumSymbols() const { return symbols.size() + 1; }
@@ -684,7 +684,7 @@ public:
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override;
   bool isNeeded() const override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
 };
 
 // Outputs GNU Hash section. For detailed explanation see:
@@ -692,7 +692,7 @@ public:
 class GnuHashTableSection final : public SyntheticSection {
 public:
   GnuHashTableSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override { return size; }
 
@@ -720,7 +720,7 @@ private:
 class HashTableSection final : public SyntheticSection {
 public:
   HashTableSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override { return size; }
 
@@ -914,7 +914,7 @@ template <class ELFT>
 class DebugNamesSection final : public DebugNamesBaseSection {
 public:
   DebugNamesSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override;
 
   template <class RelTy>
@@ -1017,7 +1017,7 @@ public:
 class VersionDefinitionSection final : public SyntheticSection {
 public:
   VersionDefinitionSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   size_t getSize() const override;
   void writeTo(uint8_t *buf) override;
 
@@ -1039,7 +1039,7 @@ private:
 class VersionTableSection final : public SyntheticSection {
 public:
   VersionTableSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   size_t getSize() const override;
   void writeTo(uint8_t *buf) override;
   bool isNeeded() const override;
@@ -1070,7 +1070,7 @@ class VersionNeedSection final : public SyntheticSection {
 
 public:
   VersionNeedSection();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override;
   size_t getSize() const override;
   bool isNeeded() const override;
@@ -1098,7 +1098,7 @@ public:
 
   size_t getSize() const override;
   void writeTo(uint8_t *buf) override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
 
 private:
   llvm::StringTableBuilder builder;
@@ -1112,7 +1112,7 @@ public:
 
   size_t getSize() const override { return size; }
   void writeTo(uint8_t *buf) override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
 
 private:
   // We use the most significant bits of a hash as a shard ID.
@@ -1242,7 +1242,7 @@ public:
   void writeTo(uint8_t *buf) override;
   bool isNeeded() const override;
   // Sort and remove duplicate entries.
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   InputSection *getLinkOrderDep() const;
 
   static bool classof(const SectionBase *sec) {
@@ -1315,7 +1315,7 @@ public:
   void writeTo(uint8_t *buf) override;
   void addSGVeneer(Symbol *sym, Symbol *ext_sym);
   void addMappingSymbol();
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void exportEntries(SymbolTableBaseSection *symTab);
   uint64_t impLibMaxAddr = 0;
 
@@ -1332,7 +1332,7 @@ public:
   PPC32Got2Section();
   size_t getSize() const override { return 0; }
   bool isNeeded() const override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override {}
 };
 
@@ -1349,7 +1349,7 @@ public:
   size_t getSize() const override;
   void writeTo(uint8_t *buf) override;
   bool isNeeded() const override;
-  void finalizeContents() override { finalized = true; }
+  void finalizeContents(Ctx &) override { finalized = true; }
 
 private:
   SmallVector<std::pair<const Symbol *, int64_t>, 0> entries;
@@ -1377,7 +1377,7 @@ class PartitionIndexSection final : public SyntheticSection {
 public:
   PartitionIndexSection();
   size_t getSize() const override;
-  void finalizeContents() override;
+  void finalizeContents(Ctx &) override;
   void writeTo(uint8_t *buf) override;
 };
 
