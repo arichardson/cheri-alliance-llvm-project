@@ -512,7 +512,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
                         const InMemoryCapRelocEntry<ELFT> &b) {
                        return a.capability_location < b.capability_location;
                      });
-  assert(offset == getSize() && "Not all data written?");
+  assert(offset == getSize(ctx) && "Not all data written?");
 }
 
 void CheriCapRelocsSection::writeTo(Ctx &ctx, uint8_t *buf) {
@@ -884,7 +884,7 @@ MipsCheriCapTableMappingSection::MipsCheriCapTableMappingSection()
   static_assert(sizeof(CaptableMappingEntry) == 24, "");
 }
 
-size_t MipsCheriCapTableMappingSection::getSize() const {
+size_t MipsCheriCapTableMappingSection::getSize(Ctx &ctx) const {
   assert(ctx.arg.capTableScope != CapTableScopePolicy::All);
   if (!isNeeded())
     return 0;
@@ -962,7 +962,7 @@ void MipsCheriCapTableMappingSection::writeTo(Ctx &ctx, uint8_t *buf) {
     e.subTableSize =
         support::endian::byte_swap(e.subTableSize, ctx.arg.endianness);
   }
-  assert(entries.size() * sizeof(CaptableMappingEntry) == getSize());
+  assert(entries.size() * sizeof(CaptableMappingEntry) == getSize(ctx));
   memcpy(buf, entries.data(), entries.size() * sizeof(CaptableMappingEntry));
 }
 

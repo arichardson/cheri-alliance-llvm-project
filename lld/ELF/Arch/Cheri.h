@@ -79,7 +79,7 @@ class CheriCapRelocsSection : public SyntheticSection {
 public:
   CheriCapRelocsSection(StringRef name);
   bool isNeeded() const override { return !relocsMap.empty(); }
-  size_t getSize() const override { return relocsMap.size() * entsize; }
+  size_t getSize(Ctx &) const override { return relocsMap.size() * entsize; }
   void writeTo(Ctx &, uint8_t *buf) override;
   void addCapReloc(bool isCode, CheriCapRelocLocation loc,
                    const SymbolAndOffset &target, int64_t capabilityOffset,
@@ -199,7 +199,7 @@ public:
   }
   void writeTo(Ctx &, uint8_t *buf) override;
   void assignValuesAndAddCapTableSymbols();
-  size_t getSize() const override {
+  size_t getSize(Ctx &) const override {
     size_t nonTlsEntries = nonTlsEntryCount();
     if (nonTlsEntries > 0 || !tlsEntries.empty() || !dynTlsEntries.empty()) {
       assert(ctx.arg.capabilitySize > 0 &&
@@ -280,7 +280,7 @@ public:
     return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded();
   }
   void writeTo(Ctx &, uint8_t *buf) override;
-  size_t getSize() const override;
+  size_t getSize(Ctx &) const override;
 };
 
 inline bool isSectionEndSymbol(StringRef name) {
