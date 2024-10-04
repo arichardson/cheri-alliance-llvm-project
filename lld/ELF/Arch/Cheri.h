@@ -80,7 +80,7 @@ public:
   CheriCapRelocsSection(StringRef name);
   bool isNeeded() const override { return !relocsMap.empty(); }
   size_t getSize() const override { return relocsMap.size() * entsize; }
-  void writeTo(uint8_t *buf) override;
+  void writeTo(Ctx &, uint8_t *buf) override;
   void addCapReloc(bool isCode, CheriCapRelocLocation loc,
                    const SymbolAndOffset &target, int64_t capabilityOffset,
                    Symbol *sourceSymbol = nullptr);
@@ -197,7 +197,7 @@ public:
     return nonTlsEntryCount() > 0 || !dynTlsEntries.empty() ||
            !tlsEntries.empty();
   }
-  void writeTo(uint8_t *buf) override;
+  void writeTo(Ctx &, uint8_t *buf) override;
   void assignValuesAndAddCapTableSymbols();
   size_t getSize() const override {
     size_t nonTlsEntries = nonTlsEntryCount();
@@ -279,7 +279,7 @@ public:
       return false;
     return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded();
   }
-  void writeTo(uint8_t *buf) override;
+  void writeTo(Ctx &, uint8_t *buf) override;
   size_t getSize() const override;
 };
 

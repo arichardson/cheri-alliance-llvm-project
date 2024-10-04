@@ -515,7 +515,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
   assert(offset == getSize() && "Not all data written?");
 }
 
-void CheriCapRelocsSection::writeTo(uint8_t *buf) {
+void CheriCapRelocsSection::writeTo(Ctx &ctx, uint8_t *buf) {
   invokeELFT(writeToImpl, buf);
 }
 
@@ -526,7 +526,7 @@ MipsCheriCapTableSection::MipsCheriCapTableSection()
   this->entsize = ctx.arg.capabilitySize;
 }
 
-void MipsCheriCapTableSection::writeTo(uint8_t *buf) {
+void MipsCheriCapTableSection::writeTo(Ctx &, uint8_t *buf) {
   // Capability part should be filled with all zeros and crt_init_globals fills
   // it in. For the TLS part, assignValuesAndAddCapTableSymbols adds any static
   // relocations needed, and should be procesed by relocateAlloc.
@@ -901,7 +901,7 @@ size_t MipsCheriCapTableMappingSection::getSize() const {
   return count * sizeof(CaptableMappingEntry);
 }
 
-void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
+void MipsCheriCapTableMappingSection::writeTo(Ctx &ctx, uint8_t *buf) {
   assert(ctx.arg.capTableScope != CapTableScopePolicy::All);
   if (!ctx.in.mipsCheriCapTable)
     return;

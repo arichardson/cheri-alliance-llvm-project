@@ -2956,7 +2956,7 @@ template <class ELFT> void Writer<ELFT>::writeSectionsBinary() {
   parallel::TaskGroup tg;
   for (OutputSection *sec : ctx.outputSections)
     if (sec->flags & SHF_ALLOC)
-      sec->writeTo<ELFT>(ctx.bufferStart + sec->offset, tg);
+      sec->writeTo<ELFT>(ctx, ctx.bufferStart + sec->offset, tg);
 }
 
 static void fillTrap(std::array<uint8_t, 4> trapInstr, uint8_t *i,
@@ -3007,13 +3007,13 @@ template <class ELFT> void Writer<ELFT>::writeSections() {
     parallel::TaskGroup tg;
     for (OutputSection *sec : ctx.outputSections)
       if (isStaticRelSecType(sec->type))
-        sec->writeTo<ELFT>(ctx.bufferStart + sec->offset, tg);
+        sec->writeTo<ELFT>(ctx, ctx.bufferStart + sec->offset, tg);
   }
   {
     parallel::TaskGroup tg;
     for (OutputSection *sec : ctx.outputSections)
       if (!isStaticRelSecType(sec->type))
-        sec->writeTo<ELFT>(ctx.bufferStart + sec->offset, tg);
+        sec->writeTo<ELFT>(ctx, ctx.bufferStart + sec->offset, tg);
   }
 
   // Finally, check that all dynamic relocation addends were written correctly.
