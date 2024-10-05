@@ -1949,6 +1949,7 @@ let Predicates = [IsRV64, NotCapMode] in {
 // Select W instructions if only the lower 32 bits of the result are used.
 def : PatGprGpr<binop_allwusers<add>, ADDW>;
 def : PatGprSimm12<binop_allwusers<add>, ADDIW>;
+def : PatGprImm<binop_allwusers<add>, ADDIW, u32simm12>;
 def : PatGprGpr<binop_allwusers<sub>, SUBW>;
 def : PatGprImm<binop_allwusers<shl>, SLLIW, uimm5>;
 
