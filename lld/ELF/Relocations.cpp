@@ -955,16 +955,16 @@ static void addPltEntry(PltSection &plt, GotPltSection &gotPlt,
 
   if (ctx.arg.isCheriAbi && !ctx.arg.useRelativeElfCheriRelocs) {
     if (!sym.isPreemptible) {
-      addRelativeCapabilityRelocation(gotPlt, sym.getGotPltOffset(), &sym, 0,
+      addRelativeCapabilityRelocation(gotPlt, sym.getGotPltOffset(ctx), &sym, 0,
                                       R_ABS_CAP, *ctx.target->symbolicCapRel);
       return;
     }
 
-    addRelativeCapabilityRelocation(gotPlt, sym.getGotPltOffset(), &plt, 0,
+    addRelativeCapabilityRelocation(gotPlt, sym.getGotPltOffset(ctx), &plt, 0,
                                     R_ABS_CAP, *ctx.target->symbolicCodeCapRel);
   }
 
-  rel.addReloc({type, &gotPlt, sym.getGotPltOffset(),
+  rel.addReloc({type, &gotPlt, sym.getGotPltOffset(ctx),
                 sym.isPreemptible ? DynamicReloc::AgainstSymbol
                                   : DynamicReloc::AddendOnlyWithTargetVA,
                 sym, 0, R_ABS});
@@ -972,7 +972,7 @@ static void addPltEntry(PltSection &plt, GotPltSection &gotPlt,
 
 void elf::addGotEntry(Ctx &ctx, Symbol &sym) {
   ctx.in.got->addEntry(sym);
-  uint64_t off = sym.getGotOffset();
+  uint64_t off = sym.getGotOffset(ctx);
   RelExpr expr = ctx.arg.isCheriAbi ? R_ABS_CAP : R_ABS;
 
   // If preemptible, emit a GLOB_DAT relocation.
@@ -998,7 +998,7 @@ void elf::addGotEntry(Ctx &ctx, Symbol &sym) {
 
 static void addTpOffsetGotEntry(Ctx &ctx, Symbol &sym) {
   ctx.in.got->addEntry(sym);
-  uint64_t off = sym.getGotOffset();
+  uint64_t off = sym.getGotOffset(ctx);
   if (!sym.isPreemptible && !ctx.arg.shared) {
     ctx.in.got->addConstant({R_TPREL, ctx.target->symbolicRel, off, 0, &sym});
     return;
@@ -1847,19 +1847,19 @@ static bool handleNonPreemptibleIfunc(Ctx &ctx, Symbol &sym, uint16_t flags) {
   // --pack-relative-relocs=android+relr is enabled. Work around this by placing
   // IRELATIVE in .rela.plt.
   auto *directSym = makeDefined(cast<Defined>(sym));
-  directSym->allocateAux();
+  directSym->allocateAux(ctx);
   auto &dyn =
       ctx.arg.androidPackDynRelocs ? *ctx.in.relaPlt : *ctx.mainPart->relaDyn;
   addPltEntry(*ctx.in.iplt, *ctx.in.igotPlt, dyn, ctx.target->iRelativeRel,
               *directSym);
-  sym.allocateAux();
+  sym.allocateAux(ctx);
   ctx.symAux.back().pltIdx = ctx.symAux[directSym->auxIdx].pltIdx;
 
   if (flags & HAS_DIRECT_RELOC) {
     // Change the value to the IPLT and redirect all references to it.
     auto &d = cast<Defined>(sym);
     d.section = ctx.in.iplt.get();
-    d.value = d.getPltIdx() * ctx.target->ipltEntrySize;
+    d.value = d.getPltIdx(ctx) * ctx.target->ipltEntrySize;
     if (ctx.arg.isCheriAbi)
       d.setSize(ctx.target->ipltEntrySize);
     else
@@ -1888,7 +1888,7 @@ void elf::postScanRelocations(Ctx &ctx) {
 
     if (!sym.needsDynReloc())
       return;
-    sym.allocateAux();
+    sym.allocateAux(ctx);
 
     if (flags & NEEDS_GOT)
       addGotEntry(ctx, sym);
@@ -1906,7 +1906,7 @@ void elf::postScanRelocations(Ctx &ctx) {
         if (!sym.isDefined()) {
           replaceWithDefined(sym, *ctx.in.plt,
                              ctx.target->pltHeaderSize +
-                                 ctx.target->pltEntrySize * sym.getPltIdx(),
+                                 ctx.target->pltEntrySize * sym.getPltIdx(ctx),
                              0);
           sym.setFlags(NEEDS_COPY);
           if (ctx.arg.emachine == EM_PPC) {
@@ -1952,12 +1952,12 @@ void elf::postScanRelocations(Ctx &ctx) {
     if (flags & NEEDS_TLSGD_TO_IE) {
       got->addEntry(sym);
       ctx.mainPart->relaDyn->addSymbolReloc(ctx.target->tlsGotRel, *got,
-                                            sym.getGotOffset(), sym);
+                                            sym.getGotOffset(ctx), sym);
     }
     if (flags & NEEDS_GOT_DTPREL) {
       got->addEntry(sym);
       got->addConstant(
-          {R_ABS, ctx.target->tlsOffsetRel, sym.getGotOffset(), 0, &sym});
+          {R_ABS, ctx.target->tlsOffsetRel, sym.getGotOffset(ctx), 0, &sym});
     }
 
     if ((flags & NEEDS_TLSIE) && !(flags & NEEDS_TLSGD_TO_IE))
@@ -2344,7 +2344,7 @@ std::pair<Thunk *, bool> ThunkCreator::getThunk(InputSection *isec,
   // offset + addend) pair. We may revert the relocation back to its original
   // non-Thunk target, so we cannot fold offset + addend.
   if (auto *d = dyn_cast<Defined>(rel.sym))
-    if (!d->isInPlt() && d->section)
+    if (!d->isInPlt(ctx) && d->section)
       thunkVec = &thunkedSymbolsBySectionAndAddend[{{d->section, d->value},
                                                     keyAddend}];
   if (!thunkVec)
@@ -2383,7 +2383,7 @@ bool ThunkCreator::normalizeExistingThunk(Relocation &rel, uint64_t src) {
       return true;
     rel.sym = &t->destination;
     rel.addend = t->addend;
-    if (rel.sym->isInPlt())
+    if (rel.sym->isInPlt(ctx))
       rel.expr = toPlt(rel.expr);
   }
   return false;
@@ -2524,7 +2524,7 @@ void elf::hexagonTLSSymbolUpdate(Ctx &ctx) {
           for (Relocation &rel : isec->relocs())
             if (rel.sym->type == llvm::ELF::STT_TLS && rel.expr == R_PLT_PC) {
               if (needEntry) {
-                sym->allocateAux();
+                sym->allocateAux(ctx);
                 addPltEntry(*ctx.in.plt, *ctx.in.gotPlt, *ctx.in.relaPlt,
                             ctx.target->pltRel, *sym);
                 needEntry = false;

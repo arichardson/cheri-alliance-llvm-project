@@ -303,7 +303,7 @@ void RISCV::writePlt(uint8_t *buf, const Symbol &sym,
       ctx.arg.isCheriAbi
           ? (!ctx.arg.zCheriRiscvV9 ? CLC : (ctx.arg.is64 ? CLC_128 : CLC_64))
           : (ctx.arg.is64 ? LD : LW);
-  uint32_t entryva = sym.getGotPltVA();
+  uint32_t entryva = sym.getGotPltVA(ctx);
   uint32_t offset = entryva - pltEntryAddr;
   write32le(buf + 0, utype(AUIPC, X_T3, hi20(offset)));
   write32le(buf + 4, itype(ptrload, X_T3, X_T3, lo12(offset)));
@@ -830,7 +830,7 @@ static void relaxCall(Ctx &ctx, const InputSection &sec, size_t i, uint64_t loc,
   const uint64_t insnPair = read64le(sec.content().data() + r.offset);
   const uint32_t rd = extractBits(insnPair, 32 + 11, 32 + 7);
   const uint64_t dest =
-      (r.expr == R_PLT_PC ? sym.getPltVA() : sym.getVA()) + r.addend;
+      (r.expr == R_PLT_PC ? sym.getPltVA(ctx) : sym.getVA()) + r.addend;
   const int64_t displace = dest - loc;
 
   if (rvc && isInt<12>(displace) && rd == 0) {
