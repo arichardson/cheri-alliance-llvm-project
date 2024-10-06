@@ -32,6 +32,10 @@ enum PermissionKind {
   PK_DONT_SEAL = 3,
 };
 
+bool hasDynamicLinker() {
+  return ctx.arg.shared || ctx.arg.pie || !ctx.sharedFiles.empty();
+}
+
 template <bool Is64Bit>
 static uint64_t getCapabilityTopBits(cc::AddrTy<Is64Bit> addr,
                                      cc::AddrTy<Is64Bit> length,

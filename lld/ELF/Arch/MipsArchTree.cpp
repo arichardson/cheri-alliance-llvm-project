@@ -12,7 +12,7 @@
 
 #include "InputFiles.h"
 #include "SymbolTable.h"
-#include "SyntheticSections.h"
+#include "Target.h"
 #include "Writer.h"
 
 #include "lld/Common/ErrorHandler.h"
@@ -533,7 +533,7 @@ bool elf::isMipsN32Abi(Ctx &ctx, const InputFile &f) {
   }
 }
 
-bool elf::isMicroMips() { return ctx.arg.eflags & EF_MIPS_MICROMIPS; }
+bool elf::isMicroMips(Ctx &ctx) { return ctx.arg.eflags & EF_MIPS_MICROMIPS; }
 
 bool elf::isMipsR6(Ctx &ctx) {
   uint32_t arch = ctx.arg.eflags & EF_MIPS_ARCH;
