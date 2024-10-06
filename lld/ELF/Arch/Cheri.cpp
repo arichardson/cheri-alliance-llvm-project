@@ -87,12 +87,12 @@ static PermissionKind getCapabilityPermissionKind(const Symbol &sym) {
   return kind;
 }
 
-bool isCheriAbi(const InputFile *f) {
-  switch (f->emachine) {
+bool isCheriAbi(Ctx &ctx, const InputFile &f) {
+  switch (f.emachine) {
   case EM_MIPS:
-    return (f->eflags & EF_MIPS_ABI) == EF_MIPS_ABI_CHERIABI;
+    return (f.eflags & EF_MIPS_ABI) == EF_MIPS_ABI_CHERIABI;
   case EM_RISCV:
-    return f->eflags & EF_RISCV_CHERIABI;
+    return f.eflags & EF_RISCV_CHERIABI;
   default:
     return false;
   }

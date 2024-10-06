@@ -2102,7 +2102,7 @@ void LinkerDriver::inferMachineType() {
       inferred = true;
       ctx.arg.ekind = f->ekind;
       ctx.arg.emachine = f->emachine;
-      ctx.arg.mipsN32Abi = ctx.arg.emachine == EM_MIPS && isMipsN32Abi(f);
+      ctx.arg.mipsN32Abi = ctx.arg.emachine == EM_MIPS && isMipsN32Abi(ctx, *f);
     }
     ctx.arg.osabi = f->osabi;
     if (f->osabi != ELFOSABI_NONE)
@@ -2138,7 +2138,7 @@ void LinkerDriver::inferIsCheriAbi() {
   for (InputFile *f : files) {
     if (f->ekind == ELFNoneKind)
       continue;
-    ctx.arg.isCheriAbi = isCheriAbi(f);
+    ctx.arg.isCheriAbi = isCheriAbi(ctx, *f);
     return;
   }
 }
@@ -3220,7 +3220,7 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
 
   if (canHaveMemtagGlobals()) {
     llvm::TimeTraceScope timeScope("Process memory tagged symbols");
-    createTaggedSymbols(ctx.objectFiles);
+    createTaggedSymbols(ctx);
   }
 
   // Create synthesized sections such as .got and .plt. This is called before

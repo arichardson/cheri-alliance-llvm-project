@@ -48,9 +48,9 @@ void addReservedSymbols(Ctx &ctx);
 bool includeInSymtab(const Symbol &b);
 unsigned getSectionRank(Ctx &, OutputSection &osec);
 
-bool isCheriAbi(const InputFile *f);
+bool isCheriAbi(Ctx &, const InputFile &f);
 
-template <class ELFT> uint32_t calcMipsEFlags();
+template <class ELFT> uint32_t calcMipsEFlags(Ctx &);
 
 uint8_t getMipsFpAbiFlag(uint8_t oldFlag, llvm::StringRef oldFile,
                          uint8_t newFlag, llvm::StringRef newFile);
@@ -60,9 +60,9 @@ void checkMipsShlibCompatible(InputFile *f, uint64_t shlibCheriFlags,
                               uint64_t targetCheriFlags);
 bool isRelroSection(Ctx& ctx, const OutputSection *sec);
 
-bool isMipsN32Abi(const InputFile *f);
+bool isMipsN32Abi(Ctx &, const InputFile &f);
 bool isMicroMips();
-bool isMipsR6();
+bool isMipsR6(Ctx &);
 
 bool hasDynamicLinker();
 } // namespace lld::elf

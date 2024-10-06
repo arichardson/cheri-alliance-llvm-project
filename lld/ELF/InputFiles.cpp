@@ -272,11 +272,15 @@ static bool isCompatible(Ctx &ctx, InputFile *file) {
   bool onlyCheriAbi = false;
   if (file->ekind == ctx.arg.ekind && file->emachine == ctx.arg.emachine) {
     if (ctx.arg.emachine != EM_MIPS ||
-        isMipsN32Abi(file) == ctx.arg.mipsN32Abi) {
-      if (isCheriAbi(file) == ctx.arg.isCheriAbi)
+        isMipsN32Abi(ctx, *file) == ctx.arg.mipsN32Abi) {
+      if (isCheriAbi(ctx, *file) == ctx.arg.isCheriAbi)
         return true;
       onlyCheriAbi = true;
     }
+    if (ctx.arg.emachine != EM_MIPS)
+      return true;
+    if (isMipsN32Abi(ctx, *file) == ctx.arg.mipsN32Abi)
+      return true;
   }
 
   StringRef target =
