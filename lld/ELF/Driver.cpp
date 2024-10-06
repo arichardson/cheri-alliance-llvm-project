@@ -291,7 +291,7 @@ bool LinkerDriver::tryAddFatLTOFile(MemoryBufferRef mb, StringRef archiveName,
 void LinkerDriver::addFile(StringRef path, bool withLOption) {
   using namespace sys::fs;
 
-  std::optional<MemoryBufferRef> buffer = readFile(path);
+  std::optional<MemoryBufferRef> buffer = readFile(ctx, path);
   if (!buffer)
     return;
   MemoryBufferRef mbref = *buffer;
@@ -362,7 +362,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
     // cannot be stored into SharedFile::soName.
     path = mbref.getBufferIdentifier();
     auto *f =
-        make<SharedFile>(mbref, withLOption ? path::filename(path) : path);
+        make<SharedFile>(ctx, mbref, withLOption ? path::filename(path) : path);
     f->init();
     files.push_back(f);
     return;
@@ -381,7 +381,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
 
 // Add a given library by searching it from input search paths.
 void LinkerDriver::addLibrary(StringRef name) {
-  if (std::optional<std::string> path = searchLibrary(name))
+  if (std::optional<std::string> path = searchLibrary(ctx, name))
     addFile(saver().save(*path), /*withLOption=*/true);
   else
     error("unable to find library -l" + name, ErrorTag::LibNotFound, {name});
@@ -678,7 +678,7 @@ void LinkerDriver::linkerMain(ArrayRef<const char *> argsArr) {
       ctx.tar->append("version.txt", getLLDVersion() + "\n");
       StringRef ltoSampleProfile = args.getLastArgValue(OPT_lto_sample_profile);
       if (!ltoSampleProfile.empty())
-        readFile(ltoSampleProfile);
+        readFile(ctx, ltoSampleProfile);
     } else {
       error("--reproduce: " + toString(errOrWriter.takeError()));
     }
@@ -1581,7 +1581,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
   }
   for (opt::Arg *arg : args.filtered(OPT_remap_inputs_file)) {
     StringRef filename(arg->getValue());
-    std::optional<MemoryBufferRef> buffer = readFile(filename);
+    std::optional<MemoryBufferRef> buffer = readFile(ctx, filename);
     if (!buffer)
       continue;
     // Parse 'from-glob=to-file' lines, ignoring #-led comments.
@@ -1800,7 +1800,8 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
     if (args.hasArg(OPT_call_graph_ordering_file))
       error("--symbol-ordering-file and --call-graph-order-file "
             "may not be used together");
-    if (std::optional<MemoryBufferRef> buffer = readFile(arg->getValue())) {
+    if (std::optional<MemoryBufferRef> buffer =
+            readFile(ctx, arg->getValue())) {
       ctx.arg.symbolOrderingFile = getSymbolOrderingFile(ctx, *buffer);
       // Also need to disable CallGraphProfileSort to prevent
       // LLD order symbols with CGProfile
@@ -1822,7 +1823,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
   if (auto *arg = args.getLastArg(OPT_retain_symbols_file)) {
     ctx.arg.versionDefinitions[VER_NDX_LOCAL].nonLocalPatterns.push_back(
         {"*", /*isExternCpp=*/false, /*hasWildcard=*/true});
-    if (std::optional<MemoryBufferRef> buffer = readFile(arg->getValue()))
+    if (std::optional<MemoryBufferRef> buffer = readFile(ctx, arg->getValue()))
       for (StringRef s : args::getLines(*buffer))
         ctx.arg.versionDefinitions[VER_NDX_GLOBAL].nonLocalPatterns.push_back(
             {s, /*isExternCpp=*/false, /*hasWildcard=*/false});
@@ -1854,12 +1855,12 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
       ctx.arg.bsymbolic == BsymbolicKind::All || args.hasArg(OPT_dynamic_list);
   for (auto *arg :
        args.filtered(OPT_dynamic_list, OPT_export_dynamic_symbol_list))
-    if (std::optional<MemoryBufferRef> buffer = readFile(arg->getValue()))
+    if (std::optional<MemoryBufferRef> buffer = readFile(ctx, arg->getValue()))
       readDynamicList(ctx, *buffer);
 
   for (auto *arg : args.filtered(OPT_version_script))
-    if (std::optional<std::string> path = searchScript(arg->getValue())) {
-      if (std::optional<MemoryBufferRef> buffer = readFile(*path))
+    if (std::optional<std::string> path = searchScript(ctx, arg->getValue())) {
+      if (std::optional<MemoryBufferRef> buffer = readFile(ctx, *path))
         readVersionScript(ctx, *buffer);
     } else {
       error(Twine("cannot find version script ") + arg->getValue());
@@ -1994,8 +1995,9 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
     }
     case OPT_script:
     case OPT_default_script:
-      if (std::optional<std::string> path = searchScript(arg->getValue())) {
-        if (std::optional<MemoryBufferRef> mb = readFile(*path)) {
+      if (std::optional<std::string> path =
+              searchScript(ctx, arg->getValue())) {
+        if (std::optional<MemoryBufferRef> mb = readFile(ctx, *path)) {
           if (arg->getOption().matches(OPT_default_script)) {
             defaultScript = mb;
           } else {
@@ -2032,7 +2034,7 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
       inWholeArchive = false;
       break;
     case OPT_just_symbols:
-      if (std::optional<MemoryBufferRef> mb = readFile(arg->getValue())) {
+      if (std::optional<MemoryBufferRef> mb = readFile(ctx, arg->getValue())) {
         files.push_back(createObjFile(*mb));
         files.back()->justSymbols = true;
       }
@@ -2040,7 +2042,8 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
     case OPT_in_implib:
       if (armCmseImpLib)
         error("multiple CMSE import libraries not supported");
-      else if (std::optional<MemoryBufferRef> mb = readFile(arg->getValue()))
+      else if (std::optional<MemoryBufferRef> mb =
+                   readFile(ctx, arg->getValue()))
         armCmseImpLib = createObjFile(*mb);
       break;
     case OPT_start_group:
@@ -3276,7 +3279,8 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   // Read the callgraph now that we know what was gced or icfed
   if (ctx.arg.callGraphProfileSort != CGProfileSortKind::None) {
     if (auto *arg = args.getLastArg(OPT_call_graph_ordering_file))
-      if (std::optional<MemoryBufferRef> buffer = readFile(arg->getValue()))
+      if (std::optional<MemoryBufferRef> buffer =
+              readFile(ctx, arg->getValue()))
         readCallGraph(ctx, *buffer);
     readCallGraphsFromObjectFiles<ELFT>(ctx);
   }
