@@ -181,6 +181,9 @@ private:
   std::vector<InputFile *> files;
 
 public:
+  // See InputFile::groupId.
+  uint32_t nextGroupId;
+  bool isInGroup;
   InputFile *armCmseImpLib = nullptr;
   SmallVector<std::pair<StringRef, unsigned>, 0> archiveFiles;
 };

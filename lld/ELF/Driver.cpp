@@ -58,6 +58,7 @@
 #include "llvm/Object/IRObjectFile.h"
 #include "llvm/Remarks/HotnessThresholdParser.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Support/SaveAndRestore.h"
 #include "llvm/Support/Compression.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/GlobPattern.h"
@@ -332,8 +333,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
     //
     // All files within the archive get the same group ID to allow mutual
     // references for --warn-backrefs.
-    bool saved = InputFile::isInGroup;
-    InputFile::isInGroup = true;
+    SaveAndRestore saved(isInGroup, true);
     for (const std::pair<MemoryBufferRef, uint64_t> &p : members) {
       auto magic = identify_magic(p.first.getBuffer());
       if (magic == file_magic::elf_relocatable) {
@@ -345,9 +345,8 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
         warn(path + ": archive member '" + p.first.getBufferIdentifier() +
              "' is neither ET_REL nor LLVM bitcode");
     }
-    InputFile::isInGroup = saved;
-    if (!saved)
-      ++InputFile::nextGroupId;
+    if (!saved.get())
+      ++nextGroupId;
     return;
   }
   case file_magic::elf_shared_object: {
@@ -1977,7 +1976,8 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
 
   // Iterate over argv to process input files and positional arguments.
   std::optional<MemoryBufferRef> defaultScript;
-  InputFile::isInGroup = false;
+  nextGroupId = 0;
+  isInGroup = false;
   bool hasInput = false, hasScript = false;
   for (auto *arg : args) {
     switch (arg->getOption().getID()) {
@@ -2047,30 +2047,30 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
         armCmseImpLib = createObjFile(*mb);
       break;
     case OPT_start_group:
-      if (InputFile::isInGroup)
+      if (isInGroup)
         error("nested --start-group");
-      InputFile::isInGroup = true;
+      isInGroup = true;
       break;
     case OPT_end_group:
-      if (!InputFile::isInGroup)
+      if (!isInGroup)
         error("stray --end-group");
-      InputFile::isInGroup = false;
-      ++InputFile::nextGroupId;
+      isInGroup = false;
+      ++nextGroupId;
       break;
     case OPT_start_lib:
       if (inLib)
         error("nested --start-lib");
-      if (InputFile::isInGroup)
+      if (isInGroup)
         error("may not nest --start-lib in --start-group");
       inLib = true;
-      InputFile::isInGroup = true;
+      isInGroup = true;
       break;
     case OPT_end_lib:
       if (!inLib)
         error("stray --end-lib");
       inLib = false;
-      InputFile::isInGroup = false;
-      ++InputFile::nextGroupId;
+      isInGroup = false;
+      ++nextGroupId;
       break;
     case OPT_push_state:
       stack.emplace_back(ctx.arg.asNeeded, ctx.arg.isStatic, inWholeArchive);
