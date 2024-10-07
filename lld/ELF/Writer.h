@@ -45,7 +45,7 @@ struct PhdrEntry {
 };
 
 void addReservedSymbols(Ctx &ctx);
-bool includeInSymtab(const Symbol &b);
+bool includeInSymtab(Ctx &, const Symbol &);
 unsigned getSectionRank(Ctx &, OutputSection &osec);
 uint8_t getMipsIsaExt(uint64_t oldExt, llvm::StringRef oldFile, uint64_t newExt,
                       llvm::StringRef newFile);
