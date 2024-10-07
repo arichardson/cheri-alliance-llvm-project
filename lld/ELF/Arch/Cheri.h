@@ -78,7 +78,7 @@ struct CheriCapReloc {
 class CheriCapRelocsSection : public SyntheticSection {
 public:
   CheriCapRelocsSection(StringRef name);
-  bool isNeeded() const override { return !relocsMap.empty(); }
+  bool isNeeded(Ctx &) const override { return !relocsMap.empty(); }
   size_t getSize(Ctx &) const override { return relocsMap.size() * entsize; }
   void writeTo(Ctx &, uint8_t *buf) override;
   void addCapReloc(bool isCode, CheriCapRelocLocation loc,
@@ -193,7 +193,7 @@ public:
   uint32_t getDynTlsOffset(const Symbol &sym) const;
   uint32_t getTlsIndexOffset() const;
   uint32_t getTlsOffset(const Symbol &sym) const;
-  bool isNeeded() const override {
+  bool isNeeded(Ctx &) const override {
     return nonTlsEntryCount() > 0 || !dynTlsEntries.empty() ||
            !tlsEntries.empty();
   }
@@ -274,10 +274,10 @@ struct CaptableMappingEntry {
 class MipsCheriCapTableMappingSection : public SyntheticSection {
 public:
   MipsCheriCapTableMappingSection();
-  bool isNeeded() const override {
+  bool isNeeded(Ctx &ctx) const override {
     if (ctx.arg.capTableScope == CapTableScopePolicy::All)
       return false;
-    return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded();
+    return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded(ctx);
   }
   void writeTo(Ctx &, uint8_t *buf) override;
   size_t getSize(Ctx &) const override;

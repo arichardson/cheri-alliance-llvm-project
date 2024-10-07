@@ -890,7 +890,7 @@ MipsCheriCapTableMappingSection::MipsCheriCapTableMappingSection()
 
 size_t MipsCheriCapTableMappingSection::getSize(Ctx &ctx) const {
   assert(ctx.arg.capTableScope != CapTableScopePolicy::All);
-  if (!isNeeded())
+  if (!isNeeded(ctx))
     return 0;
   size_t count = 0;
   if (!ctx.in.symTab) {
