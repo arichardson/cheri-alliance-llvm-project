@@ -2194,6 +2194,7 @@ protected:
   ParenExpr(StmtClass SC, SourceLocation l, SourceLocation r, Expr *val)
       : Expr(SC, val->getType(), val->getValueKind(), val->getObjectKind()),
         L(l), R(r), Val(val) {
+    ParenExprBits.ProducedByFoldExpansion = false;
     setDependence(computeDependence(this));
   }
 
@@ -2229,6 +2230,13 @@ public:
   child_range children() { return child_range(&Val, &Val+1); }
   const_child_range children() const {
     return const_child_range(&Val, &Val + 1);
+  }
+
+  bool isProducedByFoldExpansion() const {
+    return ParenExprBits.ProducedByFoldExpansion != 0;
+  }
+  void setIsProducedByFoldExpansion(bool ProducedByFoldExpansion = true) {
+    ParenExprBits.ProducedByFoldExpansion = ProducedByFoldExpansion;
   }
 };
 
