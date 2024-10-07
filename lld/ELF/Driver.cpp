@@ -298,7 +298,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
   MemoryBufferRef mbref = *buffer;
 
   if (ctx.arg.formatBinary) {
-    files.push_back(make<BinaryFile>(mbref));
+    files.push_back(make<BinaryFile>(ctx, mbref));
     return;
   }
 
@@ -314,7 +314,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
           files.push_back(
               make<BitcodeFile>(ctx, p.first, path, p.second, false));
         else if (!tryAddFatLTOFile(p.first, path, p.second, false))
-          files.push_back(createObjFile(p.first, path));
+          files.push_back(createObjFile(ctx, p.first, path));
       }
       return;
     }
@@ -338,7 +338,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
       auto magic = identify_magic(p.first.getBuffer());
       if (magic == file_magic::elf_relocatable) {
         if (!tryAddFatLTOFile(p.first, path, p.second, true))
-          files.push_back(createObjFile(p.first, path, true));
+          files.push_back(createObjFile(ctx, p.first, path, true));
       } else if (magic == file_magic::bitcode)
         files.push_back(make<BitcodeFile>(ctx, p.first, path, p.second, true));
       else
@@ -371,7 +371,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
     break;
   case file_magic::elf_relocatable:
     if (!tryAddFatLTOFile(mbref, "", 0, inLib))
-      files.push_back(createObjFile(mbref, "", inLib));
+      files.push_back(createObjFile(ctx, mbref, "", inLib));
     break;
   default:
     error(path + ": unknown file type");
@@ -2035,7 +2035,7 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
       break;
     case OPT_just_symbols:
       if (std::optional<MemoryBufferRef> mb = readFile(ctx, arg->getValue())) {
-        files.push_back(createObjFile(*mb));
+        files.push_back(createObjFile(ctx, *mb));
         files.back()->justSymbols = true;
       }
       break;
@@ -2044,7 +2044,7 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
         error("multiple CMSE import libraries not supported");
       else if (std::optional<MemoryBufferRef> mb =
                    readFile(ctx, arg->getValue()))
-        armCmseImpLib = createObjFile(*mb);
+        armCmseImpLib = createObjFile(ctx, *mb);
       break;
     case OPT_start_group:
       if (isInGroup)
@@ -2929,7 +2929,7 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   for (auto *arg : args.filtered(OPT_trace_symbol))
     ctx.symtab->insert(arg->getValue())->traced = true;
 
-  ctx.internalFile = createInternalFile("<internal>");
+  ctx.internalFile = createInternalFile(ctx, "<internal>");
 
   // Handle -u/--undefined before input files. If both a.a and b.so define foo,
   // -u foo a.a b.so will extract a.a.

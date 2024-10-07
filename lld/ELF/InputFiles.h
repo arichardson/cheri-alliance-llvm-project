@@ -49,6 +49,7 @@ void parseFiles(Ctx &, const std::vector<InputFile *> &files);
 // The root class of input files.
 class InputFile {
 protected:
+  Ctx &ctx;
   std::unique_ptr<Symbol *[]> symbols;
   uint32_t numSymbols = 0;
   SmallVector<InputSectionBase *, 0> sections;
@@ -62,7 +63,7 @@ public:
     InternalKind,
   };
 
-  InputFile(Kind k, MemoryBufferRef m);
+  InputFile(Ctx &, Kind k, MemoryBufferRef m);
   Kind kind() const { return fileKind; }
 
   bool isElf() const {
@@ -176,7 +177,7 @@ private:
 
 class ELFFileBase : public InputFile {
 public:
-  ELFFileBase(Kind k, ELFKind ekind, MemoryBufferRef m);
+  ELFFileBase(Ctx &ctx, Kind k, ELFKind ekind, MemoryBufferRef m);
   static bool classof(const InputFile *f) { return f->isElf(); }
 
   void init();
@@ -240,8 +241,8 @@ public:
     return this->ELFFileBase::getObj<ELFT>();
   }
 
-  ObjFile(ELFKind ekind, MemoryBufferRef m, StringRef archiveName)
-      : ELFFileBase(ObjKind, ekind, m) {
+  ObjFile(Ctx &ctx, ELFKind ekind, MemoryBufferRef m, StringRef archiveName)
+      : ELFFileBase(ctx, ObjKind, ekind, m) {
     this->archiveName = archiveName;
   }
 
@@ -374,14 +375,15 @@ private:
 
 class BinaryFile : public InputFile {
 public:
-  explicit BinaryFile(MemoryBufferRef m) : InputFile(BinaryKind, m) {}
+  explicit BinaryFile(Ctx &ctx, MemoryBufferRef m)
+      : InputFile(ctx, BinaryKind, m) {}
   static bool classof(const InputFile *f) { return f->kind() == BinaryKind; }
   void parse();
 };
 
-InputFile *createInternalFile(StringRef name);
-ELFFileBase *createObjFile(MemoryBufferRef mb, StringRef archiveName = "",
-                           bool lazy = false);
+InputFile *createInternalFile(Ctx &, StringRef name);
+ELFFileBase *createObjFile(Ctx &, MemoryBufferRef mb,
+                           StringRef archiveName = "", bool lazy = false);
 
 std::string replaceThinLTOSuffix(Ctx &, StringRef path);
 
