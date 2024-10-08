@@ -125,26 +125,26 @@ public:
   bool gotBaseSymInGotPlt = false;
 
   static constexpr RelType noneRel = 0;
-  RelType copyRel;
-  RelType gotRel;
-  RelType pltRel;
-  RelType relativeRel;
-  std::optional<RelType> relativeFuncRel;
-  RelType iRelativeRel;
-  RelType symbolicRel;
-  RelType tlsDescRel;
-  RelType tlsGotRel;
-  RelType tlsModuleIndexRel;
-  RelType tlsOffsetRel;
-  std::optional<RelType> absPointerRel; // TODO: remove the optional
-  std::optional<RelType> sizeRel;
-  std::optional<RelType> symbolicCapRel;
-  std::optional<RelType> symbolicCapCallRel;
-  std::optional<RelType> symbolicCodeCapRel;
+  RelType copyRel = 0;
+  RelType gotRel = 0;
+  RelType pltRel = 0;
+  RelType relativeRel = 0;
+  std::optional<RelType> relativeFuncRel = std::nullopt;
+  RelType iRelativeRel = 0;
+  RelType symbolicRel = 0;
+  RelType tlsDescRel = 0;
+  RelType tlsGotRel = 0;
+  RelType tlsModuleIndexRel = 0;
+  RelType tlsOffsetRel = 0;
+  std::optional<RelType> absPointerRel = std::nullopt; // TODO: remove the optional
+  std::optional<RelType> sizeRel = std::nullopt;
+  std::optional<RelType> symbolicCapRel = std::nullopt;
+  std::optional<RelType> symbolicCapCallRel = std::nullopt;
+  std::optional<RelType> symbolicCodeCapRel = std::nullopt;
   unsigned gotEntrySize = ctx.arg.wordsize;
-  unsigned pltEntrySize;
-  unsigned pltHeaderSize;
-  unsigned ipltEntrySize;
+  unsigned pltEntrySize = 0;
+  unsigned pltHeaderSize = 0;
+  unsigned ipltEntrySize = 0;
 
   // At least on x86_64 positions 1 and 2 are used by the first plt entry
   // to support lazy loading.
@@ -163,7 +163,7 @@ public:
 
   // A 4-byte field corresponding to one or more trap instructions, used to pad
   // executable OutputSections.
-  std::array<uint8_t, 4> trapInstr;
+  std::array<uint8_t, 4> trapInstr = {};
 
   // Stores the NOP instructions of different sizes for the target and is used
   // to pad sections that are relaxed.
