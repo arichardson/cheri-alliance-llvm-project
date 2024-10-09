@@ -8460,7 +8460,8 @@ ExprResult Sema::ActOnPseudoDestructorExpr(Scope *S, Expr *Base,
   QualType ObjectType;
   QualType T;
   TypeLocBuilder TLB;
-  if (CheckArrow(*this, ObjectType, Base, OpKind, OpLoc))
+  if (CheckArrow(*this, ObjectType, Base, OpKind, OpLoc) ||
+      DS.getTypeSpecType() == DeclSpec::TST_error)
     return ExprError();
 
   switch (DS.getTypeSpecType()) {
