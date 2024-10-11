@@ -120,8 +120,8 @@ template <class ELFT> struct InMemoryCapRelocEntry {
   CapRelocUint permissions;
 };
 
-CheriCapRelocsSection::CheriCapRelocsSection(StringRef name)
-    : SyntheticSection(SHF_ALLOC, SHT_PROGBITS, ctx.arg.wordsize, name) {
+CheriCapRelocsSection::CheriCapRelocsSection(Ctx &ctx, StringRef name)
+    : SyntheticSection(ctx, SHF_ALLOC, SHT_PROGBITS, ctx.arg.wordsize, name) {
   this->entsize = ctx.arg.wordsize * 5;
 }
 
@@ -523,8 +523,8 @@ void CheriCapRelocsSection::writeTo(Ctx &ctx, uint8_t *buf) {
   invokeELFT(writeToImpl, buf);
 }
 
-MipsCheriCapTableSection::MipsCheriCapTableSection()
-    : SyntheticSection(SHF_ALLOC | SHF_WRITE, SHT_PROGBITS,
+MipsCheriCapTableSection::MipsCheriCapTableSection(Ctx &ctx)
+    : SyntheticSection(ctx, SHF_ALLOC | SHF_WRITE, SHT_PROGBITS,
                        ctx.arg.capabilitySize, ".captable") {
   assert(ctx.arg.capabilitySize > 0);
   this->entsize = ctx.arg.capabilitySize;
@@ -881,8 +881,8 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
   valuesAssigned = true;
 }
 
-MipsCheriCapTableMappingSection::MipsCheriCapTableMappingSection()
-    : SyntheticSection(SHF_ALLOC, SHT_PROGBITS, 8, ".captable_mapping") {
+MipsCheriCapTableMappingSection::MipsCheriCapTableMappingSection(Ctx &ctx)
+    : SyntheticSection(ctx, SHF_ALLOC, SHT_PROGBITS, 8, ".captable_mapping") {
   assert(ctx.arg.capabilitySize > 0);
   this->entsize = sizeof(CaptableMappingEntry);
   static_assert(sizeof(CaptableMappingEntry) == 24, "");

@@ -77,7 +77,7 @@ struct CheriCapReloc {
 
 class CheriCapRelocsSection : public SyntheticSection {
 public:
-  CheriCapRelocsSection(StringRef name);
+  CheriCapRelocsSection(Ctx &, StringRef name);
   bool isNeeded(Ctx &) const override { return !relocsMap.empty(); }
   size_t getSize(Ctx &) const override { return relocsMap.size() * entsize; }
   void writeTo(Ctx &, uint8_t *buf) override;
@@ -179,7 +179,7 @@ private:
 
 class MipsCheriCapTableSection : public SyntheticSection {
 public:
-  MipsCheriCapTableSection();
+  MipsCheriCapTableSection(Ctx &ctx);
   void addConstant(const Relocation &r) { addReloc(r); }
   // InputFile and Offset is needed in order to implement per-file/per-function
   // tables
@@ -273,7 +273,7 @@ struct CaptableMappingEntry {
 // trampolines to initialize $cgp to the correct subset
 class MipsCheriCapTableMappingSection : public SyntheticSection {
 public:
-  MipsCheriCapTableMappingSection();
+  MipsCheriCapTableMappingSection(Ctx &);
   bool isNeeded(Ctx &ctx) const override {
     if (ctx.arg.capTableScope == CapTableScopePolicy::All)
       return false;
