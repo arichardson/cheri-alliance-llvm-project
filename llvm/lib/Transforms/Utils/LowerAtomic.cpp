@@ -59,9 +59,9 @@ Value *llvm::buildAtomicRMWValue(AtomicRMWInst::BinOp Op,
       unsigned AS = Loaded->getType()->getPointerAddressSpace();
       Type *I8CapTy = PointerType::get(C, AS);
       Type *SizeTy = Type::getIntNTy(C, DL.getIndexSizeInBits(AS));
-      Function *GetAddress = Intrinsic::getDeclaration(
+      Function *GetAddress = Intrinsic::getOrInsertDeclaration(
           M, Intrinsic::cheri_cap_address_get, SizeTy);
-      Function *SetAddress = Intrinsic::getDeclaration(
+      Function *SetAddress = Intrinsic::getOrInsertDeclaration(
           M, Intrinsic::cheri_cap_address_set, SizeTy);
       Value *LoadedI8Cap = Builder.CreateBitCast(Loaded, I8CapTy);
       Value *LoadedInt = Builder.CreateCall(GetAddress, {LoadedI8Cap});

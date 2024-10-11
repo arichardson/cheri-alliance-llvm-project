@@ -1197,8 +1197,8 @@ TEST(VPRecipeTest, MayHaveSideEffectsAndMayReadWriteMemory) {
     Module M("", C);
     IntegerType *Int8 = IntegerType::get(C, 8);
     PointerType *Int8Ptr = PointerType::get(Int8, 0);
-    Function *TheFn = Intrinsic::getDeclaration(&M, Intrinsic::thread_pointer,
-                                                Int8Ptr);
+    Function *TheFn = Intrinsic::getOrInsertDeclaration(&M, Intrinsic::thread_pointer,
+                                                        Int8Ptr);
 
     auto *Call = CallInst::Create(TheFn->getFunctionType(), TheFn);
     VPValue Op1;

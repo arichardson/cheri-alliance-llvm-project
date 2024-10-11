@@ -574,8 +574,8 @@ bool ThreadSanitizer::sanitizeFunction(Function &F,
     auto ProgramAsPtrTy = PointerType::get(F.getParent()->getContext(),
                                            DL.getProgramAddressSpace());
     Value *ReturnAddress = IRB.CreateCall(
-        Intrinsic::getDeclaration(F.getParent(), Intrinsic::returnaddress,
-                                  {ProgramAsPtrTy}),
+        Intrinsic::getOrInsertDeclaration(F.getParent(), Intrinsic::returnaddress,
+                                          {ProgramAsPtrTy}),
         IRB.getInt32(0));
     IRB.CreateCall(TsanFuncEntry, ReturnAddress);
 

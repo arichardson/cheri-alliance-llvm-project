@@ -21144,7 +21144,7 @@ Instruction *ARMTargetLowering::makeDMB(IRBuilderBase &Builder,
     // Thumb1 and pre-v6 ARM mode use a libcall instead and should never get
     // here.
     if (Subtarget->hasV6Ops() && !Subtarget->isThumb()) {
-      Function *MCR = Intrinsic::getDeclaration(M, Intrinsic::arm_mcr);
+      Function *MCR = Intrinsic::getOrInsertDeclaration(M, Intrinsic::arm_mcr);
       Value* args[6] = {Builder.getInt32(15), Builder.getInt32(0),
                         Builder.getInt32(0), Builder.getInt32(7),
                         Builder.getInt32(10), Builder.getInt32(5)};
@@ -21155,7 +21155,7 @@ Instruction *ARMTargetLowering::makeDMB(IRBuilderBase &Builder,
       llvm_unreachable("makeDMB on a target so old that it has no barriers");
     }
   } else {
-    Function *DMB = Intrinsic::getDeclaration(M, Intrinsic::arm_dmb);
+    Function *DMB = Intrinsic::getOrInsertDeclaration(M, Intrinsic::arm_dmb);
     // Only a full system barrier exists in the M-class architectures.
     Domain = Subtarget->isMClass() ? ARM_MB::SY : Domain;
     Constant *CDomain = Builder.getInt32(Domain);
@@ -21412,7 +21412,7 @@ Value *ARMTargetLowering::emitLoadLinked(IRBuilderBase &Builder, Type *ValueTy,
   if (ValueTy->getPrimitiveSizeInBits() == 64) {
     Intrinsic::ID Int =
         IsAcquire ? Intrinsic::arm_ldaexd : Intrinsic::arm_ldrexd;
-    Function *Ldrex = Intrinsic::getDeclaration(M, Int);
+    Function *Ldrex = Intrinsic::getOrInsertDeclaration(M, Int);
 
     Value *LoHi = Builder.CreateCall(Ldrex, Addr, "lohi");
 
@@ -21428,7 +21428,7 @@ Value *ARMTargetLowering::emitLoadLinked(IRBuilderBase &Builder, Type *ValueTy,
 
   Type *Tys[] = { Addr->getType() };
   Intrinsic::ID Int = IsAcquire ? Intrinsic::arm_ldaex : Intrinsic::arm_ldrex;
-  Function *Ldrex = Intrinsic::getDeclaration(M, Int, Tys);
+  Function *Ldrex = Intrinsic::getOrInsertDeclaration(M, Int, Tys);
   CallInst *CI = Builder.CreateCall(Ldrex, Addr);
 
   CI->addParamAttr(
@@ -21441,7 +21441,8 @@ void ARMTargetLowering::emitAtomicCmpXchgNoStoreLLBalance(
   if (!Subtarget->hasV7Ops())
     return;
   Module *M = Builder.GetInsertBlock()->getParent()->getParent();
-  Builder.CreateCall(Intrinsic::getDeclaration(M, Intrinsic::arm_clrex));
+  Builder.CreateCall(
+      Intrinsic::getOrInsertDeclaration(M, Intrinsic::arm_clrex));
 }
 
 Value *ARMTargetLowering::emitStoreConditional(IRBuilderBase &Builder,
@@ -21456,7 +21457,7 @@ Value *ARMTargetLowering::emitStoreConditional(IRBuilderBase &Builder,
   if (Val->getType()->getPrimitiveSizeInBits() == 64) {
     Intrinsic::ID Int =
         IsRelease ? Intrinsic::arm_stlexd : Intrinsic::arm_strexd;
-    Function *Strex = Intrinsic::getDeclaration(M, Int);
+    Function *Strex = Intrinsic::getOrInsertDeclaration(M, Int);
     Type *Int32Ty = Type::getInt32Ty(M->getContext());
 
     Value *Lo = Builder.CreateTrunc(Val, Int32Ty, "lo");
@@ -21468,7 +21469,7 @@ Value *ARMTargetLowering::emitStoreConditional(IRBuilderBase &Builder,
 
   Intrinsic::ID Int = IsRelease ? Intrinsic::arm_stlex : Intrinsic::arm_strex;
   Type *Tys[] = { Addr->getType() };
-  Function *Strex = Intrinsic::getDeclaration(M, Int, Tys);
+  Function *Strex = Intrinsic::getOrInsertDeclaration(M, Int, Tys);
 
   CallInst *CI = Builder.CreateCall(
       Strex, {Builder.CreateZExtOrBitCast(
@@ -21596,8 +21597,8 @@ bool ARMTargetLowering::lowerInterleavedLoad(
       static const Intrinsic::ID LoadInts[3] = {Intrinsic::arm_neon_vld2,
                                                 Intrinsic::arm_neon_vld3,
                                                 Intrinsic::arm_neon_vld4};
-      Function *VldnFunc =
-          Intrinsic::getDeclaration(LI->getModule(), LoadInts[Factor - 2], Tys);
+      Function *VldnFunc = Intrinsic::getOrInsertDeclaration(
+          LI->getModule(), LoadInts[Factor - 2], Tys);
 
       SmallVector<Value *, 2> Ops;
       Ops.push_back(BaseAddr);
@@ -21612,7 +21613,7 @@ bool ARMTargetLowering::lowerInterleavedLoad(
       Type *PtrTy = Builder.getPtrTy(LI->getPointerAddressSpace());
       Type *Tys[] = {VecTy, PtrTy};
       Function *VldnFunc =
-          Intrinsic::getDeclaration(LI->getModule(), LoadInts, Tys);
+          Intrinsic::getOrInsertDeclaration(LI->getModule(), LoadInts, Tys);
 
       SmallVector<Value *, 2> Ops;
       Ops.push_back(BaseAddr);
@@ -21757,7 +21758,7 @@ bool ARMTargetLowering::lowerInterleavedStore(StoreInst *SI,
       Type *PtrTy = Builder.getPtrTy(SI->getPointerAddressSpace());
       Type *Tys[] = {PtrTy, SubVecTy};
 
-      Function *VstNFunc = Intrinsic::getDeclaration(
+      Function *VstNFunc = Intrinsic::getOrInsertDeclaration(
           SI->getModule(), StoreInts[Factor - 2], Tys);
 
       SmallVector<Value *, 6> Ops;
@@ -21773,7 +21774,7 @@ bool ARMTargetLowering::lowerInterleavedStore(StoreInst *SI,
       Type *PtrTy = Builder.getPtrTy(SI->getPointerAddressSpace());
       Type *Tys[] = {PtrTy, SubVecTy};
       Function *VstNFunc =
-          Intrinsic::getDeclaration(SI->getModule(), StoreInts, Tys);
+          Intrinsic::getOrInsertDeclaration(SI->getModule(), StoreInts, Tys);
 
       SmallVector<Value *, 6> Ops;
       Ops.push_back(BaseAddr);

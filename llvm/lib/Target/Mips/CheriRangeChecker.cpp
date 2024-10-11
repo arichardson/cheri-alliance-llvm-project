@@ -246,7 +246,7 @@ public:
 
     if (!(Casts.empty() && ConstantCasts.empty())) {
       Intrinsic::ID SetLength = Intrinsic::cheri_cap_bounds_set;
-      SetLengthFn = Intrinsic::getDeclaration(M, SetLength, SizeTy);
+      SetLengthFn = Intrinsic::getOrInsertDeclaration(M, SetLength, SizeTy);
       Value *BitCast = 0;
 
       for (auto *i = Casts.begin(), *e = Casts.end(); i != e; ++i) {

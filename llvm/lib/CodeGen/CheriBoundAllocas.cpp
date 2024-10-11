@@ -172,7 +172,7 @@ public:
     //
     // TODO: csetboundsexact and round up sizes
     Function *BoundedStackFn =
-        Intrinsic::getDeclaration(M, Intrinsic::cheri_bounded_stack_cap, SizeTy);
+        Intrinsic::getOrInsertDeclaration(M, Intrinsic::cheri_bounded_stack_cap, SizeTy);
 
     IRBuilder<> B(C);
 
@@ -256,7 +256,7 @@ public:
         DBG_MESSAGE("Found dynamic alloca: must use single intrinisic and "
                     "cheri.bounded.stack.cap.dynamic intrinisic");
         MustUseSingleIntrinsic = true;
-        SetBoundsIntrin = Intrinsic::getDeclaration(
+        SetBoundsIntrin = Intrinsic::getOrInsertDeclaration(
             M, Intrinsic::cheri_bounded_stack_cap_dynamic, SizeTy);
       }
 
