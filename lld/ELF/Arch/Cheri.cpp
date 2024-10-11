@@ -516,10 +516,10 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
                         const InMemoryCapRelocEntry<ELFT> &b) {
                        return a.capability_location < b.capability_location;
                      });
-  assert(offset == getSize(ctx) && "Not all data written?");
+  assert(offset == getSize() && "Not all data written?");
 }
 
-void CheriCapRelocsSection::writeTo(Ctx &ctx, uint8_t *buf) {
+void CheriCapRelocsSection::writeTo(uint8_t *buf) {
   invokeELFT(writeToImpl, buf);
 }
 
@@ -530,7 +530,7 @@ MipsCheriCapTableSection::MipsCheriCapTableSection(Ctx &ctx)
   this->entsize = ctx.arg.capabilitySize;
 }
 
-void MipsCheriCapTableSection::writeTo(Ctx &, uint8_t *buf) {
+void MipsCheriCapTableSection::writeTo(uint8_t *buf) {
   // Capability part should be filled with all zeros and crt_init_globals fills
   // it in. For the TLS part, assignValuesAndAddCapTableSymbols adds any static
   // relocations needed, and should be procesed by relocateAlloc.
@@ -888,9 +888,9 @@ MipsCheriCapTableMappingSection::MipsCheriCapTableMappingSection(Ctx &ctx)
   static_assert(sizeof(CaptableMappingEntry) == 24, "");
 }
 
-size_t MipsCheriCapTableMappingSection::getSize(Ctx &ctx) const {
+size_t MipsCheriCapTableMappingSection::getSize() const {
   assert(ctx.arg.capTableScope != CapTableScopePolicy::All);
-  if (!isNeeded(ctx))
+  if (!isNeeded())
     return 0;
   size_t count = 0;
   if (!ctx.in.symTab) {
@@ -905,7 +905,7 @@ size_t MipsCheriCapTableMappingSection::getSize(Ctx &ctx) const {
   return count * sizeof(CaptableMappingEntry);
 }
 
-void MipsCheriCapTableMappingSection::writeTo(Ctx &ctx, uint8_t *buf) {
+void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
   assert(ctx.arg.capTableScope != CapTableScopePolicy::All);
   if (!ctx.in.mipsCheriCapTable)
     return;
@@ -966,7 +966,7 @@ void MipsCheriCapTableMappingSection::writeTo(Ctx &ctx, uint8_t *buf) {
     e.subTableSize =
         support::endian::byte_swap(e.subTableSize, ctx.arg.endianness);
   }
-  assert(entries.size() * sizeof(CaptableMappingEntry) == getSize(ctx));
+  assert(entries.size() * sizeof(CaptableMappingEntry) == getSize());
   memcpy(buf, entries.data(), entries.size() * sizeof(CaptableMappingEntry));
 }
 

@@ -77,10 +77,10 @@ struct CheriCapReloc {
 
 class CheriCapRelocsSection : public SyntheticSection {
 public:
-  CheriCapRelocsSection(Ctx &, StringRef name);
-  bool isNeeded(Ctx &) const override { return !relocsMap.empty(); }
-  size_t getSize(Ctx &) const override { return relocsMap.size() * entsize; }
-  void writeTo(Ctx &, uint8_t *buf) override;
+  CheriCapRelocsSection(Ctx &ctx, StringRef name);
+  bool isNeeded() const override { return !relocsMap.empty(); }
+  size_t getSize() const override { return relocsMap.size() * entsize; }
+  void writeTo(uint8_t *buf) override;
   void addCapReloc(bool isCode, CheriCapRelocLocation loc,
                    const SymbolAndOffset &target, int64_t capabilityOffset,
                    Symbol *sourceSymbol = nullptr);
@@ -179,7 +179,7 @@ private:
 
 class MipsCheriCapTableSection : public SyntheticSection {
 public:
-  MipsCheriCapTableSection(Ctx &ctx);
+  MipsCheriCapTableSection(Ctx &);
   void addConstant(const Relocation &r) { addReloc(r); }
   // InputFile and Offset is needed in order to implement per-file/per-function
   // tables
@@ -193,13 +193,13 @@ public:
   uint32_t getDynTlsOffset(const Symbol &sym) const;
   uint32_t getTlsIndexOffset() const;
   uint32_t getTlsOffset(const Symbol &sym) const;
-  bool isNeeded(Ctx &) const override {
+  bool isNeeded() const override {
     return nonTlsEntryCount() > 0 || !dynTlsEntries.empty() ||
            !tlsEntries.empty();
   }
-  void writeTo(Ctx &, uint8_t *buf) override;
+  void writeTo(uint8_t *buf) override;
   void assignValuesAndAddCapTableSymbols();
-  size_t getSize(Ctx &) const override {
+  size_t getSize() const override {
     size_t nonTlsEntries = nonTlsEntryCount();
     if (nonTlsEntries > 0 || !tlsEntries.empty() || !dynTlsEntries.empty()) {
       assert(ctx.arg.capabilitySize > 0 &&
@@ -274,13 +274,13 @@ struct CaptableMappingEntry {
 class MipsCheriCapTableMappingSection : public SyntheticSection {
 public:
   MipsCheriCapTableMappingSection(Ctx &);
-  bool isNeeded(Ctx &ctx) const override {
+  bool isNeeded() const override {
     if (ctx.arg.capTableScope == CapTableScopePolicy::All)
       return false;
-    return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded(ctx);
+    return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded();
   }
-  void writeTo(Ctx &, uint8_t *buf) override;
-  size_t getSize(Ctx &) const override;
+  void writeTo(uint8_t *buf) override;
+  size_t getSize() const override;
 };
 
 inline bool isSectionEndSymbol(StringRef name) {

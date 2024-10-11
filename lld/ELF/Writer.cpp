@@ -883,17 +883,17 @@ template <class ELFT> void Writer<ELFT>::setReservedSymbolSections() {
   }
 
   // .rela_iplt_{start,end} mark the start and the end of .rel[a].dyn.
-  if (ctx.sym.relaIpltStart && ctx.mainPart->relaDyn->isNeeded(ctx)) {
+  if (ctx.sym.relaIpltStart && ctx.mainPart->relaDyn->isNeeded()) {
     ctx.sym.relaIpltStart->section = ctx.mainPart->relaDyn.get();
     ctx.sym.relaIpltEnd->section = ctx.mainPart->relaDyn.get();
-    ctx.sym.relaIpltEnd->value = ctx.mainPart->relaDyn->getSize(ctx);
+    ctx.sym.relaIpltEnd->value = ctx.mainPart->relaDyn->getSize();
   }
 
   // __rela_dyn_{start,end} symbols if needed.
-  if (ctx.sym.relaDynStart && ctx.in.relaDyn->isNeeded(ctx)) {
+  if (ctx.sym.relaDynStart && ctx.in.relaDyn->isNeeded()) {
     ctx.sym.relaDynStart->section = ctx.in.relaDyn.get();
     ctx.sym.relaDynEnd->section = ctx.in.relaDyn.get();
-    ctx.sym.relaDynEnd->value = ctx.in.relaDyn->getSize(ctx);
+    ctx.sym.relaDynEnd->value = ctx.in.relaDyn->getSize();
     ctx.sym.relaDynEnd->isSectionStartSymbol = false;
   }
 
@@ -1479,9 +1479,9 @@ template <class ELFT> void Writer<ELFT>::resolveShfLinkOrder() {
 }
 
 static void finalizeSynthetic(Ctx &ctx, SyntheticSection *sec) {
-  if (sec && sec->isNeeded(ctx) && sec->getParent()) {
+  if (sec && sec->isNeeded() && sec->getParent()) {
     llvm::TimeTraceScope timeScope("Finalize synthetic sections", sec->name);
-    sec->finalizeContents(ctx);
+    sec->finalizeContents();
   }
 }
 
@@ -1733,7 +1733,7 @@ static void removeUnusedSyntheticSections(Ctx &ctx) {
   auto end =
       std::remove_if(start, ctx.inputSections.end(), [&](InputSectionBase *s) {
         auto *sec = cast<SyntheticSection>(s);
-        if (sec->getParent() && sec->isNeeded(ctx))
+        if (sec->getParent() && sec->isNeeded())
           return false;
         // .relr.auth.dyn relocations may be moved to .rela.dyn in
         // finalizeAddressDependentContent, making .rela.dyn no longer empty.
@@ -1905,7 +1905,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
       // cap table exists. This makes llvm-objdump more useful since it can now
       // print the target of a cap table load
       if (!ctx.sym.mipsCheriCapabilityTable &&
-          ctx.in.mipsCheriCapTable->isNeeded(ctx)) {
+          ctx.in.mipsCheriCapTable->isNeeded()) {
         ctx.sym.mipsCheriCapabilityTable = cast<Defined>(ctx.symtab->addSymbol(
             Defined{nullptr, captableSym, STB_LOCAL, STV_HIDDEN, STT_NOTYPE, 0,
                     0, ctx.in.mipsCheriCapTable.get()}));
@@ -1920,9 +1920,9 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     if (ctx.in.capRelocs) {
       finalizeSynthetic(ctx, ctx.in.capRelocs.get());
     }
-    if (ctx.in.plt && ctx.in.plt->isNeeded(ctx))
+    if (ctx.in.plt && ctx.in.plt->isNeeded())
       ctx.in.plt->addSymbols();
-    if (ctx.in.iplt && ctx.in.iplt->isNeeded(ctx))
+    if (ctx.in.iplt && ctx.in.iplt->isNeeded())
       ctx.in.iplt->addSymbols();
 
     if (ctx.arg.unresolvedSymbolsInShlib != UnresolvedPolicy::Ignore) {
@@ -2458,7 +2458,7 @@ SmallVector<PhdrEntry *, 0> Writer<ELFT>::createPhdrs(Partition &part) {
     ret.push_back(relRo);
 
   // PT_GNU_EH_FRAME is a special section pointing on .eh_frame_hdr.
-  if (part.ehFrame->isNeeded(ctx) && part.ehFrameHdr &&
+  if (part.ehFrame->isNeeded() && part.ehFrameHdr &&
       part.ehFrame->getParent() && part.ehFrameHdr->getParent())
     addHdr(PT_GNU_EH_FRAME, part.ehFrameHdr->getParent()->getPhdrFlags())
         ->add(part.ehFrameHdr->getParent());
@@ -2720,7 +2720,7 @@ template <class ELFT> void Writer<ELFT>::setPhdrs(Partition &part) {
     // output section. We always want to describe just the
     // SyntheticSection.
     if (part.armExidx && p->p_type == PT_ARM_EXIDX) {
-      p->p_filesz = part.armExidx->getSize(ctx);
+      p->p_filesz = part.armExidx->getSize();
       p->p_memsz = p->p_filesz;
       p->p_offset = first->offset + part.armExidx->outSecOff;
       p->p_vaddr = first->addr + part.armExidx->outSecOff;
