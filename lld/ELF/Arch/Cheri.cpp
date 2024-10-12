@@ -613,7 +613,7 @@ void MipsCheriCapTableSection::addEntry(Symbol &sym, RelExpr expr,
     StringRef helperSymName = saver().save(
         "$captable_load_" +
         (sym.getName().empty() ? "$anonymous_symbol" : sym.getName()));
-    addSyntheticLocal(helperSymName, STT_NOTYPE, offset, 0, *isec);
+    addSyntheticLocal(ctx, helperSymName, STT_NOTYPE, offset, 0, *isec);
   }
 
   auto it = entries.map.insert(std::make_pair(&sym, idx));
@@ -769,7 +769,7 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
 #endif
     uint64_t off = index * ctx.arg.capabilitySize;
     if (shouldAddAtCaptableSymbols) {
-      addSyntheticLocal(refName, STT_OBJECT, off, ctx.arg.capabilitySize, *this);
+      addSyntheticLocal(ctx, refName, STT_OBJECT, off, ctx.arg.capabilitySize, *this);
     }
     // If the symbol is used as a function pointer the runtime linker has to
     // ensure that all pointers to that function compare equal. This is done
