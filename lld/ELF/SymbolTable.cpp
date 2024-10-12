@@ -30,7 +30,7 @@ using namespace lld;
 using namespace lld::elf;
 
 Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
-  assert(!original->includeInDynsym() && "Already included in dynsym?");
+  assert(!original->includeInDynsym(ctx) && "Already included in dynsym?");
   assert(original->isFunc() && "This should only be used for functions");
   // Hack: Add a new global symbol with a unique name so that we can use
   // a dynamic relocation against it.
@@ -52,7 +52,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   }
   StringRef newName = saver().save(uniqueName);
   Symbol* newSym = ctx.symtab->insert(newName);
-  newSym->resolve(cast<Defined>(*original));
+  newSym->resolve(ctx, cast<Defined>(*original));
   newSym->setName(newName); // resolve() changes the name to original->name
   newSym->binding = llvm::ELF::STB_GLOBAL;
   newSym->setVisibility(llvm::ELF::STV_HIDDEN);
@@ -60,7 +60,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   newSym->usedByDynReloc = true;
   newSym->isUsedInRegularObj = true;
   newSym->isPreemptible = false;
-  assert(newSym->computeBinding() == llvm::ELF::STB_GLOBAL);
+  assert(newSym->computeBinding(ctx) == llvm::ELF::STB_GLOBAL);
 
   assert(newSym->isFunc() && "This should only be used for functions");
 
@@ -140,11 +140,11 @@ Symbol *SymbolTable::insert(StringRef name) {
 
 // This variant of addSymbol is used by BinaryFile::parse to check duplicate
 // symbol errors.
-Symbol *SymbolTable::addAndCheckDuplicate(const Defined &newSym) {
+Symbol *SymbolTable::addAndCheckDuplicate(Ctx &ctx, const Defined &newSym) {
   Symbol *sym = insert(newSym.getName());
   if (sym->isDefined())
-    sym->checkDuplicate(newSym);
-  sym->resolve(newSym);
+    sym->checkDuplicate(ctx, newSym);
+  sym->resolve(ctx, newSym);
   sym->isUsedInRegularObj = true;
   return sym;
 }
@@ -269,7 +269,7 @@ bool SymbolTable::assignExactVersion(SymbolVersion ver, uint16_t versionId,
   for (Symbol *sym : syms) {
     // For a non-local versionId, skip symbols containing version info because
     // symbol versions specified by symbol names take precedence over version
-    // scripts. See parseSymbolVersion().
+    // scripts. See parseSymbolVersion(ctx).
     if (!includeNonDefault && versionId != VER_NDX_LOCAL &&
         sym->getName().contains('@'))
       continue;
@@ -395,10 +395,10 @@ void SymbolTable::scanVersionScript() {
   // Let them parse and update their names to exclude version suffix.
   for (Symbol *sym : symVector)
     if (sym->hasVersionSuffix)
-      sym->parseSymbolVersion();
+      sym->parseSymbolVersion(ctx);
 
   // isPreemptible is false at this point. To correctly compute the binding of a
-  // Defined (which is used by includeInDynsym()), we need to know if it is
+  // Defined (which is used by includeInDynsym(ctx)), we need to know if it is
   // VER_NDX_LOCAL or not. Compute symbol versions before handling
   // --dynamic-list.
   handleDynamicList();

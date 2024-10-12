@@ -1018,12 +1018,12 @@ static bool needsCheriMipsTrampoline(RelType type, const Symbol &sym) {
 static Symbol &getCheriMipsTrampolineSym(RelType type, Symbol &sym) {
   assert(needsCheriMipsTrampoline(type, sym));
 
-  if (sym.includeInDynsym())
+  if (sym.includeInDynsym(ctx))
     return sym;
 
   Defined &newSym = *ctx.symtab->ensureSymbolWillBeInDynsym(&sym);
   assert(newSym.isFunc() && "This should only be used for functions");
-  assert(newSym.includeInDynsym());
+  assert(newSym.includeInDynsym(ctx));
   assert(newSym.binding == llvm::ELF::STB_GLOBAL);
   assert(newSym.visibility() == llvm::ELF::STV_HIDDEN);
   return newSym;
@@ -1056,7 +1056,7 @@ void addRelativeCapabilityRelocation(
     if (ctx.arg.emachine != EM_RISCV)
       error("Relative Relocs method not implemented yet!");
     RelocationBaseSection &oSec =
-        sym->includeInDynsym() ? *ctx.mainPart->relaDyn : *ctx.in.relaDyn;
+        sym->includeInDynsym(ctx) ? *ctx.mainPart->relaDyn : *ctx.in.relaDyn;
     oSec.addReloc(DynamicReloc::AgainstSymbol, R_RISCV_CHERI_RELATIVE, isec,
                   offsetInSec, *sym, addend, expr, ctx.target->symbolicRel);
     writeCatableRelocationFragments(&isec, sym, offsetInSec);

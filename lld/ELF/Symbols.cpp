@@ -297,7 +297,7 @@ OutputSection *Symbol::getOutputSection() const {
 
 // If a symbol name contains '@', the characters after that is
 // a symbol version name. This function parses that.
-void Symbol::parseSymbolVersion() {
+void Symbol::parseSymbolVersion(Ctx &ctx) {
   // Return if localized by a local: pattern in a version script.
   if (versionId == VER_NDX_LOCAL)
     return;
@@ -345,14 +345,14 @@ void Symbol::parseSymbolVersion() {
           verstr);
 }
 
-void Symbol::extract() const {
+void Symbol::extract(Ctx &ctx) const {
   if (file->lazy) {
     file->lazy = false;
     parseFile(ctx, file);
   }
 }
 
-uint8_t Symbol::computeBinding() const {
+uint8_t Symbol::computeBinding(Ctx &ctx) const {
   auto v = visibility();
   if ((v != STV_DEFAULT && v != STV_PROTECTED && !usedByDynReloc) ||
       versionId == VER_NDX_LOCAL)
@@ -362,10 +362,10 @@ uint8_t Symbol::computeBinding() const {
   return binding;
 }
 
-bool Symbol::includeInDynsym() const {
+bool Symbol::includeInDynsym(Ctx &ctx) const {
   if (usedByDynReloc)
     return true;
-  if (computeBinding() == STB_LOCAL)
+  if (computeBinding(ctx) == STB_LOCAL)
     return false;
   if (!isDefined() && !isCommon())
     // This should unconditionally return true, unfortunately glibc -static-pie
@@ -394,7 +394,7 @@ void elf::printTraceSymbol(const Symbol &sym, StringRef name) {
   message(toString(sym.file) + s + name);
 }
 
-static void recordWhyExtract(const InputFile *reference,
+static void recordWhyExtract(Ctx &ctx, const InputFile *reference,
                              const InputFile &extracted, const Symbol &sym) {
   ctx.whyExtractRecords.emplace_back(toString(reference), &extracted, sym);
 }
@@ -440,7 +440,7 @@ bool elf::computeIsPreemptible(Ctx &ctx, const Symbol &sym) {
 
   // Only symbols with default visibility that appear in dynsym can be
   // preempted. Symbols with protected visibility cannot be preempted.
-  if (!sym.includeInDynsym() || sym.visibility() != STV_DEFAULT)
+  if (!sym.includeInDynsym(ctx) || sym.visibility() != STV_DEFAULT)
     return false;
 
   // At this point copy relocations have not been created yet, so any
@@ -481,7 +481,7 @@ void Symbol::mergeProperties(const Symbol &other) {
   }
 }
 
-void Symbol::resolve(const Undefined &other) {
+void Symbol::resolve(Ctx &ctx, const Undefined &other) {
   if (other.visibility() != STV_DEFAULT) {
     uint8_t v = visibility(), ov = other.visibility();
     setVisibility(v == STV_DEFAULT ? ov : std::min(v, ov));
@@ -561,10 +561,10 @@ void Symbol::resolve(const Undefined &other) {
     // group assignment rule simulates the traditional linker's semantics.
     bool backref = ctx.arg.warnBackrefs && other.file &&
                    file->groupId < other.file->groupId;
-    extract();
+    extract(ctx);
 
     if (!ctx.arg.whyExtract.empty())
-      recordWhyExtract(other.file, *file, *this);
+      recordWhyExtract(ctx, other.file, *file, *this);
 
     // We don't report backward references to weak symbols as they can be
     // overridden later.
@@ -594,7 +594,7 @@ void Symbol::resolve(const Undefined &other) {
 }
 
 // Compare two symbols. Return true if the new symbol should win.
-bool Symbol::shouldReplace(const Defined &other) const {
+bool Symbol::shouldReplace(Ctx &ctx, const Defined &other) const {
   if (LLVM_UNLIKELY(isCommon())) {
     if (ctx.arg.warnCommon)
       warn("common " + getName() + " is overridden");
@@ -654,14 +654,14 @@ void elf::reportDuplicate(Ctx &ctx, const Symbol &sym, const InputFile *newFile,
   errorOrWarn(msg);
 }
 
-void Symbol::checkDuplicate(const Defined &other) const {
+void Symbol::checkDuplicate(Ctx &ctx, const Defined &other) const {
   if (isDefined() && !isWeak() && !other.isWeak())
     reportDuplicate(ctx, *this, other.file,
                     dyn_cast_or_null<InputSectionBase>(other.section),
                     other.value);
 }
 
-void Symbol::resolve(const CommonSymbol &other) {
+void Symbol::resolve(Ctx &ctx, const CommonSymbol &other) {
   if (other.exportDynamic)
     exportDynamic = true;
   if (other.visibility() != STV_DEFAULT) {
@@ -699,18 +699,18 @@ void Symbol::resolve(const CommonSymbol &other) {
   }
 }
 
-void Symbol::resolve(const Defined &other) {
+void Symbol::resolve(Ctx &ctx, const Defined &other) {
   if (other.exportDynamic)
     exportDynamic = true;
   if (other.visibility() != STV_DEFAULT) {
     uint8_t v = visibility(), ov = other.visibility();
     setVisibility(v == STV_DEFAULT ? ov : std::min(v, ov));
   }
-  if (shouldReplace(other))
+  if (shouldReplace(ctx, other))
     other.overwrite(*this);
 }
 
-void Symbol::resolve(const LazySymbol &other) {
+void Symbol::resolve(Ctx &ctx, const LazySymbol &other) {
   if (isPlaceholder()) {
     other.overwrite(*this);
     return;
@@ -722,7 +722,7 @@ void Symbol::resolve(const LazySymbol &other) {
       other.file->shouldExtractForCommon(getName())) {
     ctx.backwardReferences.erase(this);
     other.overwrite(*this);
-    other.extract();
+    other.extract(ctx);
     return;
   }
 
@@ -744,12 +744,12 @@ void Symbol::resolve(const LazySymbol &other) {
   }
 
   const InputFile *oldFile = file;
-  other.extract();
+  other.extract(ctx);
   if (!ctx.arg.whyExtract.empty())
-    recordWhyExtract(oldFile, *file, *this);
+    recordWhyExtract(ctx, oldFile, *file, *this);
 }
 
-void Symbol::resolve(const SharedSymbol &other) {
+void Symbol::resolve(Ctx &ctx, const SharedSymbol &other) {
   exportDynamic = true;
   if (isPlaceholder()) {
     other.overwrite(*this);

@@ -1323,7 +1323,9 @@ void StringTableSection::writeTo(uint8_t *buf) {
 // Returns the number of entries in .gnu.version_d: the number of
 // non-VER_NDX_LOCAL-non-VER_NDX_GLOBAL definitions, plus 1.
 // Note that we don't support vd_cnt > 1 yet.
-static unsigned getVerDefNum() { return namedVersionDefs(ctx).size() + 1; }
+static unsigned getVerDefNum(Ctx &ctx) {
+  return namedVersionDefs(ctx).size() + 1;
+}
 
 template <class ELFT>
 DynamicSection<ELFT>::DynamicSection(Ctx &ctx)
@@ -1581,7 +1583,7 @@ DynamicSection<ELFT>::computeContents() {
     addInSec(DT_VERSYM, *part.verSym);
   if (part.verDef && part.verDef->isLive()) {
     addInSec(DT_VERDEF, *part.verDef);
-    addInt(DT_VERDEFNUM, getVerDefNum());
+    addInt(DT_VERDEFNUM, getVerDefNum(ctx));
   }
   if (part.verNeed && part.verNeed->isNeeded()) {
     addInSec(DT_VERNEED, *part.verNeed);
@@ -3849,7 +3851,7 @@ void VersionDefinitionSection::finalizeContents() {
   // sh_info should be set to the number of definitions. This fact is missed in
   // documentation, but confirmed by binutils community:
   // https://sourceware.org/ml/binutils/2014-11/msg00355.html
-  getParent()->info = getVerDefNum();
+  getParent()->info = getVerDefNum(ctx);
 }
 
 void VersionDefinitionSection::writeOne(uint8_t *buf, uint32_t index,
@@ -3884,7 +3886,7 @@ void VersionDefinitionSection::writeTo(uint8_t *buf) {
 }
 
 size_t VersionDefinitionSection::getSize() const {
-  return EntrySize * getVerDefNum();
+  return EntrySize * getVerDefNum(ctx);
 }
 
 // .gnu.version is a table where each entry is 2 byte long.
@@ -3930,10 +3932,10 @@ void elf::addVerneed(Symbol *ss) {
 
   // Select a version identifier for the vernaux data structure, if we haven't
   // already allocated one. The verdef identifiers cover the range
-  // [1..getVerDefNum()]; this causes the vernaux identifiers to start from
-  // getVerDefNum()+1.
+  // [1..getVerDefNum(ctx)]; this causes the vernaux identifiers to start from
+  // getVerDefNum(ctx)+1.
   if (file.vernauxs[ss->versionId] == 0)
-    file.vernauxs[ss->versionId] = ++SharedFile::vernauxNum + getVerDefNum();
+    file.vernauxs[ss->versionId] = ++SharedFile::vernauxNum + getVerDefNum(ctx);
 
   ss->versionId = file.vernauxs[ss->versionId];
 }
@@ -3966,7 +3968,7 @@ template <class ELFT> void VersionNeedSection<ELFT>::finalizeContents() {
     if (isGlibc2) {
       const char *ver = "GLIBC_ABI_DT_RELR";
       vn.vernauxs.push_back({hashSysV(ver),
-                             ++SharedFile::vernauxNum + getVerDefNum(),
+                             ++SharedFile::vernauxNum + getVerDefNum(ctx),
                              getPartition().dynStrTab->addString(ver)});
     }
   }
@@ -4822,9 +4824,9 @@ static Defined *addOptionalRegular(Ctx &ctx, StringRef name, SectionBase *sec,
   if (!s || s->isDefined() || s->isCommon())
     return nullptr;
 
-  s->resolve(Defined{ctx.internalFile, StringRef(), STB_GLOBAL, stOther,
-                     STT_NOTYPE, val,
-                     /*size=*/0, sec});
+  s->resolve(ctx, Defined{ctx.internalFile, StringRef(), STB_GLOBAL, stOther,
+                          STT_NOTYPE, val,
+                          /*size=*/0, sec});
   s->isUsedInRegularObj = true;
   return cast<Defined>(s);
 }
@@ -4921,7 +4923,7 @@ template <class ELFT> void elf::createSyntheticSections(Ctx &ctx) {
       add(*part.buildId);
     }
 
-    // dynSymTab is always present to simplify sym->includeInDynsym() in
+    // dynSymTab is always present to simplify sym->includeInDynsym(ctx) in
     // finalizeSections.
     part.dynStrTab = std::make_unique<StringTableSection>(ctx, ".dynstr", true);
     part.dynSymTab =
