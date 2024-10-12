@@ -802,7 +802,7 @@ unsigned elf::getSectionRank(Ctx &ctx, OutputSection &osec) {
   return rank;
 }
 
-static bool compareSections(const SectionCommand *aCmd,
+static bool compareSections(Ctx &ctx, const SectionCommand *aCmd,
                             const SectionCommand *bCmd) {
   const OutputSection *a = &cast<OutputDesc>(aCmd)->osec;
   const OutputSection *b = &cast<OutputDesc>(bCmd)->osec;
@@ -1152,7 +1152,7 @@ static DenseMap<const InputSectionBase *, int> buildSectionOrder(Ctx &ctx) {
     SymbolOrderEntry &ent = it->second;
     ent.present = true;
 
-    maybeWarnUnorderableSymbol(&sym);
+    maybeWarnUnorderableSymbol(ctx, &sym);
 
     if (auto *d = dyn_cast<Defined>(&sym)) {
       if (auto *sec = dyn_cast_or_null<InputSectionBase>(d->section)) {
@@ -1327,7 +1327,9 @@ template <class ELFT> void Writer<ELFT>::sortSections() {
     auto mid = std::stable_partition(
         ctx.script->sectionCommands.begin(), ctx.script->sectionCommands.end(),
         [](SectionCommand *cmd) { return isa<OutputDesc>(cmd); });
-    std::stable_sort(ctx.script->sectionCommands.begin(), mid, compareSections);
+    std::stable_sort(
+        ctx.script->sectionCommands.begin(), mid,
+        [&ctx = ctx](auto *l, auto *r) { return compareSections(ctx, l, r); });
   }
 
   // Process INSERT commands and update output section attributes. From this
@@ -1390,7 +1392,9 @@ template <class ELFT> void Writer<ELFT>::sortOrphanSections() {
   });
 
   // Sort the orphan sections.
-  std::stable_sort(nonScriptI, e, compareSections);
+  std::stable_sort(nonScriptI, e, [&ctx = ctx](auto *l, auto *r) {
+    return compareSections(ctx, l, r);
+  });
 
   // As a horrible special case, skip the first . assignment if it is before any
   // section. We do this because it is common to set a load address by starting
@@ -2876,7 +2880,7 @@ static uint16_t getELFType(Ctx &ctx) {
 }
 
 template <class ELFT> void Writer<ELFT>::writeHeader() {
-  writeEhdr<ELFT>(ctx.bufferStart, *ctx.mainPart);
+  writeEhdr<ELFT>(ctx, ctx.bufferStart, *ctx.mainPart);
   writePhdrs<ELFT>(ctx.bufferStart + sizeof(Elf_Ehdr), *ctx.mainPart);
 
   auto *eHdr = reinterpret_cast<Elf_Ehdr *>(ctx.bufferStart);

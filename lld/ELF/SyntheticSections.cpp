@@ -1721,8 +1721,9 @@ uint32_t DynamicReloc::getSymIndex(SymbolTableBaseSection *symTab) const {
 
   size_t index = symTab->getSymbolIndex(*sym);
   assert((index != 0 ||
-          (type != ctx.target->gotRel && type != ctx.target->pltRel) ||
-          !ctx.mainPart->dynSymTab->getParent()) &&
+          (type != symTab->ctx.target->gotRel &&
+           type != symTab->ctx.target->pltRel) ||
+          !symTab->ctx.mainPart->dynSymTab->getParent()) &&
          "GOT or PLT relocation must refer to symbol in dynamic symbol table");
   return index;
 }
@@ -2379,8 +2380,8 @@ SymbolTableSection<ELFT>::SymbolTableSection(Ctx &ctx,
   this->entsize = sizeof(Elf_Sym);
 }
 
-static BssSection *getCommonSec(Symbol *sym) {
-  if (ctx.arg.relocatable)
+static BssSection *getCommonSec(bool relocatable, Symbol *sym) {
+  if (relocatable)
     if (auto *d = dyn_cast<Defined>(sym))
       return dyn_cast_or_null<BssSection>(d->section);
   return nullptr;
@@ -2402,7 +2403,7 @@ template <class ELFT> void SymbolTableSection<ELFT>::writeTo(uint8_t *buf) {
   buf += sizeof(Elf_Sym);
 
   auto *eSym = reinterpret_cast<Elf_Sym *>(buf);
-
+  bool relocatable = ctx.arg.relocatable;
   for (SymbolTableEntry &ent : symbols) {
     Symbol *sym = ent.sym;
     bool isDefinedHere = type == SHT_SYMTAB || sym->partition == partition;
@@ -2412,7 +2413,7 @@ template <class ELFT> void SymbolTableSection<ELFT>::writeTo(uint8_t *buf) {
     eSym->setBindingAndType(sym->binding, sym->type);
     eSym->st_other = sym->stOther;
 
-    if (BssSection *commonSec = getCommonSec(sym)) {
+    if (BssSection *commonSec = getCommonSec(relocatable, sym)) {
       // When -r is specified, a COMMON symbol is not allocated. Its st_shndx
       // holds SHN_COMMON and st_value holds the alignment.
       eSym->st_shndx = SHN_COMMON;
@@ -2485,8 +2486,10 @@ void SymtabShndxSection::writeTo(uint8_t *buf) {
   // SHN_XINDEX, we need to write actual index, otherwise, we must write
   // SHN_UNDEF(0).
   buf += 4; // Ignore .symtab[0] entry.
+  bool relocatable = ctx.arg.relocatable;
   for (const SymbolTableEntry &entry : ctx.in.symTab->getSymbols()) {
-    if (!getCommonSec(entry.sym) && getSymSectionIndex(entry.sym) == SHN_XINDEX)
+    if (!getCommonSec(relocatable, entry.sym) &&
+        getSymSectionIndex(entry.sym) == SHN_XINDEX)
       write32(buf, entry.sym->getOutputSection()->sectionIndex);
     buf += 4;
   }
@@ -4531,7 +4534,8 @@ static uint8_t getAbiVersion(Ctx &ctx) {
   return 0;
 }
 
-template <typename ELFT> void elf::writeEhdr(uint8_t *buf, Partition &part) {
+template <typename ELFT>
+void elf::writeEhdr(Ctx &ctx, uint8_t *buf, Partition &part) {
   memcpy(buf, "\177ELF", 4);
 
   auto *eHdr = reinterpret_cast<typename ELFT::Ehdr *>(buf);
@@ -4581,7 +4585,7 @@ size_t PartitionElfHeaderSection<ELFT>::getSize() const {
 
 template <typename ELFT>
 void PartitionElfHeaderSection<ELFT>::writeTo(uint8_t *buf) {
-  writeEhdr<ELFT>(buf, getPartition());
+  writeEhdr<ELFT>(ctx, buf, getPartition());
 
   // Loadable partitions are always ET_DYN.
   auto *eHdr = reinterpret_cast<typename ELFT::Ehdr *>(buf);
@@ -5147,10 +5151,10 @@ template class elf::SymbolTableSection<ELF32BE>;
 template class elf::SymbolTableSection<ELF64LE>;
 template class elf::SymbolTableSection<ELF64BE>;
 
-template void elf::writeEhdr<ELF32LE>(uint8_t *Buf, Partition &Part);
-template void elf::writeEhdr<ELF32BE>(uint8_t *Buf, Partition &Part);
-template void elf::writeEhdr<ELF64LE>(uint8_t *Buf, Partition &Part);
-template void elf::writeEhdr<ELF64BE>(uint8_t *Buf, Partition &Part);
+template void elf::writeEhdr<ELF32LE>(Ctx &, uint8_t *Buf, Partition &Part);
+template void elf::writeEhdr<ELF32BE>(Ctx &, uint8_t *Buf, Partition &Part);
+template void elf::writeEhdr<ELF64LE>(Ctx &, uint8_t *Buf, Partition &Part);
+template void elf::writeEhdr<ELF64BE>(Ctx &, uint8_t *Buf, Partition &Part);
 
 template void elf::writePhdrs<ELF32LE>(uint8_t *Buf, Partition &Part);
 template void elf::writePhdrs<ELF32BE>(uint8_t *Buf, Partition &Part);
