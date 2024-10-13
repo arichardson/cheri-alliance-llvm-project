@@ -658,7 +658,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     if (ctx.arg.relocatable) {
       writeValue(ctx, loc, val + 0x8000, 16, 16);
     } else {
-      checkInt(loc, val, 16, rel);
+      checkInt(ctx, loc, val, 16, rel);
       writeValue(ctx, loc, val, 16, 0);
     }
     break;
@@ -666,7 +666,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     if (ctx.arg.relocatable) {
       writeShuffle<e>(ctx, loc, val + 0x8000, 16, 16);
     } else {
-      checkInt(loc, val, 16, rel);
+      checkInt(ctx, loc, val, 16, rel);
       writeShuffle<e>(ctx, loc, val, 16, 0);
     }
     break;
@@ -677,7 +677,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
   case R_MIPS_TLS_GD:
   case R_MIPS_TLS_GOTTPREL:
   case R_MIPS_TLS_LDM:
-    checkInt(loc, val, 16, rel);
+    checkInt(ctx, loc, val, 16, rel);
     [[fallthrough]];
   case R_MIPS_CALL_LO16:
   case R_MIPS_GOT_LO16:
@@ -696,7 +696,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
   case R_MICROMIPS_GPREL16:
   case R_MICROMIPS_TLS_GD:
   case R_MICROMIPS_TLS_LDM:
-    checkInt(loc, val, 16, rel);
+    checkInt(ctx, loc, val, 16, rel);
     writeShuffle<e>(ctx, loc, val, 16, 0);
     break;
   case R_MICROMIPS_CALL16:
@@ -708,7 +708,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     writeShuffle<e>(ctx, loc, val, 16, 0);
     break;
   case R_MICROMIPS_GPREL7_S2:
-    checkInt(loc, val, 7, rel);
+    checkInt(ctx, loc, val, 7, rel);
     writeShuffle<e>(ctx, loc, val, 7, 2);
     break;
   case R_MIPS_CALL_HI16:
@@ -730,7 +730,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     // by 4). This is the same for 128 and 256 even though they have different
     // capability sizes
     assert((val & 0xf) == 0 && "Bottom 4 bits should always be zero!");
-    checkInt(loc, val >> 4, 11, rel);
+    checkInt(ctx, loc, val >> 4, 11, rel);
     writeValue(ctx, loc, val, 11, 4);
     break;
   case R_MIPS_CHERI_CAPTAB20:
@@ -739,7 +739,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     // shifted by 4). This is the same for 128 and 256 even though they have
     // different capability sizes
     assert((val & 0xf) == 0 && "Bottom 4 bits should always be zero!");
-    checkInt(loc, val >> 4, 16, rel);
+    checkInt(ctx, loc, val >> 4, 16, rel);
     writeValue(ctx, loc, val, 16, 4);
     break;
   case R_MICROMIPS_CALL_HI16:
@@ -774,23 +774,23 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     // Ignore this optimization relocation for now
     break;
   case R_MIPS_PC16:
-    checkAlignment(loc, val, 4, rel);
-    checkInt(loc, val, 18, rel);
+    checkAlignment(ctx, loc, val, 4, rel);
+    checkInt(ctx, loc, val, 18, rel);
     writeValue(ctx, loc, val, 16, 2);
     break;
   case R_MIPS_PC19_S2:
-    checkAlignment(loc, val, 4, rel);
-    checkInt(loc, val, 21, rel);
+    checkAlignment(ctx, loc, val, 4, rel);
+    checkInt(ctx, loc, val, 21, rel);
     writeValue(ctx, loc, val, 19, 2);
     break;
   case R_MIPS_PC21_S2:
-    checkAlignment(loc, val, 4, rel);
-    checkInt(loc, val, 23, rel);
+    checkAlignment(ctx, loc, val, 4, rel);
+    checkInt(ctx, loc, val, 23, rel);
     writeValue(ctx, loc, val, 21, 2);
     break;
   case R_MIPS_PC26_S2:
-    checkAlignment(loc, val, 4, rel);
-    checkInt(loc, val, 28, rel);
+    checkAlignment(ctx, loc, val, 4, rel);
+    checkInt(ctx, loc, val, 28, rel);
     writeValue(ctx, loc, val, 26, 2);
     break;
   case R_MIPS_PC32:
@@ -798,35 +798,35 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
     break;
   case R_MICROMIPS_26_S1:
   case R_MICROMIPS_PC26_S1:
-    checkInt(loc, val, 27, rel);
+    checkInt(ctx, loc, val, 27, rel);
     writeShuffle<e>(ctx, loc, val, 26, 1);
     break;
   case R_MICROMIPS_PC7_S1:
-    checkInt(loc, val, 8, rel);
+    checkInt(ctx, loc, val, 8, rel);
     writeMicroRelocation16<e>(ctx, loc, val, 7, 1);
     break;
   case R_MICROMIPS_PC10_S1:
-    checkInt(loc, val, 11, rel);
+    checkInt(ctx, loc, val, 11, rel);
     writeMicroRelocation16<e>(ctx, loc, val, 10, 1);
     break;
   case R_MICROMIPS_PC16_S1:
-    checkInt(loc, val, 17, rel);
+    checkInt(ctx, loc, val, 17, rel);
     writeShuffle<e>(ctx, loc, val, 16, 1);
     break;
   case R_MICROMIPS_PC18_S3:
-    checkInt(loc, val, 21, rel);
+    checkInt(ctx, loc, val, 21, rel);
     writeShuffle<e>(ctx, loc, val, 18, 3);
     break;
   case R_MICROMIPS_PC19_S2:
-    checkInt(loc, val, 21, rel);
+    checkInt(ctx, loc, val, 21, rel);
     writeShuffle<e>(ctx, loc, val, 19, 2);
     break;
   case R_MICROMIPS_PC21_S1:
-    checkInt(loc, val, 22, rel);
+    checkInt(ctx, loc, val, 22, rel);
     writeShuffle<e>(ctx, loc, val, 21, 1);
     break;
   case R_MICROMIPS_PC23_S2:
-    checkInt(loc, val, 25, rel);
+    checkInt(ctx, loc, val, 25, rel);
     writeShuffle<e>(ctx, loc, val, 23, 2);
     break;
   case R_MIPS_CHERI_CAPABILITY:
