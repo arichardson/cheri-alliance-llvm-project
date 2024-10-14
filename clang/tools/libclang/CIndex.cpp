@@ -2889,6 +2889,11 @@ void OpenACCClauseEnqueue::VisitAsyncClause(const OpenACCAsyncClause &C) {
   if (C.hasIntExpr())
     Visitor.AddStmt(C.getIntExpr());
 }
+
+void OpenACCClauseEnqueue::VisitWorkerClause(const OpenACCWorkerClause &C) {
+  if (C.hasIntExpr())
+    Visitor.AddStmt(C.getIntExpr());
+}
 void OpenACCClauseEnqueue::VisitWaitClause(const OpenACCWaitClause &C) {
   if (const Expr *DevNumExpr = C.getDevNumExpr())
     Visitor.AddStmt(DevNumExpr);
