@@ -1810,7 +1810,7 @@ TryImplicitConversion(Sema &S, Expr *From, QualType ToType,
         S.Context.hasSameUnqualifiedType(ToResType->getContainedType(),
                                          FromResType->getContainedType()) &&
         ToResType->getAttrs() == FromResType->getAttrs()) {
-      ICS.setStandard();
+      ICS.setStandard(ImplicitConversionSequence::MemsetToZero);
       ICS.Standard.setAsIdentityConversion();
       ICS.Standard.setFromType(FromType);
       ICS.Standard.setAllToTypes(ToType);
