@@ -21516,10 +21516,8 @@ Value *RISCVTargetLowering::emitMaskedAtomicCmpXchgIntrinsic(
     CmpXchgIntrID = Intrinsic::riscv_masked_cmpxchg_i64;
   }
   Type *Tys[] = {AlignedAddr->getType()};
-  Function *MaskedCmpXchg =
-      Intrinsic::getOrInsertDeclaration(CI->getModule(), CmpXchgIntrID, Tys);
-  Value *Result = Builder.CreateCall(
-      MaskedCmpXchg, {AlignedAddr, CmpVal, NewVal, Mask, Ordering});
+  Value *Result = Builder.CreateIntrinsic(
+      CmpXchgIntrID, Tys, {AlignedAddr, CmpVal, NewVal, Mask, Ordering});
   if (XLen == 64)
     Result = Builder.CreateTrunc(Result, Builder.getInt32Ty());
   return Result;
@@ -22227,14 +22225,11 @@ bool RISCVTargetLowering::lowerInterleavedLoad(
 
   auto *XLenTy = Type::getIntNTy(LI->getContext(), Subtarget.getXLen());
 
-  Function *VlsegNFunc = Intrinsic::getOrInsertDeclaration(
-      LI->getModule(), FixedVlsegIntrIds[Factor - 2],
-      {VTy, LI->getPointerOperandType(), XLenTy});
-
   Value *VL = ConstantInt::get(XLenTy, VTy->getNumElements());
 
-  CallInst *VlsegN =
-      Builder.CreateCall(VlsegNFunc, {LI->getPointerOperand(), VL});
+  CallInst *VlsegN = Builder.CreateIntrinsic(
+      FixedVlsegIntrIds[Factor - 2], {VTy, LI->getPointerOperandType(), XLenTy},
+      {LI->getPointerOperand(), VL});
 
   for (unsigned i = 0; i < Shuffles.size(); i++) {
     Value *SubVec = Builder.CreateExtractValue(VlsegN, Indices[i]);
@@ -22328,11 +22323,11 @@ bool RISCVTargetLowering::lowerDeinterleaveIntrinsicToLoad(
   Type *XLenTy = Type::getIntNTy(LI->getContext(), Subtarget.getXLen());
 
   if (auto *FVTy = dyn_cast<FixedVectorType>(ResVTy)) {
-    Function *VlsegNFunc = Intrinsic::getOrInsertDeclaration(
-        LI->getModule(), FixedVlsegIntrIds[Factor - 2],
-        {ResVTy, LI->getPointerOperandType(), XLenTy});
     Value *VL = ConstantInt::get(XLenTy, FVTy->getNumElements());
-    Return = Builder.CreateCall(VlsegNFunc, {LI->getPointerOperand(), VL});
+    Return =
+        Builder.CreateIntrinsic(FixedVlsegIntrIds[Factor - 2],
+                                {ResVTy, LI->getPointerOperandType(), XLenTy},
+                                {LI->getPointerOperand(), VL});
   } else {
     static const Intrinsic::ID IntrIds[] = {
         Intrinsic::riscv_vlseg2, Intrinsic::riscv_vlseg3,
@@ -22348,21 +22343,19 @@ bool RISCVTargetLowering::lowerDeinterleaveIntrinsicToLoad(
                                 NumElts * SEW / 8),
         Factor);
 
-    Function *VlsegNFunc = Intrinsic::getOrInsertDeclaration(
-        LI->getModule(), IntrIds[Factor - 2], {VecTupTy, XLenTy});
     Value *VL = Constant::getAllOnesValue(XLenTy);
 
-    Value *Vlseg = Builder.CreateCall(
-        VlsegNFunc, {PoisonValue::get(VecTupTy), LI->getPointerOperand(), VL,
-                     ConstantInt::get(XLenTy, Log2_64(SEW))});
+    Value *Vlseg = Builder.CreateIntrinsic(
+        IntrIds[Factor - 2], {VecTupTy, XLenTy},
+        {PoisonValue::get(VecTupTy), LI->getPointerOperand(), VL,
+         ConstantInt::get(XLenTy, Log2_64(SEW))});
 
     SmallVector<Type *, 2> AggrTypes{Factor, ResVTy};
     Return = PoisonValue::get(StructType::get(LI->getContext(), AggrTypes));
-    Function *VecExtractFunc = Intrinsic::getOrInsertDeclaration(
-        LI->getModule(), Intrinsic::riscv_tuple_extract, {ResVTy, VecTupTy});
     for (unsigned i = 0; i < Factor; ++i) {
-      Value *VecExtract =
-          Builder.CreateCall(VecExtractFunc, {Vlseg, Builder.getInt32(i)});
+      Value *VecExtract = Builder.CreateIntrinsic(
+          Intrinsic::riscv_tuple_extract, {ResVTy, VecTupTy},
+          {Vlseg, Builder.getInt32(i)});
       Return = Builder.CreateInsertValue(Return, VecExtract, i);
     }
   }
@@ -22394,12 +22387,11 @@ bool RISCVTargetLowering::lowerInterleaveIntrinsicToStore(
   Type *XLenTy = Type::getIntNTy(SI->getContext(), Subtarget.getXLen());
 
   if (auto *FVTy = dyn_cast<FixedVectorType>(InVTy)) {
-    Function *VssegNFunc = Intrinsic::getOrInsertDeclaration(
-        SI->getModule(), FixedVssegIntrIds[Factor - 2],
-        {InVTy, SI->getPointerOperandType(), XLenTy});
     Value *VL = ConstantInt::get(XLenTy, FVTy->getNumElements());
-    Builder.CreateCall(VssegNFunc, {II->getArgOperand(0), II->getArgOperand(1),
-                                    SI->getPointerOperand(), VL});
+    Builder.CreateIntrinsic(FixedVssegIntrIds[Factor - 2],
+                            {InVTy, SI->getPointerOperandType(), XLenTy},
+                            {II->getArgOperand(0), II->getArgOperand(1),
+                             SI->getPointerOperand(), VL});
   } else {
     static const Intrinsic::ID IntrIds[] = {
         Intrinsic::riscv_vsseg2, Intrinsic::riscv_vsseg3,
@@ -22420,13 +22412,11 @@ bool RISCVTargetLowering::lowerInterleaveIntrinsicToStore(
 
     Value *VL = Constant::getAllOnesValue(XLenTy);
 
-    Function *VecInsertFunc = Intrinsic::getOrInsertDeclaration(
-        SI->getModule(), Intrinsic::riscv_tuple_insert, {VecTupTy, InVTy});
     Value *StoredVal = PoisonValue::get(VecTupTy);
     for (unsigned i = 0; i < Factor; ++i)
-      StoredVal =
-          Builder.CreateCall(VecInsertFunc, {StoredVal, II->getArgOperand(i),
-                                             Builder.getInt32(i)});
+      StoredVal = Builder.CreateIntrinsic(
+          Intrinsic::riscv_tuple_insert, {VecTupTy, InVTy},
+          {StoredVal, II->getArgOperand(i), Builder.getInt32(i)});
 
     Builder.CreateCall(VssegNFunc, {StoredVal, SI->getPointerOperand(), VL,
                                     ConstantInt::get(XLenTy, Log2_64(SEW))});
