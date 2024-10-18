@@ -100,6 +100,7 @@ add_clang_library(clangBasic
   SourceManager.cpp
   SourceMgrAdapter.cpp
   Stack.cpp
+  StackExhaustionHandler.cpp
   TargetID.cpp
   TargetInfo.cpp
   Targets.cpp
