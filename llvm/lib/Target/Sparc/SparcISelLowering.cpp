@@ -3549,9 +3549,9 @@ void SparcTargetLowering::ReplaceNodeResults(SDNode *N,
 }
 
 // Override to enable LOAD_STACK_GUARD lowering on Linux.
-bool SparcTargetLowering::useLoadStackGuardNode() const {
+bool SparcTargetLowering::useLoadStackGuardNode(const Module &M) const {
   if (!Subtarget->isTargetLinux())
-    return TargetLowering::useLoadStackGuardNode();
+    return TargetLowering::useLoadStackGuardNode(M);
   return true;
 }
 
