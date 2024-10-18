@@ -1035,6 +1035,8 @@ private:
   TailPaddingAmount
   getTailPaddingForPreciseBounds(uint64_t Size) const override;
   Align getAlignmentForPreciseBounds(uint64_t Size) const override;
+  SDValue lowerINIT_TRAMPOLINE(SDValue Op, SelectionDAG &DAG) const;
+  SDValue lowerADJUST_TRAMPOLINE(SDValue Op, SelectionDAG &DAG) const;
 
   bool isEligibleForTailCallOptimization(
       CCState &CCInfo, CallLoweringInfo &CLI, MachineFunction &MF,
