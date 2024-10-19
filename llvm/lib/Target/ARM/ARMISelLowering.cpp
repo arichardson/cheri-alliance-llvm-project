@@ -19351,6 +19351,9 @@ bool ARMTargetLowering::allowTruncateForTailCall(Type *Ty1, Type *Ty2) const {
 /// patterns (and we don't have the non-fused floating point instruction).
 bool ARMTargetLowering::isFMAFasterThanFMulAndFAdd(const MachineFunction &MF,
                                                    EVT VT) const {
+  if (Subtarget->useSoftFloat())
+    return false;
+
   if (!VT.isSimple())
     return false;
 
