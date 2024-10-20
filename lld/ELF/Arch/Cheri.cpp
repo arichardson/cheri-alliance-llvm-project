@@ -331,7 +331,7 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
     if (isAbsoluteSym && targetSym->file == nullptr)
       return targetSize;
 
-    if (targetSym->isUndefWeak() && targetSym->getVA(0) == 0)
+    if (targetSym->isUndefWeak() && targetSym->getVA(ctx, 0) == 0)
       // Weak symbol resolved to NULL -> zero size is fine
       return 0;
 
@@ -364,7 +364,7 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
         // Note: we allow def->value == os->size for pointers to the end
         warn("Symbol " + target.verboseToString() +
              " is defined as being in section " + os->name +
-             " but the value (0x" + utohexstr(targetSym->getVA()) +
+             " but the value (0x" + utohexstr(targetSym->getVA(ctx)) +
              ") is outside this section. Will create a zero-size capability."
              "\n>>> referenced by " +
              location.toString());
@@ -372,7 +372,7 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
       }
       // For negative offsets use 0 instead (we want the range of the full symbol in that case)
       int64_t offset = std::max((int64_t)0, target.offset);
-      uint64_t targetVA = targetSym->getVA(offset);
+      uint64_t targetVA = targetSym->getVA(ctx, offset);
       assert(targetVA >= os->addr);
       uint64_t offsetInOS = targetVA - os->addr;
       // Check this isn't a symbol defined outside a section in a linker script.
@@ -444,7 +444,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
     bool isFunc, isGnuIFunc, isTls, isCode = reloc.isCode, dontSeal;
     OutputSection *os;
     if (Symbol *s = dyn_cast<Symbol *>(realTarget.symOrSec)) {
-      targetVA = realTarget.sym()->getVA(0);
+      targetVA = realTarget.sym()->getVA(ctx, 0);
       isFunc = s->isFunc();
       isGnuIFunc = s->isGnuIFunc();
       dontSeal = isFunc && s->isFuncDontSeal();
@@ -935,7 +935,7 @@ void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
       llvm_unreachable("Invalid mode!");
     }
     CaptableMappingEntry entry;
-    entry.funcStart = sym->getVA(0);
+    entry.funcStart = sym->getVA(ctx, 0);
     entry.funcEnd = entry.funcStart + sym->getSize();
     if (capTableMap) {
       assert(capTableMap->firstIndex != std::numeric_limits<uint64_t>::max());
@@ -1068,7 +1068,7 @@ void addRelativeCapabilityRelocation(
 
 uint64_t getCapMetaBits(int64_t a, const Symbol &sym,
                         const InputSectionBase *isec, uint64_t offset) {
-  const uint64_t baseAddr = sym.getVA(a);
+  const uint64_t baseAddr = sym.getVA(ctx, a);
   CheriCapRelocLocation loc{const_cast<InputSectionBase *>(isec),
                             offset - ctx.arg.wordsize};
   // TODO - handle isCode...

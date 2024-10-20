@@ -127,7 +127,7 @@ std::string lld::verboseToString(const Symbol *b, uint64_t symOffset) {
   return msg;
 }
 
-static uint64_t getSymVA(const Symbol &sym, int64_t addend) {
+static uint64_t getSymVA(Ctx &ctx, const Symbol &sym, int64_t addend) {
   switch (sym.kind()) {
   case Symbol::DefinedKind: {
     auto &d = cast<Defined>(sym);
@@ -210,8 +210,8 @@ static uint64_t getSymVA(const Symbol &sym, int64_t addend) {
   llvm_unreachable("invalid symbol kind");
 }
 
-uint64_t Symbol::getVA(int64_t addend) const {
-  return getSymVA(*this, addend) + addend;
+uint64_t Symbol::getVA(Ctx &ctx, int64_t addend) const {
+  return getSymVA(ctx, *this, addend) + addend;
 }
 
 uint64_t Symbol::getGotVA(Ctx &ctx) const {
@@ -253,7 +253,7 @@ uint64_t Symbol::getPltVA(Ctx &ctx) const {
 
 uint64_t Symbol::getMipsCheriCapTableVA(Ctx &ctx, const InputSectionBase *isec,
                                         uint64_t offset) const {
-  return ctx.sym.mipsCheriCapabilityTable->getVA() +
+  return ctx.sym.mipsCheriCapabilityTable->getVA(ctx) +
          getMipsCheriCapTableOffset(ctx, isec, offset);
 }
 

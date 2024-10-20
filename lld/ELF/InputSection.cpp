@@ -521,7 +521,8 @@ void InputSection::copyRelocations(Ctx &ctx, uint8_t *buf,
       }
 
       if (RelTy::HasAddend)
-        p->r_addend = sym.getVA(addend) - section->getOutputSection()->addr;
+        p->r_addend =
+            sym.getVA(ctx, addend) - section->getOutputSection()->addr;
       // For SHF_ALLOC sections relocated by REL, append a relocation to
       // sec->relocations so that relocateAlloc transitively called by
       // writeSections will update the implicit addend. Non-SHF_ALLOC sections
@@ -717,7 +718,7 @@ static int64_t getTlsTpOffset(Ctx &ctx, const Symbol &s) {
     // Variant 1.
   case EM_ARM:
   case EM_AARCH64:
-    return s.getVA(0) + ctx.arg.wordsize * 2 +
+    return s.getVA(ctx, 0) + ctx.arg.wordsize * 2 +
            ((tls->p_vaddr - ctx.arg.wordsize * 2) & (tls->p_align - 1));
   case EM_MIPS:
   case EM_PPC:
@@ -728,7 +729,7 @@ static int64_t getTlsTpOffset(Ctx &ctx, const Symbol &s) {
     //
     // For CheriABI we always use an offset of 0 to stay representable.
     if (!ctx.arg.isCheriAbi)
-      return s.getVA(0) + (tls->p_vaddr & (tls->p_align - 1)) - 0x7000;
+      return s.getVA(ctx, 0) + (tls->p_vaddr & (tls->p_align - 1)) - 0x7000;
     LLVM_FALLTHROUGH;
   case EM_LOONGARCH:
   case EM_RISCV:
@@ -737,7 +738,7 @@ static int64_t getTlsTpOffset(Ctx &ctx, const Symbol &s) {
     // `tls` may be null, the return value is ignored.
     if (s.type != STT_TLS)
       return 0;
-    return s.getVA(0) + (tls->p_vaddr & (tls->p_align - 1));
+    return s.getVA(ctx, 0) + (tls->p_vaddr & (tls->p_align - 1));
 
     // Variant 2.
   case EM_HEXAGON:
@@ -745,7 +746,7 @@ static int64_t getTlsTpOffset(Ctx &ctx, const Symbol &s) {
   case EM_SPARCV9:
   case EM_386:
   case EM_X86_64:
-    return s.getVA(0) - tls->p_memsz -
+    return s.getVA(ctx, 0) - tls->p_memsz -
            ((-tls->p_vaddr - tls->p_memsz) & (tls->p_align - 1));
   default:
     llvm_unreachable("unhandled ctx.arg.emachine");
@@ -763,13 +764,13 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
   case R_AARCH64_AUTH:
   case R_RISCV_ADD:
   case R_RISCV_LEB128:
-    return r.sym->getVA(a);
+    return r.sym->getVA(ctx, a);
   case R_ADDEND:
     return a;
   case R_RELAX_HINT:
     return 0;
   case R_ARM_SBREL:
-    return r.sym->getVA(a) - getARMStaticBase(*r.sym);
+    return r.sym->getVA(ctx, a) - getARMStaticBase(*r.sym);
   case R_GOT:
   case R_RELAX_TLS_GD_TO_IE_ABS:
     return r.sym->getGotVA(ctx) + a;
@@ -787,9 +788,9 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
     return ctx.in.gotPlt->getVA() + a - p;
   case R_GOTREL:
   case R_PPC64_RELAX_TOC:
-    return r.sym->getVA(a) - ctx.in.got->getVA();
+    return r.sym->getVA(ctx, a) - ctx.in.got->getVA();
   case R_GOTPLTREL:
-    return r.sym->getVA(a) - ctx.in.gotPlt->getVA();
+    return r.sym->getVA(ctx, a) - ctx.in.gotPlt->getVA();
   case R_GOTPLT:
   case R_RELAX_TLS_GD_TO_IE_GOTPLT:
     return r.sym->getGotVA(ctx) + a - ctx.in.gotPlt->getVA();
@@ -815,7 +816,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
                                    r.type);
     return getLoongArchPageDelta(r.sym->getGotVA(ctx) + a, p, r.type);
   case R_MIPS_GOTREL:
-    return r.sym->getVA(a) - ctx.in.mipsGot->getGp(file);
+    return r.sym->getVA(ctx, a) - ctx.in.mipsGot->getGp(file);
   case R_MIPS_GOT_GP:
     return ctx.in.mipsGot->getGp(file) + a;
   case R_MIPS_GOT_GP_PC: {
@@ -856,16 +857,16 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
     return ctx.in.mipsGot->getVA() + ctx.in.mipsGot->getTlsIndexOffset(file) -
            ctx.in.mipsGot->getGp(file);
   case R_AARCH64_PAGE_PC: {
-    uint64_t val = r.sym->isUndefWeak() ? p + a : r.sym->getVA(a);
+    uint64_t val = r.sym->isUndefWeak() ? p + a : r.sym->getVA(ctx, a);
     return getAArch64Page(val) - getAArch64Page(p);
   }
   case R_RISCV_PC_INDIRECT: {
     if (const Relocation *hiRel = getRISCVPCRelHi20(this, r))
-      return getRelocTargetVA(ctx, *hiRel, r.sym->getVA());
+      return getRelocTargetVA(ctx, *hiRel, r.sym->getVA(ctx));
     return 0;
   }
   case R_LOONGARCH_PAGE_PC:
-    return getLoongArchPageDelta(r.sym->getVA(a), p, r.type);
+    return getLoongArchPageDelta(r.sym->getVA(ctx, a), p, r.type);
   case R_PC:
   case R_ARM_PCA: {
     uint64_t dest;
@@ -888,9 +889,9 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
       else if (ctx.arg.emachine == EM_RISCV)
         dest = getRISCVUndefinedRelativeWeakVA(r.type, p) + a;
       else
-        dest = r.sym->getVA(a);
+        dest = r.sym->getVA(ctx, a);
     } else {
-      dest = r.sym->getVA(a);
+      dest = r.sym->getVA(ctx, a);
     }
     return dest - p;
   }
@@ -911,7 +912,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
     // target VA computation.
     return r.sym->getPltVA(ctx) - p;
   case R_PPC64_CALL: {
-    uint64_t symVA = r.sym->getVA(a);
+    uint64_t symVA = r.sym->getVA(ctx, a);
     // If we have an undefined weak symbol, we might get here with a symbol
     // address of zero. That could overflow, but the code must be unreachable,
     // so don't bother doing anything at all.
@@ -930,7 +931,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
     return getPPC64TocBase(ctx) + a;
   case R_RELAX_GOT_PC:
   case R_PPC64_RELAX_GOT_PC:
-    return r.sym->getVA(a) - p;
+    return r.sym->getVA(ctx, a) - p;
   case R_RELAX_TLS_GD_TO_LE:
   case R_RELAX_TLS_IE_TO_LE:
   case R_RELAX_TLS_LD_TO_LE:
@@ -980,7 +981,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
   case R_ABS_CAP:
     llvm_unreachable("R_ABS_CAP should not be handled here!");
   case R_ABS_CAP_ADDR:
-    return r.sym->getVA(a);
+    return r.sym->getVA(ctx, a);
   case R_ABS_CAP_META:
     assert(r.sym->isUndefined() &&
            "cannot encode non-null derived capability yet");
@@ -995,9 +996,9 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
     if (!ctx.sym.mipsCheriCapabilityTable) {
       error("cannot compute difference between non-existent "
             "CheriCapabilityTable and symbol " + toString(*r.sym));
-      return r.sym->getVA(a);
+      return r.sym->getVA(ctx, a);
     }
-    return r.sym->getVA(a) - ctx.sym.mipsCheriCapabilityTable->getVA();
+    return r.sym->getVA(ctx, a) - ctx.sym.mipsCheriCapabilityTable->getVA(ctx);
   case R_MIPS_CHERI_CAPTAB_TLSGD:
     assert(a == 0 && "capability table index relocs should not have addends");
     return ctx.in.mipsCheriCapTable->getDynTlsOffset(*r.sym);
@@ -1008,7 +1009,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
     assert(a == 0 && "capability table index relocs should not have addends");
     return ctx.in.mipsCheriCapTable->getTlsOffset(*r.sym);
   case R_CHERI_CAPFRAG_ADDR:
-    return r.sym->getVA(a);
+    return r.sym->getVA(ctx, a);
   case R_CHERI_CAPFRAG_META:
     return getCapMetaBits(a, *r.sym, this, r.offset);
   default:
@@ -1092,8 +1093,8 @@ void InputSection::relocateNonAlloc(Ctx &ctx, uint8_t *buf,
         if (!ds && tombstone) {
           val = *tombstone;
         } else {
-          val = sym.getVA(addend) -
-                (f->getRelocTargetSym(*it).getVA(0) + getAddend<ELFT>(*it));
+          val = sym.getVA(ctx, addend) -
+                (f->getRelocTargetSym(*it).getVA(ctx) + getAddend<ELFT>(*it));
         }
         if (overwriteULEB128(bufLoc, val) >= 0x80)
           errorOrWarn(getLocation(offset) + ": ULEB128 value " + Twine(val) +
@@ -1159,7 +1160,8 @@ void InputSection::relocateNonAlloc(Ctx &ctx, uint8_t *buf,
     // sections.
     if (LLVM_LIKELY(expr == R_ABS) || expr == R_DTPREL || expr == R_GOTPLTREL ||
         expr == R_RISCV_ADD) {
-      target.relocateNoSym(bufLoc, type, SignExtend64<bits>(sym.getVA(addend)));
+      target.relocateNoSym(bufLoc, type,
+                           SignExtend64<bits>(sym.getVA(ctx, addend)));
       continue;
     }
 
@@ -1192,7 +1194,7 @@ void InputSection::relocateNonAlloc(Ctx &ctx, uint8_t *buf,
     warn(msg);
     target.relocateNoSym(
         bufLoc, type,
-        SignExtend64<bits>(sym.getVA(addend - offset - outSecOff)));
+        SignExtend64<bits>(sym.getVA(ctx, addend - offset - outSecOff)));
   }
 }
 
