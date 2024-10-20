@@ -148,8 +148,8 @@ static Defined *addOptionalRegular(Ctx &ctx, StringRef name, SectionBase *sec,
   if (!s || s->isDefined() || s->isCommon())
     return nullptr;
 
-  s->resolve(ctx, Defined{ctx.internalFile, StringRef(), STB_GLOBAL, stOther,
-                          STT_NOTYPE, val,
+  s->resolve(ctx, Defined{ctx, ctx.internalFile, StringRef(), STB_GLOBAL,
+                          stOther, STT_NOTYPE, val,
                           /*size=*/0, sec});
   // If Val == 0 assume this symbol references the start of a section.
   // When targetting CHERI we set the size of that symbol since otherwise
@@ -172,7 +172,7 @@ void elf::addReservedSymbols(Ctx &ctx) {
   if (ctx.arg.emachine == EM_MIPS) {
     auto addAbsolute = [&](StringRef name) {
       Symbol *sym =
-          ctx.symtab->addSymbol(Defined{ctx.internalFile, name, STB_GLOBAL,
+          ctx.symtab->addSymbol(Defined{ctx, ctx.internalFile, name, STB_GLOBAL,
                                         STV_HIDDEN, STT_NOTYPE, 0, 0, nullptr});
       sym->isUsedInRegularObj = true;
       return cast<Defined>(sym);
@@ -225,9 +225,9 @@ void elf::addReservedSymbols(Ctx &ctx) {
     if (ctx.arg.emachine == EM_PPC64)
       gotOff = 0x8000;
 
-    s->resolve(ctx,
-               Defined{ctx.internalFile, StringRef(), STB_GLOBAL, STV_HIDDEN,
-                       STT_NOTYPE, gotOff, /*size=*/0, ctx.out.elfHeader});
+    s->resolve(ctx, Defined{ctx, ctx.internalFile, StringRef(), STB_GLOBAL,
+                            STV_HIDDEN, STT_NOTYPE, gotOff, /*size=*/0,
+                            ctx.out.elfHeader});
     ctx.sym.globalOffsetTable = cast<Defined>(s);
   }
 
@@ -549,7 +549,7 @@ template <class ELFT> void Writer<ELFT>::addSectionSymbols() {
     // equals the output section address. Note, there may be a gap between the
     // start of the output section and isec.
     auto *sym =
-        makeDefined(isec->file, "", STB_LOCAL, /*stOther=*/0, STT_SECTION,
+        makeDefined(ctx, isec->file, "", STB_LOCAL, /*stOther=*/0, STT_SECTION,
                     /*value=*/0, /*size=*/0, &osec);
     sym->isSectionStartSymbol = true;
     ctx.in.symTab->addSymbol(sym);
@@ -1768,7 +1768,7 @@ static void removeUnusedSyntheticSections(Ctx &ctx) {
 }
 
 static Defined *addAbsolute(StringRef name) {
-  Symbol *sym = ctx.symtab->addSymbol(Defined{nullptr, name, STB_GLOBAL, STV_HIDDEN,
+  Symbol *sym = ctx.symtab->addSymbol(Defined{ctx, nullptr, name, STB_GLOBAL, STV_HIDDEN,
                                               STT_NOTYPE, 0, 0, nullptr});
   sym->isUsedInRegularObj = true;
   return cast<Defined>(sym);
@@ -1797,7 +1797,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     bool needsDYNAMIC = (ctx.arg.isPic || !ctx.sharedFiles.empty()); // TODO: --as-needed?
     if (ctx.mainPart->dynamic->parent && needsDYNAMIC) {
       Symbol *s = ctx.symtab->addSymbol(Defined{
-          ctx.internalFile, "_DYNAMIC", STB_WEAK, STV_HIDDEN, STT_NOTYPE,
+          ctx, ctx.internalFile, "_DYNAMIC", STB_WEAK, STV_HIDDEN, STT_NOTYPE,
           /*value=*/0, /*size=*/0, ctx.mainPart->dynamic.get()});
       s->isUsedInRegularObj = true;
       // In CheriABI we want sensible bounds if we do &_DYNAMIC in C code
@@ -1853,7 +1853,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
       // define _TLS_MODULE_BASE_ relative to the first TLS section.
       Symbol *s = ctx.symtab->find("_TLS_MODULE_BASE_");
       if (s && s->isUndefined()) {
-        s->resolve(ctx, Defined{ctx.internalFile, StringRef(), STB_GLOBAL,
+        s->resolve(ctx, Defined{ctx, ctx.internalFile, StringRef(), STB_GLOBAL,
                                 STV_HIDDEN, STT_TLS, /*value=*/0, 0,
                                 /*section=*/nullptr});
         ctx.sym.tlsModuleBase = cast<Defined>(s);
@@ -1912,7 +1912,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
       if (!ctx.sym.mipsCheriCapabilityTable &&
           ctx.in.mipsCheriCapTable->isNeeded()) {
         ctx.sym.mipsCheriCapabilityTable = cast<Defined>(ctx.symtab->addSymbol(
-            Defined{nullptr, captableSym, STB_LOCAL, STV_HIDDEN, STT_NOTYPE, 0,
+            Defined{ctx, nullptr, captableSym, STB_LOCAL, STV_HIDDEN, STT_NOTYPE, 0,
                     0, ctx.in.mipsCheriCapTable.get()}));
         ctx.sym.mipsCheriCapabilityTable->isSectionStartSymbol = true;
         assert(!ctx.sym.mipsCheriCapabilityTable->isPreemptible);
