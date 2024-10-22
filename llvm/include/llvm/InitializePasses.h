@@ -158,7 +158,7 @@ void initializeLiveDebugValuesPass(PassRegistry &);
 void initializeLiveDebugVariablesPass(PassRegistry &);
 void initializeLiveIntervalsWrapperPassPass(PassRegistry &);
 void initializeLiveRangeShrinkPass(PassRegistry &);
-void initializeLiveRegMatrixPass(PassRegistry &);
+void initializeLiveRegMatrixWrapperLegacyPass(PassRegistry &);
 void initializeLiveStacksPass(PassRegistry &);
 void initializeLiveVariablesWrapperPassPass(PassRegistry &);
 void initializeLoadStoreOptPass(PassRegistry &);
