@@ -152,7 +152,9 @@ bool DataLayout::PrimitiveSpec::operator==(const PrimitiveSpec &Other) const {
 bool DataLayout::PointerSpec::operator==(const PointerSpec &Other) const {
   return AddrSpace == Other.AddrSpace && BitWidth == Other.BitWidth &&
          ABIAlign == Other.ABIAlign && PrefAlign == Other.PrefAlign &&
-         IndexBitWidth == Other.IndexBitWidth && IsFatPointer == Other.IsFatPointer;
+         IndexBitWidth == Other.IndexBitWidth &&
+         IsFatPointer == Other.IsFatPointer &&
+         IsNonIntegral == Other.IsNonIntegral;
 }
 
 namespace {
@@ -207,7 +209,8 @@ constexpr DataLayout::PrimitiveSpec DefaultVectorSpecs[] = {
 
 // Default pointer type specifications.
 constexpr DataLayout::PointerSpec DefaultPointerSpecs[] = {
-    {0, 64, Align::Constant<8>(), Align::Constant<8>(), 64, false} // p0:64:64:64:64
+    // p0:64:64:64:64
+    {0, 64, Align::Constant<8>(), Align::Constant<8>(), 64, false, false},
 };
 
 DataLayout::DataLayout()
@@ -240,14 +243,12 @@ DataLayout &DataLayout::operator=(const DataLayout &Other) {
   PointerSpecs = Other.PointerSpecs;
   StructABIAlignment = Other.StructABIAlignment;
   StructPrefAlignment = Other.StructPrefAlignment;
-  NonIntegralAddressSpaces = Other.NonIntegralAddressSpaces;
   HasCheriCapabilities = Other.HasCheriCapabilities;
   return *this;
 }
 
 bool DataLayout::operator==(const DataLayout &Other) const {
   // NOTE: StringRepresentation might differ, it is not canonicalized.
-  // FIXME: NonIntegralAddressSpaces isn't compared.
   return BigEndian == Other.BigEndian &&
          HasCheriCapabilities == Other.HasCheriCapabilities &&
          AllocaAddrSpace == Other.AllocaAddrSpace &&
@@ -465,11 +466,13 @@ Error DataLayout::parsePointerSpec(StringRef Spec) {
     return createStringError(
         "index size cannot be larger than the pointer size");
 
-  setPointerSpec(AddrSpace, BitWidth, ABIAlign, PrefAlign, IndexBitWidth, isFat);
+  setPointerSpec(AddrSpace, BitWidth, ABIAlign, PrefAlign, IndexBitWidth,
+                 false, isFat);
   return Error::success();
 }
 
-Error DataLayout::parseSpecification(StringRef Spec) {
+Error DataLayout::parseSpecification(
+    StringRef Spec, SmallVectorImpl<unsigned> &NonIntegralAddressSpaces) {
   // The "ni" specifier is the only two-character specifier. Handle it first.
   if (Spec.starts_with("ni")) {
     // ni:<address space>[:<address space>]...
@@ -625,11 +628,22 @@ Error DataLayout::parseLayoutString(StringRef LayoutString) {
 
   // Split the data layout string into specifications separated by '-' and
   // parse each specification individually, updating internal data structures.
+  SmallVector<unsigned, 8> NonIntegralAddressSpaces;
   for (StringRef Spec : split(LayoutString, '-')) {
     if (Spec.empty())
       return createStringError("empty specification is not allowed");
-    if (Error Err = parseSpecification(Spec))
+    if (Error Err = parseSpecification(Spec, NonIntegralAddressSpaces))
       return Err;
+  }
+  // Mark all address spaces that were qualified as non-integral now. This has
+  // to be done later since the non-integral property is not part of the data
+  // layout pointer specification.
+  for (unsigned AS : NonIntegralAddressSpaces) {
+    // If there is no special spec for a given AS, getPointerSpec(AS) returns
+    // the spec for AS0, and we then update that to mark it non-integral.
+    const PointerSpec &PS = getPointerSpec(AS);
+    setPointerSpec(AS, PS.BitWidth, PS.ABIAlign, PS.PrefAlign, PS.IndexBitWidth,
+                   true, PS.IsFatPointer);
   }
 
   return Error::success();
@@ -677,17 +691,19 @@ DataLayout::getPointerSpec(uint32_t AddrSpace) const {
 
 void DataLayout::setPointerSpec(uint32_t AddrSpace, uint32_t BitWidth,
                                 Align ABIAlign, Align PrefAlign,
-                                uint32_t IndexBitWidth, bool IsFatPointer) {
+                                uint32_t IndexBitWidth,
+                                bool IsNonIntegral, bool IsFatPointer) {
   auto I = lower_bound(PointerSpecs, AddrSpace, LessPointerAddrSpace());
   if (I == PointerSpecs.end() || I->AddrSpace != AddrSpace) {
     PointerSpecs.insert(I, PointerSpec{AddrSpace, BitWidth, ABIAlign, PrefAlign,
-                                       IndexBitWidth, IsFatPointer});
+                                       IndexBitWidth, IsNonIntegral, IsFatPointer});
     HasCheriCapabilities = HasCheriCapabilities || IsFatPointer;
   } else {
     I->BitWidth = BitWidth;
     I->ABIAlign = ABIAlign;
     I->PrefAlign = PrefAlign;
     I->IndexBitWidth = IndexBitWidth;
+    I->IsNonIntegral = IsNonIntegral;
     I->IsFatPointer = IsFatPointer;
     if (IsFatPointer && IndexBitWidth == BitWidth)
       report_fatal_error("Fat pointers must have different type and index size");
