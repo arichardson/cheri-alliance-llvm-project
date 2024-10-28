@@ -152,6 +152,7 @@
 // CHECK-NEXT:     svinval              1.0       'Svinval' (Fine-Grained Address-Translation Cache Invalidation)
 // CHECK-NEXT:     svnapot              1.0       'Svnapot' (NAPOT Translation Contiguity)
 // CHECK-NEXT:     svpbmt               1.0       'Svpbmt' (Page-Based Memory Types)
+// CHECK-NEXT:     svvptc               1.0       'svvptc' (Obviating Memory-Management Instructions after Marking PTEs Valid)
 // CHECK-NEXT:     xcheri               0.0       Implements CHERI extension
 // CHECK-NEXT:     xcvalu               1.0       'XCValu' (CORE-V ALU Operations)
 // CHECK-NEXT:     xcvbi                1.0       'XCVbi' (CORE-V Immediate Branching)
