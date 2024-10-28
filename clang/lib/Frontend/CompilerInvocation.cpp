@@ -2853,9 +2853,6 @@ static void GenerateFrontendArgs(const FrontendOptions &Opts,
     case Language::ObjCXX:
       Lang = "objective-c++";
       break;
-    case Language::RenderScript:
-      Lang = "renderscript";
-      break;
     case Language::Asm:
       Lang = "assembler-with-cpp";
       break;
@@ -3078,7 +3075,6 @@ static bool ParseFrontendArgs(FrontendOptions &Opts, ArgList &Args,
                 .Case("c++", Language::CXX)
                 .Case("objective-c", Language::ObjC)
                 .Case("objective-c++", Language::ObjCXX)
-                .Case("renderscript", Language::RenderScript)
                 .Case("hlsl", Language::HLSL)
                 .Default(Language::Unknown);
 
@@ -3506,7 +3502,6 @@ static bool IsInputCompatibleWithStandard(InputKind IK,
 
   case Language::C:
   case Language::ObjC:
-  case Language::RenderScript:
     return S.getLanguage() == Language::C;
 
   case Language::OpenCL:
@@ -3558,8 +3553,6 @@ static StringRef GetInputKindName(InputKind IK) {
     return "C++ for OpenCL";
   case Language::CUDA:
     return "CUDA";
-  case Language::RenderScript:
-    return "RenderScript";
   case Language::HIP:
     return "HIP";
 
