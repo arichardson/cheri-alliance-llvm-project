@@ -259,6 +259,9 @@ void AsmPrinter::emitCFIInstruction(const MCCFIInstruction &Inst) const {
   case MCCFIInstruction::OpNegateRAState:
     OutStreamer->emitCFINegateRAState(Loc);
     break;
+  case MCCFIInstruction::OpNegateRAStateWithPC:
+    OutStreamer->emitCFINegateRAStateWithPC(Loc);
+    break;
   case MCCFIInstruction::OpSameValue:
     OutStreamer->emitCFISameValue(Inst.getRegister(), Loc);
     break;
