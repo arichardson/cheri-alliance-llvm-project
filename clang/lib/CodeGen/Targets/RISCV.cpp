@@ -681,6 +681,11 @@ public:
     const auto *FD = dyn_cast_or_null<FunctionDecl>(D);
     if (!FD) return;
 
+    auto *Fn = cast<llvm::Function>(GV);
+
+    if (CGM.getCodeGenOpts().CFProtectionReturn)
+      Fn->addFnAttr("hw-shadow-stack");
+
     const auto *Attr = FD->getAttr<RISCVInterruptAttr>();
     if (!Attr)
       return;
@@ -690,8 +695,6 @@ public:
     case RISCVInterruptAttr::supervisor: Kind = "supervisor"; break;
     case RISCVInterruptAttr::machine: Kind = "machine"; break;
     }
-
-    auto *Fn = cast<llvm::Function>(GV);
 
     Fn->addFnAttr("interrupt", Kind);
   }
