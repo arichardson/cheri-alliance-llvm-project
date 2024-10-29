@@ -240,7 +240,7 @@ class ASTContext : public RefCountedBase<ASTContext> {
   mutable llvm::ContextualFoldingSet<DependentTemplateSpecializationType,
                                      ASTContext&>
     DependentTemplateSpecializationTypes;
-  llvm::FoldingSet<PackExpansionType> PackExpansionTypes;
+  mutable llvm::FoldingSet<PackExpansionType> PackExpansionTypes;
   mutable llvm::FoldingSet<ObjCObjectTypeImpl> ObjCObjectTypes;
   mutable llvm::FoldingSet<ObjCObjectPointerType> ObjCObjectPointerTypes;
   mutable llvm::FoldingSet<DependentUnaryTransformType>
@@ -1820,13 +1820,7 @@ public:
       ElaboratedTypeKeyword Keyword, NestedNameSpecifier *NNS,
       const IdentifierInfo *Name, ArrayRef<TemplateArgument> Args) const;
 
-  TemplateArgument getInjectedTemplateArg(NamedDecl *ParamDecl);
-
-  /// Get a template argument list with one argument per template parameter
-  /// in a template parameter list, such as for the injected class name of
-  /// a class template.
-  void getInjectedTemplateArgs(const TemplateParameterList *Params,
-                               SmallVectorImpl<TemplateArgument> &Args);
+  TemplateArgument getInjectedTemplateArg(NamedDecl *ParamDecl) const;
 
   /// Form a pack expansion type with the given pattern.
   /// \param NumExpansions The number of expansions for the pack, if known.
@@ -1837,7 +1831,7 @@ public:
   ///        if this is the canonical type of another pack expansion type.
   QualType getPackExpansionType(QualType Pattern,
                                 std::optional<unsigned> NumExpansions,
-                                bool ExpectPackInType = true);
+                                bool ExpectPackInType = true) const;
 
   QualType getObjCInterfaceType(const ObjCInterfaceDecl *Decl,
                                 ObjCInterfaceDecl *PrevDecl = nullptr) const;
