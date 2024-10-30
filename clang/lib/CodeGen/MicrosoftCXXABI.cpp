@@ -518,8 +518,8 @@ public:
         CGM.IntTy,
         CGM.IntTy,
         CGM.IntTy,
-        getImageRelativeType(getClassHierarchyDescriptorType()->getPointerTo(
-          CGM.getTargetCodeGenInfo().getDefaultAS())),
+        getImageRelativeType(llvm::PointerType::get(getClassHierarchyDescriptorType(),
+                                                    CGM.getTargetCodeGenInfo().getDefaultAS())),
     };
     BaseClassDescriptorType = llvm::StructType::create(
         CGM.getLLVMContext(), FieldTypes, "rtti.BaseClassDescriptor");
@@ -530,15 +530,15 @@ public:
     if (ClassHierarchyDescriptorType)
       return ClassHierarchyDescriptorType;
     // Forward-declare RTTIClassHierarchyDescriptor to break a cycle.
-    ClassHierarchyDescriptorType = llvm::StructType::create(
-        CGM.getLLVMContext(), "rtti.ClassHierarchyDescriptor");
-    unsigned AS = CGM.getTargetCodeGenInfo().getDefaultAS();
+    ClassHierarchyDescriptorType =
+        llvm::StructType::create(FieldTypes, "rtti.ClassHierarchyDescriptor");
+    const unsigned AS = CGM.getTargetCodeGenInfo().getDefaultAS();
     llvm::Type *FieldTypes[] = {
         CGM.IntTy,
         CGM.IntTy,
         CGM.IntTy,
         getImageRelativeType(
-            getBaseClassDescriptorType()->getPointerTo(AS)->getPointerTo(AS)),
+            llvm::PointerType::get(getBaseClassDescriptorType(), AS)),
     };
     ClassHierarchyDescriptorType->setBody(FieldTypes);
     return ClassHierarchyDescriptorType;
@@ -547,8 +547,6 @@ public:
   llvm::StructType *getCompleteObjectLocatorType() {
     if (CompleteObjectLocatorType)
       return CompleteObjectLocatorType;
-    CompleteObjectLocatorType = llvm::StructType::create(
-        CGM.getLLVMContext(), "rtti.CompleteObjectLocator");
     llvm::Type *FieldTypes[] = {
         CGM.IntTy,
         CGM.IntTy,
@@ -556,12 +554,13 @@ public:
         getImageRelativeType(CGM.Int8PtrTy),
         getImageRelativeType(getClassHierarchyDescriptorType()->getPointerTo(
           CGM.getTargetCodeGenInfo().getDefaultAS())),
-        getImageRelativeType(CompleteObjectLocatorType),
+        getImageRelativeType(CGM.VoidTy),
     };
     llvm::ArrayRef<llvm::Type *> FieldTypesRef(FieldTypes);
     if (!isImageRelative())
       FieldTypesRef = FieldTypesRef.drop_back();
-    CompleteObjectLocatorType->setBody(FieldTypesRef);
+    CompleteObjectLocatorType =
+        llvm::StructType::create(FieldTypesRef, "rtti.CompleteObjectLocator");
     return CompleteObjectLocatorType;
   }
 
