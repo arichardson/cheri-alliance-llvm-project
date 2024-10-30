@@ -334,7 +334,7 @@ namespace llvm {
       case iPTR:
       case cPTR:
         llvm_unreachable("Value type size is target-dependent. Ask TLI.");
-      case iPTRAny:
+      case pAny:
       case iAny:
       case fAny:
       case vAny:

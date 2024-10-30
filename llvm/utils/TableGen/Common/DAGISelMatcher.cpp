@@ -328,11 +328,11 @@ static bool TypesAreContradictory(MVT::SimpleValueType T1,
   if (T1 == T2)
     return false;
 
-  if (T1 == MVT::iPTRAny)
+  if (T1 == MVT::pAny)
     return TypesAreContradictory(MVT::iPTR, T2) &&
            TypesAreContradictory(MVT::cPTR, T2);
 
-  if (T2 == MVT::iPTRAny)
+  if (T2 == MVT::pAny)
     return TypesAreContradictory(T1, MVT::iPTR) &&
            TypesAreContradictory(T1, MVT::cPTR);
 

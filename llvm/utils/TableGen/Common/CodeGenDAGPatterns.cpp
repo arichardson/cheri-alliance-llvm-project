@@ -812,8 +812,8 @@ void TypeInfer::expandOverloads(TypeSetByHwMode &VTS) const {
 
 void TypeInfer::expandOverloads(TypeSetByHwMode::SetType &Out,
                                 const TypeSetByHwMode::SetType &Legal) const {
-  if (Out.count(MVT::iPTRAny)) {
-    Out.erase(MVT::iPTRAny);
+  if (Out.count(MVT::pAny)) {
+    Out.erase(MVT::pAny);
     Out.insert(MVT::iPTR);
     for (MVT T : MVT::capability_valuetypes()) {
       if (Legal.count(T)) {
@@ -1834,7 +1834,7 @@ MVT::SimpleValueType SDNodeInfo::getKnownType(unsigned ResNo) const {
         return Constraint.VVT.getSimple().SimpleTy;
       break;
     case SDTypeConstraint::SDTCisPtrTy:
-      return MVT::iPTRAny;
+      return MVT::pAny;
     }
   }
   return MVT::Other;

@@ -334,7 +334,7 @@ def BareSymbol : AsmOperandClass {
 }
 
 // A bare symbol.
-def bare_symbol : Operand<iPTRAny> {
+def bare_symbol : Operand<pAny> {
   let ParserMatchClass = BareSymbol;
 }
 
