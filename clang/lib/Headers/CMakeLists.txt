@@ -150,6 +150,7 @@ set(x86_files
   amxcomplexintrin.h
   amxfp16intrin.h
   amxintrin.h
+  amxfp8intrin.h
   avx10_2_512bf16intrin.h
   avx10_2_512convertintrin.h
   avx10_2_512minmaxintrin.h
