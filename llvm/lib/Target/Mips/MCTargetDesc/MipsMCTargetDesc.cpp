@@ -90,7 +90,7 @@ static MCSubtargetInfo *createMipsMCSubtargetInfo(const Triple &TT,
 static MCAsmInfo *createMipsMCAsmInfo(const MCRegisterInfo &MRI,
                                       const Triple &TT,
                                       const MCTargetOptions &Options) {
-  MCAsmInfo *MAI = new MipsMCAsmInfo(TT, Options);
+  MCAsmInfo *MAI = new MipsELFMCAsmInfo(TT, Options);
 
   const bool IsPurecap = TT.getEnvironment() == Triple::CheriPurecap || Options.ABIName == "purecap";
   unsigned SP = MRI.getDwarfRegNum(IsPurecap ? Mips::C11 : Mips::SP, true);

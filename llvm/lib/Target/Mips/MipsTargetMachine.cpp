@@ -77,6 +77,10 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeMipsTarget() {
   initializeMipsDAGToDAGISelLegacyPass(*PR);
 }
 
+static std::unique_ptr<TargetLoweringObjectFile> createTLOF(const Triple &TT) {
+  return std::make_unique<MipsTargetObjectFile>();
+}
+
 static std::string computeDataLayout(const Triple &TT, StringRef CPU,
                                      const TargetOptions &Options,
                                      StringRef FS,
@@ -153,7 +157,7 @@ MipsTargetMachine::MipsTargetMachine(const Target &T, const Triple &TT,
     : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options, FS, isLittle), TT,
                         CPU, FS, Options, getEffectiveRelocModel(JIT, RM),
                         getEffectiveCodeModel(CM, CodeModel::Small), OL),
-      isLittle(isLittle), TLOF(std::make_unique<MipsTargetObjectFile>()),
+      isLittle(isLittle), TLOF(createTLOF(getTargetTriple())),
       ABI(MipsABIInfo::computeTargetABI(TT, CPU, Options.MCOptions)),
       Subtarget(nullptr),
       DefaultSubtarget(TT, CPU, FS, isLittle, *this, std::nullopt),
