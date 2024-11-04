@@ -1692,6 +1692,10 @@ bool AtomicExpandImpl::tryExpandAtomicCmpXchg(AtomicCmpXchgInst *CI) {
     return true;
   case TargetLoweringBase::AtomicExpansionKind::NotAtomic:
     return lowerAtomicCmpXchgInst(CI);
+  case TargetLoweringBase::AtomicExpansionKind::Expand: {
+    TLI->emitExpandAtomicCmpXchg(CI);
+    return true;
+  }
   }
 }
 
