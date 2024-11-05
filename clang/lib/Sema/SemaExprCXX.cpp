@@ -5047,6 +5047,7 @@ static bool CheckUnaryTypeTraitTypeCompleteness(Sema &S, TypeTrait UTT,
   case UTT_IsCompound:
   case UTT_MarkedNoSubobjectBounds: /* XXXAR: Should be fine to use on incomplete types */
   case UTT_IsMemberPointer:
+  case UTT_IsTypedResourceElementCompatible:
     // Fall-through
 
     // These traits are modeled on type predicates in C++0x [meta.unary.prop]
@@ -5738,6 +5739,15 @@ static bool EvaluateUnaryTypeTrait(Sema &Self, TypeTrait UTT,
                                   tok::kw___builtin_hlsl_is_intangible))
       return false;
     return T->isHLSLIntangibleType();
+
+  case UTT_IsTypedResourceElementCompatible:
+    assert(Self.getLangOpts().HLSL &&
+           "typed resource element compatible types are an HLSL-only feature");
+    if (Self.RequireCompleteType(TInfo->getTypeLoc().getBeginLoc(), T,
+                                 diag::err_incomplete_type))
+      return false;
+
+    return Self.HLSL().IsTypedResourceElementCompatible(T);
   }
 }
 
