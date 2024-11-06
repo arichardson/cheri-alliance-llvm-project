@@ -11609,6 +11609,7 @@ void OMPClauseReader::VisitOMPMapClause(OMPMapClause *C) {
 }
 
 void OMPClauseReader::VisitOMPAllocateClause(OMPAllocateClause *C) {
+  C->setAllocatorModifier(Record.readEnum<OpenMPAllocateClauseModifier>());
   C->setLParenLoc(Record.readSourceLocation());
   C->setColonLoc(Record.readSourceLocation());
   C->setAllocator(Record.readSubExpr());
