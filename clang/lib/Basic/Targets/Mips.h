@@ -34,7 +34,8 @@ class LLVM_LIBRARY_VISIBILITY MipsTargetInfo : public TargetInfo {
       if (IsCHERI)
         llvm::report_fatal_error(Twine("Cannot use CHERI with ") + ABI + " ABI");
     } else if (ABI == "n32") {
-      Layout = "m:e-p:32:32-i8:8:32-i16:16:32-i64:64-n32:64-S128";
+      Layout = "m:e-p:32:32-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128";
+
       if (IsCHERI)
         llvm::report_fatal_error(Twine("Cannot use CHERI with ") + ABI + " ABI");
     } else if (ABI == "n64") {
@@ -48,7 +49,7 @@ class LLVM_LIBRARY_VISIBILITY MipsTargetInfo : public TargetInfo {
           Layout = "m:e-pf200:256:256:256:64-i8:8:32-i16:16:32-i64:64-n32:64-S256";
         }
       } else
-        Layout = "m:e-i8:8:32-i16:16:32-i64:64-n32:64-S128";
+        Layout = "m:e-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128";
     } else
       llvm_unreachable("Invalid ABI");
 
