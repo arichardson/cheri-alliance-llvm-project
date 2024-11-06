@@ -93,6 +93,15 @@ void elf::errorOrWarn(const Twine &msg) {
     error(msg);
 }
 
+ELFSyncStream elf::Log(Ctx &ctx) { return {ctx, DiagLevel::Log}; }
+ELFSyncStream elf::Warn(Ctx &ctx) { return {ctx, DiagLevel::Warn}; }
+ELFSyncStream elf::Err(Ctx &ctx) {
+  return {ctx, ctx.arg.noinhibitExec ? DiagLevel::Warn : DiagLevel::Err};
+}
+ELFSyncStream elf::ErrAlways(Ctx &ctx) { return {ctx, DiagLevel::Err}; }
+ELFSyncStream elf::Fatal(Ctx &ctx) { return {ctx, DiagLevel::Fatal}; }
+uint64_t elf::errCount(Ctx &ctx) { return ctx.errHandler->errorCount; }
+
 Ctx::Ctx() : driver(*this) {}
 
 void Ctx::reset() {
@@ -102,6 +111,8 @@ void Ctx::reset() {
   new (&driver) LinkerDriver(*this);
   script = nullptr;
   target.reset();
+
+  errHandler = nullptr;
 
   bufferStart = nullptr;
   mainPart = nullptr;
@@ -173,6 +184,7 @@ bool link(ArrayRef<const char *> args, llvm::raw_ostream &stdoutOS,
   Ctx &ctx = elf::ctx;
   LinkerScript script(ctx);
   ctx.script = &script;
+  ctx.errHandler = &context->e;
   ctx.symAux.emplace_back();
   ctx.symtab = std::make_unique<SymbolTable>(ctx);
 
@@ -183,7 +195,7 @@ bool link(ArrayRef<const char *> args, llvm::raw_ostream &stdoutOS,
 
   ctx.driver.linkerMain(args);
 
-  return errorCount() == 0;
+  return errCount(ctx) == 0;
 }
 } // namespace elf
 } // namespace lld
@@ -376,7 +388,7 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
       files.push_back(createObjFile(ctx, mbref, "", inLib));
     break;
   default:
-    error(path + ": unknown file type");
+    ErrAlways(ctx) << path << ": unknown file type";
   }
 }
 
@@ -2837,8 +2849,9 @@ static void readSecurityNotes(Ctx &ctx) {
     if (ctx.arg.zForceBti && !(features & GNU_PROPERTY_AARCH64_FEATURE_1_BTI)) {
       features |= GNU_PROPERTY_AARCH64_FEATURE_1_BTI;
       if (ctx.arg.zBtiReport == "none")
-        warn(toString(f) + ": -z force-bti: file does not have "
-                           "GNU_PROPERTY_AARCH64_FEATURE_1_BTI property");
+        Warn(ctx) << f
+                  << ": -z force-bti: file does not have "
+                     "GNU_PROPERTY_AARCH64_FEATURE_1_BTI property";
     } else if (ctx.arg.zForceIbt &&
                !(features & GNU_PROPERTY_X86_FEATURE_1_IBT)) {
       if (ctx.arg.zCetReport == "none")
@@ -3105,7 +3118,7 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
       oldFilenames.insert(f->getName());
     for (InputFile *newFile : newInputFiles)
       if (!oldFilenames.contains(newFile->getName()))
-        errorOrWarn("input file '" + newFile->getName() + "' added after LTO");
+        Err(ctx) << "input file '" << newFile->getName() << "' added after LTO";
   }
 
   // Handle --exclude-libs again because lto.tmp may reference additional

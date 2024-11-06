@@ -73,11 +73,11 @@
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Support/Error.h"
 #include "llvm/Support/FileOutputBuffer.h"
+#include "llvm/Support/raw_ostream.h"
 #include <mutex>
 
 namespace llvm {
 class DiagnosticInfo;
-class raw_ostream;
 }
 
 namespace lld {
@@ -160,6 +160,20 @@ static inline void nonFatalWarning(const Twine &str) {
   else
     warn(str);
 }
+enum class DiagLevel { Log, Warn, Err, Fatal };
+
+// A class that synchronizes thread writing to the same stream similar
+// std::osyncstream.
+class SyncStream {
+  ErrorHandler &e;
+  DiagLevel level;
+  std::string buf;
+
+public:
+  mutable llvm::raw_string_ostream os{buf};
+  SyncStream(ErrorHandler &e, DiagLevel level) : e(e), level(level) {}
+  ~SyncStream();
+};
 
 [[noreturn]] void exitLld(int val);
 
