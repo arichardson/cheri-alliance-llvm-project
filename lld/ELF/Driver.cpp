@@ -88,7 +88,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args);
 
 void elf::errorOrWarn(const Twine &msg) {
   if (ctx.arg.noinhibitExec)
-    warn(msg);
+    Warn(ctx) << msg;
   else
     ErrAlways(ctx) << msg;
 }
@@ -356,8 +356,9 @@ void LinkerDriver::addFile(StringRef path, bool withLOption) {
       } else if (magic == file_magic::bitcode)
         files.push_back(make<BitcodeFile>(ctx, p.first, path, p.second, true));
       else
-        warn(path + ": archive member '" + p.first.getBufferIdentifier() +
-             "' is neither ET_REL nor LLVM bitcode");
+        Warn(ctx) << path << ": archive member '"
+                  << p.first.getBufferIdentifier()
+                  << "' is neither ET_REL nor LLVM bitcode";
     }
     if (!saved.get())
       ++nextGroupId;
@@ -639,7 +640,7 @@ static void checkZOptions(opt::InputArgList &args) {
   getZFlag(args, "rel", "rela", false);
   for (auto *arg : args.filtered(OPT_z))
     if (!arg->isClaimed())
-      warn("unknown -z value: " + StringRef(arg->getValue()));
+      Warn(ctx) << "unknown -z value: " << StringRef(arg->getValue());
 }
 
 constexpr const char *saveTempsValues[] = {
@@ -867,11 +868,11 @@ static int getMemtagMode(Ctx &ctx, opt::InputArgList &args) {
   StringRef memtagModeArg = args.getLastArgValue(OPT_android_memtag_mode);
   if (memtagModeArg.empty()) {
     if (ctx.arg.androidMemtagStack)
-      warn("--android-memtag-mode is unspecified, leaving "
-           "--android-memtag-stack a no-op");
+      Warn(ctx) << "--android-memtag-mode is unspecified, leaving "
+                   "--android-memtag-stack a no-op";
     else if (ctx.arg.androidMemtagHeap)
-      warn("--android-memtag-mode is unspecified, leaving "
-           "--android-memtag-heap a no-op");
+      Warn(ctx) << "--android-memtag-mode is unspecified, leaving "
+                   "--android-memtag-heap a no-op";
     return ELF::NT_MEMTAG_LEVEL_NONE;
   }
 
@@ -1010,7 +1011,7 @@ static void readCallGraph(Ctx &ctx, MemoryBufferRef mb) {
     Symbol *sym = map.lookup(name);
     if (!sym) {
       if (ctx.arg.warnSymbolOrdering)
-        warn(mb.getBufferIdentifier() + ": no such symbol: " + name);
+        Warn(ctx) << mb.getBufferIdentifier() << ": no such symbol: " << name;
       return nullptr;
     }
     maybeWarnUnorderableSymbol(ctx, sym);
@@ -1083,7 +1084,8 @@ processCallGraphRelocations(Ctx &ctx, SmallVector<uint32_t, 32> &symbolIndices,
     }
   }
   if (symbolIndices.empty())
-    warn("SHT_LLVM_CALL_GRAPH_PROFILE exists, but relocation section doesn't");
+    Warn(ctx)
+        << "SHT_LLVM_CALL_GRAPH_PROFILE exists, but relocation section doesn't";
   return !symbolIndices.empty();
 }
 
@@ -1239,7 +1241,8 @@ static SmallVector<StringRef, 0> getSymbolOrderingFile(Ctx &ctx,
   SetVector<StringRef, SmallVector<StringRef, 0>> names;
   for (StringRef s : args::getLines(mb))
     if (!names.insert(s) && ctx.arg.warnSymbolOrdering)
-      warn(mb.getBufferIdentifier() + ": duplicate ordered symbol: " + s);
+      Warn(ctx) << mb.getBufferIdentifier()
+                << ": duplicate ordered symbol: " << s;
 
   return names.takeVector();
 }
@@ -2161,7 +2164,8 @@ static uint64_t getMaxPageSize(Ctx &ctx, opt::InputArgList &args) {
   }
   if (ctx.arg.nmagic || ctx.arg.omagic) {
     if (val != ctx.target->defaultMaxPageSize)
-      warn("-z max-page-size set, but paging disabled by omagic or nmagic");
+      Warn(ctx)
+          << "-z max-page-size set, but paging disabled by omagic or nmagic";
     return 1;
   }
   return val;
@@ -2192,7 +2196,8 @@ static uint64_t getCommonPageSize(Ctx &ctx, opt::InputArgList &args) {
   }
   if (ctx.arg.nmagic || ctx.arg.omagic) {
     if (val != ctx.target->defaultCommonPageSize)
-      warn("-z common-page-size set, but paging disabled by omagic or nmagic");
+      Warn(ctx)
+          << "-z common-page-size set, but paging disabled by omagic or nmagic";
     return 1;
   }
   // commonPageSize can't be larger than maxPageSize.
@@ -2216,7 +2221,7 @@ static std::optional<uint64_t> getImageBase(Ctx &ctx, opt::InputArgList &args) {
     return 0;
   }
   if ((v % ctx.arg.maxPageSize) != 0)
-    warn("--image-base: address isn't multiple of page size: " + s);
+    Warn(ctx) << "--image-base: address isn't multiple of page size: " << s;
   return v;
 }
 
@@ -2373,8 +2378,8 @@ static void reportBackrefs(Ctx &ctx) {
         break;
       }
     if (!exclude)
-      warn("backward reference detected: " + sym.getName() + " in " +
-           toString(ref.second.first) + " refers to " + to);
+      Warn(ctx) << "backward reference detected: " << sym.getName() << " in "
+                << ref.second.first << " refers to " << to;
   }
 }
 
@@ -2491,7 +2496,7 @@ static void findKeepUniqueSections(Ctx &ctx, opt::InputArgList &args) {
     StringRef name = arg->getValue();
     auto *d = dyn_cast_or_null<Defined>(ctx.symtab->find(name));
     if (!d || !d->section) {
-      warn("could not find symbol " + name + " to keep unique");
+      Warn(ctx) << "could not find symbol " << name << " to keep unique";
       continue;
     }
     d->section->keepUnique = true;
@@ -2806,7 +2811,7 @@ static void reportMissingFeature(StringRef config, const Twine &report) {
   if (config == "error")
     ErrAlways(ctx) << report;
   else if (config == "warning")
-    warn(report);
+    Warn(ctx) << report;
 }
 
 static void checkAndReportMissingFeature(StringRef config, uint32_t features,
@@ -2877,13 +2882,15 @@ static void readSecurityNotes(Ctx &ctx) {
     } else if (ctx.arg.zForceIbt &&
                !(features & GNU_PROPERTY_X86_FEATURE_1_IBT)) {
       if (ctx.arg.zCetReport == "none")
-        warn(toString(f) + ": -z force-ibt: file does not have "
-                           "GNU_PROPERTY_X86_FEATURE_1_IBT property");
+        Warn(ctx) << f
+                  << ": -z force-ibt: file does not have "
+                     "GNU_PROPERTY_X86_FEATURE_1_IBT property";
       features |= GNU_PROPERTY_X86_FEATURE_1_IBT;
     }
     if (ctx.arg.zPacPlt && !(features & GNU_PROPERTY_AARCH64_FEATURE_1_PAC)) {
-      warn(toString(f) + ": -z pac-plt: file does not have "
-                         "GNU_PROPERTY_AARCH64_FEATURE_1_PAC property");
+      Warn(ctx) << f
+                << ": -z pac-plt: file does not have "
+                   "GNU_PROPERTY_AARCH64_FEATURE_1_PAC property";
       features |= GNU_PROPERTY_AARCH64_FEATURE_1_PAC;
     }
     ctx.arg.andFeatures &= features;
