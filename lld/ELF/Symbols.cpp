@@ -127,6 +127,11 @@ std::string lld::verboseToString(const Symbol *b, uint64_t symOffset) {
   return msg;
 }
 
+const ELFSyncStream &elf::operator<<(const ELFSyncStream &s,
+                                     const Symbol *sym) {
+  return s << toString(*sym);
+}
+
 static uint64_t getSymVA(Ctx &ctx, const Symbol &sym, int64_t addend) {
   switch (sym.kind()) {
   case Symbol::DefinedKind: {

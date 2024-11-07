@@ -41,6 +41,8 @@ class Undefined;
 class LazySymbol;
 class InputFile;
 
+const ELFSyncStream &operator<<(const ELFSyncStream &, const Symbol *);
+
 void printTraceSymbol(const Symbol &sym, StringRef name);
 
 enum {
