@@ -5,10 +5,6 @@ set(LIBCXX_TEST_COMPILER_FLAGS "" CACHE STRING
     "Additonal linker flags to pass when compiling the tests")
 add_subdirectory(tools)
 
-if (LIBCXX_INCLUDE_BENCHMARKS)
-  add_subdirectory(benchmarks)
-endif()
-
 # Install the library at a fake location so we can run the test suite against it.
 # This ensures that we run the test suite against a setup that matches what we ship
 # in production as closely as possible (in terms of file paths, rpaths, etc).
@@ -70,6 +66,14 @@ set(SERIALIZED_LIT_PARAMS "# Lit parameters serialized here for llvm-lit to pick
 
 serialize_lit_string_param(SERIALIZED_LIT_PARAMS compiler "${CMAKE_CXX_COMPILER}")
 
+if (LIBCXX_INCLUDE_BENCHMARKS)
+  add_subdirectory(benchmarks)
+  set(_libcxx_benchmark_mode "dry-run")
+else()
+  serialize_lit_string_param(SERIALIZED_LIT_PARAMS enable_benchmarks "no")
+  set(_libcxx_benchmark_mode "no")
+endif()
+
 if (NOT LIBCXX_ENABLE_EXCEPTIONS)
   serialize_lit_param(SERIALIZED_LIT_PARAMS enable_exceptions False)
 endif()
@@ -110,4 +114,5 @@ configure_lit_site_cfg(
 add_lit_testsuite(check-cxx
   "Running libcxx tests"
   ${CMAKE_CURRENT_BINARY_DIR}
+  PARAMS enable_benchmarks="${_libcxx_benchmark_mode}"
   DEPENDS cxx-test-depends)
