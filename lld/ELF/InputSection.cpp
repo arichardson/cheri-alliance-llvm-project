@@ -659,19 +659,18 @@ static Relocation *getRISCVPCRelHi20(const InputSectionBase *loSec,
 
   const Defined *d = cast<Defined>(sym);
   if (!d->section) {
-    errorOrWarn(
-        loSec->getLocation(loReloc.offset) +
-        ": R_RISCV_PCREL_LO12 relocation points to an absolute symbol: " +
-        sym->getName());
+    Err(ctx) << loSec->getLocation(loReloc.offset)
+             << ": R_RISCV_PCREL_LO12 relocation points to an absolute symbol: "
+             << sym->getName();
     return nullptr;
   }
   InputSection *hiSec = cast<InputSection>(d->section);
 
   if (hiSec != loSec)
-    errorOrWarn(loSec->getLocation(loReloc.offset) +
-                ": R_RISCV_PCREL_LO12 relocation points to a symbol '" +
-                sym->getName() + "' in a different section '" + hiSec->name +
-                "'");
+    Err(ctx) << loSec->getLocation(loReloc.offset)
+             << ": R_RISCV_PCREL_LO12 relocation points to a symbol '"
+             << sym->getName() << "' in a different section '" << hiSec->name
+             << "'";
 
   if (addend != 0)
     Warn(ctx) << loSec->getLocation(loReloc.offset)
@@ -696,10 +695,10 @@ static Relocation *getRISCVPCRelHi20(const InputSectionBase *loSec,
         it->type == R_RISCV_CHERI_TLS_IE_CAPTAB_PCREL_HI20)
       return &*it;
 
-  errorOrWarn(loSec->getLocation(loReloc.offset) +
-              ": R_RISCV_PCREL_LO12 relocation points to " +
-              hiSec->getObjMsg(d->value) +
-              " without an associated R_RISCV_PCREL_HI20 relocation");
+  Err(ctx) << loSec->getLocation(loReloc.offset)
+           << ": R_RISCV_PCREL_LO12 relocation points to "
+           << hiSec->getObjMsg(d->value)
+           << " without an associated R_RISCV_PCREL_HI20 relocation";
   return nullptr;
 }
 
@@ -1107,13 +1106,13 @@ void InputSection::relocateNonAlloc(Ctx &ctx, uint8_t *buf,
                 (f->getRelocTargetSym(*it).getVA(ctx) + getAddend<ELFT>(*it));
         }
         if (overwriteULEB128(bufLoc, val) >= 0x80)
-          errorOrWarn(getLocation(offset) + ": ULEB128 value " + Twine(val) +
-                      " exceeds available space; references '" +
-                      lld::toString(sym) + "'");
+          Err(ctx) << getLocation(offset) << ": ULEB128 value " << Twine(val)
+                   << " exceeds available space; references '"
+                   << lld::toString(sym) << "'";
         continue;
       }
-      errorOrWarn(getLocation(offset) +
-                  ": R_RISCV_SET_ULEB128 not paired with R_RISCV_SUB_SET128");
+      Err(ctx) << getLocation(offset)
+               << ": R_RISCV_SET_ULEB128 not paired with R_RISCV_SUB_SET128";
       return;
     }
 
@@ -1185,7 +1184,7 @@ void InputSection::relocateNonAlloc(Ctx &ctx, uint8_t *buf,
                       toString(type) + " against symbol '" + toString(sym) +
                       "'";
     if (expr != R_PC && !(emachine == EM_386 && type == R_386_GOTPC)) {
-      errorOrWarn(msg);
+      Err(ctx) << msg;
       return;
     }
 
@@ -1445,8 +1444,8 @@ void EhInputSection::split(ArrayRef<RelTy> rels) {
     d = d.slice(size);
   }
   if (msg)
-    errorOrWarn("corrupted .eh_frame: " + Twine(msg) + "\n>>> defined in " +
-                getObjMsg(d.data() - content().data()));
+    Err(ctx) << "corrupted .eh_frame: " << Twine(msg) << "\n>>> defined in "
+             << getObjMsg(d.data() - content().data());
 }
 
 // Return the offset in an output section for a given input offset.
