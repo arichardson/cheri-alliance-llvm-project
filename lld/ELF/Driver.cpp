@@ -720,14 +720,14 @@ void LinkerDriver::linkerMain(ArrayRef<const char *> argsArr) {
 
     initLLVM();
     createFiles(args);
-    if (errorCount())
+    if (errCount(ctx))
       return;
 
     inferMachineType();
     inferIsCheriAbi();
     setConfigs(ctx, args);
     checkOptions(ctx);
-    if (errorCount())
+    if (errCount(ctx))
       return;
 
     invokeELFT(link, args);
@@ -2125,7 +2125,7 @@ void LinkerDriver::createFiles(opt::InputArgList &args) {
 
   if (defaultScript && !hasScript)
     readLinkerScript(ctx, *defaultScript);
-  if (files.empty() && !hasInput && errorCount() == 0)
+  if (files.empty() && !hasInput && errCount(ctx) == 0)
     ErrAlways(ctx) << "no input files";
 }
 
@@ -3056,7 +3056,7 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   ctx.duplicates.clear();
 
   // Return if there were name resolution errors.
-  if (errorCount())
+  if (errCount(ctx))
     return;
 
   // We want to declare linker script's symbols early,
@@ -3119,7 +3119,7 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   reportBackrefs(ctx);
   writeArchiveStats(ctx);
   writeWhyExtract(ctx);
-  if (errorCount())
+  if (errCount(ctx))
     return;
 
   // Bail out if normal linked output is skipped due to LTO.
