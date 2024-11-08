@@ -147,6 +147,7 @@ set(x86_files
   adcintrin.h
   adxintrin.h
   ammintrin.h
+  amxavx512intrin.h
   amxcomplexintrin.h
   amxfp16intrin.h
   amxfp8intrin.h
