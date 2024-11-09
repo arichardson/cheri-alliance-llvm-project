@@ -4375,6 +4375,10 @@ Intrinsic::ID llvm::getIntrinsicForCallSite(const CallBase &CB,
   case LibFunc_atanf:
   case LibFunc_atanl:
     return Intrinsic::atan;
+  case LibFunc_atan2:
+  case LibFunc_atan2f:
+  case LibFunc_atan2l:
+    return Intrinsic::atan2;
   case LibFunc_sinh:
   case LibFunc_sinhf:
   case LibFunc_sinhl:
