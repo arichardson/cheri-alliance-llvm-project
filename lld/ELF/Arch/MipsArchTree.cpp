@@ -104,7 +104,7 @@ static uint32_t getMiscFlags(ArrayRef<FileFlags> files) {
   return ret;
 }
 
-static uint32_t getPicFlags(ArrayRef<FileFlags> files) {
+static uint32_t getPicFlags(Ctx &ctx, ArrayRef<FileFlags> files) {
   // Check PIC/non-PIC compatibility.
   bool isPic = files[0].flags & (EF_MIPS_PIC | EF_MIPS_CPIC);
   for (const FileFlags &f : files.slice(1)) {
@@ -309,7 +309,7 @@ static inline bool isBeriOrCheri(uint32_t flags) {
 // Output file gets EF_MIPS_ARCH_2 flag. From the other side mips3 and mips32
 // are incompatible because nor mips3 is a parent for misp32, nor mips32
 // is a parent for mips3.
-static uint32_t getArchFlags(ArrayRef<FileFlags> files) {
+static uint32_t getArchFlags(Ctx &ctx, ArrayRef<FileFlags> files) {
   uint32_t ret = files[0].flags & (EF_MIPS_ARCH | EF_MIPS_MACH);
 
   for (const FileFlags &f : files.slice(1)) {
@@ -353,7 +353,7 @@ template <class ELFT> uint32_t elf::calcMipsEFlags(Ctx &ctx) {
     return ctx.arg.mipsN32Abi ? EF_MIPS_ABI2 : EF_MIPS_ABI_O32;
   }
   checkFlags(ctx, v);
-  return getMiscFlags(v) | getPicFlags(v) | getArchFlags(v);
+  return getMiscFlags(v) | getPicFlags(ctx, v) | getArchFlags(ctx, v);
 }
 
 static int compareMipsFpAbi(uint8_t fpA, uint8_t fpB) {
@@ -396,12 +396,12 @@ static StringRef getMipsFpAbiName(uint8_t fpAbi) {
   }
 }
 
-uint8_t elf::getMipsFpAbiFlag(uint8_t oldFlag, StringRef oldFile,
-                              uint8_t newFlag, StringRef newFile) {
+uint8_t elf::getMipsFpAbiFlag(Ctx &ctx, uint8_t oldFlag, uint8_t newFlag,
+                              StringRef fileName) {
   if (compareMipsFpAbi(newFlag, oldFlag) >= 0)
     return newFlag;
   if (compareMipsFpAbi(oldFlag, newFlag) < 0)
-    ErrAlways(ctx) << newFile << ": floating point ABI '"
+    ErrAlways(ctx) << fileName << ": floating point ABI '"
                    << getMipsFpAbiName(newFlag)
                    << "' is incompatible with target floating point ABI '"
                    << getMipsFpAbiName(oldFlag) << "'";
