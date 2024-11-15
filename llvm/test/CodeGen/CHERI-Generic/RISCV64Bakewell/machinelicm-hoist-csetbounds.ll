@@ -81,7 +81,7 @@ define dso_local void @hoist_csetbounds(i32 signext %cond, ptr addrspace(200) %f
 ; HOIST-OPT-NEXT:    [[I_06:%.*]] = phi i32 [ 0, %[[ENTRY_SPLIT]] ], [ [[INC:%.*]], %[[FOR_BODY]] ]
 ; HOIST-OPT-NEXT:    tail call void @call(ptr addrspace(200) [[ADDRESS_WITH_BOUNDS]], ptr addrspace(200) [[ADDRESS_WITH_BOUNDS1]])
 ; HOIST-OPT-NEXT:    [[INC]] = add nuw nsw i32 [[I_06]], 1
-; HOIST-OPT-NEXT:    [[CMP:%.*]] = icmp ult i32 [[I_06]], 99
+; HOIST-OPT-NEXT:    [[CMP:%.*]] = icmp samesign ult i32 [[I_06]], 99
 ; HOIST-OPT-NEXT:    br i1 [[CMP]], label %[[FOR_BODY]], label %[[FOR_COND_CLEANUP]]
 ;
 entry:

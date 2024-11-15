@@ -56,9 +56,9 @@ define dso_local signext i32 @foo() addrspace(200) nounwind {
 ; CHECK-NEXT:    cincoffset csp, csp, -48
 ; CHECK-NEXT:    sc cra, 32(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    li a1, 1
-; CHECK-NEXT:    sd a1, 16(csp)
 ; CHECK-NEXT:    csetbounds ca0, csp, 32
 ; CHECK-NEXT:    li a2, -11
+; CHECK-NEXT:    sd a1, 16(csp)
 ; CHECK-NEXT:    candperm ct1, ca0, a2
 ; CHECK-NEXT:    li a0, 2
 ; CHECK-NEXT:    sd a1, 0(csp)
@@ -194,10 +194,10 @@ define i8 addrspace(200)* @test_vacopy(i32 %count, ...) local_unnamed_addr addrs
 ; CHECK-NEXT:    csetbounds ca0, ca0, 16
 ; CHECK-NEXT:    sc ct1, 0(ca0)
 ; CHECK-NEXT:    lc ca0, 32(csp)
-; CHECK-NEXT:    sc ct1, 0(csp)
 ; CHECK-NEXT:    cincoffset ca1, csp, 16
 ; CHECK-NEXT:    csetbounds ca1, ca1, 16
 ; CHECK-NEXT:    sc ct1, 0(ca1)
+; CHECK-NEXT:    sc ct1, 0(csp)
 ; CHECK-NEXT:    cincoffset csp, csp, 48
 ; CHECK-NEXT:    ret
 entry:

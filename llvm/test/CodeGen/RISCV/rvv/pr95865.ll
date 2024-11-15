@@ -94,8 +94,8 @@ define i32 @main(i1 %arg.1, i64 %arg.2, i1 %arg.3, i64 %arg.4, i1 %arg.5, <vscal
 ; CHECK-NEXT:    # => This Inner Loop Header: Depth=5
 ; CHECK-NEXT:    addi a1, s1, 4
 ; CHECK-NEXT:    add a5, a3, s1
-; CHECK-NEXT:    vse32.v v8, (a5), v0.t
 ; CHECK-NEXT:    add s1, s1, a0
+; CHECK-NEXT:    vse32.v v8, (a5), v0.t
 ; CHECK-NEXT:    vse32.v v8, (s1), v0.t
 ; CHECK-NEXT:    mv s1, a1
 ; CHECK-NEXT:    bne a1, s0, .LBB0_5

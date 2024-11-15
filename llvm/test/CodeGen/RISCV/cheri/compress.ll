@@ -97,7 +97,6 @@ define i32 @call() addrspace(200) #0 {
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}lc cra, 128(csp)
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset csp, csp, 144
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}jalr cnull, 0(cra)
-
   %ptrarray = alloca [4 x i8 addrspace(200)*], align 16, addrspace(200)
   %intarray = alloca [16 x i32], align 1, addrspace(200)
   %ptrgep = getelementptr inbounds [4 x i8 addrspace(200)*], [4 x i8 addrspace(200)*] addrspace(200)* %ptrarray, i64 0, i64 3
