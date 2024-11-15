@@ -111,10 +111,21 @@ public:
     return getPointerWidthV(AddrSpace);
   }
 
+  virtual bool isAddressSpaceSupersetOf(LangAS A, LangAS B) const override {
+    // The flat address space AS(0) is a superset of all the other address
+    // spaces used by the backend target.
+    return A == B ||
+           ((A == LangAS::Default ||
+             (isTargetAddressSpace(A) &&
+              toTargetAddressSpace(A) == llvm::AMDGPUAS::FLAT_ADDRESS)) &&
+            isTargetAddressSpace(B) &&
+            toTargetAddressSpace(B) >= llvm::AMDGPUAS::FLAT_ADDRESS &&
+            toTargetAddressSpace(B) <= llvm::AMDGPUAS::PRIVATE_ADDRESS);
+  }
+
   uint64_t getMaxPointerRange() const override {
     return getTriple().getArch() == llvm::Triple::amdgcn ? 64 : 32;
   }
-
   bool hasBFloat16Type() const override { return isAMDGCN(getTriple()); }
 
   std::string_view getClobbers() const override { return ""; }
