@@ -293,8 +293,7 @@ public:
   }
 
 protected:
-  template <typename ELFT>
-  void parseCompressedHeader();
+  template <typename ELFT> void parseCompressedHeader(Ctx &);
   void decompress() const;
 
 private:

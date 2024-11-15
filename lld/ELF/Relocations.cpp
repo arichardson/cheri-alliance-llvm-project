@@ -447,7 +447,7 @@ public:
   // Translates offsets in input sections to offsets in output sections.
   // Given offset must increase monotonically. We assume that Piece is
   // sorted by inputOff.
-  uint64_t get(uint64_t off) {
+  uint64_t get(Ctx &ctx, uint64_t off) {
     if (cies.empty())
       return off;
 
@@ -1560,7 +1560,7 @@ void RelocationScanner::scanOne(typename Relocs<RelTy>::const_iterator &i) {
     }
   }
   // Get an offset in an output section this relocation is applied to.
-  uint64_t offset = getter.get(rel.r_offset);
+  uint64_t offset = getter.get(ctx, rel.r_offset);
   if (offset == uint64_t(-1))
     return;
 
@@ -1681,10 +1681,11 @@ static void checkPPC64TLSRelax(InputSectionBase &sec, Relocs<RelTy> rels) {
   }
   if (hasGDLD) {
     sec.file->ppc64DisableTLSRelax = true;
-    Warn(ctx) << sec.file
-              << ": disable TLS relaxation due to R_PPC64_GOT_TLS* relocations "
-                 "without "
-                 "R_PPC64_TLSGD/R_PPC64_TLSLD relocations";
+    Warn(sec.file->ctx)
+        << sec.file
+        << ": disable TLS relaxation due to R_PPC64_GOT_TLS* relocations "
+           "without "
+           "R_PPC64_TLSGD/R_PPC64_TLSLD relocations";
   }
 }
 
