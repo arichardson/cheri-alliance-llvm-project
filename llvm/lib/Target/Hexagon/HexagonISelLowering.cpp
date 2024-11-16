@@ -581,7 +581,6 @@ HexagonTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   }
 
   // Returns a chain & a flag for retval copy to use.
-  SDVTList NodeTys = DAG.getVTList(MVT::Other, MVT::Glue);
   SmallVector<SDValue, 8> Ops;
   Ops.push_back(Chain);
   Ops.push_back(Callee);
@@ -600,7 +599,7 @@ HexagonTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
 
   if (CLI.IsTailCall) {
     MFI.setHasTailCall();
-    return DAG.getNode(HexagonISD::TC_RETURN, dl, NodeTys, Ops);
+    return DAG.getNode(HexagonISD::TC_RETURN, dl, MVT::Other, Ops);
   }
 
   // Set this here because we need to know this for "hasFP" in frame lowering.
@@ -609,7 +608,7 @@ HexagonTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   MFI.setHasCalls(true);
 
   unsigned OpCode = DoesNotReturn ? HexagonISD::CALLnr : HexagonISD::CALL;
-  Chain = DAG.getNode(OpCode, dl, NodeTys, Ops);
+  Chain = DAG.getNode(OpCode, dl, {MVT::Other, MVT::Glue}, Ops);
   Glue = Chain.getValue(1);
 
   // Create the CALLSEQ_END node.
