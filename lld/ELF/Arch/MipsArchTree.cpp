@@ -322,8 +322,8 @@ static uint32_t getArchFlags(Ctx &ctx, ArrayRef<FileFlags> files) {
     if (isBeriOrCheri(ret) != isBeriOrCheri(newFlags)) {
       warn("linking files compiled for BERI/CHERI and non-BERI/CHERI can "
            "result in surprising performance:\n>>> " +
-           toString(files[0].file) + ": " + getFullArchName(ret) + "\n>>> " +
-           toString(f.file) + ": " + getFullArchName(newFlags));
+           toStr(ctx, files[0].file) + ": " + getFullArchName(ret) + "\n>>> " +
+           toStr(ctx, f.file) + ": " + getFullArchName(newFlags));
     }
 
     // Check ISA compatibility.
@@ -502,7 +502,7 @@ void elf::checkMipsShlibCompatible(InputFile *f, uint64_t inputCheriFlags,
     std::string msg = "target pure-capability ABI " +
                       getMipsIsaExtName(cheriFlagsToAFL_EXT(targetCheriAbi)) +
                       " is incompatible with linked shared library\n>>> " +
-                      toString(f) + " uses " +
+                      toStr(ctx, f) + " uses " +
                       getMipsIsaExtName(cheriFlagsToAFL_EXT(inputCheriAbi));
     // mixing legacy/non-legacy is an error, anything a warning
     if (inputCheriAbi == DF_MIPS_CHERI_ABI_LEGACY ||

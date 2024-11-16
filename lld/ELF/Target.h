@@ -20,12 +20,13 @@
 #include <array>
 
 namespace lld {
-std::string toString(elf::RelType type);
-
 namespace elf {
 class Defined;
 class InputFile;
 class Symbol;
+
+std::string toStr(Ctx &, RelType type);
+std::string toString(Ctx &, RelType type);
 
 class TargetInfo {
 public:

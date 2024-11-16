@@ -84,8 +84,7 @@ static PermissionKind getCapabilityPermissionKind(const Symbol &sym) {
     }
     if (os->flags & SHF_EXECINSTR) {
       warn("Non-function __cap_reloc against symbol in section with "
-           "SHF_EXECINSTR (" +
-           toString(os->name) + ") for symbol " + toString(sym));
+           "SHF_EXECINSTR (" + os->name + ") for symbol " + toString(ctx, sym));
     }
   }
   return kind;
@@ -163,7 +162,7 @@ SymbolAndOffset::fromSectionWithOffset(InputSectionBase *isec, int64_t offset,
     // since clang won't emit a symbol (and no size) for those
     if (!isec->name.starts_with(".rodata.str"))
       nonFatalWarning("Could not find a real symbol for " + isec->name +
-           "+0x" + utohexstr(offset) + " in " + toString(isec->file));
+           "+0x" + utohexstr(offset) + " in " + toStr(ctx, isec->file));
     // Could not find a symbol -> return section+offset
     assert(offset == fallbackOffset);
     if (Default)
@@ -212,8 +211,8 @@ SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
     int64_t oldOffset = targetValue - bestMatch->value;
     int64_t newOffset = targetValue - newMatch->value;
     log("Found better match for capability relocation against " +
-        lld::toString(*bestMatch) + "+" + Twine(oldOffset) + ": " +
-        lld::toString(*newMatch) + "+" + Twine(newOffset));
+        toString(ctx, *bestMatch) + "+" + Twine(oldOffset) + ": " +
+        toString(ctx, *newMatch) + "+" + Twine(newOffset));
     bestMatch = newMatch;
     bestSize = bestMatch->getSize();
   };
@@ -265,7 +264,7 @@ void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
   if (isa<Symbol *>(target.symOrSec) && target.sym()->isUndefined() &&
       !target.sym()->isUndefWeak()) {
     std::string msg =
-        "cap_reloc against undefined symbol: " + toString(*target.sym()) +
+        "cap_reloc against undefined symbol: " + toString(ctx, *target.sym()) +
         "\n>>> referenced by " + sourceMsg();
     if (ctx.arg.unresolvedSymbols == UnresolvedPolicy::ReportError)
       error(msg);
@@ -281,7 +280,7 @@ void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
 
   bool canWriteLoc = (loc.section->flags & SHF_WRITE) || !ctx.arg.zText;
   if (!canWriteLoc) {
-    readOnlyCapRelocsError(*target.sym(), "\n>>> referenced by " + sourceMsg());
+    readOnlyCapRelocsError(ctx, *target.sym(), "\n>>> referenced by " + sourceMsg());
     return;
   }
 
@@ -482,8 +481,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
         permissions |= CapRelocPermission<ELFT>::readOnly;
       } else if (os->flags & SHF_EXECINSTR) {
         warn("Non-function __cap_reloc against symbol in section with "
-             "SHF_EXECINSTR (" +
-             toString(os->name) + ") for symbol " +
+             "SHF_EXECINSTR (" + os->name + ") for symbol " +
              realTarget.verboseToString());
       }
     }
@@ -804,7 +802,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
     assert(assignedEntries == 0 && "Should not have any global entries in"
                                    " per-file/per-function captable mode");
     for (auto &it : perFileEntries) {
-      std::string fullContext = toString(it.first);
+      std::string fullContext = toStr(ctx, it.first);
       auto lastSlash = StringRef(fullContext).find_last_of("/\\") + 1;
       StringRef context = StringRef(fullContext).substr(lastSlash);
       assignedEntries +=
@@ -812,7 +810,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
     }
     for (auto &it : perFunctionEntries)
       assignedEntries +=
-          assignIndices(assignedEntries, it.second, "@" + toString(*it.first));
+          assignIndices(assignedEntries, it.second, "@" + toString(ctx, *it.first));
   }
   assert(assignedEntries == nonTlsEntryCount());
 

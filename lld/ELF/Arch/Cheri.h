@@ -26,7 +26,7 @@ public:
     assert(!symOrSec.isNull());
     SymbolAndOffset resolved = findRealSymbol();
     if (resolved.symOrSec.is<Symbol *>())
-      return lld::verboseToString(resolved.symOrSec.get<Symbol *>(), offset);
+      return elf::verboseToString(resolved.symOrSec.get<Symbol *>(), offset);
     return resolved.symOrSec.get<InputSectionBase *>()->getObjMsg(offset);
   }
   // for __cap_relocs against local symbols clang emits section+offset instead
@@ -302,9 +302,9 @@ inline bool isSectionStartSymbol(StringRef name) {
          name == "_DYNAMIC";
 }
 
-inline void readOnlyCapRelocsError(Symbol &sym, const Twine &sourceMsg) {
+inline void readOnlyCapRelocsError(Ctx &ctx, Symbol &sym, const Twine &sourceMsg) {
   error("attempting to add a capability relocation against " +
-        (sym.getName().empty() ? "local symbol" : "symbol " + toString(sym)) +
+        (sym.getName().empty() ? "local symbol" : "symbol " + toString(ctx, sym)) +
         " in a read-only section; pass -Wl,-z,notext if you really want to do "
         "this" +
         sourceMsg);

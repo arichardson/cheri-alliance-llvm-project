@@ -21,15 +21,7 @@
 #include "llvm/Support/Compiler.h"
 #include <tuple>
 
-namespace lld {
-namespace elf {
-class Symbol;
-}
-// Returns a string representation for a symbol for diagnostics.
-std::string toString(const elf::Symbol &);
-std::string verboseToString(const elf::Symbol *b, uint64_t symOffset = 0);
-
-namespace elf {
+namespace lld::elf {
 class CommonSymbol;
 class Defined;
 class OutputSection;
@@ -41,7 +33,11 @@ class Undefined;
 class LazySymbol;
 class InputFile;
 
+// Returns a string representation for a symbol for diagnostics.
+std::string toStr(Ctx &, const Symbol &);
+std::string toString(Ctx &, const Symbol &);
 const ELFSyncStream &operator<<(const ELFSyncStream &, const Symbol *);
+std::string verboseToString(const elf::Symbol *b, uint64_t symOffset = 0);
 
 void printTraceSymbol(const Symbol &sym, StringRef name);
 
@@ -561,7 +557,6 @@ void reportDuplicate(Ctx &, const Symbol &sym, const InputFile *newFile,
 void maybeWarnUnorderableSymbol(Ctx &, const Symbol *sym);
 bool computeIsPreemptible(Ctx &, const Symbol &sym);
 
-} // namespace elf
-} // namespace lld
+} // namespace lld::elf
 
 #endif
