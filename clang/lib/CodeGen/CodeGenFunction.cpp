@@ -44,7 +44,6 @@
 #include "llvm/IR/IntrinsicInst.h"
 #include "llvm/IR/Intrinsics.h"
 #include "llvm/IR/MDBuilder.h"
-#include "llvm/IR/Operator.h"
 #include "llvm/Support/CRC.h"
 #include "llvm/Transforms/Utils/CheriSetBounds.h"
 #include "llvm/Transforms/Utils/Local.h"
