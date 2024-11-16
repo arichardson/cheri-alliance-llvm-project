@@ -1157,7 +1157,7 @@ static void mergeArch(Ctx &ctx, RISCVISAUtils::OrderedExtensionMap &mergedExts,
   auto maybeInfo = RISCVISAInfo::parseNormalizedArchString(s);
   if (!maybeInfo) {
     Err(ctx) << sec << ": " << s << ": "
-             << llvm::toString(maybeInfo.takeError());
+             << maybeInfo.takeError();
     return;
   }
 
@@ -1280,7 +1280,7 @@ mergeAttributesSection(Ctx &ctx,
   for (const InputSectionBase *sec : sections) {
     RISCVAttributeParser parser;
     if (Error e = parser.parse(sec->content(), llvm::endianness::little))
-      Warn(ctx) << sec << ": " << llvm::toString(std::move(e));
+      Warn(ctx) << sec << ": " << std::move(e);
     for (const auto &tag : attributesTags) {
       switch (RISCVAttrs::AttrType(tag.attr)) {
         // Integer attributes.
@@ -1353,7 +1353,7 @@ mergeAttributesSection(Ctx &ctx,
       merged.strAttr.try_emplace(RISCVAttrs::ARCH,
                                  saver().save((*result)->toString()));
     } else {
-      Err(ctx) << llvm::toString(result.takeError());
+      Err(ctx) << result.takeError();
     }
   }
 
