@@ -314,7 +314,7 @@ std::string InputSectionBase::getLocation(uint64_t offset) const {
   std::string secAndOffset =
       (name + "+0x" + Twine::utohexstr(offset) + ")").str();
 
-  std::string filename = toStr(ctx, file);
+  std::string filename = toStr(getCtx(), file);
   if (Defined *d = getEnclosingFunction(offset))
     return filename + ":(function " + toStr(getCtx(), *d) + ": " + secAndOffset;
   else if (Defined *d = getEnclosingObject(offset))
@@ -360,7 +360,7 @@ std::string InputSectionBase::getObjMsg(uint64_t off) const {
   // before ObjFile::initSectionsAndLocalSyms where local symbols are
   // initialized.
   if (Defined *d = getEnclosingSymbol(off))
-    return filename + ":(" + toStr(ctx, *d) + ")" + archive;
+    return filename + ":(" + toStr(getCtx(), *d) + ")" + archive;
 
   // If there's no symbol, print out the offset in the section.
   return (filename + ":(" + name + "+0x" + utohexstr(off) + ")" + archive)
