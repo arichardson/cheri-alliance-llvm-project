@@ -2298,10 +2298,11 @@ void Writer<ELFT>::addStartStopSymbols(OutputSection &osec) {
   StringRef s = osec.name;
   if (!isValidCIdentifier(s))
     return;
-  Defined *startSym = addOptionalRegular(ctx, saver().save("__start_" + s), &osec, 0,
+  StringSaver &ss = saver(ctx);
+  Defined *startSym = addOptionalRegular(ctx, ss.save("__start_" + s), &osec, 0,
                                          ctx.arg.zStartStopVisibility,
                                          /*canBeSectionStart=*/true);
-  Defined *stopSym = addOptionalRegular(ctx, saver().save("__stop_" + s), &osec, -1,
+  Defined *stopSym = addOptionalRegular(ctx, ss.save("__stop_" + s), &osec, -1,
                                         ctx.arg.zStartStopVisibility,
                                         /*canBeSectionStart=*/false);
   if (startSym || stopSym)
