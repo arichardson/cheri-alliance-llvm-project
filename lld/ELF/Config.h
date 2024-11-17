@@ -593,8 +593,8 @@ struct Ctx : CommonLinkerContext {
   Partition *mainPart = nullptr;
   PhdrEntry *tlsPhdr = nullptr;
   struct OutSections {
-    OutputSection *elfHeader;
-    OutputSection *programHeaders;
+    std::unique_ptr<OutputSection> elfHeader;
+    std::unique_ptr<OutputSection> programHeaders;
     OutputSection *preinitArray;
     OutputSection *initArray;
     OutputSection *finiArray;
