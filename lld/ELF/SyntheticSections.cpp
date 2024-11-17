@@ -3013,8 +3013,7 @@ void DebugNamesBaseSection::parseDebugNames(
       return;
     }
     if (nd.hdr.Version != 5) {
-      Err(ctx) << namesSec.sec << Twine(": unsupported version: ")
-               << Twine(nd.hdr.Version);
+      Err(ctx) << namesSec.sec << ": unsupported version: " << nd.hdr.Version;
       return;
     }
     uint32_t dwarfSize = dwarf::getDwarfOffsetByteSize(DwarfFormat::DWARF32);
@@ -3052,7 +3051,7 @@ void DebugNamesBaseSection::parseDebugNames(
         ne.indexEntries.push_back(std::move(*ieOrErr));
       }
       if (offset >= namesSec.Data.size())
-        Err(ctx) << namesSec.sec << Twine(": index entry is out of bounds");
+        Err(ctx) << namesSec.sec << ": index entry is out of bounds";
 
       for (IndexEntry &ie : ne.entries())
         offsetMap[ie.poolOffset] = &ie;
@@ -3350,7 +3349,7 @@ DebugNamesSection<ELFT>::DebugNamesSection(Ctx &ctx)
 
     inputChunk.llvmDebugNames.emplace(namesExtractor, strExtractor);
     if (Error e = inputChunk.llvmDebugNames->extract()) {
-      Err(ctx) << dobj.getNamesSection().sec << Twine(": ") << std::move(e);
+      Err(ctx) << dobj.getNamesSection().sec << ": " << std::move(e);
     }
     parseDebugNames(
         ctx, inputChunk, chunk, namesExtractor, strExtractor,
@@ -3651,7 +3650,7 @@ createSymbols(
   }
   // If off overflows, the last symbol's nameOff likely overflows.
   if (!isUInt<32>(off))
-    Err(ctx) << "--gdb-index: constant pool size (" << Twine(off)
+    Err(ctx) << "--gdb-index: constant pool size (" << off
              << ") exceeds UINT32_MAX";
 
   return {ret, off};
