@@ -506,7 +506,7 @@ void AArch64::relocate(uint8_t *loc, const Relocation &rel,
     // derivation offset.
     if (rel.sym && rel.sym->isTagged() &&
         (rel.addend < 0 ||
-         rel.addend >= static_cast<int64_t>(rel.sym->getSize())))
+         rel.addend >= static_cast<int64_t>(rel.sym->getSize(ctx))))
       write64(ctx, loc, -rel.addend);
     else
       write64(ctx, loc, val);

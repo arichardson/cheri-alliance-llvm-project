@@ -36,7 +36,7 @@ class InputFile;
 // Returns a string representation for a symbol for diagnostics.
 std::string toStr(Ctx &, const Symbol &);
 const ELFSyncStream &operator<<(const ELFSyncStream &, const Symbol *);
-std::string verboseToString(const elf::Symbol *b, uint64_t symOffset = 0);
+std::string verboseToString(Ctx &, const elf::Symbol *b, uint64_t symOffset = 0);
 
 void printTraceSymbol(const Symbol &sym, StringRef name);
 
@@ -227,7 +227,7 @@ public:
                                   uint64_t offset) const;
   uint64_t getMipsCheriCapTableOffset(Ctx &, const InputSectionBase *isec,
                                       uint64_t offset) const;
-  uint64_t getSize() const;
+  uint64_t getSize(Ctx &) const;
   OutputSection *getOutputSection() const;
 
   // The following two functions are used for symbol resolution.
@@ -387,7 +387,7 @@ public:
   void overwrite(Symbol &sym) const;
 
   static bool classof(const Symbol *s) { return s->isDefined(); }
-  uint64_t getSize() const;
+  uint64_t getSize(Ctx &ctx) const;
   void setSize(uint64_t newSize) {
     assert(!isSectionStartSymbol);
     size = newSize;

@@ -299,7 +299,7 @@ Defined *InputSectionBase::getEnclosingSymbol(uint64_t offset,
   for (Symbol *b : file->getSymbols())
     if (Defined *d = dyn_cast<Defined>(b))
       if (d->section == this && d->value <= offset &&
-          offset < d->value + d->getSize() && (type == 0 || type == d->type))
+          offset < d->value + d->getSize(file->ctx) && (type == 0 || type == d->type))
         return d;
   return nullptr;
 }
@@ -959,7 +959,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
       return a;
     return -getTlsTpOffset(ctx, *r.sym) + a;
   case R_SIZE:
-    return r.sym->getSize() + a;
+    return r.sym->getSize(ctx) + a;
   case R_TLSDESC:
     return ctx.in.got->getTlsDescAddr(*r.sym) + a;
   case R_TLSDESC_PC:
@@ -1021,13 +1021,13 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
   case R_CHERI_CAPFRAG_ADDR:
     return r.sym->getVA(ctx, a);
   case R_CHERI_CAPFRAG_META:
-    return getCapMetaBits(a, *r.sym, this, r.offset);
+    return getCapMetaBits(ctx, a, *r.sym, this, r.offset);
   default:
     llvm_unreachable("invalid expression");
   }
 }
 
-void InputSectionBase::addRelocCap(const Relocation &r) {
+void InputSectionBase::addRelocCap(Ctx &ctx, const Relocation &r) {
   assert(r.expr == R_ABS_CAP);
 
   RelExpr exprLo = R_ABS_CAP_ADDR, exprHi = R_ABS_CAP_META;
@@ -1176,7 +1176,7 @@ void InputSection::relocateNonAlloc(Ctx &ctx, uint8_t *buf,
 
     if (expr == R_SIZE) {
       target.relocateNoSym(bufLoc, type,
-                           SignExtend64<bits>(sym.getSize() + addend));
+                           SignExtend64<bits>(sym.getSize(ctx) + addend));
       continue;
     }
 
@@ -1254,17 +1254,17 @@ static void switchMorestackCallsToMorestackNonSplit(
     while (it != morestackCalls.end() && (*it)->offset < f->value)
       ++it;
     // Adjust all calls inside the function.
-    while (it != morestackCalls.end() && (*it)->offset < f->value + f->getSize()) {
+    while (it != morestackCalls.end() && (*it)->offset < f->value + f->getSize(ctx)) {
       (*it)->sym = moreStackNonSplit;
       ++it;
     }
   }
 }
 
-static bool enclosingPrologueAttempted(uint64_t offset,
+static bool enclosingPrologueAttempted(Ctx &ctx, uint64_t offset,
                                        const DenseSet<Defined *> &prologues) {
   for (Defined *f : prologues)
-    if (f->value <= offset && offset < f->value + f->getSize())
+    if (f->value <= offset && offset < f->value + f->getSize(ctx))
       return true;
   return false;
 }
@@ -1303,7 +1303,7 @@ void InputSectionBase::adjustSplitStackFunctionPrologues(Ctx &ctx, uint8_t *buf,
         if (!isec || !isec->getFile<ELFT>() || isec->getFile<ELFT>()->splitStack)
           continue;
 
-    if (enclosingPrologueAttempted(rel.offset, prologues))
+    if (enclosingPrologueAttempted(ctx, rel.offset, prologues))
       continue;
 
     if (Defined *f = getEnclosingFunction(rel.offset)) {

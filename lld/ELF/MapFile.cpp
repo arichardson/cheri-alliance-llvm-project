@@ -97,7 +97,7 @@ getSymbolStrings(Ctx &ctx, ArrayRef<Defined *> syms) {
     OutputSection *osec = syms[i]->getOutputSection();
     uint64_t vma = syms[i]->getVA(ctx);
     uint64_t lma = osec ? osec->getLMA() + vma - osec->getVA(0) : 0;
-    writeHeader(ctx, os, vma, lma, syms[i]->getSize(), 1);
+    writeHeader(ctx, os, vma, lma, syms[i]->getSize(ctx), 1);
     os << indent16 << toStr(ctx, *syms[i]);
   });
 

@@ -32,7 +32,7 @@ enum PermissionKind {
   PK_DONT_SEAL = 3,
 };
 
-bool hasDynamicLinker() {
+bool hasDynamicLinker(Ctx &ctx) {
   return ctx.arg.shared || ctx.arg.pie || !ctx.sharedFiles.empty();
 }
 
@@ -69,7 +69,7 @@ static uint64_t getCapabilityTopBits(cc::AddrTy<Is64Bit> addr,
   return static_cast<uint64_t>(cap.cr_pesbt);
 }
 
-static PermissionKind getCapabilityPermissionKind(const Symbol &sym) {
+static PermissionKind getCapabilityPermissionKind(Ctx &ctx, const Symbol &sym) {
   PermissionKind kind = PK_OBJ;
   if (sym.isFunc())
     if (sym.isFuncDontSeal())
@@ -125,7 +125,7 @@ CheriCapRelocsSection::CheriCapRelocsSection(Ctx &ctx, StringRef name)
 }
 
 SymbolAndOffset
-SymbolAndOffset::fromSectionWithOffset(InputSectionBase *isec, int64_t offset,
+SymbolAndOffset::fromSectionWithOffset(Ctx &ctx, InputSectionBase *isec, int64_t offset,
                                        const SymbolAndOffset *Default) {
   Symbol *fallbackResult = nullptr;
   assert((int64_t)offset >= 0);
@@ -142,7 +142,7 @@ SymbolAndOffset::fromSectionWithOffset(InputSectionBase *isec, int64_t offset,
       if (d->section != isec)
         continue;
       if ((int64_t)d->value <= offset &&
-          offset <= (int64_t)d->value + (int64_t)d->getSize()) {
+          offset <= (int64_t)d->value + (int64_t)d->getSize(ctx)) {
         // XXXAR: should we accept any symbol that encloses or only exact
         // matches?
         if ((int64_t)d->value == offset && (d->isFunc() || d->isObject()))
@@ -172,11 +172,11 @@ SymbolAndOffset::fromSectionWithOffset(InputSectionBase *isec, int64_t offset,
   return {fallbackResult, fallbackOffset};
 }
 
-SymbolAndOffset SymbolAndOffset::findRealSymbol() const {
+SymbolAndOffset SymbolAndOffset::findRealSymbol(Ctx &ctx) const {
   // If we only have a section, see if we can resolve section+offset to a
   // symbol (that may have been added later).
   if (symOrSec.is<InputSectionBase *>()) {
-    return SymbolAndOffset::fromSectionWithOffset(
+    return SymbolAndOffset::fromSectionWithOffset(ctx,
         symOrSec.get<InputSectionBase *>(), offset, this);
   }
   auto s = symOrSec.get<Symbol *>();
@@ -184,13 +184,13 @@ SymbolAndOffset SymbolAndOffset::findRealSymbol() const {
     return *this;
   if (Defined *definedSym = dyn_cast<Defined>(s)) {
     if (auto *isec = dyn_cast<InputSectionBase>(definedSym->section)) {
-      return SymbolAndOffset::fromSectionWithOffset(isec, offset, this);
+      return SymbolAndOffset::fromSectionWithOffset(ctx, isec, offset, this);
     }
   }
   return *this;
 }
 
-SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
+SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation(Ctx &ctx) const {
   // In some cases we can end up with a symbol+offset that points to an
   // assembler local symbol without a type or size.
   // This happens e.g. for exception landing pads that are a relocation
@@ -202,10 +202,10 @@ SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
   Defined *self = dyn_cast<Defined>(sym());
   if (!self)
     return *this;
-  assert(self->getSize() == 0);
+  assert(self->getSize(ctx) == 0);
   assert(self->type == STT_NOTYPE);
   Defined *bestMatch = self;
-  uint64_t bestSize = bestMatch->getSize();
+  uint64_t bestSize = bestMatch->getSize(ctx);
   const uint64_t targetValue = self->value + offset;
   auto foundBetterMatch = [&](Defined *newMatch) {
     int64_t oldOffset = targetValue - bestMatch->value;
@@ -214,7 +214,7 @@ SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
         toStr(ctx, *bestMatch) + "+" + Twine(oldOffset) + ": " +
         toStr(ctx, *newMatch) + "+" + Twine(newOffset));
     bestMatch = newMatch;
-    bestSize = bestMatch->getSize();
+    bestSize = bestMatch->getSize(ctx);
   };
   if (auto *isec = dyn_cast_or_null<InputSectionBase>(self->section)) {
     if (!isec->file)
@@ -223,7 +223,7 @@ SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
       if (auto *d = dyn_cast<Defined>(b)) {
         if (d->section != isec)
           continue;
-        uint64_t dsize = d->getSize();
+        uint64_t dsize = d->getSize(ctx);
         if (d->value <= targetValue && targetValue < d->value + dsize) {
           // Try to find a better match (with a size/type). The match is
           // considered better if
@@ -248,8 +248,8 @@ SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
   return {bestMatch, (int64_t)(targetValue - bestMatch->value)};
 }
 
-std::string CheriCapRelocLocation::toString() const {
- return SymbolAndOffset(section, offset).verboseToString();
+std::string CheriCapRelocLocation::toString(Ctx &ctx) const {
+ return SymbolAndOffset(section, offset).verboseToString(ctx);
 }
 
 void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
@@ -259,7 +259,7 @@ void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
   assert(!isa<Symbol *>(target.symOrSec) || !target.sym()->isPreemptible);
 
   auto sourceMsg = [&]() -> std::string {
-    return sourceSymbol ? verboseToString(sourceSymbol) : loc.toString();
+    return sourceSymbol ? verboseToString(ctx, sourceSymbol) : loc.toString(ctx);
   };
   if (isa<Symbol *>(target.symOrSec) && target.sym()->isUndefined() &&
       !target.sym()->isUndefWeak()) {
@@ -275,8 +275,8 @@ void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
   // assert(CapabilityOffset >= 0 && "Negative offsets not supported");
   if (errorHandler().verbose && capabilityOffset < 0)
     message("global capability offset " + Twine(capabilityOffset) +
-            " is less than 0:\n>>> Location: " + loc.toString() +
-            "\n>>> Target: " + target.verboseToString());
+            " is less than 0:\n>>> Location: " + loc.toString(ctx) +
+            "\n>>> Target: " + target.verboseToString(ctx));
 
   bool canWriteLoc = (loc.section->flags & SHF_WRITE) || !ctx.arg.zText;
   if (!canWriteLoc) {
@@ -284,18 +284,18 @@ void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
     return;
   }
 
-  addEntry(loc, {isCode, target, capabilityOffset});
+  addEntry(ctx, loc, {isCode, target, capabilityOffset});
 }
 
-static uint64_t getTargetSize(const CheriCapRelocLocation &location,
+static uint64_t getTargetSize(Ctx &ctx, const CheriCapRelocLocation &location,
                               const SymbolAndOffset &target) {
   if (InputSectionBase *isec = dyn_cast<InputSectionBase *>(target.symOrSec))
     return isec->getSize();
 
-  uint64_t targetSize = target.sym()->getSize();
+  uint64_t targetSize = target.sym()->getSize(ctx);
   if (targetSize > INT_MAX) {
-    error("Insanely large symbol size for " + target.verboseToString() +
-          "for cap_reloc at" + location.toString());
+    error("Insanely large symbol size for " + target.verboseToString(ctx) +
+          "for cap_reloc at" + location.toString(ctx));
     return 0;
   }
   auto targetSym = target.sym();
@@ -361,12 +361,12 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
       //    " and could not determine section size. Using 0.");
       if ((int64_t)def->value < 0 || def->value > os->size) {
         // Note: we allow def->value == os->size for pointers to the end
-        warn("Symbol " + target.verboseToString() +
+        warn("Symbol " + target.verboseToString(ctx) +
              " is defined as being in section " + os->name +
              " but the value (0x" + utohexstr(targetSym->getVA(ctx)) +
              ") is outside this section. Will create a zero-size capability."
              "\n>>> referenced by " +
-             location.toString());
+             location.toString(ctx));
         return 0;
       }
       // For negative offsets use 0 instead (we want the range of the full symbol in that case)
@@ -383,12 +383,12 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
     }
     if (warnAboutUnknownSize || errorHandler().verbose) {
       std::string msg = "could not determine size of cap reloc against " +
-                        target.verboseToString() + "\n>>> referenced by " +
-                        location.toString();
+                        target.verboseToString(ctx) + "\n>>> referenced by " +
+                        location.toString(ctx);
       warn(msg);
     }
     if (UnknownSectionSize) {
-      warn("Could not find size for symbol " + target.verboseToString() +
+      warn("Could not find size for symbol " + target.verboseToString(ctx) +
            " and could not determine section size. Using 0.");
       // TargetSize = std::numeric_limits<uint64_t>::max();
       return 0;
@@ -426,8 +426,8 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
     // relocations against a label inside a function or a subobject.
     SymbolAndOffset realTarget = reloc.target;
     if (Symbol *s = reloc.target.symOrSec.dyn_cast<Symbol *>())
-      if (s->type == STT_NOTYPE && s->getSize() == 0)
-        realTarget = reloc.target.findSymbolForCapabilityRelocation();
+      if (s->type == STT_NOTYPE && s->getSize(ctx) == 0)
+        realTarget = reloc.target.findSymbolForCapabilityRelocation(ctx);
 
     // We write the virtual address of the location in both static and the
     // shared library case:
@@ -460,9 +460,9 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
     }
     if (isCode && !isFunc)
       ELFSyncStream(ctx, ctx.arg.noinhibitExec ? DiagLevel::Warn : DiagLevel::Err)
-        << "code relocation against non-function symbol " << realTarget.verboseToString() 
-        << "\n>>> referenced by " << location.toString();
-    uint64_t targetSize = getTargetSize(location, realTarget);
+        << "code relocation against non-function symbol " << realTarget.verboseToString(ctx) 
+        << "\n>>> referenced by " << location.toString(ctx);
+    uint64_t targetSize = getTargetSize(ctx, location, realTarget);
     uint64_t targetOffset = reloc.capabilityOffset + realTarget.offset;
     uint64_t permissions = 0;
     // Fow now Function implies ReadOnly so don't add the flag
@@ -482,7 +482,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
       } else if (os->flags & SHF_EXECINSTR) {
         warn("Non-function __cap_reloc against symbol in section with "
              "SHF_EXECINSTR (" + os->name + ") for symbol " +
-             realTarget.verboseToString());
+             realTarget.verboseToString(ctx));
       }
     }
 
@@ -591,8 +591,8 @@ void MipsCheriCapTableSection::addEntry(Symbol &sym, RelExpr expr,
   case R_MIPS_CHERI_CAPTAB_INDEX_CALL_SMALL_IMMEDIATE:
     if (!sym.isFunc() && !sym.isUndefWeak()) {
       CheriCapRelocLocation loc{isec, offset};
-      std::string msg = "call relocation against non-function symbol " + verboseToString(&sym, 0) +
-      "\n>>> referenced by " + loc.toString();
+      std::string msg = "call relocation against non-function symbol " + verboseToString(ctx, &sym, 0) +
+      "\n>>> referenced by " + loc.toString(ctx);
       if (sym.isUndefined() && ctx.arg.unresolvedSymbolsInShlib == UnresolvedPolicy::Ignore) {
         // Don't fail the build for shared libraries unless
         nonFatalWarning(msg);
@@ -608,7 +608,7 @@ void MipsCheriCapTableSection::addEntry(Symbol &sym, RelExpr expr,
   CaptableMap &entries = getCaptableMapForFileAndOffset(isec, offset);
   if (ctx.arg.zCapTableDebug) {
     // Add a local helper symbol to improve disassembly:
-    StringRef helperSymName = saver().save(
+    StringRef helperSymName = saver(ctx).save(
         "$captable_load_" +
         (sym.getName().empty() ? "$anonymous_symbol" : sym.getName()));
     addSyntheticLocal(ctx, helperSymName, STT_NOTYPE, offset, 0, *isec);
@@ -741,9 +741,9 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
     // might not be unique. If there is a global with the same name we always
     // want the global to have the plain @CAPTABLE name
     if (name.empty() /* || Name.startswith(".L") */ || targetSym->isLocal())
-      refName = saver().save(name + "@CAPTABLE" + symContext + "." + Twine(index));
+      refName = saver(ctx).save(name + "@CAPTABLE" + symContext + "." + Twine(index));
     else
-      refName = saver().save(name + "@CAPTABLE" + symContext);
+      refName = saver(ctx).save(name + "@CAPTABLE" + symContext);
     // XXXAR: This should no longer be necessary now that I am using addSyntheticLocal?
 #if 0
     if (ctx.symtab->find(RefName)) {
@@ -788,7 +788,7 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
     else if (targetSym->isUndefWeak())
       addConstant({R_ABS_CAP, elfCapabilityReloc, off, 0, targetSym});
     else
-      addRelativeCapabilityRelocation(*this, off, targetSym, 0, R_ABS_CAP,
+      addRelativeCapabilityRelocation(ctx, *this, off, targetSym, 0, R_ABS_CAP,
                                       elfCapabilityReloc);
   }
   assert(assignedSmallIndexes + assignedLargeIndexes == entries.size());
@@ -934,7 +934,7 @@ void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
     }
     CaptableMappingEntry entry;
     entry.funcStart = sym->getVA(ctx, 0);
-    entry.funcEnd = entry.funcStart + sym->getSize();
+    entry.funcEnd = entry.funcStart + sym->getSize(ctx);
     if (capTableMap) {
       assert(capTableMap->firstIndex != std::numeric_limits<uint64_t>::max());
       entry.capTableOffset = capTableMap->firstIndex * ctx.arg.capabilitySize;
@@ -968,8 +968,8 @@ void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
   memcpy(buf, entries.data(), entries.size() * sizeof(CaptableMappingEntry));
 }
 
-static void writeCatableRelocationFragments(InputSectionBase *sec, Symbol *sym,
-                                     uint64_t offset) {
+static void writeCatableRelocationFragments(Ctx &ctx, InputSectionBase *sec, 
+                                            Symbol *sym, uint64_t offset) {
   sec->addReloc({R_CHERI_CAPFRAG_ADDR, ctx.target->symbolicRel, offset, 0, sym});
   sec->addReloc({R_CHERI_CAPFRAG_META, ctx.target->symbolicRel,
                  offset + ctx.arg.wordsize, 0, sym});
@@ -981,7 +981,7 @@ static void getMipsCheriAbiVariant(std::optional<unsigned> &abi,
   abi = static_cast<MipsAbiFlagsSection<ELFT> &>(sec).getCheriAbiVariant();
 }
 
-static bool needsCheriMipsTrampoline(RelType type, const Symbol &sym) {
+static bool needsCheriMipsTrampoline(Ctx &ctx, RelType type, const Symbol &sym) {
   // In the PLT ABI (and fndesc?) we have to use an elf relocation for function
   // pointers to ensure that the runtime linker adds the required trampolines
   // that sets $cgp:
@@ -996,7 +996,7 @@ static bool needsCheriMipsTrampoline(RelType type, const Symbol &sym) {
   // all functions share the same $cgp
   // TODO: this is no longer true if we were to support dlopen() in static
   // binaries
-  if (!hasDynamicLinker())
+  if (!hasDynamicLinker(ctx))
     return false;
 
   if (!ctx.in.mipsAbiFlags)
@@ -1013,8 +1013,8 @@ static bool needsCheriMipsTrampoline(RelType type, const Symbol &sym) {
   return true;
 }
 
-static Symbol &getCheriMipsTrampolineSym(RelType type, Symbol &sym) {
-  assert(needsCheriMipsTrampoline(type, sym));
+static Symbol &getCheriMipsTrampolineSym(Ctx &ctx, RelType type, Symbol &sym) {
+  assert(needsCheriMipsTrampoline(ctx, type, sym));
 
   if (sym.includeInDynsym(ctx))
     return sym;
@@ -1028,18 +1028,18 @@ static Symbol &getCheriMipsTrampolineSym(RelType type, Symbol &sym) {
 }
 
 void addRelativeCapabilityRelocation(
-    InputSectionBase &isec, uint64_t offsetInSec,
+    Ctx &ctx, InputSectionBase &isec, uint64_t offsetInSec,
     llvm::PointerUnion<Symbol *, InputSectionBase *> symOrSec, int64_t addend,
     RelExpr expr, RelType type) {
   Symbol *sym = dyn_cast<Symbol *>(symOrSec);
   assert(expr == R_ABS_CAP);
-  if (sym && needsCheriMipsTrampoline(type, *sym)) {
+  if (sym && needsCheriMipsTrampoline(ctx, type, *sym)) {
     if (ctx.arg.verboseCapRelocs)
       message("Forcing symbolic relocation for non-preemptible "
               "trampoline-using function pointer against " +
-              verboseToString(sym));
+              verboseToString(ctx, sym));
 
-    sym = &getCheriMipsTrampolineSym(type, *sym);
+    sym = &getCheriMipsTrampolineSym(ctx, type, *sym);
     ctx.mainPart->relaDyn->addSymbolReloc(type, isec, offsetInSec, *sym, addend,
                                       type);
     return;
@@ -1057,22 +1057,22 @@ void addRelativeCapabilityRelocation(
         sym->includeInDynsym(ctx) ? *ctx.mainPart->relaDyn : *ctx.in.relaDyn;
     oSec.addReloc(DynamicReloc::AgainstSymbol, R_RISCV_CHERI_RELATIVE, isec,
                   offsetInSec, *sym, addend, expr, ctx.target->symbolicRel);
-    writeCatableRelocationFragments(&isec, sym, offsetInSec);
+    writeCatableRelocationFragments(ctx, &isec, sym, offsetInSec);
     return;
   }
   ctx.in.capRelocs->addCapReloc(isCode, {&isec, offsetInSec}, {symOrSec, 0u},
                             addend);
 }
 
-uint64_t getCapMetaBits(int64_t a, const Symbol &sym,
+uint64_t getCapMetaBits(Ctx &ctx, int64_t a, const Symbol &sym,
                         const InputSectionBase *isec, uint64_t offset) {
   const uint64_t baseAddr = sym.getVA(ctx, a);
   CheriCapRelocLocation loc{const_cast<InputSectionBase *>(isec),
                             offset - ctx.arg.wordsize};
   // TODO - handle isCode...
   CheriCapReloc reloc{false, SymbolAndOffset{const_cast<Symbol *>(&sym), 0}, 0};
-  uint64_t symSize = getTargetSize(loc, reloc.target);
-  PermissionKind kind = getCapabilityPermissionKind(sym);
+  uint64_t symSize = getTargetSize(ctx, loc, reloc.target);
+  PermissionKind kind = getCapabilityPermissionKind(ctx, sym);
 
   uint64_t metaBits =
       invokeIs64Bit(getCapabilityTopBits, baseAddr, symSize, kind);

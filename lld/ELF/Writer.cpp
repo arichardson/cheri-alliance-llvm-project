@@ -85,7 +85,7 @@ private:
   std::unique_ptr<FileOutputBuffer> &buffer;
 
   void addRelIpltSymbols();
-  void addCapDynRelocsSymbols();
+  void addCapDynRelocsSymbols(Ctx &);
   void addStartEndSymbols();
   void addStartStopSymbols(OutputSection &osec);
 
@@ -847,14 +847,14 @@ template <class ELFT> void Writer<ELFT>::addRelIpltSymbols() {
 }
 
 // TODO - remove this duplicate, see SyntheticSections.cpp
-static bool needsInterpSection() {
+static bool needsInterpSection(Ctx &ctx) {
   return !ctx.arg.relocatable && !ctx.arg.shared &&
          !ctx.arg.dynamicLinker.empty() && ctx.script->needsInterpSection();
 }
 
-template <class ELFT> void Writer<ELFT>::addCapDynRelocsSymbols() {
+template <class ELFT> void Writer<ELFT>::addCapDynRelocsSymbols(Ctx &ctx) {
   if (ctx.arg.emachine != EM_RISCV || ctx.arg.relocatable ||
-      needsInterpSection())
+      needsInterpSection(ctx))
     return;
 
   ctx.sym.relaDynStart = addOptionalRegular(ctx, ctx.arg.isRela ? "__rela_dyn_start"
@@ -1659,7 +1659,7 @@ static void fixSymbolsAfterShrinking(Ctx &ctx) {
         def->value -= inputSec->bytesDropped;
         return;
       }
-      auto defSize = def->getSize();
+      auto defSize = def->getSize(ctx);
       if (def->value + defSize > NewSize && def->value <= OldSize &&
           def->value + defSize <= OldSize) {
         LLVM_DEBUG(llvm::dbgs()
@@ -1768,7 +1768,7 @@ static void removeUnusedSyntheticSections(Ctx &ctx) {
   });
 }
 
-static Defined *addAbsolute(StringRef name) {
+static Defined *addAbsolute(Ctx &ctx, StringRef name) {
   Symbol *sym = ctx.symtab->addSymbol(Defined{ctx, nullptr, name, STB_GLOBAL, STV_HIDDEN,
                                               STT_NOTYPE, 0, 0, nullptr});
   sym->isUsedInRegularObj = true;
@@ -1811,7 +1811,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     // Instead we just let the linker generate a new symbol _HAS__DYNAMIC
     if (auto *reference = ctx.symtab->find("_HAS__DYNAMIC"))
       if (!reference->isDefined()) {
-        Defined *hasDynamicSym = addAbsolute("_HAS__DYNAMIC");
+        Defined *hasDynamicSym = addAbsolute(ctx, "_HAS__DYNAMIC");
         hasDynamicSym->value = needsDYNAMIC ? 1 : 0;
       }
 
@@ -1819,7 +1819,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     addRelIpltSymbols();
 
     // Define __rela_dyn_{start,end} symbols if needed.
-    addCapDynRelocsSymbols();
+    addCapDynRelocsSymbols(ctx);
 
     // RISC-V's gp can address +/- 2 KiB, set it to .sdata + 0x800. This symbol
     // should only be defined in an executable. If .sdata does not exist, its

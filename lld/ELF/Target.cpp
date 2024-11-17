@@ -39,7 +39,7 @@ using namespace lld;
 using namespace lld::elf;
 
 std::string elf::toString(Ctx &ctx, RelType type) {
-  auto machine = elf::ctx.arg.emachine;
+  auto machine = ctx.arg.emachine;
   if (machine == EM_MIPS && type > 0xff) {
     uint32_t type1 = type & 0xff;
     llvm::Twine result = getELFRelocationTypeName(machine, type1);

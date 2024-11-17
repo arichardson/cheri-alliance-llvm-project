@@ -1351,7 +1351,7 @@ ArmCmseSGSection::ArmCmseSGSection(Ctx &ctx)
   // The range of addresses used in the CMSE import library should be fixed.
   for (auto &[_, sym] : ctx.symtab->cmseImportLib) {
     if (impLibMaxAddr <= sym->value)
-      impLibMaxAddr = sym->value + sym->getSize();
+      impLibMaxAddr = sym->value + sym->getSize(ctx);
   }
   if (ctx.symtab->cmseSymMap.empty())
     return;
@@ -1481,7 +1481,7 @@ template <typename ELFT> void elf::writeARMCmseImportLib(Ctx &ctx) {
     Defined *d = cast<Defined>(p.second.sym);
     impSymTab->addSymbol(makeDefined(
         ctx, ctx.internalFile, d->getName(), d->computeBinding(ctx),
-        /*stOther=*/0, STT_FUNC, d->getVA(ctx), d->getSize(), nullptr));
+        /*stOther=*/0, STT_FUNC, d->getVA(ctx), d->getSize(ctx), nullptr));
   }
 
   size_t idx = 0;

@@ -803,7 +803,7 @@ void elf::initSymbolAnchors(Ctx &ctx) {
         if (sec->flags & SHF_EXECINSTR && sec->relaxAux) {
           // If sec is discarded, relaxAux will be nullptr.
           sec->relaxAux->anchors.push_back({d->value, d, false});
-          sec->relaxAux->anchors.push_back({d->value + d->getSize(), d, true});
+          sec->relaxAux->anchors.push_back({d->value + d->getSize(ctx), d, true});
         }
     }
   // Sort anchors by offset so that we can find the closest relocation

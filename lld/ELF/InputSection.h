@@ -256,7 +256,7 @@ public:
 
   void addReloc(const Relocation &r) {
     if (r.expr == R_ABS_CAP)
-      addRelocCap(r);
+      addRelocCap(getCtx(), r);
     else
       relocations.push_back(r);
   }
@@ -297,7 +297,7 @@ protected:
   void decompress() const;
 
 private:
-  void addRelocCap(const Relocation &r);
+  void addRelocCap(Ctx &, const Relocation &r);
 };
 
 // SectionPiece represents a piece of splittable section contents.

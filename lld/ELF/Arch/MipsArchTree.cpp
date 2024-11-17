@@ -493,7 +493,7 @@ static Mips::AFL_EXT cheriFlagsToAFL_EXT(uint64_t cheriFlags) {
   return Mips::AFL_EXT::AFL_EXT_NONE;
 }
 
-void elf::checkMipsShlibCompatible(InputFile *f, uint64_t inputCheriFlags,
+void elf::checkMipsShlibCompatible(Ctx &ctx, InputFile *f, uint64_t inputCheriFlags,
                                    uint64_t targetCheriFlags) {
   assert(f->emachine == ctx.arg.emachine);
   uint64_t inputCheriAbi = inputCheriFlags & DF_MIPS_CHERI_ABI_MASK;

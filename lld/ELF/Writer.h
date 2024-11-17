@@ -49,7 +49,7 @@ bool includeInSymtab(Ctx &, const Symbol &);
 unsigned getSectionRank(Ctx &, OutputSection &osec);
 uint8_t getMipsIsaExt(uint64_t oldExt, llvm::StringRef oldFile, uint64_t newExt,
                       llvm::StringRef newFile);
-void checkMipsShlibCompatible(InputFile *f, uint64_t shlibCheriFlags,
+void checkMipsShlibCompatible(Ctx &, InputFile *f, uint64_t shlibCheriFlags,
                               uint64_t targetCheriFlags);
 
 bool isRelroSection(Ctx& ctx, const OutputSection *sec);

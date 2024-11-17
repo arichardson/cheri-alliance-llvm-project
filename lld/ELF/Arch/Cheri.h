@@ -22,18 +22,18 @@ public:
   SymbolAndOffset(const SymbolAndOffset &) = default;
   SymbolAndOffset &operator=(const SymbolAndOffset &) = default;
 
-  inline std::string verboseToString() const {
+  inline std::string verboseToString(Ctx &ctx) const {
     assert(!symOrSec.isNull());
-    SymbolAndOffset resolved = findRealSymbol();
+    SymbolAndOffset resolved = findRealSymbol(ctx);
     if (resolved.symOrSec.is<Symbol *>())
-      return elf::verboseToString(resolved.symOrSec.get<Symbol *>(), offset);
+      return elf::verboseToString(ctx, resolved.symOrSec.get<Symbol *>(), offset);
     return resolved.symOrSec.get<InputSectionBase *>()->getObjMsg(offset);
   }
   // for __cap_relocs against local symbols clang emits section+offset instead
   // of the local symbol so that it still works even if the local symbol table
   // is stripped. This function tries to find the local symbol to a better match
-  SymbolAndOffset findRealSymbol() const;
-  SymbolAndOffset findSymbolForCapabilityRelocation() const;
+  SymbolAndOffset findRealSymbol(Ctx &) const;
+  SymbolAndOffset findSymbolForCapabilityRelocation(Ctx &) const;
   Symbol *sym() const {
     assert(symOrSec.is<Symbol *>());
     return symOrSec.get<Symbol *>();
@@ -46,7 +46,7 @@ public:
   int64_t offset = 0;
 private:
   static SymbolAndOffset
-  fromSectionWithOffset(InputSectionBase *isec, int64_t offset,
+  fromSectionWithOffset(Ctx &, InputSectionBase *isec, int64_t offset,
                         const SymbolAndOffset *Default = nullptr);
 };
 
@@ -56,7 +56,7 @@ struct CheriCapRelocLocation {
   bool operator==(const CheriCapRelocLocation &other) const {
     return section == other.section && offset == other.offset;
   }
-  std::string toString() const;
+  std::string toString(Ctx &) const;
 };
 
 struct CheriCapReloc {
@@ -87,16 +87,16 @@ public:
 
 private:
   template <class ELFT> void writeToImpl(uint8_t *);
-  bool addEntry(CheriCapRelocLocation loc, CheriCapReloc relocation) {
+  bool addEntry(Ctx &ctx, CheriCapRelocLocation loc, CheriCapReloc relocation) {
     auto it = relocsMap.insert(std::make_pair(loc, relocation));
     // assert(it.first->second == Relocation);
     if (!(it.first->second == relocation)) {
-      error("Newly inserted relocation at " + loc.toString() +
+      error("Newly inserted relocation at " + loc.toString(ctx) +
             " does not match existing one:\n>   Existing: " +
-            it.first->second.target.verboseToString() +
+            it.first->second.target.verboseToString(ctx) +
             ", cap offset=" + Twine(it.first->second.capabilityOffset) +
             ", is code=" + Twine(it.first->second.isCode) +
-            "\n>   New:     " + relocation.target.verboseToString() +
+            "\n>   New:     " + relocation.target.verboseToString(ctx) +
             ", cap offset=" + Twine(relocation.capabilityOffset) +
             ", is code=" + Twine(relocation.isCode));
     }
@@ -311,11 +311,11 @@ inline void readOnlyCapRelocsError(Ctx &ctx, Symbol &sym, const Twine &sourceMsg
 }
 
 void addRelativeCapabilityRelocation(
-    InputSectionBase &isec, uint64_t offsetInSec,
+    Ctx &ctx, InputSectionBase &isec, uint64_t offsetInSec,
     llvm::PointerUnion<Symbol *, InputSectionBase *> symOrSec, int64_t addend,
     RelExpr expr, RelType type);
 
-uint64_t getCapMetaBits(int64_t a, const Symbol &sym,
+uint64_t getCapMetaBits(Ctx &ctx, int64_t a, const Symbol &sym,
                         const InputSectionBase *isec, uint64_t offset);
 } // namespace elf
 } // namespace lld

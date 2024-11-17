@@ -59,7 +59,7 @@ std::string elf::toStr(Ctx &ctx, const elf::Symbol &sym) {
   return ret;
 }
 
-std::string elf::verboseToString(const Symbol *b, uint64_t symOffset) {
+std::string elf::verboseToString(Ctx &ctx, const Symbol *b, uint64_t symOffset) {
   std::string msg;
 
   if (b->isLocal())
@@ -262,13 +262,13 @@ uint64_t Symbol::getMipsCheriCapTableVA(Ctx &ctx, const InputSectionBase *isec,
          getMipsCheriCapTableOffset(ctx, isec, offset);
 }
 
-uint64_t Symbol::getMipsCheriCapTableOffset(Ctx &, const InputSectionBase *isec,
+uint64_t Symbol::getMipsCheriCapTableOffset(Ctx &ctx, const InputSectionBase *isec,
                                             uint64_t offset) const {
   return ctx.arg.capabilitySize *
          ctx.in.mipsCheriCapTable->getIndex(*this, isec, offset);
 }
 
-uint64_t Defined::getSize() const {
+uint64_t Defined::getSize(Ctx &ctx) const {
   if (LLVM_UNLIKELY(ctx.arg.isCheriAbi && isSectionStartSymbol)) {
     assert(value == 0 && "Bad section start symbol?");
     if (!section)
@@ -278,9 +278,9 @@ uint64_t Defined::getSize() const {
   return size;
 }
 
-uint64_t Symbol::getSize() const {
+uint64_t Symbol::getSize(Ctx &ctx) const {
   if (const auto *dr = dyn_cast<Defined>(this)) {
-    return dr->getSize();
+    return dr->getSize(ctx);
   }
   // FIXME: assuming it is always shared broke this
   if (isa<Undefined>(this))

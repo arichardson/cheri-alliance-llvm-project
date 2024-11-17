@@ -90,18 +90,18 @@ static std::string getDefinedLocation(Ctx &ctx, const Symbol &sym) {
 // >>> defined in /home/alice/src/foo.o
 // >>> referenced by bar.c:12 (/home/alice/src/bar.c:12)
 // >>>               /home/alice/src/bar.o:(.text+0x1)
-static std::string getLocation(Ctx &ctx, const InputSectionBase &s, const Symbol &sym,
+static std::string getLocation(const InputSectionBase &s, const Symbol &sym,
                                uint64_t off) {
-  std::string msg = getDefinedLocation(ctx, sym) + "\n>>> referenced by ";
+  std::string msg = getDefinedLocation(s.getCtx(), sym) + "\n>>> referenced by ";
   std::string src = s.getSrcMsg(sym, off);
   if (!src.empty())
     msg += src + "\n>>>               ";
   return msg + s.getObjMsg(off);
 }
 
-std::string elf::getLocationMessage(Ctx &ctx, const InputSectionBase &s,
+std::string elf::getLocationMessage(const InputSectionBase &s,
                                     const Symbol &sym, uint64_t off) {
-  return getLocation(ctx, s, sym, off);
+  return getLocation(s, sym, off);
 }
 
 void elf::reportRangeError(Ctx &ctx, uint8_t *loc, const Relocation &rel,
@@ -391,7 +391,7 @@ static void replaceWithDefined(Ctx &ctx, Symbol &sym, SectionBase &sec,
 // define an accessor getV().
 template <class ELFT> static void addCopyRelSymbol(Ctx &ctx, SharedSymbol &ss) {
   // Copy relocation against zero-sized symbol doesn't make sense.
-  uint64_t symSize = ss.getSize();
+  uint64_t symSize = ss.getSize(ctx);
   if (symSize == 0 || ss.alignment == 0)
     Err(ctx) << "cannot create a copy relocation for symbol " << &ss;
 
@@ -902,7 +902,7 @@ static void addRelativeReloc(Ctx &ctx, InputSectionBase &isec, uint64_t offsetIn
       return;
     }
 
-    addRelativeCapabilityRelocation(isec, offsetInSec, &sym, addend, expr,
+    addRelativeCapabilityRelocation(ctx, isec, offsetInSec, &sym, addend, expr,
                                     type);
     return;
   }
@@ -920,7 +920,7 @@ static void addRelativeReloc(Ctx &ctx, InputSectionBase &isec, uint64_t offsetIn
     // says we should store the offset to the start of the symbol in the target
     // field. This is described in further detail in:
     // https://github.com/ARM-software/abi-aa/blob/main/memtagabielf64/memtagabielf64.rst#841extended-semantics-of-r_aarch64_relative
-    if (addend < 0 || static_cast<uint64_t>(addend) >= sym.getSize())
+    if (addend < 0 || static_cast<uint64_t>(addend) >= sym.getSize(ctx))
       isec.relocations.push_back({expr, type, offsetInSec, addend, &sym});
     return;
   }
@@ -955,12 +955,12 @@ static void addPltEntry(Ctx &ctx, PltSection &plt, GotPltSection &gotPlt,
 
   if (ctx.arg.isCheriAbi && !ctx.arg.useRelativeElfCheriRelocs) {
     if (!sym.isPreemptible) {
-      addRelativeCapabilityRelocation(gotPlt, sym.getGotPltOffset(ctx), &sym, 0,
+      addRelativeCapabilityRelocation(ctx, gotPlt, sym.getGotPltOffset(ctx), &sym, 0,
                                       R_ABS_CAP, *ctx.target->symbolicCapRel);
       return;
     }
 
-    addRelativeCapabilityRelocation(gotPlt, sym.getGotPltOffset(ctx), &plt, 0,
+    addRelativeCapabilityRelocation(ctx, gotPlt, sym.getGotPltOffset(ctx), &plt, 0,
                                     R_ABS_CAP, *ctx.target->symbolicCodeCapRel);
   }
 
@@ -1105,7 +1105,7 @@ bool RelocationScanner::isStaticLinkTimeConstant(RelExpr e, RelType type,
 
   Err(ctx) << "relocation " << type
            << " cannot refer to absolute symbol: " << &sym
-           << getLocation(ctx, *sec, sym, relOff);
+           << getLocation(*sec, sym, relOff);
   return true;
 }
 
@@ -1271,7 +1271,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
       ELFSyncStream(ctx, ctx.arg.noinhibitExec ? DiagLevel::Warn : DiagLevel::Err)
         << "relocation " << toStr(ctx, type)
         << " cannot be used against preemptible symbol '" << toStr(ctx, sym)
-        << "'" << getLocation(ctx, *sec, sym, offset);
+        << "'" << getLocation(*sec, sym, offset);
       return;
     }
   }
@@ -1279,7 +1279,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
   if (expr == R_ABS_CAP) {
     readOnlyCapRelocsError(ctx, sym,
                            "\n>>> referenced by " +
-                               SymbolAndOffset(sec, offset).verboseToString());
+                               SymbolAndOffset(sec, offset).verboseToString(ctx));
     return;
   }
 
@@ -1291,7 +1291,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
       !(ctx.arg.emachine == EM_AARCH64 && type == R_AARCH64_AUTH_ABS64)) {
     if (!canDefineSymbolInExecutable(ctx, sym)) {
       Err(ctx) << "cannot preempt symbol: " << &sym
-               << getLocation(ctx, *sec, sym, offset);
+               << getLocation(*sec, sym, offset);
       return;
     }
 
@@ -1301,7 +1301,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
         if (!ctx.arg.zCopyreloc)
           Err(ctx) << "unresolvable relocation " << type << " against symbol '"
                    << ss << "'; recompile with -fPIC or remove '-z nocopyreloc'"
-                   << getLocation(ctx, *sec, sym, offset);
+                   << getLocation(*sec, sym, offset);
         sym.setFlags(NEEDS_COPY);
       }
       sec->addReloc({expr, type, offset, addend, &sym});
@@ -1339,7 +1339,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
       if (ctx.arg.pie && ctx.arg.emachine == EM_386)
         Err(ctx) << "symbol '" << &sym
                  << "' cannot be preempted; recompile with -fPIE"
-                 << getLocation(ctx, *sec, sym, offset);
+                 << getLocation(*sec, sym, offset);
       sym.setFlags(NEEDS_COPY | NEEDS_PLT);
       sec->addReloc({expr, type, offset, addend, &sym});
       return;
@@ -1349,7 +1349,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
   Err(ctx) << "relocation " << type << " cannot be used against "
            << (sym.getName().empty() ? "local symbol"
                                      : ("symbol '" + toStr(ctx, sym) + "'"))
-           << "; recompile with -fPIC" << getLocation(ctx, *sec, sym, offset);
+           << "; recompile with -fPIC" << getLocation(*sec, sym, offset);
 }
 
 // This function is similar to the `handleTlsRelocation`. MIPS does not
@@ -1403,7 +1403,7 @@ unsigned RelocationScanner::handleTlsRelocation(RelExpr expr, RelType type,
     if (ctx.arg.shared) {
       Err(ctx) << "relocation " << type << " against " << &sym
                << " cannot be used with -shared"
-               << getLocation(ctx, *sec, sym, offset);
+               << getLocation(*sec, sym, offset);
       return 1;
     }
     return 0;
@@ -1468,7 +1468,7 @@ unsigned RelocationScanner::handleTlsRelocation(RelExpr expr, RelType type,
     // Local-Dynamic relocs can be optimized to Local-Exesec->
     if (execOptimize) {
       sec->addReloc({ctx.target->adjustTlsExpr(type, R_RELAX_TLS_LD_TO_LE),
-                     type, offset, addend, &sym});
+                          type, offset, addend, &sym});
       return ctx.target->getTlsGdRelaxSkip(type);
     }
     if (expr == R_TLSLD_HINT)
@@ -1513,10 +1513,10 @@ unsigned RelocationScanner::handleTlsRelocation(RelExpr expr, RelType type,
     if (sym.isPreemptible) {
       sym.setFlags(NEEDS_TLSGD_TO_IE);
       sec->addReloc({ctx.target->adjustTlsExpr(type, R_RELAX_TLS_GD_TO_IE),
-                     type, offset, addend, &sym});
+                          type, offset, addend, &sym});
     } else {
       sec->addReloc({ctx.target->adjustTlsExpr(type, R_RELAX_TLS_GD_TO_LE),
-                     type, offset, addend, &sym});
+                          type, offset, addend, &sym});
     }
     return ctx.target->getTlsGdRelaxSkip(type);
   }
@@ -1612,7 +1612,7 @@ void RelocationScanner::scanOne(typename Relocs<RelTy>::const_iterator &i) {
         if (i == end) {
           Err(ctx) << "R_PPC64_TLSGD/R_PPC64_TLSLD may not be the last "
                       "relocation"
-                   << getLocation(ctx, *sec, sym, offset);
+                   << getLocation(*sec, sym, offset);
           return;
         }
       }

@@ -340,7 +340,7 @@ static inline int64_t getAddend(const typename ELFT::Crel &rel) {
   return rel.r_addend;
 }
 
-std::string getLocationMessage(Ctx& ctx, const InputSectionBase &s,
+std::string getLocationMessage(const InputSectionBase &s,
                                const Symbol &sym, uint64_t off);
 
 

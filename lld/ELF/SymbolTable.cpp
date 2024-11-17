@@ -42,7 +42,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   if (it != localSymbolsForDynsym.end()) {
     if (ctx.arg.verboseCapRelocs)
       message("Reusing existing 'fake' symbol " + toStr(ctx, *it->second) +
-              " to allow relocation against " + verboseToString(original));
+              " to allow relocation against " + verboseToString(ctx, original));
     return it->second;
   }
 
@@ -50,7 +50,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   for (int i = 2; ctx.symtab->find(uniqueName); i++) {
     uniqueName = ("__cheri_fnptr" + Twine(i) + "_" + original->getName()).str();
   }
-  StringRef newName = saver().save(uniqueName);
+  StringRef newName = saver(ctx).save(uniqueName);
   Symbol* newSym = ctx.symtab->insert(newName);
   newSym->resolve(ctx, cast<Defined>(*original));
   newSym->setName(newName); // resolve() changes the name to original->name
@@ -66,7 +66,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
 
   if (ctx.arg.verboseCapRelocs)
     message("Adding new symbol " + toStr(ctx, *newSym) +
-            " to allow relocation against " + verboseToString(original));
+            " to allow relocation against " + verboseToString(ctx, original));
   localSymbolsForDynsym[original] = cast<Defined>(newSym);
   return cast<Defined>(newSym);
 }

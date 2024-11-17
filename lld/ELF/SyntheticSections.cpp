@@ -1639,7 +1639,7 @@ DynamicSection<ELFT>::computeContents() {
       // Add an e_flags check here for CHERI-MIPS to avoid linking between
       // incompatible libraries:
       if (f->isNeeded)
-        checkMipsShlibCompatible(f, f->cheriFlags, targetCheriFlags);
+        checkMipsShlibCompatible(ctx, f, f->cheriFlags, targetCheriFlags);
     }
     if (ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded()) {
       addInSec(DT_MIPS_CHERI_CAPTABLE, *ctx.in.mipsCheriCapTable);
@@ -1754,7 +1754,7 @@ void RelocationBaseSection::addSymbolReloc(
     warn("capability relocation with non-zero addend (0x" +
          llvm::utohexstr(addend) + ") against preemptible function " +
          toStr(ctx, sym) + "; this may not be supported by the runtime linker" +
-         getLocationMessage(ctx, isec, sym, offsetInSec));
+         getLocationMessage(isec, sym, offsetInSec));
 
   // .chericap initialises the memory to 0xcacacaca not 0, so if writing
   // addends we still need to write even it if zero (and must have an
@@ -2427,7 +2427,7 @@ template <class ELFT> void SymbolTableSection<ELFT>::writeTo(uint8_t *buf) {
       // holds SHN_COMMON and st_value holds the alignment.
       eSym->st_shndx = SHN_COMMON;
       eSym->st_value = commonSec->addralign;
-      eSym->st_size = cast<Defined>(sym)->getSize();
+      eSym->st_size = cast<Defined>(sym)->getSize(ctx);
     } else {
       const uint32_t shndx = getSymSectionIndex(sym);
       if (isDefinedHere) {
@@ -2438,7 +2438,7 @@ template <class ELFT> void SymbolTableSection<ELFT>::writeTo(uint8_t *buf) {
         // to us if that's the case. We'll leave it as zero because by not
         // setting a value, we can get the exact same outputs for two sets of
         // input files that differ only in undefined symbol size in DSOs.
-        eSym->st_size = shndx != SHN_UNDEF ? cast<Defined>(sym)->getSize() : 0;
+        eSym->st_size = shndx != SHN_UNDEF ? cast<Defined>(sym)->getSize(ctx) : 0;
       } else {
         eSym->st_shndx = 0;
         eSym->st_value = 0;
@@ -4650,41 +4650,6 @@ void PartitionIndexSection::writeTo(uint8_t *buf) {
   }
 }
 
-void InStruct::reset() {
-  attributes.reset();
-  riscvAttributes.reset();
-  bss.reset();
-  bssRelRo.reset();
-  capRelocs.reset();
-  mipsCheriCapTableMapping.reset();
-  mipsCheriCapTableMapping.reset();
-  got.reset();
-  gotPlt.reset();
-  igotPlt.reset();
-  relroPadding.reset();
-  armCmseSGSection.reset();
-  ppc64LongBranchTarget.reset();
-  mipsAbiFlags.reset();
-  mipsGot.reset();
-  mipsOptions.reset();
-  mipsReginfo.reset();
-  mipsRldMap.reset();
-  partEnd.reset();
-  partIndex.reset();
-  plt.reset();
-  iplt.reset();
-  ppc32Got2.reset();
-  ibtPlt.reset();
-  relaPlt.reset();
-  debugNames.reset();
-  gdbIndex.reset();
-  relaDyn.reset();
-  shStrTab.reset();
-  strTab.reset();
-  symTab.reset();
-  symTabShndx.reset();
-}
-
 static bool needsInterpSection(Ctx &ctx) {
   return !ctx.arg.relocatable && !ctx.arg.shared &&
          !ctx.arg.dynamicLinker.empty() && ctx.script->needsInterpSection();
@@ -4772,7 +4737,7 @@ createMemtagGlobalDescriptors(Ctx &ctx,
     if (!includeInSymtab(ctx, *sym))
       continue;
     const uint64_t addr = sym->getVA(ctx);
-    const uint64_t size = sym->getSize();
+    const uint64_t size = sym->getSize(ctx);
 
     if (addr <= kMemtagGranuleSize && buf != nullptr)
       Err(ctx) << "address of the tagged symbol \"" << sym->getName()
