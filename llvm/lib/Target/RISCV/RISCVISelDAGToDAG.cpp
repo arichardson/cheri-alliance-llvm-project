@@ -176,8 +176,7 @@ static SDValue selectImmSeq(SelectionDAG *CurDAG, const SDLoc &DL, const MVT VT,
                             RISCVMatInt::InstSeq &Seq) {
   SDValue SrcReg = CurDAG->getRegister(RISCV::X0, VT);
   for (const RISCVMatInt::Inst &Inst : Seq) {
-    SDValue SDImm =
-        CurDAG->getSignedConstant(Inst.getImm(), DL, VT, /*isTarget=*/true);
+    SDValue SDImm = CurDAG->getSignedTargetConstant(Inst.getImm(), DL, VT);
     SDNode *Result = nullptr;
     switch (Inst.getOpndKind()) {
     case RISCVMatInt::Imm:
@@ -208,10 +207,10 @@ static SDValue selectImm(SelectionDAG *CurDAG, const SDLoc &DL, const MVT VT,
 
   // Use a rematerializable pseudo instruction for short sequences if enabled.
   if (Seq.size() == 2 && UsePseudoMovImm)
-    return SDValue(CurDAG->getMachineNode(RISCV::PseudoMovImm, DL, VT,
-                                          CurDAG->getSignedConstant(
-                                              Imm, DL, VT, /*isTarget=*/true)),
-                   0);
+    return SDValue(
+        CurDAG->getMachineNode(RISCV::PseudoMovImm, DL, VT,
+                               CurDAG->getSignedTargetConstant(Imm, DL, VT)),
+        0);
 
   // See if we can create this constant as (ADD (SLLI X, C), X) where X is at
   // worst an LUI+ADDIW. This will require an extra register, but avoids a
@@ -594,7 +593,7 @@ bool RISCVDAGToDAGISel::tryShrinkShlLogicImm(SDNode *Node) {
 
   SDNode *BinOp = CurDAG->getMachineNode(
       BinOpc, DL, VT, Shift.getOperand(0),
-      CurDAG->getSignedConstant(ShiftedVal, DL, VT, /*isTarget=*/true));
+      CurDAG->getSignedTargetConstant(ShiftedVal, DL, VT));
   SDNode *SLLI =
       CurDAG->getMachineNode(ShOpc, DL, VT, SDValue(BinOp, 0),
                              CurDAG->getTargetConstant(ShAmt, DL, VT));
@@ -723,11 +722,10 @@ bool RISCVDAGToDAGISel::tryIndexedLoad(SDNode *Node) {
     return false;
 
   EVT Ty = Ld->getOffset().getValueType();
-  SDValue Ops[] = {Ld->getBasePtr(),
-                   CurDAG->getSignedConstant(Offset >> Shift, SDLoc(Node), Ty,
-                                             /*isTarget=*/true),
-                   CurDAG->getTargetConstant(Shift, SDLoc(Node), Ty),
-                   Ld->getChain()};
+  SDValue Ops[] = {
+      Ld->getBasePtr(),
+      CurDAG->getSignedTargetConstant(Offset >> Shift, SDLoc(Node), Ty),
+      CurDAG->getTargetConstant(Shift, SDLoc(Node), Ty), Ld->getChain()};
   SDNode *New = CurDAG->getMachineNode(Opcode, SDLoc(Node), Ld->getValueType(0),
                                        Ld->getValueType(1), MVT::Other, Ops);
 
@@ -2521,8 +2519,8 @@ bool RISCVDAGToDAGISel::SelectFrameRegImmCommon(SDValue Addr, SDValue &Base,
     int64_t CVal = cast<ConstantSDNode>(Addr.getOperand(1))->getSExtValue();
     if (isInt<12>(CVal)) {
       Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), PtrVT);
-      Offset = CurDAG->getSignedConstant(
-          CVal, SDLoc(Addr), Subtarget->getXLenVT(), /*isTarget=*/true);
+      Offset = CurDAG->getSignedTargetConstant(
+          CVal, SDLoc(Addr), Subtarget->getXLenVT());
       return true;
     }
   }
@@ -2561,7 +2559,7 @@ static bool selectConstantAddr(SelectionDAG *CurDAG, const SDLoc &DL,
     } else {
       Base = CurDAG->getRegister(RISCV::X0, VT);
     }
-    Offset = CurDAG->getSignedConstant(Lo12, DL, VT, /*isTarget=*/true);
+    Offset = CurDAG->getSignedTargetConstant(Lo12, DL, VT);
     return true;
   }
 
@@ -2583,7 +2581,7 @@ static bool selectConstantAddr(SelectionDAG *CurDAG, const SDLoc &DL,
   assert(!Seq.empty() && "Expected more instructions in sequence");
 
   Base = selectImmSeq(CurDAG, DL, VT, Seq);
-  Offset = CurDAG->getSignedConstant(Lo12, DL, VT, /*isTarget=*/true);
+  Offset = CurDAG->getSignedTargetConstant(Lo12, DL, VT);
   return true;
 }
 
@@ -2746,7 +2744,7 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
 
       if (auto *FIN = dyn_cast<FrameIndexSDNode>(Base))
         Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), PtrVT);
-      Offset = CurDAG->getSignedConstant(CVal, DL, XLenVT, /*isTarget=*/true);
+      Offset = CurDAG->getSignedTargetConstant(CVal, DL, XLenVT);
       return true;
     }
   }
@@ -2772,9 +2770,9 @@ bool RISCVDAGToDAGISel::SelectRegImmCommon(SDValue Addr, SDValue &Base,
         Opc = RISCV::ADDI;
       Base = SDValue(
           CurDAG->getMachineNode(Opc, DL, PtrVT, Addr.getOperand(0),
-                                 CurDAG->getSignedConstant(Adj, DL, XLenVT, /*isTarget=*/true)),
+                                 CurDAG->getSignedTargetConstant(Adj, DL, XLenVT)),
           0);
-      Offset = CurDAG->getSignedConstant(CVal - Adj, DL, XLenVT, /*isTarget=*/true);
+      Offset = CurDAG->getSignedTargetConstant(CVal - Adj, DL, XLenVT);
       return true;
     }
 
@@ -2839,7 +2837,7 @@ bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000Common(SDValue Addr, SDValue &Ba
 
       if (auto *FIN = dyn_cast<FrameIndexSDNode>(Base))
         Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), PtrVT);
-      Offset = CurDAG->getSignedConstant(CVal, DL, AddrVT, /*isTarget=*/true);
+      Offset = CurDAG->getSignedTargetConstant(CVal, DL, AddrVT);
       return true;
     }
   }
@@ -2859,10 +2857,9 @@ bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000Common(SDValue Addr, SDValue &Ba
       unsigned Opc = RISCV::getPtrAddImmInst(*Subtarget);
       Base = SDValue(CurDAG->getMachineNode(
                          Opc, DL, PtrVT, Addr.getOperand(0),
-                         CurDAG->getSignedConstant(AdjustedOffset, DL, AddrVT,
-                                                   /*isTarget=*/true)),
+                         CurDAG->getSignedTargetConstant(AdjustedOffset, DL, AddrVT)),
                      0);
-      Offset = CurDAG->getSignedConstant(Adj, DL, AddrVT, /*isTarget=*/true);
+      Offset = CurDAG->getSignedTargetConstant(Adj, DL, AddrVT);
       return true;
     }
 
@@ -3040,21 +3037,21 @@ bool RISCVDAGToDAGISel::selectSETCC(SDValue N, ISD::CondCode ExpectedCCVal,
     // If the RHS is -2048, we can use xori to produce 0 if the LHS is -2048 and
     // non-zero otherwise.
     if (CVal == -2048) {
-      Val = SDValue(CurDAG->getMachineNode(
-                        RISCV::XORI, DL, N->getValueType(0), LHS,
-                        CurDAG->getSignedConstant(CVal, DL, N->getValueType(0),
-                                                  /*isTarget=*/true)),
-                    0);
+      Val = SDValue(
+          CurDAG->getMachineNode(
+              RISCV::XORI, DL, N->getValueType(0), LHS,
+              CurDAG->getSignedTargetConstant(CVal, DL, N->getValueType(0))),
+          0);
       return true;
     }
     // If the RHS is [-2047,2048], we can use addi with -RHS to produce 0 if the
     // LHS is equal to the RHS and non-zero otherwise.
     if (isInt<12>(CVal) || CVal == 2048) {
-      Val = SDValue(CurDAG->getMachineNode(
-                        RISCV::ADDI, DL, N->getValueType(0), LHS,
-                        CurDAG->getSignedConstant(-CVal, DL, N->getValueType(0),
-                                                  /*isTarget=*/true)),
-                    0);
+      Val = SDValue(
+          CurDAG->getMachineNode(
+              RISCV::ADDI, DL, N->getValueType(0), LHS,
+              CurDAG->getSignedTargetConstant(-CVal, DL, N->getValueType(0))),
+          0);
       return true;
     }
     if (isPowerOf2_64(CVal) && Subtarget->hasStdExtZbs()) {
@@ -3495,8 +3492,7 @@ bool RISCVDAGToDAGISel::selectSimm5Shl2(SDValue N, SDValue &Simm5,
       return false;
 
     EVT Ty = N->getValueType(0);
-    Simm5 = CurDAG->getSignedConstant(Offset >> Shift, SDLoc(N), Ty,
-                                      /*isTarget=*/true);
+    Simm5 = CurDAG->getSignedTargetConstant(Offset >> Shift, SDLoc(N), Ty);
     Shl2 = CurDAG->getTargetConstant(Shift, SDLoc(N), Ty);
     return true;
   }
@@ -3513,16 +3509,16 @@ bool RISCVDAGToDAGISel::selectVLOp(SDValue N, SDValue &VL) {
                                    N->getValueType(0));
   } else if (C && C->isAllOnes()) {
     // Treat all ones as VLMax.
-    VL = CurDAG->getSignedConstant(RISCV::VLMaxSentinel, SDLoc(N),
-                                   N->getValueType(0), /*isTarget=*/true);
+    VL = CurDAG->getSignedTargetConstant(RISCV::VLMaxSentinel, SDLoc(N),
+                                         N->getValueType(0));
   } else if (isa<RegisterSDNode>(N) &&
              cast<RegisterSDNode>(N)->getReg() == RISCV::X0) {
     // All our VL operands use an operand that allows GPRNoX0 or an immediate
     // as the register class. Convert X0 to a special immediate to pass the
     // MachineVerifier. This is recognized specially by the vsetvli insertion
     // pass.
-    VL = CurDAG->getSignedConstant(RISCV::VLMaxSentinel, SDLoc(N),
-                                   N->getValueType(0), /*isTarget=*/true);
+    VL = CurDAG->getSignedTargetConstant(RISCV::VLMaxSentinel, SDLoc(N),
+                                         N->getValueType(0));
   } else {
     VL = N;
   }
@@ -3580,8 +3576,8 @@ static bool selectVSplatImmHelper(SDValue N, SDValue &SplatVal,
   if (!ValidateImm(SplatImm))
     return false;
 
-  SplatVal = DAG.getSignedConstant(SplatImm, SDLoc(N), Subtarget.getXLenVT(),
-                                   /*isTarget=*/true);
+  SplatVal =
+      DAG.getSignedTargetConstant(SplatImm, SDLoc(N), Subtarget.getXLenVT());
   return true;
 }
 
@@ -3681,8 +3677,8 @@ bool RISCVDAGToDAGISel::selectRVVSimm5(SDValue N, unsigned Width,
     if (!isInt<5>(ImmVal))
       return false;
 
-    Imm = CurDAG->getSignedConstant(ImmVal, SDLoc(N), Subtarget->getXLenVT(),
-                                    /*isTarget=*/true);
+    Imm = CurDAG->getSignedTargetConstant(ImmVal, SDLoc(N),
+                                          Subtarget->getXLenVT());
     return true;
   }
 
