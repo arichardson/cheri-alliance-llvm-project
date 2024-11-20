@@ -1474,7 +1474,7 @@ struct Partition {
 
   std::unique_ptr<SyntheticSection> elfHeader;
   std::unique_ptr<SyntheticSection> programHeaders;
-  SmallVector<PhdrEntry *, 0> phdrs;
+  SmallVector<std::unique_ptr<PhdrEntry>, 0> phdrs;
 
   std::unique_ptr<ARMExidxSyntheticSection> armExidx;
   std::unique_ptr<BuildIdSection> buildId;
