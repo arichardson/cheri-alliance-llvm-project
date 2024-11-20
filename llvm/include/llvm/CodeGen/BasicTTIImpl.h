@@ -668,6 +668,10 @@ public:
     return BaseT::isHardwareLoopProfitable(L, SE, AC, LibInfo, HWLoopInfo);
   }
 
+  unsigned getEpilogueVectorizationMinVF() {
+    return BaseT::getEpilogueVectorizationMinVF();
+  }
+
   bool preferPredicateOverEpilogue(TailFoldingInfo *TFI) {
     return BaseT::preferPredicateOverEpilogue(TFI);
   }
