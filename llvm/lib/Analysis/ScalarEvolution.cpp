@@ -11904,7 +11904,7 @@ bool ScalarEvolution::isImpliedCondBalancedTypes(
                                    CmpInst::Predicate P2) {
     assert(P1 != P2 && "Handled earlier!");
     return CmpInst::isRelational(P2) &&
-           P1 == CmpInst::getFlippedSignednessPredicate(P2);
+           P1 == ICmpInst::getFlippedSignednessPredicate(P2);
   };
   if (IsSignFlippedPredicate(Pred, FoundPred)) {
     // Unsigned comparison is the same as signed comparison when both the
