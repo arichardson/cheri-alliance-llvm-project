@@ -153,7 +153,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
     if (Subtarget.is64Bit())
       addRegisterClass(MVT::f64, &RISCV::GPRRegClass);
     else
-      addRegisterClass(MVT::f64, &RISCV::GPRF64PairRegClass);
+      addRegisterClass(MVT::f64, &RISCV::GPRPairRegClass);
   }
 
   if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
@@ -21256,7 +21256,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
       if (VT == MVT::f32 && Subtarget.hasStdExtZfinx())
         return std::make_pair(0U, &RISCV::GPRF32NoX0RegClass);
       if (VT == MVT::f64 && Subtarget.hasStdExtZdinx() && !Subtarget.is64Bit())
-        return std::make_pair(0U, &RISCV::GPRF64PairNoX0RegClass);
+        return std::make_pair(0U, &RISCV::GPRPairNoX0RegClass);
       return std::make_pair(0U, &RISCV::GPRNoX0RegClass);
     case 'C':
       if (Subtarget.hasStdExtZCheriPureCapOrCheri() && VT == Subtarget.typeForCapabilities())
@@ -21277,14 +21277,14 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
         if (Subtarget.hasStdExtD())
           return std::make_pair(0U, &RISCV::FPR64RegClass);
         if (Subtarget.hasStdExtZdinx() && !Subtarget.is64Bit())
-          return std::make_pair(0U, &RISCV::GPRF64PairNoX0RegClass);
+          return std::make_pair(0U, &RISCV::GPRPairNoX0RegClass);
         if (Subtarget.hasStdExtZdinx() && Subtarget.is64Bit())
           return std::make_pair(0U, &RISCV::GPRNoX0RegClass);
       }
       break;
     case 'R':
       if (VT == MVT::f64 && !Subtarget.is64Bit() && Subtarget.hasStdExtZdinx())
-        return std::make_pair(0U, &RISCV::GPRF64PairNoX0RegClass);
+        return std::make_pair(0U, &RISCV::GPRPairNoX0RegClass);
       return std::make_pair(0U, &RISCV::GPRPairNoX0RegClass);
     default:
       break;
@@ -21323,7 +21323,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
     if (VT == MVT::f32 && Subtarget.hasStdExtZfinx())
       return std::make_pair(0U, &RISCV::GPRF32CRegClass);
     if (VT == MVT::f64 && Subtarget.hasStdExtZdinx() && !Subtarget.is64Bit())
-      return std::make_pair(0U, &RISCV::GPRF64PairCRegClass);
+      return std::make_pair(0U, &RISCV::GPRPairCRegClass);
     if (!VT.isVector())
       return std::make_pair(0U, &RISCV::GPRCRegClass);
   } else if (Constraint == "cf") {
@@ -21341,7 +21341,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
       if (Subtarget.hasStdExtD())
         return std::make_pair(0U, &RISCV::FPR64CRegClass);
       if (Subtarget.hasStdExtZdinx() && !Subtarget.is64Bit())
-        return std::make_pair(0U, &RISCV::GPRF64PairCRegClass);
+        return std::make_pair(0U, &RISCV::GPRPairCRegClass);
       if (Subtarget.hasStdExtZdinx() && Subtarget.is64Bit())
         return std::make_pair(0U, &RISCV::GPRCRegClass);
     }
@@ -21545,7 +21545,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
   // Subtarget into account.
   if (Res.second == &RISCV::GPRF16RegClass ||
       Res.second == &RISCV::GPRF32RegClass ||
-      Res.second == &RISCV::GPRF64PairRegClass)
+      Res.second == &RISCV::GPRPairRegClass)
     return std::make_pair(Res.first, &RISCV::GPRRegClass);
 
   return Res;
@@ -22267,12 +22267,19 @@ bool RISCVTargetLowering::splitValueIntoRegisterParts(
   bool IsABIRegCopy = CC.has_value();
   EVT ValueVT = Val.getValueType();
 
-  if (ValueVT == (Subtarget.is64Bit() ? MVT::i128 : MVT::i64) &&
+  MVT PairVT = Subtarget.is64Bit() ? MVT::i128 : MVT::i64;
+  if ((ValueVT == PairVT ||
+       (!Subtarget.is64Bit() && Subtarget.hasStdExtZdinx() &&
+        ValueVT == MVT::f64)) &&
       NumParts == 1 && PartVT == MVT::Untyped) {
-    // Pairs in Inline Assembly
+    // Pairs in Inline Assembly, f64 in Inline assembly on rv32_zdinx
     MVT XLenVT = Subtarget.getXLenVT();
+    if (ValueVT == MVT::f64)
+      Val = DAG.getBitcast(MVT::i64, Val);
     auto [Lo, Hi] = DAG.SplitScalar(Val, DL, XLenVT, XLenVT);
-    Parts[0] = DAG.getNode(RISCVISD::BuildGPRPair, DL, MVT::Untyped, Lo, Hi);
+    // Always creating an MVT::Untyped part, so always use
+    // RISCVISD::BuildGPRPair.
+    Parts[0] = DAG.getNode(RISCVISD::BuildGPRPair, DL, PartVT, Lo, Hi);
     return true;
   }
 
@@ -22284,7 +22291,7 @@ bool RISCVTargetLowering::splitValueIntoRegisterParts(
     Val = DAG.getNode(ISD::ANY_EXTEND, DL, MVT::i32, Val);
     Val = DAG.getNode(ISD::OR, DL, MVT::i32, Val,
                       DAG.getConstant(0xFFFF0000, DL, MVT::i32));
-    Val = DAG.getNode(ISD::BITCAST, DL, MVT::f32, Val);
+    Val = DAG.getNode(ISD::BITCAST, DL, PartVT, Val);
     Parts[0] = Val;
     return true;
   }
@@ -22353,14 +22360,24 @@ SDValue RISCVTargetLowering::joinRegisterPartsIntoValue(
     MVT PartVT, EVT ValueVT, std::optional<CallingConv::ID> CC) const {
   bool IsABIRegCopy = CC.has_value();
 
-  if (ValueVT == (Subtarget.is64Bit() ? MVT::i128 : MVT::i64) &&
+  MVT PairVT = Subtarget.is64Bit() ? MVT::i128 : MVT::i64;
+  if ((ValueVT == PairVT ||
+       (!Subtarget.is64Bit() && Subtarget.hasStdExtZdinx() &&
+        ValueVT == MVT::f64)) &&
       NumParts == 1 && PartVT == MVT::Untyped) {
-    // Pairs in Inline Assembly
+    // Pairs in Inline Assembly, f64 in Inline assembly on rv32_zdinx
     MVT XLenVT = Subtarget.getXLenVT();
-    SDValue Res = DAG.getNode(RISCVISD::SplitGPRPair, DL,
-                              DAG.getVTList(XLenVT, XLenVT), Parts[0]);
-    return DAG.getNode(ISD::BUILD_PAIR, DL, ValueVT, Res.getValue(0),
-                       Res.getValue(1));
+
+    SDValue Val = Parts[0];
+    // Always starting with an MVT::Untyped part, so always use
+    // RISCVISD::SplitGPRPair
+    Val = DAG.getNode(RISCVISD::SplitGPRPair, DL, DAG.getVTList(XLenVT, XLenVT),
+                      Val);
+    Val = DAG.getNode(ISD::BUILD_PAIR, DL, PairVT, Val.getValue(0),
+                      Val.getValue(1));
+    if (ValueVT == MVT::f64)
+      Val = DAG.getBitcast(ValueVT, Val);
+    return Val;
   }
 
   if (IsABIRegCopy && (ValueVT == MVT::f16 || ValueVT == MVT::bf16) &&
