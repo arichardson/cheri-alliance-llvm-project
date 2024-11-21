@@ -3193,7 +3193,7 @@ CodeGenDAGPatterns::CodeGenDAGPatterns(const RecordKeeper &R,
                                        PatternRewriterFn PatternRewriter)
     : Records(R), Target(R), Intrinsics(R),
       LegalVTS(Target.getLegalValueTypes()), LegalPtrVTS(ComputeLegalPtrTypes()),
-      PatternRewriter(PatternRewriter) {
+      PatternRewriter(std::move(PatternRewriter)) {
 
   Intrinsics = CodeGenIntrinsicTable(Records);
   ParseNodeInfo();
