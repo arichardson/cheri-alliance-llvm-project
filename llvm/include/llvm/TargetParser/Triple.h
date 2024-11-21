@@ -271,6 +271,7 @@ public:
     MuslF32,
     MuslSF,
     MuslX32,
+    LLVM,
 
     CheriPurecap,
 
