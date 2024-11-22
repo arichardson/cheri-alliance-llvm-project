@@ -1533,7 +1533,7 @@ SDValue LoongArchTargetLowering::lowerFRAMEADDR(SDValue Op,
   while (Depth--) {
     int Offset = -(GRLenInBytes * 2);
     SDValue Ptr = DAG.getNode(ISD::ADD, DL, VT, FrameAddr,
-                              DAG.getIntPtrConstant(Offset, DL));
+                              DAG.getSignedConstant(Offset, DL, VT));
     FrameAddr =
         DAG.getLoad(VT, DL, DAG.getEntryNode(), Ptr, MachinePointerInfo());
   }
@@ -2557,7 +2557,8 @@ SDValue LoongArchTargetLowering::lowerShiftLeftParts(SDValue Op,
 
   SDValue Zero = DAG.getConstant(0, DL, VT);
   SDValue One = DAG.getConstant(1, DL, VT);
-  SDValue MinusGRLen = DAG.getConstant(-(int)Subtarget.getGRLen(), DL, VT);
+  SDValue MinusGRLen =
+      DAG.getSignedConstant(-(int)Subtarget.getGRLen(), DL, VT);
   SDValue GRLenMinus1 = DAG.getConstant(Subtarget.getGRLen() - 1, DL, VT);
   SDValue ShamtMinusGRLen = DAG.getNode(ISD::ADD, DL, VT, Shamt, MinusGRLen);
   SDValue GRLenMinus1Shamt = DAG.getNode(ISD::XOR, DL, VT, Shamt, GRLenMinus1);
@@ -2608,7 +2609,8 @@ SDValue LoongArchTargetLowering::lowerShiftRightParts(SDValue Op,
 
   SDValue Zero = DAG.getConstant(0, DL, VT);
   SDValue One = DAG.getConstant(1, DL, VT);
-  SDValue MinusGRLen = DAG.getConstant(-(int)Subtarget.getGRLen(), DL, VT);
+  SDValue MinusGRLen =
+      DAG.getSignedConstant(-(int)Subtarget.getGRLen(), DL, VT);
   SDValue GRLenMinus1 = DAG.getConstant(Subtarget.getGRLen() - 1, DL, VT);
   SDValue ShamtMinusGRLen = DAG.getNode(ISD::ADD, DL, VT, Shamt, MinusGRLen);
   SDValue GRLenMinus1Shamt = DAG.getNode(ISD::XOR, DL, VT, Shamt, GRLenMinus1);
@@ -6139,8 +6141,8 @@ void LoongArchTargetLowering::LowerAsmOperandForConstraint(
       if (auto *C = dyn_cast<ConstantSDNode>(Op)) {
         uint64_t CVal = C->getSExtValue();
         if (isInt<16>(CVal))
-          Ops.push_back(
-              DAG.getTargetConstant(CVal, SDLoc(Op), Subtarget.getGRLenVT()));
+          Ops.push_back(DAG.getSignedTargetConstant(CVal, SDLoc(Op),
+                                                    Subtarget.getGRLenVT()));
       }
       return;
     case 'I':
@@ -6148,8 +6150,8 @@ void LoongArchTargetLowering::LowerAsmOperandForConstraint(
       if (auto *C = dyn_cast<ConstantSDNode>(Op)) {
         uint64_t CVal = C->getSExtValue();
         if (isInt<12>(CVal))
-          Ops.push_back(
-              DAG.getTargetConstant(CVal, SDLoc(Op), Subtarget.getGRLenVT()));
+          Ops.push_back(DAG.getSignedTargetConstant(CVal, SDLoc(Op),
+                                                    Subtarget.getGRLenVT()));
       }
       return;
     case 'J':
