@@ -289,7 +289,7 @@ static bool isCompatible(Ctx &ctx, InputFile *file) {
   // NB: Don't print the target for isCheriABI mismatches if it doesn't force
   // it, since it's a valid target for both.
   if (!target.empty() && (!onlyCheriAbi || target.contains("_cheri"))) {
-    ErrAlways(ctx) << file << " is incompatible with " << target;
+    Err(ctx) << file << " is incompatible with " << target;
     return false;
   }
 
@@ -300,10 +300,10 @@ static bool isCompatible(Ctx &ctx, InputFile *file) {
     existing = ctx.sharedFiles[0];
   else if (!ctx.bitcodeFiles.empty())
     existing = ctx.bitcodeFiles[0];
-  std::string with;
+  auto diag = Err(ctx);
+  diag << file << " is incompatible";
   if (existing)
-    with = " with " + toStr(ctx, existing);
-  ErrAlways(ctx) << file << " is incompatible" << with;
+    diag << " with " << existing;
   return false;
 }
 
