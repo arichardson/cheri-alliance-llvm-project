@@ -486,7 +486,9 @@ public:
   }
 };
 
+#ifndef _WIN32
 static_assert(sizeof(InputSection) <= 152, "InputSection is too big");
+#endif
 
 class SyntheticSection : public InputSection {
 public:
