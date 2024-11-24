@@ -1095,7 +1095,7 @@ void APValue::MakeArray(unsigned InitElts, unsigned Size) {
   Kind = Array;
 }
 
-MutableArrayRef<APValue::LValuePathEntry>
+static MutableArrayRef<APValue::LValuePathEntry>
 setLValueUninit(APValue::LValueBase B, const CharUnits &O, unsigned Size,
                 bool OnePastTheEnd, bool IsNullPtr);
 
