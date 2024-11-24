@@ -181,22 +181,19 @@ uint32_t RISCV::calcEFlags() const {
       target |= EF_RISCV_RVC;
 
     if ((eflags & EF_RISCV_FLOAT_ABI) != (target & EF_RISCV_FLOAT_ABI))
-      ErrAlways(ctx) << f
-                     << ": cannot link object files with different "
-                        "floating-point ABI from "
-                     << ctx.objectFiles[0];
+      Err(ctx) << f
+               << ": cannot link object files with different "
+                  "floating-point ABI from "
+               << ctx.objectFiles[0];
 
     if ((eflags & EF_RISCV_RVE) != (target & EF_RISCV_RVE))
-      ErrAlways(ctx)
-          << f << ": cannot link object files with different EF_RISCV_RVE";
+      Err(ctx) << f << ": cannot link object files with different EF_RISCV_RVE";
 
     if ((eflags & EF_RISCV_CHERIABI) != (target & EF_RISCV_CHERIABI))
-      ErrAlways(ctx)
-          << f << ": cannot link object files with different EF_RISCV_CHERIABI";
+      Err(ctx) << f << ": cannot link object files with different EF_RISCV_CHERIABI";
 
     if ((eflags & EF_RISCV_CAP_MODE) != (target & EF_RISCV_CAP_MODE))
-      ErrAlways(ctx)
-          << f << ": cannot link object files with different EF_RISCV_CAP_MODE";
+      Err(ctx) << f << ": cannot link object files with different EF_RISCV_CAP_MODE";
   }
 
   return target;

@@ -123,27 +123,25 @@ MipsAbiFlagsSection<ELFT>::create(Ctx &ctx) {
     sec->markDead();
     create = true;
 
-    std::string filename = toStr(ctx, sec->file);
+    auto filename = sec->file->getName();
     const size_t size = sec->content().size();
     // Older version of BFD (such as the default FreeBSD linker) concatenate
     // .MIPS.abiflags instead of merging. To allow for this case (or potential
     // zero padding) we ignore everything after the first Elf_Mips_ABIFlags
     if (size < sizeof(Elf_Mips_ABIFlags)) {
-      ErrAlways(ctx) << filename
-                     << ": invalid size of .MIPS.abiflags section: got "
-                     << Twine(size) << " instead of "
-                     << Twine(sizeof(Elf_Mips_ABIFlags));
+      Err(ctx) << sec->file << ": invalid size of .MIPS.abiflags section: got "
+               << size << " instead of " << sizeof(Elf_Mips_ABIFlags);
       return nullptr;
     }
     auto *s =
         reinterpret_cast<const Elf_Mips_ABIFlags *>(sec->content().data());
     if (s->version != 0) {
-      ErrAlways(ctx) << filename << ": unexpected .MIPS.abiflags version "
-                     << Twine(s->version);
+      Err(ctx) << sec->file << ": unexpected .MIPS.abiflags version "
+               << s->version;
       return nullptr;
     }
     if (size > sizeof(Elf_Mips_ABIFlags)) {
-      warn(filename + ": .MIPS.abiflags section has multiple entries: got " +
+      warn(sec->file->getName() + ": .MIPS.abiflags section has multiple entries: got " +
           Twine(size) + " instead of " + Twine(sizeof(Elf_Mips_ABIFlags)) +
           " bytes");
     }
@@ -161,7 +159,7 @@ MipsAbiFlagsSection<ELFT>::create(Ctx &ctx) {
     flags.flags1 |= s->flags1;
     flags.flags2 |= s->flags2;
     flags.fp_abi =
-        elf::getMipsFpAbiFlag(ctx, flags.fp_abi, s->fp_abi, filename);
+        elf::getMipsFpAbiFlag(ctx, sec->file, flags.fp_abi, s->fp_abi);
     lastFile = std::move(filename);
   };
 
@@ -229,12 +227,10 @@ MipsOptionsSection<ELFT>::create(Ctx &ctx) {
   for (InputSectionBase *sec : sections) {
     sec->markDead();
 
-    std::string filename = toStr(ctx, sec->file);
     ArrayRef<uint8_t> d = sec->content();
-
     while (!d.empty()) {
       if (d.size() < sizeof(Elf_Mips_Options)) {
-        ErrAlways(ctx) << filename << ": invalid size of .MIPS.options section";
+        Err(ctx) << sec->file << ": invalid size of .MIPS.options section";
         break;
       }
 
@@ -245,8 +241,10 @@ MipsOptionsSection<ELFT>::create(Ctx &ctx) {
         break;
       }
 
-      if (!opt->size)
-        Fatal(ctx) << filename << ": zero option descriptor size";
+      if (!opt->size) {
+        Err(ctx) << sec->file << ": zero option descriptor size";
+        break;
+      }
       d = d.slice(opt->size);
     }
   };
@@ -288,7 +286,7 @@ MipsReginfoSection<ELFT>::create(Ctx &ctx) {
     sec->markDead();
 
     if (sec->content().size() != sizeof(Elf_Mips_RegInfo)) {
-      ErrAlways(ctx) << sec->file << ": invalid size of .reginfo section";
+      Err(ctx) << sec->file << ": invalid size of .reginfo section";
       return nullptr;
     }
 
@@ -4542,7 +4540,7 @@ static uint8_t getAbiVersion(Ctx &ctx) {
     uint8_t ver = ctx.objectFiles[0]->abiVersion;
     for (InputFile *file : ArrayRef(ctx.objectFiles).slice(1))
       if (file->abiVersion != ver)
-        ErrAlways(ctx) << "incompatible ABI version: " << file;
+        Err(ctx) << "incompatible ABI version: " << file;
     return ver;
   }
 
