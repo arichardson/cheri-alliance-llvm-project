@@ -343,7 +343,6 @@ void ErrorHandler::fatal(const Twine &msg) {
 }
 
 SyncStream::~SyncStream() {
-  os.flush();
   switch (level) {
   case DiagLevel::None:
     break;
