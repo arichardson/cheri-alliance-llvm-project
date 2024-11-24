@@ -159,7 +159,7 @@ static inline void nonFatalWarning(const Twine &str) {
   else
     warn(str);
 }
-enum class DiagLevel { Log, Msg, Warn, Err, Fatal };
+enum class DiagLevel { None, Log, Msg, Warn, Err, Fatal };
 
 // A class that synchronizes thread writing to the same stream similar
 // std::osyncstream.
