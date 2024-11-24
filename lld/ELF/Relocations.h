@@ -9,6 +9,7 @@
 #ifndef LLD_ELF_RELOCATIONS_H
 #define LLD_ELF_RELOCATIONS_H
 
+#include "Config.h"
 #include "lld/Common/LLVM.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/STLExtras.h"
@@ -348,9 +349,9 @@ static inline int64_t getAddend(const typename ELFT::Crel &rel) {
   return rel.r_addend;
 }
 
-std::string getLocationMessage(const InputSectionBase &s,
-                               const Symbol &sym, uint64_t off);
-
+struct ELFSyncStream;
+void printLocation(ELFSyncStream &s, InputSectionBase &sec,
+                   const Symbol &sym, uint64_t off);
 
 template <typename RelTy>
 inline Relocs<RelTy> sortRels(Relocs<RelTy> rels,

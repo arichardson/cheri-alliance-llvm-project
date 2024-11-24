@@ -1751,11 +1751,12 @@ void RelocationBaseSection::addSymbolReloc(
     int64_t addend, std::optional<RelType> addendRelType) {
   bool isCap = dynType == ctx.target->symbolicCapRel ||
                dynType == ctx.target->symbolicCapCallRel;
-  if (isCap && sym.isFunc() && addend != 0)
-    warn("capability relocation with non-zero addend (0x" +
-         llvm::utohexstr(addend) + ") against preemptible function " +
-         toStr(ctx, sym) + "; this may not be supported by the runtime linker" +
-         getLocationMessage(isec, sym, offsetInSec));
+  if (isCap && sym.isFunc() && addend != 0) {
+    auto diag = Warn(ctx);
+    diag << "capability relocation with non-zero addend (0x" << llvm::utohexstr(addend)
+         << ") against preemptible function " << &sym << "; this may not be supported by the runtime linker";
+    printLocation(diag, isec, sym, offsetInSec);
+  }
 
   // .chericap initialises the memory to 0xcacacaca not 0, so if writing
   // addends we still need to write even it if zero (and must have an
