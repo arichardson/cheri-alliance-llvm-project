@@ -570,7 +570,7 @@ bool RISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
         MI.getOpcode() == RISCV::CIncOffsetImm ||
         MI.getOpcode() == RISCV::CADDI)
       DestReg = MI.getOperand(0).getReg();
-    else if (RISCVABI::isCheriPureCapABI(ST.getTargetABI()))
+    else if (RISCVABI::isCheriPureCapABI(MF.getSubtarget<RISCVSubtarget>().getTargetABI()))
       DestReg = MRI.createVirtualRegister(&RISCV::GPCRRegClass);
     else
       DestReg = MRI.createVirtualRegister(&RISCV::GPRRegClass);
