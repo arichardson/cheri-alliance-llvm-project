@@ -311,9 +311,6 @@ public:
 
   bool enableSubRegLiveness() const override;
 
-  void getPostRAMutations(std::vector<std::unique_ptr<ScheduleDAGMutation>>
-                              &Mutations) const override;
-
   bool useAA() const override;
 
   unsigned getCacheLineSize() const override {
