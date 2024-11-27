@@ -143,7 +143,7 @@ static void emitSCSPrologue(MachineFunction &MF, MachineBasicBlock &MBB,
 
   Register SCSPReg = RISCVABI::getSCSPReg(STI.getTargetABI());
 
-  bool IsRV64 = STI.hasFeature(RISCV::Feature64Bit);
+  bool IsRV64 = STI.is64Bit();
   bool IsPureCapABI = RISCVABI::isCheriPureCapABI(STI.getTargetABI());
   MVT PtrVT = IsPureCapABI ? STI.typeForCapabilities() : STI.getXLenVT();
   int64_t SlotSize = PtrVT.getFixedSizeInBits() / 8;
@@ -218,7 +218,7 @@ static void emitSCSEpilogue(MachineFunction &MF, MachineBasicBlock &MBB,
 
   Register SCSPReg = RISCVABI::getSCSPReg(STI.getTargetABI());
 
-  bool IsRV64 = STI.hasFeature(RISCV::Feature64Bit);
+  bool IsRV64 = STI.is64Bit();
   bool IsPureCapABI = RISCVABI::isCheriPureCapABI(STI.getTargetABI());
   bool HasZCheriPurecap = STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
   MVT PtrVT = IsPureCapABI ? STI.typeForCapabilities() : STI.getXLenVT();
