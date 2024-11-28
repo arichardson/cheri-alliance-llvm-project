@@ -2117,6 +2117,7 @@ include "RISCVInstrInfoXSf.td"
 include "RISCVInstrInfoSFB.td"
 include "RISCVInstrInfoXCV.td"
 include "RISCVInstrInfoXwch.td"
+include "RISCVInstrInfoXqci.td"
 
 //===----------------------------------------------------------------------===//
 // Non-standard Extensions
