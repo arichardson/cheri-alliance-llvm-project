@@ -2520,7 +2520,10 @@ void StmtPrinter::VisitSizeOfPackExpr(SizeOfPackExpr *E) {
 }
 
 void StmtPrinter::VisitPackIndexingExpr(PackIndexingExpr *E) {
-  OS << E->getPackIdExpression() << "...[" << E->getIndexExpr() << "]";
+  PrintExpr(E->getPackIdExpression());
+  OS << "...[";
+  PrintExpr(E->getIndexExpr());
+  OS << "]";
 }
 
 void StmtPrinter::VisitSubstNonTypeTemplateParmPackExpr(
