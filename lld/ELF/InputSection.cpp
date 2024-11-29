@@ -334,7 +334,7 @@ std::string InputSectionBase::getSrcMsg(const Symbol &sym,
   // Synthetic sections don't have input files.
   if (!file)
     return "";
-  return file->getSrcMsg(sym, *this, offset);
+  return file->getSrcMsg(*this, sym, offset);
 }
 
 // Returns a filename string along with an optional section name. This
