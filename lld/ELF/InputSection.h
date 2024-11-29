@@ -143,6 +143,11 @@ struct RelaxAux {
 // This corresponds to a section of an input file.
 class InputSectionBase : public SectionBase {
 public:
+  struct ObjMsg {
+    const InputSectionBase *sec;
+    uint64_t offset;
+  };
+
   template <class ELFT>
   InputSectionBase(ObjFile<ELFT> &file, const typename ELFT::Shdr &header,
                    StringRef name, Kind sectionKind);
@@ -526,6 +531,8 @@ inline bool isDebugSection(const InputSectionBase &sec) {
 std::string toStr(elf::Ctx &, const elf::InputSectionBase *);
 const ELFSyncStream &operator<<(const ELFSyncStream &,
                                 const InputSectionBase *);
+const ELFSyncStream &operator<<(const ELFSyncStream &,
+                                InputSectionBase::ObjMsg &&);
 } // namespace elf
 } // namespace lld
 
