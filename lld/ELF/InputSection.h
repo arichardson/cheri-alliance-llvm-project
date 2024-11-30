@@ -147,6 +147,11 @@ public:
     const InputSectionBase *sec;
     uint64_t offset;
   };
+  struct SrcMsg {
+    const InputSectionBase &sec;
+    const Symbol &sym;
+    uint64_t offset;
+  };
 
   template <class ELFT>
   InputSectionBase(ObjFile<ELFT> &file, const typename ELFT::Shdr &header,
@@ -533,6 +538,8 @@ const ELFSyncStream &operator<<(const ELFSyncStream &,
                                 const InputSectionBase *);
 const ELFSyncStream &operator<<(const ELFSyncStream &,
                                 InputSectionBase::ObjMsg &&);
+const ELFSyncStream &operator<<(const ELFSyncStream &,
+                                InputSectionBase::SrcMsg &&);
 } // namespace elf
 } // namespace lld
 
