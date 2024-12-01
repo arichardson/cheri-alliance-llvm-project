@@ -7140,6 +7140,7 @@ bool CodeGenPrepare::optimizeLoadExt(LoadInst *Load) {
   SmallVector<Instruction *, 8> WorkList;
   SmallPtrSet<Instruction *, 16> Visited;
   SmallVector<Instruction *, 8> AndsToMaybeRemove;
+  SmallVector<Instruction *, 8> DropFlags;
   for (auto *U : Load->users())
     WorkList.push_back(cast<Instruction>(U));
 
@@ -7187,6 +7188,7 @@ bool CodeGenPrepare::optimizeLoadExt(LoadInst *Load) {
         return false;
       uint64_t ShiftAmt = ShlC->getLimitedValue(BitWidth - 1);
       DemandBits.setLowBits(BitWidth - ShiftAmt);
+      DropFlags.push_back(I);
       break;
     }
 
@@ -7194,6 +7196,7 @@ bool CodeGenPrepare::optimizeLoadExt(LoadInst *Load) {
       EVT TruncVT = TLI->getValueType(*DL, I->getType());
       unsigned TruncBitWidth = TruncVT.getSizeInBits();
       DemandBits.setLowBits(TruncBitWidth);
+      DropFlags.push_back(I);
       break;
     }
 
@@ -7250,6 +7253,10 @@ bool CodeGenPrepare::optimizeLoadExt(LoadInst *Load) {
       And->eraseFromParent();
       ++NumAndUses;
     }
+
+  // NSW flags may not longer hold.
+  for (auto *Inst : DropFlags)
+    Inst->setHasNoSignedWrap(false);
 
   ++NumAndsAdded;
   return true;
