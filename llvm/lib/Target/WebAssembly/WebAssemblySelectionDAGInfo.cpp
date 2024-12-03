@@ -24,7 +24,7 @@ SDValue WebAssemblySelectionDAGInfo::EmitTargetCodeForMemcpy(
     PreserveCheriTags PreserveTags, MachinePointerInfo DstPtrInfo,
     MachinePointerInfo SrcPtrInfo) const {
   auto &ST = DAG.getMachineFunction().getSubtarget<WebAssemblySubtarget>();
-  if (!ST.hasBulkMemory())
+  if (!ST.hasBulkMemoryOpt())
     return SDValue();
 
   SDValue MemIdx = DAG.getConstant(0, DL, MVT::i32);
@@ -53,7 +53,7 @@ SDValue WebAssemblySelectionDAGInfo::EmitTargetCodeForMemset(
     SDValue Size, Align Alignment, bool IsVolatile, bool AlwaysInline,
     MachinePointerInfo DstPtrInfo) const {
   auto &ST = DAG.getMachineFunction().getSubtarget<WebAssemblySubtarget>();
-  if (!ST.hasBulkMemory())
+  if (!ST.hasBulkMemoryOpt())
     return SDValue();
 
   SDValue MemIdx = DAG.getConstant(0, DL, MVT::i32);
