@@ -121,9 +121,9 @@ RelExpr MIPS<ELFT>::getRelExpr(RelType type, const Symbol &s,
   case R_MIPS_GPREL32:
   case R_MICROMIPS_GPREL16:
   case R_MICROMIPS_GPREL7_S2:
-    return R_MIPS_GOTREL;
+    return RE_MIPS_GOTREL;
   case R_MIPS_CHERI_CAPTABLEREL16:
-    return R_MIPS_CHERI_CAPTAB_REL;
+    return RE_MIPS_CHERI_CAPTAB_REL;
   case R_MIPS_26:
   case R_MICROMIPS_26_S1:
     return R_PLT;
@@ -140,9 +140,9 @@ RelExpr MIPS<ELFT>::getRelExpr(RelType type, const Symbol &s,
     // equal to the start of .got section. In that case we consider these
     // relocations as relative.
     if (&s == ctx.sym.mipsGpDisp)
-      return R_MIPS_GOT_GP_PC;
+      return RE_MIPS_GOT_GP_PC;
     if (&s == ctx.sym.mipsLocalGp)
-      return R_MIPS_GOT_GP;
+      return RE_MIPS_GOT_GP;
     [[fallthrough]];
   case R_MIPS_32:
   case R_MIPS_64:
@@ -181,14 +181,14 @@ RelExpr MIPS<ELFT>::getRelExpr(RelType type, const Symbol &s,
   case R_MIPS_GOT16:
   case R_MICROMIPS_GOT16:
     if (s.isLocal())
-      return R_MIPS_GOT_LOCAL_PAGE;
+      return RE_MIPS_GOT_LOCAL_PAGE;
     [[fallthrough]];
   case R_MIPS_CALL16:
   case R_MIPS_GOT_DISP:
   case R_MIPS_TLS_GOTTPREL:
   case R_MICROMIPS_CALL16:
   case R_MICROMIPS_TLS_GOTTPREL:
-    return R_MIPS_GOT_OFF;
+    return RE_MIPS_GOT_OFF;
   case R_MIPS_CALL_HI16:
   case R_MIPS_CALL_LO16:
   case R_MIPS_GOT_HI16:
@@ -197,40 +197,40 @@ RelExpr MIPS<ELFT>::getRelExpr(RelType type, const Symbol &s,
   case R_MICROMIPS_CALL_LO16:
   case R_MICROMIPS_GOT_HI16:
   case R_MICROMIPS_GOT_LO16:
-    return R_MIPS_GOT_OFF32;
+    return RE_MIPS_GOT_OFF32;
   case R_MIPS_GOT_PAGE:
-    return R_MIPS_GOT_LOCAL_PAGE;
+    return RE_MIPS_GOT_LOCAL_PAGE;
   case R_MIPS_TLS_GD:
   case R_MICROMIPS_TLS_GD:
-    return R_MIPS_TLSGD;
+    return RE_MIPS_TLSGD;
   case R_MIPS_TLS_LDM:
   case R_MICROMIPS_TLS_LDM:
-    return R_MIPS_TLSLD;
+    return RE_MIPS_TLSLD;
   case R_MIPS_NONE:
     return R_NONE;
   case R_MIPS_CHERI_CAPABILITY:
     return R_ABS_CAP;
   case R_MIPS_CHERI_CAPTAB_LO16:
   case R_MIPS_CHERI_CAPTAB_HI16:
-    return R_MIPS_CHERI_CAPTAB_INDEX;
+    return RE_MIPS_CHERI_CAPTAB_INDEX;
   case R_MIPS_CHERI_CAPCALL_LO16:
   case R_MIPS_CHERI_CAPCALL_HI16:
-    return R_MIPS_CHERI_CAPTAB_INDEX_CALL;
+    return RE_MIPS_CHERI_CAPTAB_INDEX_CALL;
   case R_MIPS_CHERI_CAPTAB_CLC11:
   case R_MIPS_CHERI_CAPTAB20:
-    return R_MIPS_CHERI_CAPTAB_INDEX_SMALL_IMMEDIATE;
+    return RE_MIPS_CHERI_CAPTAB_INDEX_SMALL_IMMEDIATE;
   case R_MIPS_CHERI_CAPCALL_CLC11:
   case R_MIPS_CHERI_CAPCALL20:
-    return R_MIPS_CHERI_CAPTAB_INDEX_CALL_SMALL_IMMEDIATE;
+    return RE_MIPS_CHERI_CAPTAB_INDEX_CALL_SMALL_IMMEDIATE;
   case R_MIPS_CHERI_CAPTAB_TLS_GD_LO16:
   case R_MIPS_CHERI_CAPTAB_TLS_GD_HI16:
-    return R_MIPS_CHERI_CAPTAB_TLSGD;
+    return RE_MIPS_CHERI_CAPTAB_TLSGD;
   case R_MIPS_CHERI_CAPTAB_TLS_LDM_LO16:
   case R_MIPS_CHERI_CAPTAB_TLS_LDM_HI16:
-    return R_MIPS_CHERI_CAPTAB_TLSLD;
+    return RE_MIPS_CHERI_CAPTAB_TLSLD;
   case R_MIPS_CHERI_CAPTAB_TLS_TPREL_LO16:
   case R_MIPS_CHERI_CAPTAB_TLS_TPREL_HI16:
-    return R_MIPS_CHERI_CAPTAB_TPREL;
+    return RE_MIPS_CHERI_CAPTAB_TPREL;
   default:
     Err(ctx) << getErrorLoc(ctx, loc) << "unknown relocation (" << type.v
              << ") against symbol " << &s;

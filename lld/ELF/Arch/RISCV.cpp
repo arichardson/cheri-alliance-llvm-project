@@ -338,7 +338,7 @@ RelExpr RISCV::getRelExpr(const RelType type, const Symbol &s,
   case R_RISCV_SUB16:
   case R_RISCV_SUB32:
   case R_RISCV_SUB64:
-    return R_RISCV_ADD;
+    return RE_RISCV_ADD;
   case R_RISCV_JAL:
   case R_RISCV_CHERI_CJAL:
   case R_RISCV_BRANCH:
@@ -358,7 +358,7 @@ RelExpr RISCV::getRelExpr(const RelType type, const Symbol &s,
     return R_GOT_PC;
   case R_RISCV_PCREL_LO12_I:
   case R_RISCV_PCREL_LO12_S:
-    return R_RISCV_PC_INDIRECT;
+    return RE_RISCV_PC_INDIRECT;
   case R_RISCV_TLSDESC_HI20:
   case R_RISCV_TLSDESC_LOAD_LO12:
   case R_RISCV_TLSDESC_ADD_LO12:
@@ -381,7 +381,7 @@ RelExpr RISCV::getRelExpr(const RelType type, const Symbol &s,
     return ctx.arg.relax ? R_RELAX_HINT : R_NONE;
   case R_RISCV_SET_ULEB128:
   case R_RISCV_SUB_ULEB128:
-    return R_RISCV_LEB128;
+    return RE_RISCV_LEB128;
   case R_RISCV_CHERI_CAPABILITY:
   case R_RISCV_CHERI_CAPABILITY_CODE:
     return R_ABS_CAP;
@@ -741,7 +741,7 @@ void RISCV::relocateAlloc(InputSectionBase &sec, uint8_t *buf) const {
       else
         tlsdescToIe(ctx, loc, rel, val);
       continue;
-    case R_RISCV_LEB128:
+    case RE_RISCV_LEB128:
       if (i + 1 < size) {
         const Relocation &rel1 = relocs[i + 1];
         if (rel.type == R_RISCV_SET_ULEB128 &&
