@@ -951,7 +951,7 @@ OptimizeGlobalAddressOfAllocation(GlobalVariable *GV, CallInst *CI,
                        GlobalValue::InternalLinkage,
                        ConstantInt::getFalse(GV->getContext()),
                        GV->getName()+".init", GV->getThreadLocalMode(),
-                       GV->getType()->getAddressSpace());
+                       GV->getAddressSpace());
   bool InitBoolUsed = false;
 
   // Loop over all instruction uses of GV, processing them in turn.
