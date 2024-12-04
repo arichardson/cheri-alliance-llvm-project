@@ -283,6 +283,12 @@ DependentSizedArrayType::DependentSizedArrayType(
     : ArrayType(DependentSizedArray, et, can, sm, tq, PIK, e),
       SizeExpr((Stmt *)e), Brackets(brackets) {}
 
+QualType ArrayParameterType::getConstantArrayType(const ASTContext &Ctx) const {
+  return Ctx.getConstantArrayType(getElementType(), getSize(), getSizeExpr(),
+                                  getSizeModifier(),
+                                  getIndexTypeQualifiers().getAsOpaqueValue());
+}
+
 void DependentSizedArrayType::Profile(
     llvm::FoldingSetNodeID &ID, const ASTContext &Context, QualType ET,
     ArraySizeModifier SizeMod, unsigned TypeQuals, Expr *E,
