@@ -2116,10 +2116,7 @@ Instruction *InstCombinerImpl::visitPtrToInt(PtrToIntInst &CI) {
         Base->getType() == Ty) {
       Value *Offset = EmitGEPOffset(GEP);
       auto *NewOp = BinaryOperator::CreateAdd(Base, Offset);
-      if (GEP->hasNoUnsignedWrap() ||
-          (GEP->hasNoUnsignedSignedWrap() &&
-           isKnownNonNegative(Offset, SQ.getWithInstruction(&CI))))
-        NewOp->setHasNoUnsignedWrap(true);
+      NewOp->setHasNoUnsignedWrap(GEP->hasNoUnsignedWrap());
       return NewOp;
     }
   }
