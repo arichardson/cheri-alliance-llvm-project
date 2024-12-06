@@ -237,7 +237,7 @@ public:
            TargetABI == RISCVABI::ABI_IL32PC64 ||
            TargetABI == RISCVABI::ABI_ILP32E;
   }
-  bool isRegisterReservedByUser(Register i) const {
+  bool isRegisterReservedByUser(Register i) const override {
     assert(i < RISCV::NUM_TARGET_REGS && "Register out of range");
     return UserReservedRegister[i];
   }
