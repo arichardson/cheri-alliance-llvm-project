@@ -139,11 +139,8 @@ public:
   LLVM_PREFERRED_TYPE(bool)
   uint8_t exportDynamic : 1;
 
-  // True if the symbol is in the --dynamic-list file. A Defined symbol with
-  // protected or default visibility with this property is required to be
-  // exported into .dynsym.
   LLVM_PREFERRED_TYPE(bool)
-  uint8_t inDynamicList : 1;
+  uint8_t ltoCanOmit : 1;
 
   // Used to track if there has been at least one undefined reference to the
   // symbol. For Undefined and SharedSymbol, the binding may change to STB_WEAK
@@ -266,7 +263,7 @@ protected:
       : file(file), nameData(name.data()), nameSize(name.size()), type(type),
         binding(binding), stOther(stOther), symbolKind(k),
         usedByDynReloc(false), isSectionStartSymbol(false),
-        exportDynamic(false), archSpecificBit(false) {}
+        exportDynamic(false), ltoCanOmit(false), archSpecificBit(false) {}
 
   void overwrite(Symbol &sym, Kind k) const {
     if (sym.traced)
@@ -344,6 +341,12 @@ public:
   LLVM_PREFERRED_TYPE(bool)
   uint8_t thunkAccessed : 1;
 
+  // True if the symbol is in the --dynamic-list file. A Defined symbol with
+  // protected or default visibility with this property is required to be
+  // exported into .dynsym.
+  LLVM_PREFERRED_TYPE(bool)
+  uint8_t inDynamicList : 1;
+
   void setFlags(uint16_t bits) {
     flags.fetch_or(bits, std::memory_order_relaxed);
   }
@@ -382,7 +385,6 @@ public:
           SectionBase *section)
       : Symbol(DefinedKind, file, name, binding, stOther, type), value(value),
         size(size), section(section) {
-    exportDynamic = ctx.arg.exportDynamic;
   }
   void overwrite(Symbol &sym) const;
 
@@ -431,7 +433,6 @@ public:
                uint8_t stOther, uint8_t type, uint64_t alignment, uint64_t size)
       : Symbol(CommonKind, file, name, binding, stOther, type),
         alignment(alignment), size(size) {
-    exportDynamic = ctx.arg.exportDynamic;
   }
   void overwrite(Symbol &sym) const {
     Symbol::overwrite(sym, CommonKind);
@@ -475,7 +476,6 @@ public:
                uint32_t alignment)
       : Symbol(SharedKind, &file, name, binding, stOther, type), value(value),
         size(size), alignment(alignment) {
-    exportDynamic = true;
     dsoProtected = visibility() == llvm::ELF::STV_PROTECTED;
     // GNU ifunc is a mechanism to allow user-supplied functions to
     // resolve PLT slot values at load-time. This is contrary to the
