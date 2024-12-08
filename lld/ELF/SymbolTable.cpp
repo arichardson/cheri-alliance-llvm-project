@@ -245,7 +245,7 @@ void SymbolTable::handleDynamicList() {
       syms = findByVersion(ver);
 
     for (Symbol *sym : syms)
-      sym->inDynamicList = true;
+      sym->exportDynamic = sym->inDynamicList = true;
   }
 }
 
