@@ -1255,6 +1255,7 @@ template <class ELFT> void ObjFile<ELFT>::postParse() {
       Err(ctx) << "TLS attribute mismatch: " << &sym << "\n>>> in " << sym.file
                << "\n>>> in " << this;
 
+    hasVersionSyms |= sym.hasVersionSuffix;
     // Handle non-COMMON defined symbol below. !sym.file allows a symbol
     // assignment to redefine a symbol without an error.
     if (!sym.isDefined() || secIdx == SHN_UNDEF)
@@ -1471,6 +1472,9 @@ template <class ELFT> void SharedFile::parse() {
   const Elf_Shdr *verdefSec = nullptr;
   const Elf_Shdr *verneedSec = nullptr;
 
+  numSymbols = numELFSyms;
+  symbols = std::make_unique<Symbol *[]>(numSymbols);
+
   // Search for .dynsym, .dynamic, .symtab, .gnu.version and .gnu.version_d.
   for (const Elf_Shdr &sec : sections) {
     switch (sec.sh_type) {
@@ -1632,6 +1636,8 @@ template <class ELFT> void SharedFile::parse() {
     s->dsoDefined = true;
     if (s->file == this)
       s->versionId = idx;
+    symbols[firstGlobal + i] = s;
+    hasVersionSyms = true;
   }
 }
 
