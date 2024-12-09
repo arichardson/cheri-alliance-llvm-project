@@ -967,7 +967,6 @@ Constant *SymbolicallyEvaluateGEP(const GEPOperator *GEP,
   }
 
   // Try to infer inbounds for GEPs of globals.
-  // TODO(gep_nowrap): Also infer nuw flag.
   if (!NW.isInBounds() && Offset.isNonNegative()) {
     bool CanBeNull, CanBeFreed;
     uint64_t DerefBytes =
@@ -975,6 +974,10 @@ Constant *SymbolicallyEvaluateGEP(const GEPOperator *GEP,
     if (DerefBytes != 0 && !CanBeNull && Offset.sle(DerefBytes))
       NW |= GEPNoWrapFlags::inBounds();
   }
+
+  // nusw + nneg -> nuw
+  if (NW.hasNoUnsignedSignedWrap() && Offset.isNonNegative())
+    NW |= GEPNoWrapFlags::noUnsignedWrap();
 
   // Otherwise canonicalize this to a single ptradd.
   LLVMContext &Ctx = Ptr->getContext();
