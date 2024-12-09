@@ -3043,6 +3043,8 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   if (!ctx.arg.relocatable) {
     llvm::TimeTraceScope timeScope("Process symbol versions");
     ctx.symtab->scanVersionScript();
+
+    parseVersionAndComputeIsPreemptible(ctx);
   }
 
   // Skip the normal linked output if some LTO options are specified.
