@@ -84,8 +84,7 @@ public:
   virtual void Initialize(MCContext &ctx, const TargetMachine &TM);
 
   virtual void emitPersonalityValue(MCStreamer &Streamer, const DataLayout &TM,
-                                    const MCSymbol *Sym,
-                                    const MachineModuleInfo *MMI) const;
+                                    const MCSymbol *Sym, const MachineModuleInfo *MMI) const;
 
   /// Emit the module-level metadata that the platform cares about.
   virtual void emitModuleMetadata(MCStreamer &Streamer, Module &M) const {}
