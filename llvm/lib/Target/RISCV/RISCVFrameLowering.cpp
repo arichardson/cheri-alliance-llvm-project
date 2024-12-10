@@ -15,6 +15,7 @@
 #include "RISCVMachineFunctionInfo.h"
 #include "RISCVSubtarget.h"
 #include "llvm/BinaryFormat/Dwarf.h"
+#include "llvm/CodeGen/LivePhysRegs.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -2145,6 +2146,8 @@ static void emitStackProbeInline(MachineFunction &MF, MachineBasicBlock &MBB,
   LoopTestMBB->addSuccessor(ExitMBB);
   LoopTestMBB->addSuccessor(LoopTestMBB);
   MBB.addSuccessor(LoopTestMBB);
+  // Update liveins.
+  fullyRecomputeLiveIns({ExitMBB, LoopTestMBB});
 }
 
 void RISCVFrameLowering::inlineStackProbe(MachineFunction &MF,
