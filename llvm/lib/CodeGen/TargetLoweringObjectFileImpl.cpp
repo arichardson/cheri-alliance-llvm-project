@@ -413,7 +413,8 @@ MCSymbol *TargetLoweringObjectFileELF::getCFIPersonalitySymbol(
 }
 
 void TargetLoweringObjectFileELF::emitPersonalityValue(
-    MCStreamer &Streamer, const DataLayout &DL, const MCSymbol *Sym) const {
+    MCStreamer &Streamer, const DataLayout &DL, const MCSymbol *Sym,
+    const MachineModuleInfo *MMI) const {
   SmallString<64> NameData("DW.ref.");
   NameData += Sym->getName();
   MCSymbolELF *Label =
@@ -432,6 +433,14 @@ void TargetLoweringObjectFileELF::emitPersonalityValue(
   Streamer.emitELFSize(Label, E);
   Streamer.emitLabel(Label);
 
+  emitPersonalityValueImpl(Streamer, DL, Sym, MMI);
+}
+
+void TargetLoweringObjectFileELF::emitPersonalityValueImpl(
+    MCStreamer &Streamer, const DataLayout &DL, const MCSymbol *Sym,
+    const MachineModuleInfo *MMI) const {
+  unsigned AS = DL.getProgramAddressSpace();
+  unsigned Size = DL.getPointerSize();
   if (DL.isFatPointer(AS)) {
     Streamer.emitSymbolCheriCapability(Sym, Size);
   } else {
