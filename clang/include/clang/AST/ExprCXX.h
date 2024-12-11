@@ -884,7 +884,7 @@ public:
   /// object. This is not a strong guarantee.
   bool isMostDerived(const ASTContext &Context) const;
 
-  bool isTypeOperand() const { return Operand.is<TypeSourceInfo *>(); }
+  bool isTypeOperand() const { return isa<TypeSourceInfo *>(Operand); }
 
   /// Retrieves the type operand of this typeid() expression after
   /// various required adjustments (removing reference types, cv-qualifiers).
@@ -893,11 +893,11 @@ public:
   /// Retrieve source information for the type operand.
   TypeSourceInfo *getTypeOperandSourceInfo() const {
     assert(isTypeOperand() && "Cannot call getTypeOperand for typeid(expr)");
-    return Operand.get<TypeSourceInfo *>();
+    return cast<TypeSourceInfo *>(Operand);
   }
   Expr *getExprOperand() const {
     assert(!isTypeOperand() && "Cannot call getExprOperand for typeid(type)");
-    return static_cast<Expr*>(Operand.get<Stmt *>());
+    return static_cast<Expr *>(cast<Stmt *>(Operand));
   }
 
   SourceLocation getBeginLoc() const LLVM_READONLY { return Range.getBegin(); }
@@ -1099,7 +1099,7 @@ public:
       Operand = (TypeSourceInfo*)nullptr;
   }
 
-  bool isTypeOperand() const { return Operand.is<TypeSourceInfo *>(); }
+  bool isTypeOperand() const { return isa<TypeSourceInfo *>(Operand); }
 
   /// Retrieves the type operand of this __uuidof() expression after
   /// various required adjustments (removing reference types, cv-qualifiers).
@@ -1108,11 +1108,11 @@ public:
   /// Retrieve source information for the type operand.
   TypeSourceInfo *getTypeOperandSourceInfo() const {
     assert(isTypeOperand() && "Cannot call getTypeOperand for __uuidof(expr)");
-    return Operand.get<TypeSourceInfo *>();
+    return cast<TypeSourceInfo *>(Operand);
   }
   Expr *getExprOperand() const {
     assert(!isTypeOperand() && "Cannot call getExprOperand for __uuidof(type)");
-    return static_cast<Expr*>(Operand.get<Stmt *>());
+    return static_cast<Expr *>(cast<Stmt *>(Operand));
   }
 
   MSGuidDecl *getGuidDecl() const { return Guid; }
@@ -4757,24 +4757,24 @@ public:
   /// be materialized into a glvalue.
   Expr *getSubExpr() const {
     return cast<Expr>(
-        State.is<Stmt *>()
-            ? State.get<Stmt *>()
-            : State.get<LifetimeExtendedTemporaryDecl *>()->getTemporaryExpr());
+        isa<Stmt *>(State)
+            ? cast<Stmt *>(State)
+            : cast<LifetimeExtendedTemporaryDecl *>(State)->getTemporaryExpr());
   }
 
   /// Retrieve the storage duration for the materialized temporary.
   StorageDuration getStorageDuration() const {
-    return State.is<Stmt *>() ? SD_FullExpression
-                              : State.get<LifetimeExtendedTemporaryDecl *>()
+    return isa<Stmt *>(State) ? SD_FullExpression
+                              : cast<LifetimeExtendedTemporaryDecl *>(State)
                                     ->getStorageDuration();
   }
 
   /// Get the storage for the constant value of a materialized temporary
   /// of static storage duration.
   APValue *getOrCreateValue(bool MayCreate) const {
-    assert(State.is<LifetimeExtendedTemporaryDecl *>() &&
+    assert(isa<LifetimeExtendedTemporaryDecl *>(State) &&
            "the temporary has not been lifetime extended");
-    return State.get<LifetimeExtendedTemporaryDecl *>()->getOrCreateValue(
+    return cast<LifetimeExtendedTemporaryDecl *>(State)->getOrCreateValue(
         MayCreate);
   }
 
@@ -4789,8 +4789,8 @@ public:
   /// Get the declaration which triggered the lifetime-extension of this
   /// temporary, if any.
   ValueDecl *getExtendingDecl() {
-    return State.is<Stmt *>() ? nullptr
-                              : State.get<LifetimeExtendedTemporaryDecl *>()
+    return isa<Stmt *>(State) ? nullptr
+                              : cast<LifetimeExtendedTemporaryDecl *>(State)
                                     ->getExtendingDecl();
   }
   const ValueDecl *getExtendingDecl() const {
@@ -4800,8 +4800,8 @@ public:
   void setExtendingDecl(ValueDecl *ExtendedBy, unsigned ManglingNumber);
 
   unsigned getManglingNumber() const {
-    return State.is<Stmt *>() ? 0
-                              : State.get<LifetimeExtendedTemporaryDecl *>()
+    return isa<Stmt *>(State) ? 0
+                              : cast<LifetimeExtendedTemporaryDecl *>(State)
                                     ->getManglingNumber();
   }
 
@@ -4827,17 +4827,17 @@ public:
 
   // Iterators
   child_range children() {
-    return State.is<Stmt *>()
+    return isa<Stmt *>(State)
                ? child_range(State.getAddrOfPtr1(), State.getAddrOfPtr1() + 1)
-               : State.get<LifetimeExtendedTemporaryDecl *>()->childrenExpr();
+               : cast<LifetimeExtendedTemporaryDecl *>(State)->childrenExpr();
   }
 
   const_child_range children() const {
-    return State.is<Stmt *>()
+    return isa<Stmt *>(State)
                ? const_child_range(State.getAddrOfPtr1(),
                                    State.getAddrOfPtr1() + 1)
                : const_cast<const LifetimeExtendedTemporaryDecl *>(
-                     State.get<LifetimeExtendedTemporaryDecl *>())
+                     cast<LifetimeExtendedTemporaryDecl *>(State))
                      ->childrenExpr();
   }
 };
