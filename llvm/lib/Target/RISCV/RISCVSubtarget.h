@@ -246,6 +246,9 @@ public:
     return is64Bit() ? MVT::c128 : MVT::c64;
   }
 
+  // XRay support - require D and C extensions.
+  bool isXRaySupported() const override { return hasStdExtD() && hasStdExtC(); }
+
   // Vector codegen related methods.
   bool hasVInstructions() const { return HasStdExtZve32x; }
   bool hasVInstructionsI64() const { return HasStdExtZve64x; }
