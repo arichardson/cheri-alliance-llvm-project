@@ -8457,6 +8457,7 @@ void ASTRecordWriter::writeOpenACCClause(const OpenACCClause *C) {
   case OpenACCClauseKind::Independent:
   case OpenACCClauseKind::Auto:
   case OpenACCClauseKind::Finalize:
+  case OpenACCClauseKind::IfPresent:
     // Nothing to do here, there is no additional information beyond the
     // begin/end loc and clause kind.
     return;
@@ -8502,7 +8503,6 @@ void ASTRecordWriter::writeOpenACCClause(const OpenACCClause *C) {
     return;
   }
 
-  case OpenACCClauseKind::IfPresent:
   case OpenACCClauseKind::NoHost:
   case OpenACCClauseKind::UseDevice:
   case OpenACCClauseKind::Delete:
