@@ -31476,7 +31476,7 @@ static bool shouldExpandCmpArithRMWInIR(AtomicRMWInst *AI) {
     return false;
 
   Value *Op = AI->getOperand(1);
-  ICmpInst::Predicate Pred;
+  CmpPredicate Pred;
   Instruction *I = AI->user_back();
   AtomicRMWInst::BinOp Opc = AI->getOperation();
   if (Opc == AtomicRMWInst::Add) {
