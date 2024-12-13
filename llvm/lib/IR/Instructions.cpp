@@ -4024,10 +4024,6 @@ CmpPredicate CmpPredicate::getSwapped(const CmpInst *Cmp) {
   return getSwapped(get(Cmp));
 }
 
-hash_code llvm::hash_value(const CmpPredicate &Arg) { // NOLINT
-  return hash_combine(Arg.Pred, Arg.HasSameSign);
-}
-
 //===----------------------------------------------------------------------===//
 //                        SwitchInst Implementation
 //===----------------------------------------------------------------------===//
