@@ -1314,6 +1314,8 @@ void Sema::AddOptnoneAttributeIfNoConflicts(FunctionDecl *FD,
 }
 
 void Sema::AddImplicitMSFunctionNoBuiltinAttr(FunctionDecl *FD) {
+  if (FD->isDeleted() || FD->isDefaulted())
+    return;
   SmallVector<StringRef> V(MSFunctionNoBuiltins.begin(),
                            MSFunctionNoBuiltins.end());
   if (!MSFunctionNoBuiltins.empty())
