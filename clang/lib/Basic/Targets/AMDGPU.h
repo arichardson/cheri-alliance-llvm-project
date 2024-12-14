@@ -256,8 +256,7 @@ public:
                  StringRef CPU,
                  const std::vector<std::string> &FeatureVec) const override;
 
-  std::pair<const char *, ArrayRef<Builtin::Info>>
-  getTargetBuiltinStorage() const override;
+  ArrayRef<Builtin::Info> getTargetBuiltins() const override;
 
   bool useFP16ConversionIntrinsics() const override { return false; }
 
