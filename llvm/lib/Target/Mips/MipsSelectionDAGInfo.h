@@ -1,14 +1,11 @@
-//===-- MipsSelectionDAGInfo.h - Mips SelectionDAG Info ---------*- C++ -*-===//
-//
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
-//
 //===----------------------------------------------------------------------===//
 //
-// This file defines the Mips subclass for TargetSelectionDAGInfo.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
+//===----------------------------------------------------------------------===//
+// This file defines the Mips subclass for TargetSelectionDAGInfo.
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_LIB_TARGET_MIPS_MIPSSELECTIONDAGINFO_H
@@ -44,6 +41,6 @@ public:
                                   MachinePointerInfo DstPtrInfo) const override;
 };
 
-}
+} // namespace llvm
 
-#endif
+#endif // LLVM_LIB_TARGET_MIPS_MIPSSELECTIONDAGINFO_H
