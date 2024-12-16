@@ -2895,6 +2895,11 @@ void OpenACCClauseEnqueue::VisitDeleteClause(const OpenACCDeleteClause &C) {
   VisitVarList(C);
 }
 
+void OpenACCClauseEnqueue::VisitUseDeviceClause(
+    const OpenACCUseDeviceClause &C) {
+  VisitVarList(C);
+}
+
 void OpenACCClauseEnqueue::VisitDevicePtrClause(
     const OpenACCDevicePtrClause &C) {
   VisitVarList(C);
