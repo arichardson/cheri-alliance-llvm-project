@@ -52,7 +52,8 @@ public:
   void emitModuleMetadata(MCStreamer &Streamer, Module &M) const override;
 
   void emitPersonalityValue(MCStreamer &Streamer, const DataLayout &DL,
-                            const MCSymbol *Sym, const MachineModuleInfo *MMI) const override;
+                            const MCSymbol *Sym,
+                            const MachineModuleInfo *MMI) const override;
 
   virtual void emitPersonalityValueImpl(MCStreamer &Streamer,
                                         const DataLayout &DL,
