@@ -8367,6 +8367,12 @@ void ASTRecordWriter::writeOpenACCClause(const OpenACCClause *C) {
     writeOpenACCVarList(DC);
     return;
   }
+  case OpenACCClauseKind::Delete: {
+    const auto *DC = cast<OpenACCDeleteClause>(C);
+    writeSourceLocation(DC->getLParenLoc());
+    writeOpenACCVarList(DC);
+    return;
+  }
   case OpenACCClauseKind::DevicePtr: {
     const auto *DPC = cast<OpenACCDevicePtrClause>(C);
     writeSourceLocation(DPC->getLParenLoc());
@@ -8511,7 +8517,6 @@ void ASTRecordWriter::writeOpenACCClause(const OpenACCClause *C) {
 
   case OpenACCClauseKind::NoHost:
   case OpenACCClauseKind::UseDevice:
-  case OpenACCClauseKind::Delete:
   case OpenACCClauseKind::Device:
   case OpenACCClauseKind::DeviceResident:
   case OpenACCClauseKind::Host:
