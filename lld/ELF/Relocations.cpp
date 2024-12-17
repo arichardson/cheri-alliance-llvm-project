@@ -199,8 +199,9 @@ static bool needsPlt(RelExpr expr) {
 }
 
 bool lld::elf::needsGot(RelExpr expr) {
-  return oneof<R_GOT, R_GOT_OFF, RE_MIPS_GOT_LOCAL_PAGE, RE_MIPS_GOT_OFF,
-               RE_MIPS_GOT_OFF32, RE_AARCH64_GOT_PAGE_PC, R_GOT_PC, R_GOTPLT,
+  return oneof<R_GOT, RE_AARCH64_AUTH_GOT, R_GOT_OFF, RE_MIPS_GOT_LOCAL_PAGE,
+               RE_MIPS_GOT_OFF, RE_MIPS_GOT_OFF32, RE_AARCH64_GOT_PAGE_PC,
+               RE_AARCH64_AUTH_GOT_PAGE_PC, R_GOT_PC, R_GOTPLT,
                RE_AARCH64_GOT_PAGE, RE_LOONGARCH_GOT, RE_LOONGARCH_GOT_PAGE_PC>(
       expr);
 }
@@ -953,6 +954,25 @@ void elf::addGotEntry(Ctx &ctx, Symbol &sym) {
     addRelativeReloc(ctx, *ctx.in.got, off, sym, 0, expr, type);
 }
 
+static void addGotAuthEntry(Ctx &ctx, Symbol &sym) {
+  ctx.in.got->addEntry(sym);
+  ctx.in.got->addAuthEntry(sym);
+  uint64_t off = sym.getGotOffset(ctx);
+
+  // If preemptible, emit a GLOB_DAT relocation.
+  if (sym.isPreemptible) {
+    ctx.mainPart->relaDyn->addReloc({R_AARCH64_AUTH_GLOB_DAT, ctx.in.got.get(),
+                                     off, DynamicReloc::AgainstSymbol, sym, 0,
+                                     R_ABS});
+    return;
+  }
+
+  // Signed GOT requires dynamic relocation.
+  ctx.in.got->getPartition(ctx).relaDyn->addReloc(
+      {R_AARCH64_AUTH_RELATIVE, ctx.in.got.get(), off,
+       DynamicReloc::AddendOnlyWithTargetVA, sym, 0, R_ABS});
+}
+
 static void addTpOffsetGotEntry(Ctx &ctx, Symbol &sym) {
   ctx.in.got->addEntry(sym);
   uint64_t off = sym.getGotOffset(ctx);
@@ -1004,10 +1024,12 @@ bool RelocationScanner::isStaticLinkTimeConstant(RelExpr e, RelType type,
             RE_MIPS_CHERI_CAPTAB_INDEX_CALL,
             RE_MIPS_CHERI_CAPTAB_INDEX_CALL_SMALL_IMMEDIATE,
             RE_MIPS_CHERI_CAPTAB_REL,
-            RE_AARCH64_GOT_PAGE_PC, R_GOT_PC, R_GOTONLY_PC, R_GOTPLTONLY_PC,
+            RE_AARCH64_GOT_PAGE_PC, RE_AARCH64_AUTH_GOT_PAGE_PC, 
+            R_GOT_PC, R_GOTONLY_PC, R_GOTPLTONLY_PC,
             R_PLT_PC, R_PLT_GOTREL, R_PLT_GOTPLT, R_GOTPLT_GOTREL, R_GOTPLT_PC,
             RE_PPC32_PLTREL, RE_PPC64_CALL_PLT, RE_PPC64_RELAX_TOC, RE_RISCV_ADD,
-            RE_AARCH64_GOT_PAGE, RE_LOONGARCH_PLT_PAGE_PC, RE_LOONGARCH_GOT,
+            RE_AARCH64_GOT_PAGE, RE_AARCH64_AUTH_GOT_PAGE_PC,
+            RE_LOONGARCH_PLT_PAGE_PC, RE_LOONGARCH_GOT,
             RE_LOONGARCH_GOT_PAGE_PC>(e))
     return true;
 
@@ -1130,7 +1152,10 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
     } else if (!sym.isTls() || ctx.arg.emachine != EM_LOONGARCH) {
       // Many LoongArch TLS relocs reuse the RE_LOONGARCH_GOT type, in which
       // case the NEEDS_GOT flag shouldn't get set.
-      sym.setFlags(NEEDS_GOT);
+      if (expr == RE_AARCH64_AUTH_GOT || expr == RE_AARCH64_AUTH_GOT_PAGE_PC)
+        sym.setFlags(NEEDS_GOT | NEEDS_GOT_AUTH);
+      else
+        sym.setFlags(NEEDS_GOT | NEEDS_GOT_NONAUTH);
     }
   } else if (needsMipsCheriCapTable(expr)) {
     ctx.in.mipsCheriCapTable->addEntry(sym, expr, sec, offset);
@@ -1842,8 +1867,11 @@ static bool handleNonPreemptibleIfunc(Ctx &ctx, Symbol &sym, uint16_t flags) {
     // don't try to call the PLT as if it were an ifunc resolver.
     d.type = STT_FUNC;
 
-    if (flags & NEEDS_GOT)
+    if (flags & NEEDS_GOT) {
+      assert(!(flags & NEEDS_GOT_AUTH) &&
+             "R_AARCH64_AUTH_IRELATIVE is not supported yet");
       addGotEntry(ctx, sym);
+    }
   } else if (flags & NEEDS_GOT) {
     // Redirect GOT accesses to point to the Igot.
     sym.gotInIgot = true;
@@ -1864,8 +1892,19 @@ void elf::postScanRelocations(Ctx &ctx) {
       return;
     sym.allocateAux(ctx);
 
-    if (flags & NEEDS_GOT)
-      addGotEntry(ctx, sym);
+    if (flags & NEEDS_GOT) {
+      if ((flags & NEEDS_GOT_AUTH) && (flags & NEEDS_GOT_NONAUTH)) {
+        auto diag = Err(ctx);
+        diag << "both AUTH and non-AUTH GOT entries for '" << sym.getName()
+             << "' requested, but only one type of GOT entry per symbol is "
+                "supported";
+        return;
+      }
+      if (flags & NEEDS_GOT_AUTH)
+        addGotAuthEntry(ctx, sym);
+      else
+        addGotEntry(ctx, sym);
+    }
     if (flags & NEEDS_PLT)
       addPltEntry(ctx, *ctx.in.plt, *ctx.in.gotPlt, *ctx.in.relaPlt,
                   ctx.target->pltRel, sym);
