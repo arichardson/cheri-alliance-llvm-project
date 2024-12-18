@@ -495,10 +495,9 @@ def : LdPat<load, FLD, f64>;
 /// Stores
 
 def : StPat<store, FSD, FPR64, f64>;
-
 } // Predicates = [HasStdExtD, NotCapMode]
 
-let Predicates = [HasStdExtD] in {
+let Predicates = [HasStdExtD, NoStdExtZfa, IsRV32] in {
 
 /// Pseudo-instructions needed for the soft-float ABI with RV32D
 
@@ -514,7 +513,7 @@ def SplitF64Pseudo
     : Pseudo<(outs GPR:$dst1, GPR:$dst2), (ins FPR64:$src),
              [(set GPR:$dst1, GPR:$dst2, (RISCVSplitF64 FPR64:$src))]>;
 
-} // Predicates = [HasStdExtD]
+} // Predicates = [HasStdExtD, NoStdExtZfa, IsRV32]
 
 let Predicates = [HasStdExtZdinx, IsRV64] in {
 defm Select_FPR64INX : SelectCC_GPR_rrirr<FPR64INX, f64>;
