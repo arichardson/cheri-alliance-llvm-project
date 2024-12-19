@@ -2589,7 +2589,7 @@ bool SelectionDAG::expandMultipleResultFPLibCall(
   // destination pointers can be used instead of creating stack allocations.
   SDValue StoresInChain;
   SmallVector<StoreSDNode *, 2> ResultStores(NumResults);
-  for (SDNode *User : Node->uses()) {
+  for (SDNode *User : Node->users()) {
     if (!ISD::isNormalStore(User))
       continue;
     auto *ST = cast<StoreSDNode>(User);
@@ -7995,7 +7995,7 @@ SDValue SelectionDAG::getStackArgumentTokenFactor(SDValue Chain) {
   ArgChains.push_back(Chain);
 
   // Add a chain value for each stack argument.
-  for (SDNode *U : getEntryNode().getNode()->uses())
+  for (SDNode *U : getEntryNode().getNode()->users())
     if (LoadSDNode *L = dyn_cast<LoadSDNode>(U))
       if (FrameIndexSDNode *FI = dyn_cast<FrameIndexSDNode>(L->getBasePtr()))
         if (FI->getIndex() < 0)
@@ -12129,7 +12129,7 @@ void SelectionDAG::updateDivergence(SDNode *N) {
     bool IsDivergent = calculateDivergence(N);
     if (N->SDNodeBits.IsDivergent != IsDivergent) {
       N->SDNodeBits.IsDivergent = IsDivergent;
-      llvm::append_range(Worklist, N->uses());
+      llvm::append_range(Worklist, N->users());
     }
   } while (!Worklist.empty());
 }
@@ -12145,7 +12145,7 @@ void SelectionDAG::CreateTopologicalOrder(std::vector<SDNode *> &Order) {
   }
   for (size_t I = 0; I != Order.size(); ++I) {
     SDNode *N = Order[I];
-    for (auto *U : N->uses()) {
+    for (auto *U : N->users()) {
       unsigned &UnsortedOps = Degree[U];
       if (0 == --UnsortedOps)
         Order.push_back(U);
@@ -12274,7 +12274,7 @@ unsigned SelectionDAG::AssignTopologicalOrder() {
     checkForCycles(N, this);
     // N is in sorted position, so all its uses have one less operand
     // that needs to be sorted.
-    for (SDNode *P : N->uses()) {
+    for (SDNode *P : N->users()) {
       unsigned Degree = P->getNodeId();
       assert(Degree != 0 && "Invalid node degree");
       --Degree;
@@ -12692,7 +12692,7 @@ bool SDNode::hasAnyUseOfValue(unsigned Value) const {
 /// isOnlyUserOf - Return true if this node is the only use of N.
 bool SDNode::isOnlyUserOf(const SDNode *N) const {
   bool Seen = false;
-  for (const SDNode *User : N->uses()) {
+  for (const SDNode *User : N->users()) {
     if (User == this)
       Seen = true;
     else
@@ -12705,7 +12705,7 @@ bool SDNode::isOnlyUserOf(const SDNode *N) const {
 /// Return true if the only users of N are contained in Nodes.
 bool SDNode::areOnlyUsersOf(ArrayRef<const SDNode *> Nodes, const SDNode *N) {
   bool Seen = false;
-  for (const SDNode *User : N->uses()) {
+  for (const SDNode *User : N->users()) {
     if (llvm::is_contained(Nodes, User))
       Seen = true;
     else
