@@ -701,6 +701,26 @@ bool MipsAsmBackend::isMicroMips(const MCSymbol *Sym) const {
   return false;
 }
 
+namespace {
+
+class WindowsMipsAsmBackend : public MipsAsmBackend {
+public:
+  WindowsMipsAsmBackend(const Target &T, const MCRegisterInfo &MRI,
+                        const MCSubtargetInfo &STI)
+      : MipsAsmBackend(T, MRI, STI.getTargetTriple(), STI.getCPU(), false,
+                       STI.getFeatureBits()[Mips::FeatureMipsCheri256]   ? 32
+                       : STI.getFeatureBits()[Mips::FeatureMipsCheri128] ? 16
+                       : STI.getFeatureBits()[Mips::FeatureMipsCheri64]  ? 8
+                                                                         : 0) {}
+
+  std::unique_ptr<MCObjectTargetWriter>
+  createObjectTargetWriter() const override {
+    return createMipsWinCOFFObjectWriter();
+  }
+};
+
+} // end anonymous namespace
+
 MCAsmBackend *llvm::createMipsAsmBackend(const Target &T,
                                          const MCSubtargetInfo &STI,
                                          const MCRegisterInfo &MRI,
@@ -709,6 +729,10 @@ MCAsmBackend *llvm::createMipsAsmBackend(const Target &T,
                      : STI.getFeatureBits()[Mips::FeatureMipsCheri128] ? 16
                      : STI.getFeatureBits()[Mips::FeatureMipsCheri64]  ? 8
                                                                        : 0;
+  const Triple &TheTriple = STI.getTargetTriple();
+  if (TheTriple.isOSWindows() && TheTriple.isOSBinFormatCOFF())
+    return new WindowsMipsAsmBackend(T, MRI, STI);
+
   MipsABIInfo ABI = MipsABIInfo::computeTargetABI(STI.getTargetTriple(),
                                                   STI.getCPU(), Options);
   return new MipsAsmBackend(T, MRI, STI.getTargetTriple(), STI.getCPU(),
