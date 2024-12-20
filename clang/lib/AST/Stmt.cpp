@@ -47,8 +47,14 @@
 
 using namespace clang;
 
-static_assert((int)CK_IntToOCLSampler < ((1 << CAST_KIND_BITS) - 1),
-              "Need more cast kind bits");
+#define STMT(CLASS, PARENT)
+#define STMT_RANGE(BASE, FIRST, LAST)
+#define LAST_STMT_RANGE(BASE, FIRST, LAST)                                     \
+  static_assert(llvm::isUInt<NumStmtBits>(Stmt::StmtClass::LAST##Class),             \
+                "The number of 'StmtClass'es is strictly bound "               \
+                "by a bitfield of width NumStmtBits");
+#define ABSTRACT_STMT(STMT)
+#include "clang/AST/StmtNodes.inc"
 
 static struct StmtClassNameTable {
   const char *Name;
