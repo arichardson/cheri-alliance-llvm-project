@@ -7,8 +7,11 @@
 //===----------------------------------------------------------------------===//
 
 #include "RISCVSelectionDAGInfo.h"
+#include "RISCVISelLowering.h"
 #include "RISCVSubtarget.h"
 #include "MCTargetDesc/RISCVBaseInfo.h"
+
+using namespace llvm;
 
 using namespace llvm;
 
@@ -83,7 +86,16 @@ SDValue EmitTargetCodeForMemOp(SelectionDAG &DAG, const SDLoc &dl,
 }
 }
 
-RISCVSelectionDAGInfo::~RISCVSelectionDAGInfo() {
+RISCVSelectionDAGInfo::~RISCVSelectionDAGInfo() = default;
+
+bool RISCVSelectionDAGInfo::isTargetMemoryOpcode(unsigned Opcode) const {
+  return Opcode >= RISCVISD::FIRST_MEMORY_OPCODE &&
+         Opcode <= RISCVISD::LAST_MEMORY_OPCODE;
+}
+
+bool RISCVSelectionDAGInfo::isTargetStrictFPOpcode(unsigned Opcode) const {
+  return Opcode >= RISCVISD::FIRST_STRICTFP_OPCODE &&
+         Opcode <= RISCVISD::LAST_STRICTFP_OPCODE;
 }
 
 SDValue RISCVSelectionDAGInfo::EmitTargetCodeForMemcpy(

@@ -13,6 +13,8 @@
 
 #include "MipsTargetMachine.h"
 #include "MipsSubtarget.h"
+#include "MipsSelectionDAGInfo.h"
+#include "MipsISelLowering.h"
 using namespace llvm;
 
 #define DEBUG_TYPE "mips-selectiondag-info"
@@ -89,7 +91,11 @@ SDValue EmitTargetCodeForMemOp(SelectionDAG &DAG, const SDLoc &dl,
 }
 }
 
-MipsSelectionDAGInfo::~MipsSelectionDAGInfo() {
+MipsSelectionDAGInfo::~MipsSelectionDAGInfo() = default;
+
+bool MipsSelectionDAGInfo::isTargetMemoryOpcode(unsigned Opcode) const {
+  return Opcode >= MipsISD::FIRST_MEMORY_OPCODE &&
+         Opcode <= MipsISD::LAST_MEMORY_OPCODE;
 }
 
 SDValue MipsSelectionDAGInfo::EmitTargetCodeForMemcpy(

@@ -483,7 +483,8 @@ enum NodeType : unsigned {
 
   // FP to 32 bit int conversions for RV64. These are used to keep track of the
   // result being sign extended to 64 bit. These saturate out of range inputs.
-  STRICT_FCVT_W_RV64 = ISD::FIRST_TARGET_STRICTFP_OPCODE,
+  FIRST_STRICTFP_OPCODE,
+  STRICT_FCVT_W_RV64 = FIRST_STRICTFP_OPCODE,
   STRICT_FCVT_WU_RV64,
   STRICT_FADD_VL,
   STRICT_FSUB_VL,
@@ -505,22 +506,19 @@ enum NodeType : unsigned {
   STRICT_FSETCC_VL,
   STRICT_FSETCCS_VL,
   STRICT_VFROUND_NOEXCEPT_VL,
-  LAST_RISCV_STRICTFP_OPCODE = STRICT_VFROUND_NOEXCEPT_VL,
+  LAST_STRICTFP_OPCODE = STRICT_VFROUND_NOEXCEPT_VL,
 
-  // WARNING: Do not add anything in the end unless you want the node to
-  // have memop! In fact, starting from FIRST_TARGET_MEMORY_OPCODE all
-  // opcodes will be thought as target memory ops!
-
-  // Represents an AUIPC+L[WD] pair. Selected to PseudoLGA.
-  CLGC = ISD::FIRST_TARGET_MEMORY_OPCODE,
-  // Load initial exec thread-local address.
-  CLA_TLS_IE,
-
-  TH_LWD,
+  FIRST_MEMORY_OPCODE,
+  TH_LWD = FIRST_MEMORY_OPCODE,
   TH_LWUD,
   TH_LDD,
   TH_SWD,
   TH_SDD,
+
+  // Load initial exec thread-local address.
+  CLA_TLS_IE,
+  CLGC,
+  LAST_MEMORY_OPCODE = CLGC,
 };
 // clang-format on
 } // namespace RISCVISD
