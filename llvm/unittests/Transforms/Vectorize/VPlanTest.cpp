@@ -1289,7 +1289,7 @@ TEST(VPRecipeTest, MayHaveSideEffectsAndMayReadWriteMemory) {
   }
   {
     VPValue Op1;
-    VPPredInstPHIRecipe Recipe(&Op1);
+    VPPredInstPHIRecipe Recipe(&Op1, {});
     EXPECT_FALSE(Recipe.mayHaveSideEffects());
     EXPECT_FALSE(Recipe.mayReadFromMemory());
     EXPECT_FALSE(Recipe.mayWriteToMemory());
