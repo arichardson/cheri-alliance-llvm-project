@@ -85,11 +85,11 @@ public:
                              SmallVectorImpl<MCFixup> &Fixups,
                              const MCSubtargetInfo &STI) const;
 
-  unsigned getImmOpValueAsr1(const MCInst &MI, unsigned OpNo,
+  uint64_t getImmOpValueAsr1(const MCInst &MI, unsigned OpNo,
                              SmallVectorImpl<MCFixup> &Fixups,
                              const MCSubtargetInfo &STI) const;
 
-  unsigned getImmOpValue(const MCInst &MI, unsigned OpNo,
+  uint64_t getImmOpValue(const MCInst &MI, unsigned OpNo,
                          SmallVectorImpl<MCFixup> &Fixups,
                          const MCSubtargetInfo &STI) const;
 
@@ -476,14 +476,14 @@ RISCVMCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
   return 0;
 }
 
-unsigned
+uint64_t
 RISCVMCCodeEmitter::getImmOpValueAsr1(const MCInst &MI, unsigned OpNo,
                                       SmallVectorImpl<MCFixup> &Fixups,
                                       const MCSubtargetInfo &STI) const {
   const MCOperand &MO = MI.getOperand(OpNo);
 
   if (MO.isImm()) {
-    unsigned Res = MO.getImm();
+    uint64_t Res = MO.getImm();
     assert((Res & 1) == 0 && "LSB is non-zero");
     return Res >> 1;
   }
@@ -491,7 +491,7 @@ RISCVMCCodeEmitter::getImmOpValueAsr1(const MCInst &MI, unsigned OpNo,
   return getImmOpValue(MI, OpNo, Fixups, STI);
 }
 
-unsigned RISCVMCCodeEmitter::getImmOpValue(const MCInst &MI, unsigned OpNo,
+uint64_t RISCVMCCodeEmitter::getImmOpValue(const MCInst &MI, unsigned OpNo,
                                            SmallVectorImpl<MCFixup> &Fixups,
                                            const MCSubtargetInfo &STI) const {
   bool EnableRelax = STI.hasFeature(RISCV::FeatureRelax);
