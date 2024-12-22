@@ -377,7 +377,7 @@ struct Config {
   bool zInterpose;
   bool zKeepTextSectionPrefix;
   bool zLrodataAfterBss;
-  bool zNoBtCfi = false;
+  bool zNoBtCfi;
   bool zNodefaultlib;
   bool zNodelete;
   bool zNodlopen;
