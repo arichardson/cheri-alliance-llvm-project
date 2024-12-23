@@ -2536,8 +2536,9 @@ bool RISCVDAGToDAGISel::SelectFrameIndexCommon(SDValue Addr, SDValue &Base,
   return false;
 }
 
+// Select a frame index and an optional immediate offset from an ADD or OR.
 bool RISCVDAGToDAGISel::SelectFrameRegImmCommon(SDValue Addr, SDValue &Base,
-                                                SDValue &Offset, EVT PtrVT) {
+                                              SDValue &Offset, EVT PtrVT) {
   if (Addr.getValueType().isFatPointer() != PtrVT.isFatPointer())
     return false;
 
@@ -2551,8 +2552,8 @@ bool RISCVDAGToDAGISel::SelectFrameRegImmCommon(SDValue Addr, SDValue &Base,
     int64_t CVal = cast<ConstantSDNode>(Addr.getOperand(1))->getSExtValue();
     if (isInt<12>(CVal)) {
       Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), PtrVT);
-      Offset = CurDAG->getSignedTargetConstant(
-          CVal, SDLoc(Addr), Subtarget->getXLenVT());
+      Offset = CurDAG->getTargetConstant(CVal, SDLoc(Addr),
+                                         Subtarget->getXLenVT());
       return true;
     }
   }
@@ -2693,11 +2694,6 @@ bool RISCVDAGToDAGISel::SelectAddrRegRegScale(SDValue Addr,
   }
 
   return false;
-}
-
-bool RISCVDAGToDAGISel::SelectFrameAddrRegImm(SDValue Addr, SDValue &Base,
-                                              SDValue &Offset) {
-  return SelectFrameRegImmCommon(Addr, Base, Offset, Subtarget->getXLenVT());
 }
 
 bool RISCVDAGToDAGISel::SelectCapFrameAddrRegImm(SDValue Cap, SDValue &Base,

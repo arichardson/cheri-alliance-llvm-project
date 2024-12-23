@@ -49,7 +49,6 @@ public:
                               EVT PtrVT);
   bool SelectFrameRegImmCommon(SDValue Addr, SDValue &Base, SDValue &Offset,
                                EVT PtrVT);
-  bool SelectFrameAddrRegImm(SDValue Addr, SDValue &Base, SDValue &Offset);
   bool SelectCapFrameAddrRegImm(SDValue Cap, SDValue &Base, SDValue &Offset);
   bool SelectBase(SDValue Addr, SDValue &Base, EVT PtrVT);
   bool SelectRegImmCommon(SDValue Addr, SDValue &Base, SDValue &Offset,
