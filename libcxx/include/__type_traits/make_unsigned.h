@@ -31,27 +31,21 @@ template <class _Tp>
 using __make_unsigned_t = __make_unsigned(_Tp);
 
 #else
-// clang-format off
-typedef __type_list<unsigned char,
-        __type_list<unsigned short,
-        __type_list<unsigned int,
-        __type_list<unsigned long,
-        __type_list<unsigned long long,
+using __unsigned_types =
+    __type_list<unsigned char,
+                unsigned short,
+                unsigned int,
+                unsigned long,
+                unsigned long long
 #  if _LIBCPP_HAS_INT128
-        __type_list<__uint128_t,
+                ,
+                __uint128_t
 #  endif
 #  if __has_feature(capabilities)
-        __type_list<__uintcap_t,
+                ,
+                __uintcap_t,
 #  endif
-        __nat
-#  if _LIBCPP_HAS_INT128
-        >
-#  endif
-#  if __has_feature(capabilities)
-        >
-#  endif
-        > > > > > __unsigned_types;
-// clang-format on
+                >;
 
 template <class _Tp, bool = is_integral<_Tp>::value || is_enum<_Tp>::value>
 struct __make_unsigned{};
