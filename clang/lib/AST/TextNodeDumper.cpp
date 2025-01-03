@@ -2983,6 +2983,9 @@ void TextNodeDumper::VisitOpenACCShutdownConstruct(
     const OpenACCShutdownConstruct *S) {
   OS << " " << S->getDirectiveKind();
 }
+void TextNodeDumper::VisitOpenACCSetConstruct(const OpenACCSetConstruct *S) {
+  OS << " " << S->getDirectiveKind();
+}
 
 void TextNodeDumper::VisitEmbedExpr(const EmbedExpr *S) {
   AddChild("begin", [=] { OS << S->getStartingElementPos(); });
