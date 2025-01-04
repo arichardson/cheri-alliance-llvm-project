@@ -456,8 +456,6 @@ int getLoadFPImm(APFloat FPImm);
 namespace RISCVSysReg {
 struct SysReg {
   const char Name[32];
-  const char AltName[32];
-  const char DeprecatedName[32];
   unsigned Encoding;
   // FIXME: add these additional fields when needed.
   // Privilege Access: Read, Write, Read-Only.
@@ -469,14 +467,16 @@ struct SysReg {
   // Register number without the privilege bits.
   // unsigned Number;
   FeatureBitset FeaturesRequired;
-  bool isRV32Only;
-  bool isDisabledInCapMode;
+  bool IsRV32Only;
+  bool IsDisabledInCapMode;
+  bool IsAltName;
+  bool IsDeprecatedName;
 
   bool haveRequiredFeatures(const FeatureBitset &ActiveFeatures) const {
     // Not in 32-bit mode.
-    if (isRV32Only && ActiveFeatures[RISCV::Feature64Bit])
+    if (IsRV32Only && ActiveFeatures[RISCV::Feature64Bit])
       return false;
-    if (isDisabledInCapMode && ActiveFeatures[RISCV::FeatureCapMode])
+    if (IsDisabledInCapMode && ActiveFeatures[RISCV::FeatureCapMode])
       return false;
     // No required feature associated with the system register.
     if (FeaturesRequired.none())
