@@ -1725,7 +1725,6 @@ OperandMatcher &InstructionMatcher::addPhysRegInput(const Record *Reg,
   OperandMatcher *OM = new OperandMatcher(*this, OpIdx, "", TempOpIdx);
   Operands.emplace_back(OM);
   Rule.definePhysRegOperand(Reg, *OM);
-  PhysRegInputs.emplace_back(Reg, OpIdx);
   return *OM;
 }
 
