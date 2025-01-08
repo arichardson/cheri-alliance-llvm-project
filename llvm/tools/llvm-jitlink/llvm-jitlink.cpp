@@ -2563,6 +2563,7 @@ int main(int argc, char *argv[]) {
     if (Timers)
       Timers->JITLinkTG.printAll(errs());
     reportLLVMJITLinkError(EntryPoint.takeError());
+    ExitOnErr(S->ES.endSession());
     exit(1);
   }
 
