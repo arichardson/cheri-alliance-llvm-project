@@ -129,6 +129,7 @@ namespace {
     const TargetRegisterInfo *TRI = nullptr;
     const MachineFrameInfo *MFI = nullptr;
     MachineRegisterInfo *MRI = nullptr;
+    RegisterClassInfo RegClassInfo;
     TargetSchedModel SchedModel;
     bool PreRegAlloc = false;
     bool HasProfileData = false;
@@ -397,6 +398,7 @@ bool MachineLICMImpl::run(MachineFunction &MF) {
   MFI = &MF.getFrameInfo();
   MRI = &MF.getRegInfo();
   SchedModel.init(&ST);
+  RegClassInfo.runOnMachineFunction(MF);
 
   HasProfileData = MF.getFunction().hasProfileData();
 
@@ -413,7 +415,7 @@ bool MachineLICMImpl::run(MachineFunction &MF) {
     std::fill(RegPressure.begin(), RegPressure.end(), 0);
     RegLimit.resize(NumRPS);
     for (unsigned i = 0, e = NumRPS; i != e; ++i)
-      RegLimit[i] = TRI->getRegPressureSetLimit(MF, i);
+      RegLimit[i] = RegClassInfo.getRegPressureSetLimit(i);
   }
 
   if (HoistConstLoads)
