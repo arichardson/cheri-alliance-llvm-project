@@ -874,6 +874,14 @@ static Value *simplifySubInst(Value *Op0, Value *Op1, bool IsNSW, bool IsNUW,
   if (Value *V = simplifyByDomEq(Instruction::Sub, Op0, Op1, Q, MaxRecurse))
     return V;
 
+  // (sub nuw C_Mask, (xor X, C_Mask)) -> X
+  if (IsNUW) {
+    Value *X;
+    if (match(Op1, m_Xor(m_Value(X), m_Specific(Op0))) &&
+        match(Op0, m_LowBitMask()))
+      return X;
+  }
+
   return nullptr;
 }
 
@@ -2542,6 +2550,14 @@ static Value *simplifyXorInst(Value *Op0, Value *Op1, const SimplifyQuery &Q,
 
   if (Value *V = simplifyByDomEq(Instruction::Xor, Op0, Op1, Q, MaxRecurse))
     return V;
+
+  // (xor (sub nuw C_Mask, X), C_Mask) -> X
+  {
+    Value *X;
+    if (match(Op0, m_NUWSub(m_Specific(Op1), m_Value(X))) &&
+        match(Op1, m_LowBitMask()))
+      return X;
+  }
 
   return nullptr;
 }
