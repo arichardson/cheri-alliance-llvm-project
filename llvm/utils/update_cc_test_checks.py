@@ -52,7 +52,7 @@ SUBST = {
     '%riscv64_bakewell_hybrid_cc1': ['-cc1', '-triple=riscv64-unknown-freebsd', '-target-feature', '+zcherihybrid']
 }
 
-def get_line2func_list(clang_cmd: Command):
+def get_line2func_list(args, clang_args, globals_name_prefix):
     ret = collections.defaultdict(list)
     # Use clang's JSON AST dump to get the mangled name
     json_dump_args = clang_cmd.args + ['-fsyntax-only', '-o', '-']
@@ -140,6 +140,14 @@ def get_line2func_list(clang_cmd: Command):
         if search is None:
             search = spell
         mangled = node.get("mangledName", spell)
+        # Clang's AST dump includes the globals prefix, but when Clang emits
+        # LLVM IR this is not included and instead added as part of the asm
+        # output. Strip it from the mangled name of globals when needed
+        # (see DataLayout::getGlobalPrefix()).
+        if globals_name_prefix:
+            storage = node.get("storageClass", None)
+            if storage != "static" and mangled[0] == globals_name_prefix:
+                mangled = mangled[1:]
         ret[int(line) - 1].append((spell, mangled, search))
 
     ast = json.loads(stdout)
@@ -417,11 +425,23 @@ def main():
             common.debug('Extracted clang cmd: clang {}'.format(clang_cmd))
             common.debug('Extracted FileCheck prefixes: {}'.format(prefixes))
 
-            get_function_body(builder, ti.args, ti.path, clang_cmd, prefixes)
+            # Invoke external tool and extract function bodies.
+            raw_tool_output = common.invoke_tool(ti.args.clang, clang_args, ti.path)
+            get_function_body(
+                builder,
+                ti.args,
+                ti.path,
+                clang_args,
+                extra_commands,
+                prefixes,
+                raw_tool_output,
+            )
 
             # Invoke clang -Xclang -ast-dump=json to get mapping from start lines to
             # mangled names. Forward all clang args for now.
-            for k, v in get_line2func_list(pipeline.commands[0]).items():
+            for k, v in get_line2func_list(
+                ti.args, clang_args, common.get_globals_name_prefix(raw_tool_output)
+            ).items():
                 line2func_list[k].extend(v)
 
         func_dict = builder.finish_and_get_func_dict()
