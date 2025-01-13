@@ -15,7 +15,6 @@ class TestDbgInfoContentVector(TestBase):
     @skipIf(macos_version=["<", "14.0"])
     @skipIfLinux
     @skipIfDarwin  # https://github.com/llvm/llvm-project/issues/106475
-    @skipIfLinux  # https://discourse.llvm.org/t/lldb-test-failures-on-linux/80095
     def test(self):
         self.build()
 
