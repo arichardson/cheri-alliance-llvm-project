@@ -4028,6 +4028,10 @@ std::optional<CmpPredicate> CmpPredicate::getMatching(CmpPredicate A,
   return {};
 }
 
+CmpInst::Predicate CmpPredicate::getPreferredSignedPredicate() const {
+  return HasSameSign ? ICmpInst::getSignedPredicate(Pred) : Pred;
+}
+
 CmpPredicate CmpPredicate::get(const CmpInst *Cmp) {
   if (auto *ICI = dyn_cast<ICmpInst>(Cmp))
     return ICI->getCmpPredicate();
