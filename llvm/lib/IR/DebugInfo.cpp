@@ -1434,11 +1434,10 @@ LLVMDIBuilderCreateObjCProperty(LLVMDIBuilderRef Builder,
                   PropertyAttributes, unwrapDI<DIType>(Ty)));
 }
 
-LLVMMetadataRef LLVMDIBuilderCreateObjectPointerType(LLVMDIBuilderRef Builder,
-                                                     LLVMMetadataRef Type,
-                                                     LLVMBool Implicit) {
-  return wrap(unwrap(Builder)->createObjectPointerType(unwrapDI<DIType>(Type),
-                                                       Implicit));
+LLVMMetadataRef
+LLVMDIBuilderCreateObjectPointerType(LLVMDIBuilderRef Builder,
+                                     LLVMMetadataRef Type) {
+  return wrap(unwrap(Builder)->createObjectPointerType(unwrapDI<DIType>(Type)));
 }
 
 LLVMMetadataRef
