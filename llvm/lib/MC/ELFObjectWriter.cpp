@@ -1235,7 +1235,8 @@ void ELFObjectWriter::executePostLayoutBinding(MCAssembler &Asm) {
       continue;
     }
 
-    if (Renames.count(&Symbol) && Renames[&Symbol] != Alias) {
+    if (auto It = Renames.find(&Symbol);
+        It != Renames.end() && It->second != Alias) {
       Asm.getContext().reportError(S.Loc, Twine("multiple versions for ") +
                                               Symbol.getName());
       continue;
