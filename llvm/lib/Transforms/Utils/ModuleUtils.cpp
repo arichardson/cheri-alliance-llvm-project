@@ -47,9 +47,10 @@ static void appendToGlobalArray(StringRef ArrayName, Module &M, Function *F,
     }
     GVCtor->eraseFromParent();
   } else {
-    EltTy = StructType::get(IRB.getInt32Ty(),
-                            PointerType::get(FnTy, F->getAddressSpace()),
-                            IRB.getPtrTy(M.getDataLayout().getDefaultGlobalsAddressSpace()));
+    EltTy = StructType::get(
+        IRB.getInt32Ty(),
+        PointerType::get(M.getContext(), F->getAddressSpace()),
+        IRB.getPtrTy(M.getDataLayout().getDefaultGlobalsAddressSpace()));
   }
 
   // Build a 3 field global_ctor entry.  We don't take a comdat key.
@@ -270,7 +271,7 @@ std::pair<Function *, FunctionCallee> llvm::createSanitizerCtorAndInitFunctions(
         BasicBlock::Create(M.getContext(), "callfunc", Ctor, RetBB);
     auto *InitFn = cast<Function>(InitFunction.getCallee());
     auto *InitFnPtr =
-        PointerType::get(InitFn->getType(), InitFn->getAddressSpace());
+        PointerType::get(M.getContext(), InitFn->getAddressSpace());
     IRB.SetInsertPoint(EntryBB);
     Value *InitNotNull =
         IRB.CreateICmpNE(InitFn, ConstantPointerNull::get(InitFnPtr));
