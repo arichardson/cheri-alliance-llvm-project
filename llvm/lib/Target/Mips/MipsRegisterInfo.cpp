@@ -49,7 +49,9 @@ Cheri8("cheri8", cl::NotHidden,
 
 MipsRegisterInfo::MipsRegisterInfo(const MipsSubtarget &STI) :
   MipsGenRegisterInfo(STI.isABI_CheriPureCap() ?
-          Mips::C17 : Mips::RA, 0, 0, 0, STI.getHwMode()) {}
+          Mips::C17 : Mips::RA, 0, 0, 0, STI.getHwMode()) {
+  MIPS_MC::initLLVMToCVRegMapping(this);
+}
 
 unsigned MipsRegisterInfo::getPICCallReg() { return Mips::T9; }
 
