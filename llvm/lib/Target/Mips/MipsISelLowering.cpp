@@ -2857,6 +2857,14 @@ SDValue MipsTargetLowering::lowerGlobalAddress(SDValue Op,
   }
 
   assert(!ABI.IsCheriPureCap());
+  if (GV->hasDLLImportStorageClass()) {
+    assert(Subtarget.isTargetWindows() &&
+           "Windows is the only supported COFF target");
+    return getDllimportVariable(
+        N, SDLoc(N), Ty, DAG, DAG.getEntryNode(),
+        MachinePointerInfo::getGOT(DAG.getMachineFunction()));
+  }
+
   if (!isPositionIndependent()) {
     const MipsTargetObjectFile *TLOF =
         static_cast<const MipsTargetObjectFile *>(
@@ -4594,38 +4602,45 @@ MipsTargetLowering::LowerCall(TargetLowering::CallLoweringInfo &CLI,
   }
 
   if (GlobalAddressSDNode *G = dyn_cast<GlobalAddressSDNode>(Callee)) {
-      const GlobalValue *Val = G->getGlobal();
+    const GlobalValue *Val = G->getGlobal();
     if (CheriCapTable) {
-        Callee = getCallTargetFromCapTable(G, DL, CapType, DAG, Chain,
-                                           FuncInfo->callPtrInfo(MF, Val));
-        IsCallReloc = true;
-      } else if (IsPIC || ABI.IsCheriPureCap()) {
-        // Legacy ABI also needs to load from GOT in non-PIC since otherwise
-        // it will attempt to use a JAL relocation in a CGetPCCSetOffset (and
-        // corrupt the instruction)
-        InternalLinkage = Val->hasInternalLinkage();
+      Callee = getCallTargetFromCapTable(G, DL, CapType, DAG, Chain,
+                                         FuncInfo->callPtrInfo(MF, Val));
+      IsCallReloc = true;
+    } else if (Subtarget.isTargetCOFF() &&
+        G->getGlobal()->hasDLLImportStorageClass()) {
+      assert(Subtarget.isTargetWindows() &&
+             "Windows is the only supported COFF target");
+      auto PtrInfo = MachinePointerInfo();
+      Callee = DAG.getLoad(Ty, DL, Chain,
+                           getDllimportSymbol(G, SDLoc(G), Ty, DAG), PtrInfo);
+    } else if (IsPIC || ABI.IsCheriPureCap()) {
+      // Legacy ABI also needs to load from GOT in non-PIC since otherwise
+      // it will attempt to use a JAL relocation in a CGetPCCSetOffset (and
+      // corrupt the instruction)
+      InternalLinkage = Val->hasInternalLinkage();
 
-        if (InternalLinkage)
-          Callee = getAddrLocal(G, DL, Ty, DAG, ABI.IsN32() || ABI.IsN64(),
-                                Val->isThreadLocal());
-        else if (Subtarget.useXGOT()) {
-          Callee = getAddrGlobalLargeGOT(
-              G, DL, Ty, DAG, MipsII::MO_CALL_HI16, MipsII::MO_CALL_LO16, Chain,
-              FuncInfo->callPtrInfo(MF, Val), Val->isThreadLocal());
-          IsCallReloc = true;
-        } else {
-          Callee = getAddrGlobal(G, DL, Ty, DAG, MipsII::MO_GOT_CALL, Chain,
-                                 FuncInfo->callPtrInfo(MF, Val),
-                                 Val->isThreadLocal());
-          IsCallReloc = true;
-        }
+      if (InternalLinkage)
+        Callee = getAddrLocal(G, DL, Ty, DAG, ABI.IsN32() || ABI.IsN64(),
+                              Val->isThreadLocal());
+      else if (Subtarget.useXGOT()) {
+        Callee = getAddrGlobalLargeGOT(
+            G, DL, Ty, DAG, MipsII::MO_CALL_HI16, MipsII::MO_CALL_LO16, Chain,
+            FuncInfo->callPtrInfo(MF, Val), Val->isThreadLocal());
+        IsCallReloc = true;
       } else {
-        assert(!ABI.IsCheriPureCap());
-        Callee = DAG.getTargetGlobalAddress(
-            Val, DL, getPointerTy(DAG.getDataLayout(), 0), 0,
-            MipsII::MO_NO_FLAG);
+        Callee = getAddrGlobal(G, DL, Ty, DAG, MipsII::MO_GOT_CALL, Chain,
+                               FuncInfo->callPtrInfo(MF, Val),
+                               Val->isThreadLocal());
+        IsCallReloc = true;
       }
-      GlobalOrExternal = true;
+    } else {
+      assert(!ABI.IsCheriPureCap());
+      Callee = DAG.getTargetGlobalAddress(
+          Val, DL, getPointerTy(DAG.getDataLayout(), 0), 0,
+          MipsII::MO_NO_FLAG);
+    }
+    GlobalOrExternal = true;
   }
   else if (ExternalSymbolSDNode *S = dyn_cast<ExternalSymbolSDNode>(Callee)) {
     const char *Sym = S->getSymbol();

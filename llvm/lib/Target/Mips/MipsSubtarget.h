@@ -337,6 +337,7 @@ public:
     return (HasSym32 && isABI_N64()) || isABI_N32() || isABI_O32();
   }
   bool isSingleFloat() const { return IsSingleFloat; }
+  bool isTargetCOFF() const { return TargetTriple.isOSBinFormatCOFF(); }
   bool isTargetELF() const { return TargetTriple.isOSBinFormatELF(); }
   bool hasVFPU() const { return HasVFPU; }
   bool inMips16Mode() const { return InMips16Mode; }
@@ -414,6 +415,7 @@ public:
   bool os16() const { return Os16; }
 
   bool isTargetNaCl() const { return TargetTriple.isOSNaCl(); }
+  bool isTargetWindows() const { return TargetTriple.isOSWindows(); }
 
   bool isXRaySupported() const override { return true; }
 
