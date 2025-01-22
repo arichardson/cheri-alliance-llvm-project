@@ -230,11 +230,13 @@ MipsSEInstrInfo::isCopyInstrImpl(const MachineInstr &MI) const {
   return std::nullopt;
 }
 
-void MipsSEInstrInfo::
-storeRegToStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
-                Register SrcReg, bool isKill, int FI,
-                const TargetRegisterClass *RC, const TargetRegisterInfo *TRI,
-                int64_t Offset) const {
+void MipsSEInstrInfo::storeRegToStack(MachineBasicBlock &MBB,
+                                      MachineBasicBlock::iterator I,
+                                      Register SrcReg, bool isKill, int FI,
+                                      const TargetRegisterClass *RC,
+                                      const TargetRegisterInfo *TRI,
+                                      int64_t Offset,
+                                      MachineInstr::MIFlag Flags) const {
   DebugLoc DL;
   MachineMemOperand *MMO = GetMemOperand(MBB, FI, MachineMemOperand::MOStore);
 
@@ -350,10 +352,10 @@ storeRegToStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
     .addFrameIndex(FI).addImm(Offset).addMemOperand(MMO);
 }
 
-void MipsSEInstrInfo::
-loadRegFromStack(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
-                 Register DestReg, int FI, const TargetRegisterClass *RC,
-                 const TargetRegisterInfo *TRI, int64_t Offset) const {
+void MipsSEInstrInfo::loadRegFromStack(
+    MachineBasicBlock &MBB, MachineBasicBlock::iterator I, Register DestReg,
+    int FI, const TargetRegisterClass *RC, const TargetRegisterInfo *TRI,
+    int64_t Offset, MachineInstr::MIFlag Flags) const {
   DebugLoc DL;
   if (I != MBB.end()) DL = I->getDebugLoc();
   MachineMemOperand *MMO = GetMemOperand(MBB, FI, MachineMemOperand::MOLoad);
