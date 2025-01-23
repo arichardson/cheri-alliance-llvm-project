@@ -985,7 +985,6 @@ typedef void (*RangeIteratorCallback)(vaddr begin, vaddr end, void *arg);
 
 enum AndroidApiLevel {
   ANDROID_NOT_ANDROID = 0,
-  ANDROID_KITKAT = 19,
   ANDROID_LOLLIPOP_MR1 = 22,
   ANDROID_POST_LOLLIPOP = 23
 };
