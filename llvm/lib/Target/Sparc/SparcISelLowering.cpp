@@ -2325,7 +2325,7 @@ SDValue SparcTargetLowering::LowerF128_LibCallArg(SDValue Chain,
                          Align(8));
 
     Entry.Node = FIPtr;
-    Entry.Ty   = PointerType::getUnqual(ArgTy);
+    Entry.Ty = PointerType::getUnqual(ArgTy->getContext());
   }
   Args.push_back(Entry);
   return Chain;
@@ -2353,7 +2353,7 @@ SparcTargetLowering::LowerF128Op(SDValue Op, SelectionDAG &DAG,
     int RetFI = MFI.CreateStackObject(16, Align(8), false);
     RetPtr = DAG.getFrameIndex(RetFI, PtrVT);
     Entry.Node = RetPtr;
-    Entry.Ty   = PointerType::getUnqual(RetTy);
+    Entry.Ty = PointerType::getUnqual(RetTy->getContext());
     if (!Subtarget->is64Bit()) {
       Entry.IsSRet = true;
       Entry.IndirectType = RetTy;

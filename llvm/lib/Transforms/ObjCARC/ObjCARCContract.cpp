@@ -379,16 +379,7 @@ void ObjCARCContract::tryToContractReleaseIntoStoreStrong(
                    << "            Retain:  " << *Retain << "\n"
                    << "            Load:    " << *Load << "\n");
 
-  LLVMContext &C = Release->getContext();
-  unsigned AS = Release->getOperand(0)->getType()->getPointerAddressSpace();
-  Type *I8X = PointerType::get(Type::getInt8Ty(C), AS);
-  Type *I8XX = PointerType::get(I8X, AS);
-
-  Value *Args[] = { Load->getPointerOperand(), New };
-  if (Args[0]->getType() != I8XX)
-    Args[0] = new BitCastInst(Args[0], I8XX, "", Store->getIterator());
-  if (Args[1]->getType() != I8X)
-    Args[1] = new BitCastInst(Args[1], I8X, "", Store->getIterator());
+  Value *Args[] = {Load->getPointerOperand(), New};
   Function *Decl = EP.get(ARCRuntimeEntryPointKind::StoreStrong);
   CallInst *StoreStrong = objcarc::createCallInstWithColors(
       Decl, Args, "", Store->getIterator(), BlockColors);
