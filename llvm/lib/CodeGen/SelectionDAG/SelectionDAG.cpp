@@ -8232,7 +8232,7 @@ static SDValue getMemcpyLoadsAndStores(
     SelectionDAG &DAG, const SDLoc &dl, SDValue Chain, SDValue Dst, SDValue Src,
     uint64_t Size, Align Alignment, bool isVol, bool AlwaysInline,
     PreserveCheriTags PreserveTags, MachinePointerInfo DstPtrInfo,
-    MachinePointerInfo SrcPtrInfo, const AAMDNodes &AAInfo, AAResults *AA,
+    MachinePointerInfo SrcPtrInfo, const AAMDNodes &AAInfo, BatchAAResults *BatchAA,
     StringRef CopyTy, CodeGenOptLevel OptLevel) {
   // Turn a memcpy of undef to nop.
   // FIXME: We need to honor volatile even is Src is undef.
@@ -8334,8 +8334,8 @@ static SDValue getMemcpyLoadsAndStores(
 
   const Value *SrcVal = dyn_cast_if_present<const Value *>(SrcPtrInfo.V);
   bool isConstant =
-      AA && SrcVal &&
-      AA->pointsToConstantMemory(MemoryLocation(SrcVal, Size, AAInfo));
+      BatchAA && SrcVal &&
+      BatchAA->pointsToConstantMemory(MemoryLocation(SrcVal, Size, AAInfo));
 
   MachineMemOperand::Flags MMOFlags =
       isVol ? MachineMemOperand::MOVolatile : MachineMemOperand::MONone;
@@ -8781,7 +8781,7 @@ SDValue SelectionDAG::getMemcpy(
     Align Alignment, bool isVol, bool AlwaysInline, const CallInst *CI,
     std::optional<bool> OverrideTailCall, PreserveCheriTags PreserveTags,
     MachinePointerInfo DstPtrInfo, MachinePointerInfo SrcPtrInfo,
-    const AAMDNodes &AAInfo, AAResults *AA, StringRef CopyType) {
+    const AAMDNodes &AAInfo, BatchAAResults *BatchAA, StringRef CopyType) {
   // Check to see if we should lower the memcpy to loads and stores first.
   // For cases within the target-specified limits, this is the best choice.
   ConstantSDNode *ConstantSize = dyn_cast<ConstantSDNode>(Size);
@@ -8794,7 +8794,7 @@ SDValue SelectionDAG::getMemcpy(
 
     SDValue Result = getMemcpyLoadsAndStores(
         *this, dl, Chain, Dst, Src, ConstantSize->getZExtValue(), Alignment,
-        isVol, false, PreserveTags, DstPtrInfo, SrcPtrInfo, AAInfo, AA,
+        isVol, false, PreserveTags, DstPtrInfo, SrcPtrInfo, AAInfo, BatchAA,
         CopyType, OptLevel);
     if (Result.getNode())
       return Result;
@@ -8817,7 +8817,7 @@ SDValue SelectionDAG::getMemcpy(
     return getMemcpyLoadsAndStores(*this, dl, Chain, Dst, Src,
                                    ConstantSize->getZExtValue(), Alignment,
                                    isVol, true, PreserveTags, DstPtrInfo,
-                                   SrcPtrInfo, AAInfo, AA, CopyType, OptLevel);
+                                   SrcPtrInfo, AAInfo, BatchAA, CopyType, OptLevel);
   }
 
   checkAddrSpaceIsValidForLibcall(TLI, DstPtrInfo.getAddrSpace());
@@ -8913,7 +8913,7 @@ SDValue SelectionDAG::getMemmove(SDValue Chain, const SDLoc &dl, SDValue Dst,
                                  PreserveCheriTags PreserveTags,
                                  MachinePointerInfo DstPtrInfo,
                                  MachinePointerInfo SrcPtrInfo,
-                                 const AAMDNodes &AAInfo, AAResults *AA,
+                                 const AAMDNodes &AAInfo, BatchAAResults *BatchAA,
                                  StringRef MoveType) {
   // Check to see if we should lower the memmove to loads and stores first.
   // For cases within the target-specified limits, this is the best choice.

@@ -62,7 +62,7 @@ class Type;
 template <class GraphType> struct GraphTraits;
 template <typename T, unsigned int N> class SmallSetVector;
 template <typename T, typename Enable> struct FoldingSetTrait;
-class AAResults;
+class BatchAAResults;
 class BlockAddress;
 class BlockFrequencyInfo;
 class Constant;
@@ -604,7 +604,8 @@ public:
   /// certain types of nodes together, or eliminating superfluous nodes.  The
   /// Level argument controls whether Combine is allowed to produce nodes and
   /// types that are illegal on the target.
-  void Combine(CombineLevel Level, AAResults *AA, CodeGenOptLevel OptLevel);
+  void Combine(CombineLevel Level, BatchAAResults *BatchAA,
+               CodeGenOptLevel OptLevel);
 
   /// This transforms the SelectionDAG into a SelectionDAG that
   /// only uses types natively supported by the target.
@@ -1241,7 +1242,7 @@ public:
             const CallInst *CI, std::optional<bool> OverrideTailCall,
             PreserveCheriTags PreserveTags,
             MachinePointerInfo DstPtrInfo, MachinePointerInfo SrcPtrInfo,
-            const AAMDNodes &AAInfo = AAMDNodes(), AAResults *AA = nullptr,
+            const AAMDNodes &AAInfo = AAMDNodes(), BatchAAResults *AA = nullptr,
             StringRef CopyType = StringRef());
 
   /* \p CI if not null is the memset call being lowered.
@@ -1254,7 +1255,7 @@ public:
                      MachinePointerInfo DstPtrInfo,
                      MachinePointerInfo SrcPtrInfo,
                      const AAMDNodes &AAInfo = AAMDNodes(),
-                     AAResults *AA = nullptr, StringRef MoveType = StringRef());
+                     BatchAAResults *AA = nullptr, StringRef MoveType = StringRef());
 
   SDValue getMemset(SDValue Chain, const SDLoc &dl, SDValue Dst, SDValue Src,
                     SDValue Size, Align Alignment, bool isVol,

@@ -192,8 +192,8 @@ namespace {
     /// candidate again.
     DenseMap<SDNode *, std::pair<SDNode *, unsigned>> StoreRootCountMap;
 
-    // AA - Used for DAG load/store alias analysis.
-    AliasAnalysis *AA;
+    // BatchAA - Used for DAG load/store alias analysis.
+    BatchAAResults *BatchAA;
 
     /// This caches all chains that have already been processed in
     /// DAGCombiner::getStoreMergeCandidates() and found to have no mergeable
@@ -248,9 +248,10 @@ namespace {
     SDValue visit(SDNode *N);
 
   public:
-    DAGCombiner(SelectionDAG &D, AliasAnalysis *AA, CodeGenOptLevel OL)
+    DAGCombiner(SelectionDAG &D, BatchAAResults *BatchAA, CodeGenOptLevel OL)
         : DAG(D), TLI(D.getTargetLoweringInfo()),
-          STI(D.getSubtarget().getSelectionDAGInfo()), OptLevel(OL), AA(AA) {
+          STI(D.getSubtarget().getSelectionDAGInfo()), OptLevel(OL),
+          BatchAA(BatchAA) {
       ForCodeSize = DAG.shouldOptForSize();
       DisableGenericCombines = STI && STI->disableGenericCombines(OptLevel);
 
@@ -21935,7 +21936,7 @@ SDValue DAGCombiner::replaceStoreOfFPConstant(StoreSDNode *ST) {
 static SDValue convertUnalignedStoreOfLoadToMemmove(SDNode *N,
                                                     SelectionDAG &DAG,
                                                     bool IsBeforeLegalize,
-                                                    AAResults *AA,
+                                                    BatchAAResults *BatchAA,
                                                     const TargetLowering &TLI) {
   StoreSDNode *ST = dyn_cast<StoreSDNode>(N);
   if (!ST)
@@ -21999,7 +22000,7 @@ static SDValue convertUnalignedStoreOfLoadToMemmove(SDNode *N,
       return DAG.getMemmove(
           Chain, dl, Dest, Src, DAG.getConstant(StoreBytes, dl, MVT::i32),
           Align(Alignment), false, nullptr, isTail, PreserveTags, ST->getPointerInfo(),
-          LD->getPointerInfo(), AAMDNodes(), AA, "!!<CHERI-NODIAG>!!");
+          LD->getPointerInfo(), AAMDNodes(), BatchAA, "!!<CHERI-NODIAG>!!");
     }
   }
   return SDValue();
@@ -22297,7 +22298,7 @@ SDValue DAGCombiner::visitSTORE(SDNode *N) {
   }
 
   if (SDValue Memmove =
-          convertUnalignedStoreOfLoadToMemmove(N, DAG, !LegalTypes, AA, TLI)) {
+          convertUnalignedStoreOfLoadToMemmove(N, DAG, !LegalTypes, BatchAA, TLI)) {
     return Memmove;
   }
 
@@ -29143,7 +29144,7 @@ bool DAGCombiner::mayAlias(SDNode *Op0, SDNode *Op1) const {
     UseAA = false;
 #endif
 
-  if (UseAA && AA && MUC0.MMO->getValue() && MUC1.MMO->getValue() &&
+  if (UseAA && BatchAA && MUC0.MMO->getValue() && MUC1.MMO->getValue() &&
       Size0.hasValue() && Size1.hasValue() &&
       // Can't represent a scalable size + fixed offset in LocationSize
       (!Size0.isScalable() || SrcValOffset0 == 0) &&
@@ -29158,7 +29159,7 @@ bool DAGCombiner::mayAlias(SDNode *Op0, SDNode *Op1) const {
         Size0.isScalable() ? Size0 : LocationSize::precise(Overlap0);
     LocationSize Loc1 =
         Size1.isScalable() ? Size1 : LocationSize::precise(Overlap1);
-    if (AA->isNoAlias(
+    if (BatchAA->isNoAlias(
             MemoryLocation(MUC0.MMO->getValue(), Loc0,
                            UseTBAA ? MUC0.MMO->getAAInfo() : AAMDNodes()),
             MemoryLocation(MUC1.MMO->getValue(), Loc1,
@@ -29464,8 +29465,8 @@ bool DAGCombiner::findBetterNeighborChains(StoreSDNode *St) {
 }
 
 /// This is the entry point for the file.
-void SelectionDAG::Combine(CombineLevel Level, AliasAnalysis *AA,
+void SelectionDAG::Combine(CombineLevel Level, BatchAAResults *BatchAA,
                            CodeGenOptLevel OptLevel) {
   /// This is the main entry point to this class.
-  DAGCombiner(*this, AA, OptLevel).Run(Level);
+  DAGCombiner(*this, BatchAA, OptLevel).Run(Level);
 }
