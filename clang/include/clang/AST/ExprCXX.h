@@ -5033,11 +5033,11 @@ public:
   void setArrayFiller(Expr *E) { ArrayFillerOrUnionFieldInit = E; }
 
   Expr *getArrayFiller() {
-    return ArrayFillerOrUnionFieldInit.dyn_cast<Expr *>();
+    return dyn_cast_if_present<Expr *>(ArrayFillerOrUnionFieldInit);
   }
 
   const Expr *getArrayFiller() const {
-    return ArrayFillerOrUnionFieldInit.dyn_cast<Expr *>();
+    return dyn_cast_if_present<Expr *>(ArrayFillerOrUnionFieldInit);
   }
 
   void setInitializedFieldInUnion(FieldDecl *FD) {
@@ -5045,7 +5045,7 @@ public:
   }
 
   FieldDecl *getInitializedFieldInUnion() {
-    return ArrayFillerOrUnionFieldInit.dyn_cast<FieldDecl *>();
+    return dyn_cast_if_present<FieldDecl *>(ArrayFillerOrUnionFieldInit);
   }
 
   const FieldDecl *getInitializedFieldInUnion() const {
