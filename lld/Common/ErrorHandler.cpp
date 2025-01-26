@@ -296,7 +296,7 @@ void ErrorHandler::error(const Twine &msg) {
 
 void ErrorHandler::error(const Twine &msg, ErrorTag tag,
                          ArrayRef<StringRef> args) {
-  if (errorHandlingScript.empty()) {
+  if (errorHandlingScript.empty() || disableOutput) {
     error(msg);
     return;
   }
