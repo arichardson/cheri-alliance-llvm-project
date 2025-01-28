@@ -22769,7 +22769,7 @@ RValue CodeGenFunction::EmitBuiltinAlignTo(const CallExpr *E, bool AlignUp) {
     // instead have to perform it as an arithmetic calculation on the address
     // and update the capability address.
     if (Args.Src->getType()->isPointerTy() && !SrcIsCap) {
-      if (getLangOpts().isSignedOverflowDefined())
+      if (getLangOpts().PointerOverflowDefined)
         SrcForMask =
             Builder.CreateGEP(Int8Ty, SrcForMask, Args.Mask, "over_boundary");
       else

@@ -408,6 +408,7 @@ VALUE_LANGOPT(TrivialAutoVarInitMaxSize, 32, 0,
 ENUM_LANGOPT(SignedOverflowBehavior, SignedOverflowBehaviorTy, 2, SOB_Undefined,
              "signed integer overflow handling")
 
+LANGOPT(PointerOverflowDefined, 1, 0, "make pointer overflow defined")
 ENUM_LANGOPT(ThreadModel  , ThreadModelKind, 2, ThreadModelKind::POSIX, "Thread Model")
 ENUM_LANGOPT(CheriUIntCap, CheriUIntCapMode, 1, UIntCap_Offset,
              "CHERI uintcap_t handling")
