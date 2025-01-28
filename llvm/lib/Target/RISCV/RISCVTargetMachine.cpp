@@ -418,6 +418,7 @@ public:
       DAG->addMutation(createStoreClusterDAGMutation(
           DAG->TII, DAG->TRI, /*ReorderWhileClustering=*/true));
     }
+
     return DAG;
   }
 
