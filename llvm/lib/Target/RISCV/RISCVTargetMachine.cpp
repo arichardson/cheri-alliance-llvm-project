@@ -514,8 +514,10 @@ bool RISCVPassConfig::addPreISel() {
     addPass(createBarrierNoopPass());
   }
 
+  // XXX: GlobalMerge is undesirable on CHERI, as it makes the bounds on globals
+  // excessively loose.
   if ((TM->getOptLevel() != CodeGenOptLevel::None &&
-       EnableGlobalMerge == cl::BOU_UNSET) ||
+       !TM->hasCheriCapabilities() && EnableGlobalMerge == cl::BOU_UNSET) ||
       EnableGlobalMerge == cl::BOU_TRUE) {
     // FIXME: Like AArch64, we disable extern global merging by default due to
     // concerns it might regress some workloads. Unlike AArch64, we don't
