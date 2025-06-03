@@ -175,8 +175,16 @@ public:
     /* The underlying canonical type of an address must be unsigned long */
     if (!BT)
       return false;
-    if (BT->getKind() != BuiltinType::ULong && BT->getKind() != BuiltinType::ULongLong)
+    switch (BT->getKind()) {
+    case BuiltinType::ULong:
+    case BuiltinType::ULongLong:
+      break;
+    case BuiltinType::Long:
+    case BuiltinType::LongLong:
+      break;
+    default:
       return false;
+    }
 
     /* If it is a typedef to uintptr_t it is not a plain address. */
     return !isIntCapTypedef(OrigT);

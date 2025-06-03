@@ -47,11 +47,13 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
   const auto *C = Result.Nodes.getNodeAs<ExplicitCastExpr>("cast");
   const auto *From = Result.Nodes.getNodeAs<Type>("from");
   const auto *To = C->getType().getTypePtr();
-  const char *TypeString = "uintptr_t";
-  const char *CastString = "(uintptr_t)";
 
   /* Do not touch a forced cast. */
   if (Util::isForced(Result.SourceManager, C))
+    return;
+
+  /* Do not warn if this is clearly not meant to be a pointer. */
+  if (Util::isSafeNonPtrType(Ctx, To))
     return;
 
   /* Ignore casts where the "pointer" cannot carry provenance. */
@@ -68,12 +70,28 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
   if (Util::checkExprUsage(Ctx, SM, C))
     return;
 
-  bool UserPtr = Util::isUserPtr(From);
-  if (UserPtr) {
-    TypeString = "user_uintptr_t";
-    CastString = "(user_uintptr_t)";
+  bool IsSigned = To->isSignedIntegerType();
+  bool IsUser = Util::isUserPtr(From);
+  const char *TypeString;
+  const char *CastString;
+  if (IsSigned) {
+    if (IsUser) {
+      TypeString = "user_intptr_t";
+      CastString = "(user_intptr_t)";
+    } else {
+      TypeString = "intptr_t";
+      CastString = "(intptr_t)";
+    }
+  } else {
+    if (IsUser) {
+      TypeString = "user_uintptr_t";
+      CastString = "(user_uintptr_t)";
+    } else {
+      TypeString = "uintptr_t";
+      CastString = "(uintptr_t)";
+    }
   }
-  if (!FixCast && UserPtr != Util::isUserIntCapTypedef(To))
+  if (!FixCast && IsUser != Util::isUserIntCapTypedef(To))
     FixCast = true;
 
   /* Check usage of the cast expression. */
@@ -83,7 +101,7 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
 
   const auto *Var = Parents[0].get<VarDecl>();
   if (Var && !Util::isPlainAddress(Ctx, Var)) {
-    if (UserPtr == Util::isUserIntCapTypedef(Var->getType().getTypePtr()))
+    if (IsUser == Util::isUserIntCapTypedef(Var->getType().getTypePtr()))
       Var = nullptr;
   }
 
@@ -96,10 +114,11 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
       diag(C->getExprLoc(), "Here:") << FixItHint::CreateReplacement(
           SourceRange(CC->getLParenLoc(), CC->getRParenLoc()), CastString);
   }
-  if (Var) {
+  if (Var && IsSigned == Var->getType()->isSignedIntegerType()) {
     auto Begin = Var->getTypeSpecStartLoc();
     auto End = Var->getTypeSpecEndLoc();
-    diag(C->getExprLoc(), "CHERI: Variable type should be 'uintptr_t'")
+    diag(C->getExprLoc(), "CHERI: Variable type should be '%0'")
+        << TypeString
         << FixItHint::CreateReplacement(SourceRange(Begin, End), TypeString);
   }
 }
