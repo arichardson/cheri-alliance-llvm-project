@@ -227,6 +227,8 @@ void Ioctl::doInit() {
   addFunc("snd_hwdep_control_ioctl", 3);
   addFunc("snd_pcm_control_ioctl", 3);
   addFunc("snd_rawmidi_control_ioctl", 3);
+  /* Entries of xe_oa_user_extension_funcs[] array. */
+  addFunc("xe_oa_user_ext_set_property", 2);
 
   /* Blacklisted functions that are never ioctl functions. */
   addBlacklist("cdrom_ioctl_clear_options");
@@ -382,7 +384,6 @@ void Ioctl::doInit() {
   addFunc("cache_ioctl_pipefs", 2);
   addFunc("cache_ioctl_procfs", 2);
   addFunc("cached_dev_ioctl", 3);
-  addFunc("cached_dev_ioctl", 3);
   addFunc("cachefiles_ondemand_fd_ioctl", 2);
   addFunc("can327_ldisc_ioctl", 2);
   addFunc("cap_ioctl_unlocked", 2);
@@ -524,6 +525,8 @@ void Ioctl::doInit() {
   addFunc("fat_generic_ioctl", 2);
   addFunc("fat_ioctl_fitrim", 1);
   addFunc("fb_ioctl", 2);
+  addFunc("fcntl_set_rw_hint", 2);
+  addFunc("fcp_hwdep_ioctl", 3);
   addFunc("fd_ioctl", 3);
   addFunc("fd_locked_ioctl", 3);
   addFunc("ffs_ep0_ioctl", 2);
@@ -905,7 +908,6 @@ void Ioctl::doInit() {
   addFunc("snd_compr_set_metadata", 1);
   addFunc("snd_compr_set_params", 1);
   addFunc("snd_compr_task_create", 1);
-  addFunc("snd_compr_task_seq", 1);
   addFunc("snd_compr_task_seq", 1);
   addFunc("snd_compr_task_start_ioctl", 1);
   addFunc("snd_compr_task_status_ioctl", 1);
