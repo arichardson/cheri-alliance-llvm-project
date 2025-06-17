@@ -410,6 +410,13 @@ def : PatGpcrGpcr<riscv_cap_equal_exact, SCEQ, XLenVT>;
 let Predicates = [HasZCheriPurecap, HasZCheriHybrid] in
 def : Pat<(int_cheri_ddc_get), (CHERI_CSRRC CSR_DDC.Encoding, (XLenVT X0))>;
 
+
+// Pseudo instruction to handle getting pcc when in integer mode
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0, usesCustomInserter = 1 in
+def CheriPccGetIntMode : Pseudo<(outs GPCR:$rd), (ins), []>;
+let Predicates = [HasZCheriPurecap, NotCapMode] in
+def : Pat<(int_cheri_pcc_get), (CheriPccGetIntMode)>;
+
 /// Capability loads
 
 let Predicates = [HasZCheriPurecap, NotCapMode, HasStdExtD, IsRV32] in

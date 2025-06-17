@@ -108,9 +108,27 @@ private:
 
   void emitNTLHint(const MachineInstr *MI);
 
+  void emitCheriModeSwitchAnnotations(const MachineInstr *MI);
+
   bool lowerToMCInst(const MachineInstr *MI, MCInst &OutMI);
+
+  MCSubtargetInfo &copySTI();
+
+  void setFeatureBits(uint64_t Feature) {
+    if (!(STI->hasFeature(Feature))) {
+      MCSubtargetInfo &STI = copySTI();
+      STI.ToggleFeature(Feature);
+    }
+  }
+
+  void clearFeatureBits(uint64_t Feature) {
+    if (STI->hasFeature(Feature)) {
+      MCSubtargetInfo &STI = copySTI();
+      STI.ToggleFeature(Feature);
+    }
+  }
 };
-}
+} // namespace
 
 void RISCVAsmPrinter::LowerSTACKMAP(MCStreamer &OutStreamer, StackMaps &SM,
                                     const MachineInstr &MI) {
@@ -285,11 +303,28 @@ void RISCVAsmPrinter::emitNTLHint(const MachineInstr *MI) {
   EmitToStreamer(*OutStreamer, Hint);
 }
 
+void RISCVAsmPrinter::emitCheriModeSwitchAnnotations(const MachineInstr *MI) {
+  auto &RTS =
+      static_cast<RISCVTargetStreamer &>(*OutStreamer->getTargetStreamer());
+  switch (MI->getOpcode()) {
+  default:
+    break;
+  case RISCV::MODESW_CAP:
+    RTS.emitDirectiveOptionCapMode();
+    setFeatureBits(RISCV::FeatureCapMode);
+    break;
+  case RISCV::MODESW_INT:
+    RTS.emitDirectiveOptionNoCapMode();
+    clearFeatureBits(RISCV::FeatureCapMode);
+    break;
+  }
+}
+
 void RISCVAsmPrinter::emitInstruction(const MachineInstr *MI) {
-  RISCV_MC::verifyInstructionPredicates(MI->getOpcode(),
-                                        getSubtargetInfo().getFeatureBits());
+  RISCV_MC::verifyInstructionPredicates(MI->getOpcode(), STI->getFeatureBits());
 
   emitNTLHint(MI);
+  emitCheriModeSwitchAnnotations(MI);
 
   // Do any auto-generated pseudo lowerings.
   if (emitPseudoExpansionLowering(*OutStreamer, MI))
@@ -505,9 +540,8 @@ void RISCVAsmPrinter::emitFunctionEntryLabel() {
     RTS.emitDirectiveCheriDontSeal(*CurrentFnSym);
   }
   AsmPrinter::emitFunctionEntryLabel();
-  auto &Subtarget = MF->getSubtarget<RISCVSubtarget>();
   const MachineJumpTableInfo *MJTI = MF->getJumpTableInfo();
-  if (RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()) &&
+  if (RISCVABI::isCheriPureCapABI(STI->getTargetABI()) &&
       MJTI && !MJTI->isEmpty()) {
     MCSymbol *Sym = getSymbolWithGlobalValueBase(&MF->getFunction(),
                                                  "$jump_table_base");
@@ -1095,4 +1129,11 @@ bool RISCVAsmPrinter::lowerToMCInst(const MachineInstr *MI, MCInst &OutMI) {
   }
   }
   return false;
+}
+
+MCSubtargetInfo &RISCVAsmPrinter::copySTI() {
+  RISCVSubtarget &STICopy = *static_cast<RISCVSubtarget *>(
+      &OutStreamer->getContext().getSubtargetCopy(*STI));
+  STI = &STICopy;
+  return STICopy;
 }
