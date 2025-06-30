@@ -509,10 +509,10 @@ Pattern::parseBinop(StringRef Expr, StringRef &RemainingExpr,
     EvalBinop = exprSub;
     break;
   case '*':
-    EvalBinop = operator*;
+    EvalBinop = exprMul;
     break;
   case '/':
-    EvalBinop = operator/;
+    EvalBinop = exprDiv;
     break;
   default:
     return ErrorDiagnostic::get(
