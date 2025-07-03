@@ -4910,7 +4910,7 @@ void SelectionDAGLegalize::ConvertNodeToLibcall(SDNode *Node) {
     // FE_DFL_MODE is defined as '((const femode_t *) -1)' in glibc. If not, the
     // target must provide custom lowering.
     const DataLayout &DL = DAG.getDataLayout();
-    EVT PtrTy = TLI.getPointerTy(DL);
+    EVT PtrTy = TLI.getPointerRangeTy(DL);
     SDValue Mode = DAG.getConstant(-1LL, dl, PtrTy);
     Results.push_back(DAG.makeStateFunctionCall(RTLIB::FESETMODE, Mode,
                                                 Node->getOperand(0), dl));
