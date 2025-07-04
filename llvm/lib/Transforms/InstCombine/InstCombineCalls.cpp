@@ -923,7 +923,7 @@ Instruction *foldSetOffsetOrAddress(InstCombiner *IC, IntrinsicInst *II) {
             IC->replaceInstUsesWith(*GEP, II);
           } else {
             auto *NewI = new BitCastInst(II, GEP->getType());
-            IC->InsertNewInstWith(NewI, *GEP);
+            IC->InsertNewInstWith(NewI, GEP->getIterator());
             NewI->takeName(GEP);
             IC->replaceInstUsesWith(*GEP, NewI);
           }
