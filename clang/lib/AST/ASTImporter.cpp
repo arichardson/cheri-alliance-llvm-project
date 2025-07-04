@@ -1150,6 +1150,15 @@ ExpectedType ASTNodeImporter::VisitPointerType(const PointerType *T) {
   return Importer.getToContext().getPointerType(*ToPointeeTypeOrErr, T->getPointerInterpretation());
 }
 
+ExpectedType ASTNodeImporter::VisitDependentPointerType(const DependentPointerType *T) {
+  ExpectedType ToPointerTypeOrErr = import(T->getPointerType());
+  if (!ToPointerTypeOrErr)
+    return ToPointerTypeOrErr.takeError();
+
+  return Importer.getToContext().getDependentPointerType(*ToPointerTypeOrErr,
+    T->getPointerInterpretation(), T->getQualifierLoc());
+}
+
 ExpectedType ASTNodeImporter::VisitBlockPointerType(const BlockPointerType *T) {
   // FIXME: Check for blocks support in "to" context.
   ExpectedType ToPointeeTypeOrErr = import(T->getPointeeType());
