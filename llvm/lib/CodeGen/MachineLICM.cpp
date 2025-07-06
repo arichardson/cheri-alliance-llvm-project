@@ -1007,7 +1007,7 @@ bool MachineLICMBase::IsLICMCandidate(MachineInstr &I) {
     return false;
 
   if (I.mayTrap()) {
-    if (!IsGuaranteedToExecute(I.getParent(), CurLoop))
+    if (!IsGuaranteedToExecute(I.getParent()))
       return false;
     // TODO: we probably also shouldn't be hoisting potentially trapping
     // instructions if there is an earlier trap/noreturn call
