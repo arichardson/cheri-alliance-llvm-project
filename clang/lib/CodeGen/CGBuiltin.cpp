@@ -3909,7 +3909,7 @@ RValue CodeGenFunction::EmitBuiltinExpr(const GlobalDecl GD, unsigned BuiltinID,
                         E->getArg(0)->getExprLoc(), FD, 0);
     EmitNonNullArgCheck(RValue::get(Dest.getPointer()), E->getArg(1)->getType(),
                         E->getArg(1)->getExprLoc(), FD, 0);
-    Builder.CreateMemMove(Dest, Src, SizeVal, false);
+    Builder.CreateMemMove(Dest, Src, SizeVal, llvm::PreserveCheriTags::TODO, false);
     return RValue::get(Dest.getPointer());
   }
 
