@@ -17290,42 +17290,6 @@ Instruction *RISCVTargetLowering::emitTrailingFence(IRBuilderBase &Builder,
   return nullptr;
 }
 
-EVT RISCVTargetLowering::getOptimalMemOpType(
-    const MemOp &Op, const AttributeList &FuncAttributes) const {
-  // FIXME: Share MIPS and RISCV code.
-  // CHERI memcpy/memmove must be tag-preserving, either through explicit
-  // capability loads/stores or by making a runtime library call.
-  // We can't use capability stores as an optimisation for memset unless zeroing.
-  bool IsNonZeroMemset = Op.isMemset() && !Op.isZeroMemset();
-  if (Subtarget.hasCheri() && !IsNonZeroMemset) {
-    unsigned CapSize = Subtarget.typeForCapabilities().getSizeInBits() / 8;
-    if (Op.size() >= CapSize) {
-      Align CapAlign(CapSize);
-      LLVM_DEBUG(dbgs() << __func__ << " Size=" << Op.size() << " DstAlign="
-                        << (Op.isFixedDstAlign() ? Op.getDstAlign().value() : 0)
-                        << " SrcAlign="
-                        << (Op.isMemset() ? 0 : Op.getSrcAlign().value())
-                        << " CapSize=" << CapSize << "\n");
-      // If sufficiently aligned, we must use capability loads/stores if
-      // copying, and can use cnull for a zeroing memset.
-      if (Op.isAligned(CapAlign)) {
-        return CapType;
-      } else if (!Op.isMemset()) {
-        // Otherwise if this is a copy then tell SelectionDAG to do a real
-        // memcpy/memmove call (by returning MVT::isVoid), since it could still
-        // contain a capability if sufficiently aligned at runtime. Zeroing
-        // memsets can fall back on non-capability loads/stores.
-        // Note: We can still inline the memcpy if the frontend has marked the
-        // copy as not requiring tag preserving behaviour.
-        if (Op.PreserveTags != PreserveCheriTags::Unnecessary)
-          return MVT::isVoid;
-      }
-    }
-  }
-
-  return TargetLowering::getOptimalMemOpType(Op, FuncAttributes);
-}
-
 TargetLowering::AtomicExpansionKind
 RISCVTargetLowering::shouldExpandAtomicRMWInIR(AtomicRMWInst *AI) const {
   // atomicrmw {fadd,fsub} must be expanded to use compare-exchange, as floating
@@ -17821,6 +17785,37 @@ bool RISCVTargetLowering::allowsMisalignedMemoryAccesses(
 
 EVT RISCVTargetLowering::getOptimalMemOpType(const MemOp &Op,
                                              const AttributeList &FuncAttributes) const {
+  // FIXME: Share MIPS and RISCV code.
+  // CHERI memcpy/memmove must be tag-preserving, either through explicit
+  // capability loads/stores or by making a runtime library call.
+  // We can't use capability stores as an optimisation for memset unless zeroing.
+  bool IsNonZeroMemset = Op.isMemset() && !Op.isZeroMemset();
+  if (Subtarget.hasCheri() && !IsNonZeroMemset) {
+    unsigned CapSize = Subtarget.typeForCapabilities().getSizeInBits() / 8;
+    if (Op.size() >= CapSize) {
+      Align CapAlign(CapSize);
+      LLVM_DEBUG(dbgs() << __func__ << " Size=" << Op.size() << " DstAlign="
+                        << (Op.isFixedDstAlign() ? Op.getDstAlign().value() : 0)
+                        << " SrcAlign="
+                        << (Op.isMemset() ? 0 : Op.getSrcAlign().value())
+                        << " CapSize=" << CapSize << "\n");
+      // If sufficiently aligned, we must use capability loads/stores if
+      // copying, and can use cnull for a zeroing memset.
+      if (Op.isAligned(CapAlign)) {
+        return CapType;
+      } else if (!Op.isMemset()) {
+        // Otherwise if this is a copy then tell SelectionDAG to do a real
+        // memcpy/memmove call (by returning MVT::isVoid), since it could still
+        // contain a capability if sufficiently aligned at runtime. Zeroing
+        // memsets can fall back on non-capability loads/stores.
+        // Note: We can still inline the memcpy if the frontend has marked the
+        // copy as not requiring tag preserving behaviour.
+        if (Op.PreserveTags != PreserveCheriTags::Unnecessary)
+          return MVT::isVoid;
+      }
+    }
+  }
+
   if (!Subtarget.hasVInstructions())
     return MVT::Other;
 
