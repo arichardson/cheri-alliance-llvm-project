@@ -319,6 +319,9 @@ Changes to the LLVM tools
 * llvm-objcopy now supports ``--gap-fill`` and ``--pad-to`` options, for
   ELF input and binary output files only.
 
+* llvm-objcopy now supports ``--gap-fill`` and ``--pad-to`` options, for
+  ELF input and binary output files only.
+
 Changes to LLDB
 ---------------------------------
 

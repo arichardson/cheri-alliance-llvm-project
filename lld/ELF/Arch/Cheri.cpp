@@ -5,9 +5,18 @@
 #include "../SyntheticSections.h"
 #include "../Target.h"
 #include "../Writer.h"
+#include "Config.h"
+#include "Relocations.h"
 #include "lld/Common/CommonLinkerContext.h"
+#include "lld/Common/ErrorHandler.h"
 #include "lld/Common/Memory.h"
+#include "llvm/ADT/APInt.h"
+#include "llvm/ADT/StringExtras.h"
+#include "llvm/BinaryFormat/ELF.h"
 #include "llvm/Support/Path.h"
+#include <llvm/CHERI/compressed_cap_utils.h>
+#include <cmath>
+#include <cstdint>
 
 using namespace llvm;
 using namespace llvm::object;
@@ -15,6 +24,68 @@ using namespace llvm::ELF;
 
 namespace lld {
 namespace elf {
+
+enum PermissionKind {
+  PK_FUNC = 0,
+  PK_OBJ = 1,
+  PK_CONST = 2,
+  PK_DONT_SEAL = 3,
+};
+
+template <bool Is64Bit>
+static uint64_t getCapabilityTopBits(cc::AddrTy<Is64Bit> addr,
+                                     cc::AddrTy<Is64Bit> length,
+                                     PermissionKind kind) {
+  cc::AddrTy<Is64Bit> representableLength =
+      cc::getRepresentableLength<Is64Bit>(length);
+  cc::AddrTy<Is64Bit> top = addr + representableLength;
+  cc::CapTy<Is64Bit> cap =
+      cc::makeMaxPermCapMLV<Is64Bit>(addr, addr, top, /*mode=*/0, /*lvbits=*/1);
+  switch (kind) {
+  case PK_DONT_SEAL:
+  case PK_FUNC:
+    // only clear W on rv64 as on rv32 it will also clear ASR
+    if (Is64Bit)
+      cap.cr_arch_perm = cap.cr_arch_perm & ~(CAP_AP_W);
+    if (kind != PK_DONT_SEAL)
+      cc::updateCT<Is64Bit>(&cap, 1);
+    break;
+  case PK_OBJ:
+    cap.cr_arch_perm = cap.cr_arch_perm & ~(CAP_AP_X | CAP_AP_ASR);
+    break;
+  case PK_CONST:
+    cap.cr_arch_perm = cap.cr_arch_perm & ~(CAP_AP_W | CAP_AP_X | CAP_AP_ASR);
+    if (!Is64Bit)
+      cap.cr_arch_perm = cap.cr_arch_perm & ~(CAP_AP_SL);
+    break;
+  }
+  cc::compressMem<Is64Bit>(&cap);
+  cc::modeApCompress<Is64Bit>(&cap);
+  assert(cap.cr_arch_perm != 0 && "Perms cleared");
+  return static_cast<uint64_t>(cap.cr_pesbt);
+}
+
+static PermissionKind getCapabilityPermissionKind(const Symbol &sym) {
+  PermissionKind kind = PK_OBJ;
+  if (sym.isFunc())
+    if (sym.isFuncDontSeal())
+      kind = PK_DONT_SEAL;
+    else
+      kind = PK_FUNC;
+  else if (auto *os = sym.getOutputSection()) {
+    if ((os->flags & SHF_WRITE) == 0 || isRelroSection(os)) {
+      kind = PK_CONST;
+    } else {
+      kind = PK_OBJ;
+    }
+    if (os->flags & SHF_EXECINSTR) {
+      warn("Non-function __cap_reloc against symbol in section with "
+           "SHF_EXECINSTR (" +
+           toString(os->name) + ") for symbol " + toString(sym));
+    }
+  }
+  return kind;
+}
 
 bool isCheriAbi(const InputFile *f) {
   switch (f->emachine) {
@@ -227,6 +298,21 @@ static uint64_t getTargetSize(const CheriCapRelocLocation &location,
   auto targetSym = target.sym();
   if (targetSize == 0 && !targetSym->isPreemptible) {
     StringRef name = targetSym->getName();
+    auto esym = symtab.find(std::string("size$") + std::string(name));
+    if (esym) {
+      auto def = dyn_cast<Defined>(esym);
+      if (def && !def->section) {
+        targetSize = def->value;
+        /*
+         * Symbol has explicitly given size zero but a zero size will
+         * result in an allmighty cap. Increase size to 1 for lack of
+         * a better short term solution.
+         */
+        if (targetSize == 0)
+          targetSize = 1;
+        return targetSize;
+      }
+    }
     // Section end symbols like __preinit_array_end, etc. should actually be
     // zero size symbol since they are just markers for the end of a section
     // and not usable as a valid pointer
@@ -318,6 +404,7 @@ template <class ELFT> struct CapRelocPermission {
   static const uint64_t readOnly = permissionBit(2);
   static const uint64_t indirect = permissionBit(3);
   static const uint64_t code     = permissionBit(4);
+  static const uint64_t dontSeal = permissionBit(5);
   // clang-format on
 };
 
@@ -350,12 +437,13 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
 
     // The target VA is the base address of the capability, so symbol + 0
     uint64_t targetVA;
-    bool isFunc, isGnuIFunc, isTls, isCode = reloc.isCode;
+    bool isFunc, isGnuIFunc, isTls, isCode = reloc.isCode, dontSeal;
     OutputSection *os;
     if (Symbol *s = dyn_cast<Symbol *>(realTarget.symOrSec)) {
       targetVA = realTarget.sym()->getVA(0);
       isFunc = s->isFunc();
       isGnuIFunc = s->isGnuIFunc();
+      dontSeal = isFunc && s->isFuncDontSeal();
       isTls = s->isTls();
       os = s->getOutputSection();
     } else {
@@ -363,6 +451,7 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
       targetVA = isec->getVA(0);
       isFunc = (isec->flags & SHF_EXECINSTR) != 0;
       isGnuIFunc = false;
+      dontSeal = false;
       isTls = isec->type == STT_TLS;
       os = isec->getOutputSection();
     }
@@ -380,6 +469,8 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
         permissions |= CapRelocPermission<ELFT>::indirect;
       if (isCode)
         permissions |= CapRelocPermission<ELFT>::code;
+      if (dontSeal)
+        permissions |= CapRelocPermission<ELFT>::dontSeal;
     } else if (os) {
       assert(!isTls);
       // if ((OS->getPhdrFlags() & PF_W) == 0) {
@@ -875,6 +966,13 @@ void MipsCheriCapTableMappingSection::writeTo(uint8_t *buf) {
   memcpy(buf, entries.data(), entries.size() * sizeof(CaptableMappingEntry));
 }
 
+static void writeCatableRelocationFragments(InputSectionBase *sec, Symbol *sym,
+                                     uint64_t offset) {
+  sec->addReloc({R_CHERI_CAPFRAG_ADDR, target->symbolicRel, offset, 0, sym});
+  sec->addReloc({R_CHERI_CAPFRAG_META, target->symbolicRel,
+                 offset + config->wordsize, 0, sym});
+}
+
 template <typename ELFT>
 static void getMipsCheriAbiVariant(std::optional<unsigned> &abi,
                                    SyntheticSection &sec) {
@@ -946,10 +1044,37 @@ void addRelativeCapabilityRelocation(
   }
   bool isCode = type == target->symbolicCodeCapRel;
   assert(!sym || !sym->isPreemptible);
-  assert(!config->useRelativeElfCheriRelocs &&
-         "relative ELF capability relocations not currently implemented");
+  // assert(!config->useRelativeElfCheriRelocs &&
+  //        "relative ELF capability relocations not currently implemented");
+
+  if (config->useRelativeElfCheriRelocs) {
+    assert(!sym->isPreemptible && "Must not be a preemptible symbol");
+    if (config->emachine != EM_RISCV)
+      error("Relative Relocs method not implemented yet!");
+    RelocationBaseSection &oSec =
+        sym->includeInDynsym() ? *mainPart->relaDyn : *in.relaDyn;
+    oSec.addReloc(DynamicReloc::AgainstSymbol, R_RISCV_CHERI_RELATIVE, isec,
+                  offsetInSec, *sym, addend, expr, target->symbolicRel);
+    writeCatableRelocationFragments(&isec, sym, offsetInSec);
+    return;
+  }
   in.capRelocs->addCapReloc(isCode, {&isec, offsetInSec}, {symOrSec, 0u},
                             addend);
+}
+
+uint64_t getCapMetaBits(int64_t a, const Symbol &sym,
+                        const InputSectionBase *isec, uint64_t offset) {
+  const uint64_t baseAddr = sym.getVA(a);
+  CheriCapRelocLocation loc{const_cast<InputSectionBase *>(isec),
+                            offset - config->wordsize};
+  // TODO - handle isCode...
+  CheriCapReloc reloc{false, SymbolAndOffset{const_cast<Symbol *>(&sym), 0}, 0};
+  uint64_t symSize = getTargetSize(loc, reloc.target);
+  PermissionKind kind = getCapabilityPermissionKind(sym);
+
+  uint64_t metaBits =
+      invokeIs64Bit(getCapabilityTopBits, baseAddr, symSize, kind);
+  return metaBits;
 }
 
 } // namespace elf

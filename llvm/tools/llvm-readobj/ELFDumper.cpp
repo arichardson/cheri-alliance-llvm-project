@@ -16,6 +16,7 @@
 #include "ObjDumper.h"
 #include "StackMapPrinter.h"
 #include "llvm-readobj.h"
+#include "llvm/CHERI/compressed_cap_utils.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/DenseMap.h"
@@ -221,6 +222,7 @@ public:
   void printVersionInfo() override;
   void printArchSpecificInfo() override;
   void printCheriCapRelocs() override;
+  void printCheriCapRelocsCBuildCap() override;
   void printCheriCapTable() override;
   void printCheriCapTableMapping() override;
 
@@ -1787,7 +1789,8 @@ const EnumEntry<unsigned> ElfMips16SymOtherFlags[] = {
 };
 
 const EnumEntry<unsigned> ElfRISCVSymOtherFlags[] = {
-    LLVM_READOBJ_ENUM_ENT(ELF, STO_RISCV_VARIANT_CC)};
+    LLVM_READOBJ_ENUM_ENT(ELF, STO_RISCV_VARIANT_CC),
+    LLVM_READOBJ_ENUM_ENT(ELF, STO_RISCV_CHERI_DONT_SEAL)};
 
 static const char *getElfMipsOptionsOdkType(unsigned Odk) {
   switch (Odk) {
@@ -3383,6 +3386,153 @@ static int getMipsRegisterSize(uint8_t Flag) {
   }
 }
 
+template <class ELFT> void ELFDumper<ELFT>::printCheriCapRelocsCBuildCap() {
+  const ELFFile<ELFT> &Obj = ObjF.getELFFile();
+  const Elf_Shdr *Shdr = findSectionByName(".rela.dyn");
+  if (!Shdr) {
+    W.startLine() << "There is no __rela_dyn reloc section in this file.\n";
+    return;
+  }
+  ArrayRef<uint8_t> Data =
+      unwrapOrError(ObjF.getFileName(), Obj.getSectionContents(*Shdr));
+  constexpr size_t EntrySize = sizeof(typename ELFT::Rela);
+  if (Data.size() % EntrySize != 0) {
+    W.startLine() << "The __rela_dyn section has a wrong size: " << Data.size()
+                  << "\n";
+    return;
+  }
+  ListScope L(W, "CHERI __rela_dyn relocs");
+
+  Expected<Elf_Rela_Range> RangeOrErr = Obj.relas(*Shdr);
+  if (!RangeOrErr) {
+    W.startLine() << "\n";
+    return;
+  }
+  Elf_Rela_Range RelaRange = RangeOrErr.get();
+
+  const auto GetVAOffsetInElf =
+      [&Obj](typename ELFT::uint VA) -> Expected<size_t> {
+    auto ProgramHeaders = Obj.program_headers();
+    if (!ProgramHeaders)
+      return ProgramHeaders.takeError();
+    for (const auto &Phdr : ProgramHeaders.get()) {
+      if (VA >= Phdr.p_vaddr && VA < Phdr.p_vaddr + Phdr.p_memsz) {
+        return Phdr.p_offset + (VA - Phdr.p_vaddr);
+      }
+    }
+    return createError("Could not find an offset into the ELF for the VA = " +
+                       llvm::to_string(VA) + "\n");
+  };
+
+  using TargetUint = typename ELFT::uint;
+
+  typename ELFT::SymRange Syms;
+  StringRef StrTable;
+  DataRegion<Elf_Word> ShndxTable = ArrayRef<Elf_Word>();
+  DataRegion<Elf_Word> DynShndxTable(
+      (const Elf_Word *)this->DynSymTabShndxRegion.Addr, this->Obj.end());
+  bool UsingDynsym = false;
+  if (DotSymtabSec) {
+    StrTable = unwrapOrError(ObjF.getFileName(),
+                             Obj.getStringTableForSymtab(*DotSymtabSec));
+    Syms = unwrapOrError(ObjF.getFileName(), Obj.symbols(DotSymtabSec));
+    ShndxTable = this->getShndxTable(this->DotSymtabSec);
+  } else {
+    StrTable = DynamicStringTable;
+    Syms = dynamic_symbols();
+    ShndxTable = DynShndxTable;
+    UsingDynsym = true;
+  }
+  std::unordered_map<uint64_t, std::string> SymbolNames;
+  const Elf_Sym &FirstSym = Syms[0];
+  for (const auto &Sym : Syms) {
+    uint64_t Start = Sym.st_value;
+    if (!Start)
+      continue;
+    std::string Name = getFullSymbolName(Sym, &Sym - &FirstSym, ShndxTable,
+                                         StrTable, UsingDynsym);
+    if (Name.empty())
+      continue;
+    SymbolNames.insert({Start, Name});
+  }
+
+  for (Elf_Rela R : RelaRange) {
+    Relocation<ELFT> RelaRel = Relocation<ELFT>(R, this->Obj.isMips64EL());
+    if (RelaRel.Type != R_RISCV_CHERI_RELATIVE)
+      continue;
+
+    SmallString<32> RelocName;
+    this->Obj.getRelocationTypeName(RelaRel.Type, RelocName);
+
+    auto CapFragOffset = GetVAOffsetInElf(RelaRel.Offset);
+    if (!CapFragOffset) {
+      errs() << "Could not calculate offset into ELF.\n";
+      continue;
+    }
+
+    const size_t CapSize = ELFT::Is64Bits ? 16 : 8;
+    const ArrayRef<uint8_t> CapFrag =
+        ArrayRef<uint8_t>(Obj.base() + CapFragOffset.get(), CapSize);
+    const TargetUint Base =
+        support::endian::read<TargetUint, ELFT::TargetEndianness, 1>(
+            CapFrag.data());
+    const TargetUint MetaBits =
+        support::endian::read<TargetUint, ELFT::TargetEndianness, 1>(
+            CapFrag.data() + sizeof(TargetUint));
+
+    cc::CapTy<ELFT::Is64Bits> Cap;
+    cc::decompressMem<ELFT::Is64Bits>(MetaBits, Base, /*tag=*/false,
+                                      /*lvbits=*/1, &Cap);
+    const TargetUint Length = Cap.length();
+    const TargetUint Perms = Cap.permissions();
+    const TargetUint Target = RelaRel.Offset;
+    const TargetUint Offset = RelaRel.Addend.value_or(0);
+    const bool IsFunction = Perms & CAP_AP_X;
+    const bool IsObject = Perms & CAP_AP_W;
+    const char *PermStr =
+        IsFunction ? "Function" : (IsObject ? "Object" : "Constant");
+
+    std::string BaseSymbol;
+    if (Base != 0) {
+      auto it = SymbolNames.find(Base);
+      if (it != SymbolNames.end()) {
+        BaseSymbol = it->second;
+      }
+    }
+    if (BaseSymbol.empty())
+      BaseSymbol = "<unknown symbol>";
+    StringRef LocationSym;
+    if (SymbolNames.find(Target) != SymbolNames.end())
+      LocationSym = SymbolNames[Target];
+    // TODO: If base == 0 find the dynamic relocation target
+    if (opts::ExpandRelocs) {
+      DictScope L(W, "Relocation");
+      raw_ostream &OS = W.startLine();
+      OS << "Location: 0x" << utohexstr(Target);
+      if (!LocationSym.empty())
+        OS << " (" << LocationSym << ")";
+      OS << "\n";
+      W.printHex("Base", BaseSymbol, Base);
+      W.printNumber("Offset", Offset);
+      W.printNumber("Length", Length);
+      W.printHex("Permissions", PermStr, Perms);
+    } else {
+      raw_ostream &OS = W.startLine();
+      OS << format(" 0x%06lx", static_cast<unsigned long>(Target));
+      if (!LocationSym.empty())
+        OS << left_justify((" (" + LocationSym + ")").str(), 16);
+      OS << format(" Base: 0x%lx (", static_cast<unsigned long>(Base))
+         << BaseSymbol;
+      if (Offset >= 0)
+        OS << "+";
+      OS << Offset;
+      OS << format(") Length: %ld", static_cast<unsigned long>(Length));
+      OS << " Perms: " << PermStr;
+      OS << "\n";
+    }
+  }
+}
+
 template <class ELFT> void ELFDumper<ELFT>::printCheriCapRelocs() {
   const ELFFile<ELFT> &Obj = ObjF.getELFFile();
   const Elf_Shdr *Shdr = findSectionByName("__cap_relocs");
@@ -3491,6 +3641,7 @@ template <class ELFT> void ELFDumper<ELFT>::printCheriCapRelocs() {
     const uint64_t Constant = UINT64_C(1) << ((sizeof(TargetUint) * 8) - 2);
     const uint64_t Indirect = UINT64_C(1) << ((sizeof(TargetUint) * 8) - 3);
     const uint64_t Code = UINT64_C(1) << ((sizeof(TargetUint) * 8) - 4);
+    const uint64_t DontSeal = UINT64_C(1) << ((sizeof(TargetUint) * 8) - 5);
     StringRef PermStr;
     switch (Perms) {
     case 0:
@@ -3508,6 +3659,10 @@ template <class ELFT> void ELFDumper<ELFT>::printCheriCapRelocs() {
     case Function | Code:
       PermStr = "Code";
       break;
+    case Function | DontSeal:
+      PermStr = "Function(Unsealed)";
+      break;
+    // TODO - Function | Indirect | DontSeal
     default:
       PermStr = "Unknown";
       break;
@@ -4653,6 +4808,12 @@ void GNUELFDumper<ELFT>::printSymbol(const Elf_Sym &Symbol, unsigned SymIndex,
       if (Other & STO_RISCV_VARIANT_CC) {
         Other &= ~STO_RISCV_VARIANT_CC;
         Fields[5].Str += " [VARIANT_CC";
+        if (Other != 0)
+          Fields[5].Str.append(" | " + utohexstr(Other, /*LowerCase=*/true));
+        Fields[5].Str.append("]");
+      } else if (Other & STO_RISCV_CHERI_DONT_SEAL) {
+        Other &= ~ STO_RISCV_CHERI_DONT_SEAL;
+        Fields[5].Str += " [DONT_SEAL";
         if (Other != 0)
           Fields[5].Str.append(" | " + utohexstr(Other, /*LowerCase=*/true));
         Fields[5].Str.append("]");

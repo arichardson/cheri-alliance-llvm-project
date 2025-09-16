@@ -363,6 +363,9 @@ public:
   bool isGnuIFunc() const { return type == llvm::ELF::STT_GNU_IFUNC; }
   bool isObject() const { return type == llvm::ELF::STT_OBJECT; }
   bool isFile() const { return type == llvm::ELF::STT_FILE; }
+  bool isFuncDontSeal() const {
+    return isFunc() && (stOther & llvm::ELF::STO_RISCV_CHERI_DONT_SEAL);
+  }
 };
 
 // Represents a symbol that is defined in the current output file.
@@ -557,6 +560,10 @@ struct ElfSym {
   // __rel{,a}_iplt_{start,end} symbols.
   static Defined *relaIpltStart;
   static Defined *relaIpltEnd;
+
+  // __rela_dyn_{start,end} symbols.
+  static Defined *relaDynStart;
+  static Defined *relaDynEnd;
 
   // _TLS_MODULE_BASE_ on targets that support TLSDESC.
   static Defined *tlsModuleBase;

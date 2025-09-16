@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "MCTargetDesc/RISCVMCTargetDesc.h"
 #include "RISCV.h"
 #include "RISCVInstrInfo.h"
 #include "RISCVSubtarget.h"
@@ -114,7 +115,9 @@ bool RISCVExpandAtomicPseudo::expandMI(MachineBasicBlock &MBB,
   // expanded instructions for each pseudo is correct in the Size field of the
   // tablegen definition for the pseudo.
   const auto &Subtarget = MBB.getParent()->getSubtarget<RISCVSubtarget>();
-  MVT CLenVT = Subtarget.hasCheri() ? Subtarget.typeForCapabilities() : MVT();
+  MVT CLenVT = Subtarget.hasStdExtZCheriPureCapOrCheri()
+                   ? Subtarget.typeForCapabilities()
+                   : MVT();
   switch (MBBI->getOpcode()) {
   case RISCV::PseudoAtomicLoadNand32:
     return expandAtomicBinOp(MBB, MBBI, AtomicRMWInst::Nand, false, MVT::i32,
@@ -529,7 +532,42 @@ static unsigned getSCForRMWCap128(bool PtrIsCap, AtomicOrdering Ordering) {
   }
 }
 
+static unsigned getLRForRMWCapZCheri(bool PtrIsCap, AtomicOrdering Ordering) {
+  switch (Ordering) {
+  default:
+    llvm_unreachable("Unexpected AtomicOrdering");
+  case AtomicOrdering::Monotonic:
+    return PtrIsCap ? RISCV::CLR_C : RISCV::LR_C;
+  case AtomicOrdering::Acquire:
+    return PtrIsCap ? RISCV::CLR_C_AQ : RISCV::LR_C_AQ;
+  case AtomicOrdering::Release:
+    return PtrIsCap ? RISCV::CLR_C_RL : RISCV::LR_C_RL;
+  case AtomicOrdering::AcquireRelease:
+    return PtrIsCap ? RISCV::CLR_C_AQ : RISCV::LR_C_AQ;
+  case AtomicOrdering::SequentiallyConsistent:
+    return PtrIsCap ? RISCV::CLR_C_AQ_RL : RISCV::LR_C_AQ_RL;
+  }
+}
+
+static unsigned getSCForRMWCapZCheri(bool PtrIsCap, AtomicOrdering Ordering) {
+  switch (Ordering) {
+  default:
+    llvm_unreachable("Unexpected AtomicOrdering");
+  case AtomicOrdering::Monotonic:
+    return PtrIsCap ? RISCV::CSC_C : RISCV::SC_C;
+  case AtomicOrdering::Acquire:
+    return PtrIsCap ? RISCV::CSC_C_AQ : RISCV::SC_C_AQ;
+  case AtomicOrdering::Release:
+    return PtrIsCap ? RISCV::CSC_C : RISCV::SC_C;
+  case AtomicOrdering::AcquireRelease:
+    return PtrIsCap ? RISCV::CSC_C_AQ : RISCV::SC_C_AQ;
+  case AtomicOrdering::SequentiallyConsistent:
+    return PtrIsCap ? RISCV::CSC_C_AQ_RL : RISCV::SC_C_AQ_RL;
+  }
+}
+
 static unsigned getLRForRMW(bool PtrIsCap, AtomicOrdering Ordering, MVT VT, const RISCVSubtarget *Subtarget) {
+  const bool ZCheriPurecap = Subtarget->hasStdExtZCheriPureCap();
   if (VT == MVT::i8)
     return getLRForRMW8(PtrIsCap, Ordering);
   if (VT == MVT::i16)
@@ -539,13 +577,16 @@ static unsigned getLRForRMW(bool PtrIsCap, AtomicOrdering Ordering, MVT VT, cons
   if (VT == MVT::i64)
     return getLRForRMW64(PtrIsCap, Ordering, Subtarget);
   if (VT == MVT::c64)
-    return getLRForRMWCap64(PtrIsCap, Ordering);
+    return ZCheriPurecap ? getLRForRMWCapZCheri(PtrIsCap, Ordering)
+                         : getLRForRMWCap64(PtrIsCap, Ordering);
   if (VT == MVT::c128)
-    return getLRForRMWCap128(PtrIsCap, Ordering);
+    return ZCheriPurecap ? getLRForRMWCapZCheri(PtrIsCap, Ordering)
+                         : getLRForRMWCap128(PtrIsCap, Ordering);
   llvm_unreachable("Unexpected LR type\n");
 }
 
 static unsigned getSCForRMW(bool PtrIsCap, AtomicOrdering Ordering, MVT VT, const RISCVSubtarget *Subtarget) {
+  const bool ZCheriPurecap = Subtarget->hasStdExtZCheriPureCap();
   if (VT == MVT::i8)
     return getSCForRMW8(PtrIsCap, Ordering);
   if (VT == MVT::i16)
@@ -555,9 +596,11 @@ static unsigned getSCForRMW(bool PtrIsCap, AtomicOrdering Ordering, MVT VT, cons
   if (VT == MVT::i64)
     return getSCForRMW64(PtrIsCap, Ordering, Subtarget);
   if (VT == MVT::c64)
-    return getSCForRMWCap64(PtrIsCap, Ordering);
+    return ZCheriPurecap ? getSCForRMWCapZCheri(PtrIsCap, Ordering)
+                         : getSCForRMWCap64(PtrIsCap, Ordering);
   if (VT == MVT::c128)
-    return getSCForRMWCap128(PtrIsCap, Ordering);
+    return ZCheriPurecap ? getSCForRMWCapZCheri(PtrIsCap, Ordering)
+                         : getSCForRMWCap128(PtrIsCap, Ordering);
   llvm_unreachable("Unexpected SC type\n");
 }
 
@@ -573,12 +616,13 @@ static void doAtomicBinOpExpansion(const RISCVInstrInfo *TII, MachineInstr &MI,
   Register IncrReg = MI.getOperand(3).getReg();
   AtomicOrdering Ordering =
       static_cast<AtomicOrdering>(MI.getOperand(4).getImm());
+  const RISCVSubtarget &ST =
+      ThisMBB->getParent()->getSubtarget<RISCVSubtarget>();
 
   Register ScratchIntReg;
   Register DestIntReg;
   if (VT.isFatPointer()) {
-    MachineFunction *MF = ThisMBB->getParent();
-    const TargetRegisterInfo *TRI = MF->getSubtarget().getRegisterInfo();
+    const TargetRegisterInfo *TRI = ST.getRegisterInfo();
     IncrReg = TRI->getSubReg(IncrReg, RISCV::sub_cap_addr);
     ScratchIntReg = TRI->getSubReg(ScratchReg, RISCV::sub_cap_addr);
     DestIntReg = TRI->getSubReg(DestReg, RISCV::sub_cap_addr);
@@ -586,6 +630,8 @@ static void doAtomicBinOpExpansion(const RISCVInstrInfo *TII, MachineInstr &MI,
     ScratchIntReg = ScratchReg;
     DestIntReg = DestReg;
   }
+  const bool HasZCheriPurecap =
+      ST.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
 
   // .loop:
   //   lr.[w|d] dest, (addr)
@@ -606,7 +652,9 @@ static void doAtomicBinOpExpansion(const RISCVInstrInfo *TII, MachineInstr &MI,
     break;
   case AtomicRMWInst::Add:
     if (VT.isFatPointer()) {
-      BuildMI(LoopMBB, DL, TII->get(RISCV::CIncOffset), ScratchReg)
+      BuildMI(LoopMBB, DL,
+              TII->get(HasZCheriPurecap ? RISCV::CADD : RISCV::CIncOffset),
+              ScratchReg)
           .addReg(DestReg)
           .addReg(IncrReg);
       break;
@@ -649,7 +697,9 @@ static void doAtomicBinOpExpansion(const RISCVInstrInfo *TII, MachineInstr &MI,
     break;
   }
   if (VT.isFatPointer() && BinOp != AtomicRMWInst::Add)
-    BuildMI(LoopMBB, DL, TII->get(RISCV::CSetAddr), ScratchReg)
+    BuildMI(LoopMBB, DL,
+            TII->get(HasZCheriPurecap ? RISCV::SCADDR : RISCV::CSetAddr),
+            ScratchReg)
         .addReg(DestReg)
         .addReg(ScratchIntReg);
   BuildMI(LoopMBB, DL, TII->get(getSCForRMW(PtrIsCap, Ordering, VT, STI)),
@@ -932,6 +982,8 @@ bool RISCVExpandAtomicPseudo::expandAtomicMinMaxOp(
       ScratchIntReg = ScratchReg;
       IncrIntReg = IncrReg;
     }
+    const bool HasZCheriPurecap =
+        MF->getSubtarget().hasFeature(RISCV::FeatureStdExtZCheriPureCap);
 
     //
     // .loophead:
@@ -942,7 +994,9 @@ bool RISCVExpandAtomicPseudo::expandAtomicMinMaxOp(
             DestReg)
         .addReg(AddrReg);
     if (VT.isFatPointer())
-      BuildMI(LoopHeadMBB, DL, TII->get(RISCV::CMove), ScratchReg)
+      BuildMI(LoopHeadMBB, DL,
+              TII->get(HasZCheriPurecap ? RISCV::CMV : RISCV::CMove),
+              ScratchReg)
           .addReg(DestReg);
     else
       BuildMI(LoopHeadMBB, DL, TII->get(RISCV::ADDI), ScratchReg)
@@ -983,7 +1037,9 @@ bool RISCVExpandAtomicPseudo::expandAtomicMinMaxOp(
     // .loopifbody:
     //   mv scratch, incr
     if (VT.isFatPointer())
-      BuildMI(LoopIfBodyMBB, DL, TII->get(RISCV::CMove), ScratchReg)
+      BuildMI(LoopIfBodyMBB, DL,
+              TII->get(HasZCheriPurecap ? RISCV::CMV : RISCV::CMove),
+              ScratchReg)
           .addReg(DestReg);
     else
       BuildMI(LoopIfBodyMBB, DL, TII->get(RISCV::ADDI), ScratchReg)
@@ -1118,6 +1174,8 @@ bool RISCVExpandAtomicPseudo::expandAtomicCmpXchg(
 
   AtomicOrdering Ordering =
       static_cast<AtomicOrdering>(MI.getOperand(IsMasked ? 6 : 5).getImm());
+  const bool HasZCheriPurecap =
+      MF->getSubtarget().hasFeature(RISCV::FeatureStdExtZCheriPureCap);
 
   if (!IsMasked) {
     Register DestIntReg;

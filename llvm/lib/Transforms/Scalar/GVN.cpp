@@ -44,6 +44,7 @@
 #include "llvm/Analysis/ValueTracking.h"
 #include "llvm/IR/Attributes.h"
 #include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Cheri.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DebugLoc.h"
@@ -1975,6 +1976,17 @@ bool GVNPass::processNonLocalLoad(LoadInst *Load) {
 }
 
 static bool impliesEquivalanceIfTrue(CmpInst* Cmp) {
+  Value *LHS = Cmp->getOperand(0);
+  Value *RHS = Cmp->getOperand(1);
+  const DataLayout &DL = Cmp->getModule()->getDataLayout();
+  bool InvolvesCapabilities = isCheriPointer(LHS->getType(), &DL) ||
+                              isCheriPointer(RHS->getType(), &DL);
+  // When comparing CHERI capabilities comparing equality only compares
+  // addresses and does not imply that the capabilities are equivalent. We
+  // therefore cannot replace any subsequent uses.
+  if (Cmp->getPredicate() == CmpInst::Predicate::ICMP_EQ &&
+      InvolvesCapabilities)
+    return false;
   if (Cmp->getPredicate() == CmpInst::Predicate::ICMP_EQ)
     return true;
 
@@ -2001,6 +2013,17 @@ static bool impliesEquivalanceIfTrue(CmpInst* Cmp) {
 }
 
 static bool impliesEquivalanceIfFalse(CmpInst* Cmp) {
+  Value *LHS = Cmp->getOperand(0);
+  Value *RHS = Cmp->getOperand(1);
+  const DataLayout &DL = Cmp->getModule()->getDataLayout();
+  bool InvolvesCapabilities = isCheriPointer(LHS->getType(), &DL) ||
+                              isCheriPointer(RHS->getType(), &DL);
+  // When comparing CHERI capabilities comparing equality only compares
+  // addresses and does not imply that the capabilities are equivalent. We
+  // therefore cannot replace any subsequent uses.
+  if (Cmp->getPredicate() == CmpInst::Predicate::ICMP_NE &&
+      InvolvesCapabilities)
+    return false;
   if (Cmp->getPredicate() == CmpInst::Predicate::ICMP_NE)
     return true;
 

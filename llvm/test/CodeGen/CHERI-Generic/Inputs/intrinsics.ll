@@ -54,10 +54,12 @@ define iCAPRANGE @offset_get(i8 addrspace(200)* %cap) nounwind {
   ret iCAPRANGE %offset
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define iCAPRANGE @flags_get(i8 addrspace(200)* %cap) nounwind {
   %flags = call iCAPRANGE @llvm.cheri.cap.flags.get.iCAPRANGE(i8 addrspace(200)* %cap)
   ret iCAPRANGE %flags
 }
+#endif
 
 define iCAPRANGE @address_get(i8 addrspace(200)* %cap) nounwind {
   %address = call iCAPRANGE @llvm.cheri.cap.address.get.iCAPRANGE(i8 addrspace(200)* %cap)
@@ -88,6 +90,7 @@ declare i8 addrspace(200)* @llvm.cheri.cap.type.copy(i8 addrspace(200)*, i8 addr
 declare i8 addrspace(200)* @llvm.cheri.cap.conditional.seal(i8 addrspace(200)*, i8 addrspace(200)*)
 declare i8 addrspace(200)* @llvm.cheri.cap.seal.entry(i8 addrspace(200)*)
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define i8 addrspace(200)* @seal(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2) nounwind {
   %sealed = call i8 addrspace(200)* @llvm.cheri.cap.seal(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret i8 addrspace(200)* %sealed
@@ -97,16 +100,19 @@ define i8 addrspace(200)* @unseal(i8 addrspace(200)* %cap1, i8 addrspace(200)* %
   %unsealed = call i8 addrspace(200)* @llvm.cheri.cap.unseal(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret i8 addrspace(200)* %unsealed
 }
+#endif
 
 define i8 addrspace(200)* @perms_and(i8 addrspace(200)* %cap, iCAPRANGE %perms) nounwind {
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.perms.and.iCAPRANGE(i8 addrspace(200)* %cap, iCAPRANGE %perms)
   ret i8 addrspace(200)* %newcap
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define i8 addrspace(200)* @flags_set(i8 addrspace(200)* %cap, iCAPRANGE %flags) nounwind {
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.flags.set.iCAPRANGE(i8 addrspace(200)* %cap, iCAPRANGE %flags)
   ret i8 addrspace(200)* %newcap
 }
+#endif
 
 define i8 addrspace(200)* @offset_set(i8 addrspace(200)* %cap, iCAPRANGE %offset) nounwind {
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.offset.set.iCAPRANGE(i8 addrspace(200)* %cap, iCAPRANGE %offset)
@@ -140,16 +146,19 @@ define i8 addrspace(200)* @bounds_set_immediate(i8 addrspace(200)* %cap) nounwin
   ret i8 addrspace(200)* %newcap
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define i8 addrspace(200)* @tag_clear(i8 addrspace(200)* %cap) nounwind {
   %untagged = call i8 addrspace(200)* @llvm.cheri.cap.tag.clear(i8 addrspace(200)* %cap)
   ret i8 addrspace(200)* %untagged
 }
+#endif
 
 define i8 addrspace(200)* @build(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2) nounwind {
   %built = call i8 addrspace(200)* @llvm.cheri.cap.build(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret i8 addrspace(200)* %built
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define i8 addrspace(200)* @type_copy(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2) nounwind {
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.type.copy(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret i8 addrspace(200)* %newcap
@@ -159,6 +168,7 @@ define i8 addrspace(200)* @conditional_seal(i8 addrspace(200)* %cap1, i8 addrspa
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.conditional.seal(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret i8 addrspace(200)* %newcap
 }
+#endif
 
 define i8 addrspace(200)* @seal_entry(i8 addrspace(200)* %cap) nounwind {
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.seal.entry(i8 addrspace(200)* %cap)
@@ -178,28 +188,33 @@ define iCAPRANGE @to_pointer(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret iCAPRANGE %ptr
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define iCAPRANGE @to_pointer_ddc_relative(i8 addrspace(200)* %cap) nounwind {
   %ddc = call i8 addrspace(200)* @llvm.cheri.ddc.get()
   %ptr = call iCAPRANGE @llvm.cheri.cap.to.pointer(i8 addrspace(200)* %ddc, i8 addrspace(200)* %cap)
   ret iCAPRANGE %ptr
 }
+#endif
 
 define i8 addrspace(200)* @from_pointer(i8 addrspace(200)* %cap, iCAPRANGE %ptr) nounwind {
   %newcap = call i8 addrspace(200)* @llvm.cheri.cap.from.pointer(i8 addrspace(200)* %cap, iCAPRANGE %ptr)
   ret i8 addrspace(200)* %newcap
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define i8 addrspace(200)* @from_ddc(iCAPRANGE %ptr) nounwind {
   %ddc = call i8 addrspace(200)* @llvm.cheri.ddc.get()
   %cap = call i8 addrspace(200)* @llvm.cheri.cap.from.pointer(i8 addrspace(200)* %ddc, iCAPRANGE %ptr)
   ret i8 addrspace(200)* %cap
 }
+#endif
 
 define iCAPRANGE @diff(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2) nounwind {
   %diff = call iCAPRANGE @llvm.cheri.cap.diff(i8 addrspace(200)* %cap1, i8 addrspace(200)* %cap2)
   ret iCAPRANGE %diff
 }
 
+#if !(defined(RISCV32BAKEWELL) | defined(RISCV64BAKEWELL))
 define i8 addrspace(200)* @ddc_get() nounwind {
   %cap = call i8 addrspace(200)* @llvm.cheri.ddc.get()
   ret i8 addrspace(200)* %cap
@@ -209,6 +224,7 @@ define i8 addrspace(200)* @pcc_get() nounwind {
   %cap = call i8 addrspace(200)* @llvm.cheri.pcc.get()
   ret i8 addrspace(200)* %cap
 }
+#endif
 
 ; Assertion Instructions
 

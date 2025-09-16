@@ -153,6 +153,11 @@ void RISCVTargetELFStreamer::emitDirectiveVariantCC(MCSymbol &Symbol) {
   cast<MCSymbolELF>(Symbol).setOther(ELF::STO_RISCV_VARIANT_CC);
 }
 
+void RISCVTargetELFStreamer::emitDirectiveCheriDontSeal(MCSymbol &Symbol) {
+  getStreamer().getAssembler().registerSymbol(Symbol);
+  cast<MCSymbolELF>(Symbol).setOther(ELF::STO_RISCV_CHERI_DONT_SEAL);
+}
+
 void RISCVELFStreamer::reset() {
   static_cast<RISCVTargetStreamer *>(getTargetStreamer())->reset();
   MCELFStreamer::reset();
@@ -196,7 +201,15 @@ void RISCVELFStreamer::changeSection(MCSection *Section,
 
 void RISCVELFStreamer::emitInstruction(const MCInst &Inst,
                                        const MCSubtargetInfo &STI) {
-  emitInstructionsMappingSymbol();
+  if (STI.getFeatureBits()[RISCV::FeatureStdExtZCheriPureCap]) {
+    if (STI.getFeatureBits()[RISCV::FeatureCapMode]) {
+      emitCapModeMappingSymbol();
+    } else {
+      emitNoCapModeMappingSymbol();
+    }
+  } else {
+    emitInstructionsMappingSymbol();
+  }
   MCELFStreamer::emitInstruction(Inst, STI);
 }
 
@@ -215,6 +228,20 @@ void RISCVELFStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
                                      SMLoc Loc) {
   emitDataMappingSymbol();
   MCELFStreamer::emitValueImpl(Value, Size, Loc);
+}
+
+void RISCVELFStreamer::emitCapModeMappingSymbol() {
+  if (LastEMS == EMS_CapMode)
+    return;
+  emitMappingSymbol("$x<capmode>");
+  LastEMS = EMS_CapMode;
+}
+
+void RISCVELFStreamer::emitNoCapModeMappingSymbol() {
+  if (LastEMS == EMS_NoCapMode)
+    return;
+  emitMappingSymbol("$x<nocapmode>");
+  LastEMS = EMS_NoCapMode;
 }
 
 void RISCVELFStreamer::emitCheriIntcap(const MCExpr *Expr, unsigned CapSize,

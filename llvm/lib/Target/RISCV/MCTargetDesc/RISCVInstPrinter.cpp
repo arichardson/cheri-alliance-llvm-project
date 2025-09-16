@@ -139,6 +139,18 @@ void RISCVInstPrinter::printSpecialCapRegister(const MCInst *MI, unsigned OpNo,
     O << Imm;
 }
 
+void RISCVInstPrinter::printCheriCSRSystemRegister(const MCInst *MI,
+                                                   unsigned OpNo,
+                                                   const MCSubtargetInfo &STI,
+                                                   raw_ostream &O) {
+  unsigned Imm = MI->getOperand(OpNo).getImm();
+  auto CheriSysReg = RISCVCheriSysReg::lookupCheriSysRegByEncoding(Imm);
+  if(CheriSysReg)
+    O << CheriSysReg->Name;
+  else 
+    O << Imm;
+}
+
 void RISCVInstPrinter::printFenceArg(const MCInst *MI, unsigned OpNo,
                                      const MCSubtargetInfo &STI,
                                      raw_ostream &O) {
@@ -339,4 +351,10 @@ void RISCVInstPrinter::printVMaskReg(const MCInst *MI, unsigned OpNo,
 const char *RISCVInstPrinter::getRegisterName(MCRegister Reg) {
   return getRegisterName(Reg, ArchRegNames ? RISCV::NoRegAltName
                                            : RISCV::ABIRegAltName);
+}
+
+void RISCVInstPrinter::printCSetBndImm(const MCInst *MI, unsigned OpNo,
+                                      const MCSubtargetInfo &STI,
+                                      raw_ostream &O) {
+  printOperand(MI, OpNo, STI, O);
 }

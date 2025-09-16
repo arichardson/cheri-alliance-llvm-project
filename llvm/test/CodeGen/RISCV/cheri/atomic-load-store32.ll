@@ -10,7 +10,7 @@ define i8 addrspace(200)* @atomic_load_cap_unordered(i8 addrspace(200)* addrspac
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a1, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_load_cap
+; RV32IXCHERI-NEXT:    call __atomic_load_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -29,7 +29,7 @@ define i8 addrspace(200)* @atomic_load_cap_monotonic(i8 addrspace(200)* addrspac
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a1, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_load_cap
+; RV32IXCHERI-NEXT:    call __atomic_load_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -48,7 +48,7 @@ define i8 addrspace(200)* @atomic_load_cap_acquire(i8 addrspace(200)* addrspace(
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a1, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_load_cap
+; RV32IXCHERI-NEXT:    call __atomic_load_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -68,7 +68,7 @@ define i8 addrspace(200)* @atomic_load_cap_seq_cst(i8 addrspace(200)* addrspace(
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a1, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_load_cap
+; RV32IXCHERI-NEXT:    call __atomic_load_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -89,7 +89,7 @@ define void @atomic_store_cap_unordered(i8 addrspace(200)* addrspace(200)* %a, i
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_store_cap
+; RV32IXCHERI-NEXT:    call __atomic_store_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -108,7 +108,7 @@ define void @atomic_store_cap_monotonic(i8 addrspace(200)* addrspace(200)* %a, i
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_store_cap
+; RV32IXCHERI-NEXT:    call __atomic_store_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -127,7 +127,7 @@ define void @atomic_store_cap_release(i8 addrspace(200)* addrspace(200)* %a, i8 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_store_cap
+; RV32IXCHERI-NEXT:    call __atomic_store_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -147,7 +147,7 @@ define void @atomic_store_cap_seq_cst(i8 addrspace(200)* addrspace(200)* %a, i8 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_store_cap
+; RV32IXCHERI-NEXT:    call __atomic_store_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret

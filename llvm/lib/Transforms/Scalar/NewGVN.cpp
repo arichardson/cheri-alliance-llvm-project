@@ -80,6 +80,7 @@
 #include "llvm/Analysis/ValueTracking.h"
 #include "llvm/IR/Argument.h"
 #include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Cheri.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/Dominators.h"
@@ -1584,6 +1585,15 @@ NewGVN::performSymbolicPredicateInfoEvaluation(IntrinsicInst *I) const {
     Predicate = CmpInst::getSwappedPredicate(Predicate);
     AdditionallyUsedValue = CmpOp1;
   }
+
+  const DataLayout &DL = I->getModule()->getDataLayout();
+  bool IncludesCapabilities = isCheriPointer(CmpOp0->getType(), &DL) ||
+                              isCheriPointer(CmpOp1->getType(), &DL);
+  // When comparing CHERI capabilities comparing equality only compares
+  // addresses and does not imply that the capabilities are equivalent. We
+  // therefore cannot replace any subsequent uses.
+  if (Predicate == CmpInst::ICMP_EQ && IncludesCapabilities)
+    return ExprResult::none();
 
   if (Predicate == CmpInst::ICMP_EQ)
     return ExprResult::some(createVariableOrConstant(FirstOp),

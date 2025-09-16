@@ -36,6 +36,11 @@ namespace RISCVSpecialCapReg {
 #include "RISCVGenSearchableTables.inc"
 } // namespace RISCVSpecialCapReg
 
+namespace RISCVCheriSysReg {
+#define GET_CheriSysRegsList_IMPL
+#include "RISCVGenSearchableTables.inc"
+} // namespace RISCVCheriSysReg
+
 namespace RISCVInsnOpcode {
 #define GET_RISCVOpcodesList_IMPL
 #include "RISCVGenSearchableTables.inc"
@@ -63,7 +68,7 @@ ABI computeTargetABI(const Triple &TT, const FeatureBitset &FeatureBits,
               "target-abi)\n";
     TargetABI = ABI_Unknown;
   } else if ((ABIName.starts_with("il32pc") || ABIName.starts_with("l64pc")) &&
-             !FeatureBits[RISCV::FeatureCheri]) {
+             !(FeatureBits[RISCV::FeatureCheri] || FeatureBits[RISCV::FeatureStdExtZCheriPureCap])) {
     errs() << "Pure-capability ABI can't be used for a target that "
               "doesn't support the XCheri instruction set extension (ignoring "
               "target-abi)\n";
@@ -126,7 +131,12 @@ MCRegister getBPReg(ABI TargetABI) {
 }
 
 // Returns the register holding shadow call stack pointer.
-MCRegister getSCSPReg() { return RISCV::X3; }
+MCRegister getSCSPReg(ABI TargetABI) {
+  return isCheriPureCapABI(TargetABI) ? RISCV::C3 : RISCV::X3;
+}
+
+// Returns the register used for bounded mem/var args
+MCRegister getCheriBoundedArgReg() { return RISCV::C6; }
 
 } // namespace RISCVABI
 

@@ -560,6 +560,22 @@ class ALU_rr<bits<7> funct7, bits<3> funct3, string opcodestr,
   let isCommutable = Commutable;
 }
 
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+class C_ALUW_rr<bits<7> funct7, bits<3> funct3, string opcodestr,
+              bit Commutable = 0>
+    : RVInstR<funct7, funct3, OPC_OP_32, (outs GPCR:$rd),
+              (ins GPR:$rs1, GPCR:$rs2), opcodestr, "$rd, $rs1, $rs2"> {
+  let isCommutable = Commutable;
+}
+
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+class C_ALU_rr<bits<7> funct7, bits<3> funct3, string opcodestr,
+             bit Commutable = 0>
+    : RVInstR<funct7, funct3, OPC_OP, (outs GPCR:$rd), (ins GPR:$rs1, GPCR:$rs2),
+              opcodestr, "$rd, $rs1, $rs2"> {
+  let isCommutable = Commutable;
+}
+
 let hasNoSchedulingInfo = 1,
     hasSideEffects = 1, mayLoad = 0, mayStore = 0 in
 class CSR_ir<bits<3> funct3, string opcodestr>
@@ -826,7 +842,9 @@ def SFENCE_VMA  : Priv_rr<"sfence.vma", 0b0001001>, Sched<[]>;
 let Predicates = [HasStdExtH] in {
 def HFENCE_VVMA : Priv_rr<"hfence.vvma", 0b0010001>, Sched<[]>;
 def HFENCE_GVMA : Priv_rr<"hfence.gvma", 0b0110001>, Sched<[]>;
+}
 
+let Predicates = [HasStdExtH, NotCapMode] in {
 def HLV_B   : HLoad_r<0b0110000, 0b00000, "hlv.b">, Sched<[]>;
 def HLV_BU  : HLoad_r<0b0110000, 0b00001, "hlv.bu">, Sched<[]>;
 def HLV_H   : HLoad_r<0b0110010, 0b00000, "hlv.h">, Sched<[]>;
@@ -838,7 +856,7 @@ def HSV_B   : HStore_rr<0b0110001, "hsv.b">, Sched<[]>;
 def HSV_H   : HStore_rr<0b0110011, "hsv.h">, Sched<[]>;
 def HSV_W   : HStore_rr<0b0110101, "hsv.w">, Sched<[]>;
 }
-let Predicates = [IsRV64, HasStdExtH] in {
+let Predicates = [IsRV64, HasStdExtH, NotCapMode] in {
 def HLV_WU  : HLoad_r<0b0110100, 0b00001, "hlv.wu">, Sched<[]>;
 def HLV_D   : HLoad_r<0b0110110, 0b00000, "hlv.d">, Sched<[]>;
 def HSV_D   : HStore_rr<0b0110111, "hsv.d">, Sched<[]>;
@@ -2222,6 +2240,7 @@ include "RISCVInstrInfoXCV.td"
 //===----------------------------------------------------------------------===//
 
 include "RISCVInstrInfoXCheri.td"
+include "RISCVInstrInfoZCheriPurecap.td"
 
 //===----------------------------------------------------------------------===//
 // Global ISel

@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "RISCVInstrInfo.h"
+#include "MCTargetDesc/RISCVMCTargetDesc.h"
 #include "MCTargetDesc/RISCVMatInt.h"
 #include "RISCV.h"
 #include "RISCVMachineFunctionInfo.h"
@@ -122,15 +123,19 @@ unsigned RISCVInstrInfo::isLoadFromStackSlot(const MachineInstr &MI,
     break;
   case RISCV::LD:
   case RISCV::FLD:
-  case RISCV::LC_64:
   case RISCV::CLD:
   case RISCV::CFLD:
   case RISCV::CLC_64:
+  case RISCV::LC_64:
     MemBytes = 8;
     break;
   case RISCV::CLC_128:
   case RISCV::LC_128:
     MemBytes = 16;
+    break;
+  case RISCV::CLC:
+  case RISCV::LC:
+    MemBytes = STI.isRV32() ? 8 : 16;
     break;
   }
 
@@ -172,16 +177,20 @@ unsigned RISCVInstrInfo::isStoreToStackSlot(const MachineInstr &MI,
     break;
   case RISCV::SD:
   case RISCV::FSD:
-  case RISCV::SC_64:
   case RISCV::CSD:
   case RISCV::CFSD:
   case RISCV::CSC_64:
+  case RISCV::SC_64:
     MemBytes = 8;
     break;
-  case RISCV::SC_128:
   case RISCV::CSC_128:
-      MemBytes = 16;
-      break;
+  case RISCV::SC_128:
+    MemBytes = 16;
+    break;
+  case RISCV::SC:
+  case RISCV::CSC:
+    MemBytes = STI.isRV32() ? 8 : 16;
+    break;
   }
 
   if (MI.getOperand(1).isFI() && MI.getOperand(2).isImm() &&
@@ -442,17 +451,32 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                                  MCRegister SrcReg, bool KillSrc,
                                  MachineInstr::MIFlag Flag) const {
   const TargetRegisterInfo *TRI = STI.getRegisterInfo();
+  auto &Subtarget = MBB.getParent()->getSubtarget<RISCVSubtarget>();
 
   if (RISCV::GPRRegClass.contains(DstReg, SrcReg)) {
     BuildMI(MBB, MBBI, DL, get(RISCV::ADDI), DstReg)
         .addReg(SrcReg, getKillRegState(KillSrc))
         .addImm(0);
     return;
-  } else if (RISCV::GPCRRegClass.contains(DstReg, SrcReg)) {
-    BuildMI(MBB, MBBI, DL, get(RISCV::CMove), DstReg)
-        .addReg(SrcReg, getKillRegState(KillSrc))
-        .setMIFlag(Flag);
-    return;
+  } else if (RISCV::GPCRRegClass.contains(DstReg)) {
+    // GPCR -> GPCR can use CMove
+    const bool HasZCheriPureCap =
+        Subtarget.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
+    if (RISCV::GPCRRegClass.contains(SrcReg)) {
+      BuildMI(MBB, MBBI, DL, get(HasZCheriPureCap ? RISCV::CMV : RISCV::CMove),
+              DstReg)
+          .addReg(SrcReg, getKillRegState(KillSrc))
+          .setMIFlag(Flag);
+      return;
+    } else if (SrcReg == RISCV::DDC) {
+      // Moves of DDC can use CSpecialRW.
+      BuildMI(MBB, MBBI, DL, get(RISCV::CSpecialRW), DstReg)
+          .addImm(/*DDC*/ 1)
+          .addReg(RISCV::C0)
+          .setMIFlag(Flag);
+      return;
+    }
+    llvm_unreachable("Unsupported to-capreg copy");
   }
 
   if (RISCV::GPRPairRegClass.contains(DstReg, SrcReg)) {
@@ -653,9 +677,9 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
                                                                : RISCV::CSD;
       IsScalableVector = false;
     } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
-      Opcode = TRI->getRegSizeInBits(RISCV::GPCRRegClass) == 64
-                   ? RISCV::CSC_64
-                   : RISCV::CSC_128;
+      Opcode = ST.hasStdExtZCheriPureCap()
+                   ? RISCV::CSC
+                   : (ST.isRV64() ? RISCV::CSC_128 : RISCV::CSC_64);
       IsScalableVector = false;
     } else if (RISCV::FPR32RegClass.hasSubClassEq(RC)) {
       Opcode = RISCV::CFSW;
@@ -672,8 +696,9 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
                RISCV::SW : RISCV::SD;
       IsScalableVector = false;
     } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
-      Opcode = TRI->getRegSizeInBits(RISCV::GPCRRegClass) == 64 ? RISCV::SC_64
-                                                                : RISCV::SC_128;
+      Opcode = ST.hasStdExtZCheriPureCap()
+                   ? RISCV::SC
+                   : (ST.isRV64() ? RISCV::SC_128 : RISCV::SC_64);
       IsScalableVector = false;
     } else if (RISCV::GPRPairRegClass.hasSubClassEq(RC)) {
       Opcode = RISCV::PseudoRV32ZdinxSD;
@@ -763,9 +788,9 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
                                                                : RISCV::CLD;
       IsScalableVector = false;
     } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
-      Opcode = TRI->getRegSizeInBits(RISCV::GPCRRegClass) == 64
-                   ? RISCV::CLC_64
-                   : RISCV::CLC_128;
+      Opcode = ST.hasStdExtZCheriPureCap()
+                   ? RISCV::CLC
+                   : (ST.isRV64() ? RISCV::CLC_128 : RISCV::CLC_64);
       IsScalableVector = false;
     } else if (RISCV::FPR32RegClass.hasSubClassEq(RC)) {
       Opcode = RISCV::CFLW;
@@ -782,8 +807,9 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
                RISCV::LW : RISCV::LD;
       IsScalableVector = false;
     } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
-      Opcode = TRI->getRegSizeInBits(RISCV::GPCRRegClass) == 64 ? RISCV::LC_64
-                                                                : RISCV::LC_128;
+      Opcode = ST.hasStdExtZCheriPureCap()
+                   ? RISCV::LC
+                   : (ST.isRV64() ? RISCV::LC_128 : RISCV::LC_64);
       IsScalableVector = false;
     } else if (RISCV::GPRPairRegClass.hasSubClassEq(RC)) {
       Opcode = RISCV::PseudoRV32ZdinxLD;
@@ -1673,8 +1699,10 @@ bool RISCVInstrInfo::isAsCheapAsAMove(const MachineInstr &MI) const {
   default:
     break;
   case RISCV::CMove:
+  case RISCV::CMV:
     return true;
   case RISCV::CIncOffset:
+  case RISCV::CADD:
     // Creating a NULL-derived capability is fast since it's the same as moving
     // to another register and zeroing the capability metadata.
     // While incrementing a capability by zero is not quite as fast as a move
@@ -1690,6 +1718,7 @@ bool RISCVInstrInfo::isAsCheapAsAMove(const MachineInstr &MI) const {
             MI.getOperand(2).getReg() == RISCV::X0) ||
            (MI.getOperand(1).isReg() && MI.getOperand(1).getReg() == RISCV::C0);
   case RISCV::CIncOffsetImm:
+  case RISCV::CADDI:
     return (MI.getOperand(2).isImm() && MI.getOperand(2).getImm() == 0) ||
            (MI.getOperand(1).isReg() && MI.getOperand(1).getReg() == RISCV::C0);
   case RISCV::FSGNJ_D:
@@ -1747,6 +1776,9 @@ bool RISCVInstrInfo::isSetBoundsInstr(const MachineInstr &I,
   case RISCV::CSetBounds:
   case RISCV::CSetBoundsExact:
   case RISCV::CSetBoundsImm:
+  case RISCV::SCBNDS:
+  case RISCV::SCBNDSR:
+  case RISCV::SCBNDSI:
     Base = &I.getOperand(1);
     Size = &I.getOperand(2);
     return true;
@@ -1766,6 +1798,8 @@ bool RISCVInstrInfo::isPtrAddInstr(const MachineInstr &I,
     return false;
   case RISCV::CIncOffsetImm:
   case RISCV::CIncOffset:
+  case RISCV::CADD:
+  case RISCV::CADDI:
     Base = &I.getOperand(1);
     Increment = &I.getOperand(2);
     return true;
@@ -3405,8 +3439,8 @@ bool RISCV::isSEXT_W(const MachineInstr &MI) {
 
 // Returns true if this is the zext.w pattern, adduw rd, rs1, x0.
 bool RISCV::isZEXT_W(const MachineInstr &MI) {
-  return MI.getOpcode() == RISCV::ADD_UW && MI.getOperand(1).isReg() &&
-         MI.getOperand(2).isReg() && MI.getOperand(2).getReg() == RISCV::X0;
+  return (MI.getOpcode() == RISCV::ADD_UW && MI.getOperand(1).isReg() &&
+          MI.getOperand(2).isReg() && MI.getOperand(2).getReg() == RISCV::X0);
 }
 
 // Returns true if this is the zext.b pattern, andi rd, rs1, 255.

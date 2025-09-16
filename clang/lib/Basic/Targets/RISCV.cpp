@@ -56,6 +56,16 @@ ArrayRef<const char *> RISCVTargetInfo::getGCCRegNames() const {
   return llvm::ArrayRef(GCCRegNames);
 }
 
+ArrayRef<const char *> RISCVTargetInfo::getCHERIRegNames() const {
+  const char *FirstCHERIReg = "c0";
+  const char *LastCHERIReg = "c31";
+  ArrayRef<const char *> GCCRegs = getGCCRegNames();
+
+  auto *Start = llvm::find(GCCRegs, FirstCHERIReg);
+  auto *End = llvm::find(GCCRegs, LastCHERIReg);
+  return llvm::ArrayRef(Start, ++End);
+}
+
 ArrayRef<TargetInfo::GCCRegAlias> RISCVTargetInfo::getGCCRegAliases() const {
   static const TargetInfo::GCCRegAlias GCCRegAliases[] = {
       {{"zero"}, "x0"}, {{"ra"}, "x1"},   {{"sp"}, "x2"},    {{"gp"}, "x3"},
@@ -227,22 +237,55 @@ void RISCVTargetInfo::getTargetDefines(const LangOptions &Opts,
                           Twine(((int)CapTableABI) + 1));
     }
 
-    // Macros for use with the set and get permissions builtins.
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_GLOBAL__", Twine(1<<0));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_EXECUTE__",
-            Twine(1<<1));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_LOAD__", Twine(1<<2));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_STORE__", Twine(1<<3));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_LOAD_CAPABILITY__",
-            Twine(1<<4));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__",
-            Twine(1<<5));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_STORE_LOCAL__",
-            Twine(1<<6));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_SEAL__", Twine(1<<7));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_INVOKE__", Twine(1<<8));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_UNSEAL__", Twine(1<<9));
-    Builder.defineMacro("__CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__", Twine(1<<10));
+    // Macros for use with the set and get permissions builtins for bakewell.
+    if (ISAInfo->hasExtension("zcheripurecap")) {
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_WRITE__", Twine(1 << 0));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_LOAD_MUTABLE__", Twine(1 << 1));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_CAPABILITY__",
+                          Twine(1 << 5));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__",
+                          Twine(1 << 16));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_EXECUTE__", Twine(1 << 17));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_READ__", Twine(1 << 18));
+      if(ISAInfo->hasExtension("zcherilevels")){
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_ELEVATE_LEVEL__",
+                            Twine(1 << 2));
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_STORE_LEVEL__",
+                            Twine(1 << 3));
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_CAPABILITY_LEVEL__",
+                            Twine(1 << 4));
+      }
+      // Software Defined Permissions
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_USER_00__", Twine(1 << 6));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_USER_01__", Twine(1 << 7));
+      if (Is64Bit) {
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_USER_02__", Twine(1 << 8));
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_USER_03__", Twine(1 << 9));
+      }
+    } else {
+      // Macros for use with the set and get permissions builtins.
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_GLOBAL__", Twine(1 << 0));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_EXECUTE__",
+                          Twine(1 << 1));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_LOAD__",
+                          Twine(1 << 2));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_STORE__",
+                          Twine(1 << 3));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_LOAD_CAPABILITY__",
+                          Twine(1 << 4));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__",
+                          Twine(1 << 5));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_STORE_LOCAL__",
+                          Twine(1 << 6));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_SEAL__",
+                          Twine(1 << 7));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_INVOKE__",
+                          Twine(1 << 8));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_PERMIT_UNSEAL__",
+                          Twine(1 << 9));
+      Builder.defineMacro("__CHERI_CAP_PERMISSION_ACCESS_SYSTEM_REGISTERS__",
+                          Twine(1 << 10));
+    }
 
     Builder.defineMacro("__riscv_clen", Twine(getCHERICapabilityWidth()));
     // TODO: _MIPS_CAP_ALIGN_MASK equivalent?
@@ -379,6 +422,9 @@ bool RISCVTargetInfo::hasFeature(StringRef Feature) const {
                     .Case("32bit", !Is64Bit)
                     .Case("64bit", Is64Bit)
                     .Case("experimental", HasExperimental)
+                    .Case("cheri-bounded-vararg", CheriBoundVarArg)
+                    .Case("cheri-bounded-memarg-caller", CheriBoundMemArgCaller)
+                    .Case("cheri-bounded-memarg-callee", CheriBoundMemArgCallee)
                     .Default(std::nullopt);
   if (Result)
     return *Result;
@@ -402,10 +448,20 @@ bool RISCVTargetInfo::handleTargetFeatures(std::vector<std::string> &Features,
   } else {
     ISAInfo = std::move(*ParseResult);
   }
-  if (ISAInfo->hasExtension("xcheri")) {
+  if (ISAInfo->hasExtension("xcheri") ||
+      ISAInfo->hasExtension("zcheripurecap") ||
+      ISAInfo->hasExtension("zcherihybrid") ||
+      ISAInfo->hasExtension("zcheripte") ||
+      ISAInfo->hasExtension("zcherilevels")) {
     HasCheri = true;
     CapSize = XLen * 2;
+    CheriBoundVarArg = llvm::is_contained(Features, "+cheri-bounded-vararg");
+    CheriBoundMemArgCaller =
+        llvm::is_contained(Features, "+cheri-bounded-memarg-caller");
+    CheriBoundMemArgCallee =
+        llvm::is_contained(Features, "+cheri-bounded-memarg-callee");
   }
+
   if (ABI.empty())
     ABI = ISAInfo->computeDefaultABI().str();
 

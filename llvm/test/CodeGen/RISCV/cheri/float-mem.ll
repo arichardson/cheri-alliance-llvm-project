@@ -178,7 +178,7 @@ define dso_local void @ddc_fsw(float* %a, float %b, float %c) nounwind {
   ret void
 }
 
-; Uses both loaded values in an FP op to ensure a cflw is used, even for the
+; Uses both loaded values in an FP op to ensure a flw is used, even for the
 ; soft float ABI
 define dso_local float @cap_flw(float addrspace(200)* %a) nounwind {
 ; CHECK-ILP32-LABEL: cap_flw:

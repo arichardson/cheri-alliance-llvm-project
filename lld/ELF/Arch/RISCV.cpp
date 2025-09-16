@@ -17,6 +17,7 @@
 #include "llvm/Support/RISCVAttributes.h"
 #include "llvm/Support/RISCVISAInfo.h"
 #include "llvm/Support/TimeProfiler.h"
+#include "Cheri.h"
 
 using namespace llvm;
 using namespace llvm::object;
@@ -69,6 +70,9 @@ enum Op {
   CIncOffsetImm = 0x105b,
   CLC_64 = 0x3003,
   CLC_128 = 0x200f,
+
+  CADDI = 0x201B,
+  CLC = 0x400F,
 };
 
 enum Reg {
@@ -144,6 +148,8 @@ RISCV::RISCV() {
   pltHeaderSize = 32;
   pltEntrySize = 16;
   ipltEntrySize = 16;
+  if (config->isCheriAbi)
+    gotEntrySize = getCapabilitySize();
 }
 
 static uint32_t getEFlags(InputFile *f) {
@@ -250,15 +256,19 @@ void RISCV::writePltHeader(uint8_t *buf) const {
   // (c)sub t1, (c)t1, (c)t3
   // l[wdc] (c)t3, %pcrel_lo(1b)((c)t2); (c)t3 = _dl_runtime_resolve
   // addi t1, t1, -pltHeaderSize-12; t1 = &.plt[i] - &.plt[0]
-  // addi/cincoffset (c)t0, (c)t2, %pcrel_lo(1b)
+  // addi/caddi (c)t0, (c)t2, %pcrel_lo(1b)
   // (if shift != 0): srli t1, t1, shift; t1 = &.got.plt[i] - &.got.plt[0]
   // l[wdc] (c)t0, Ptrsize((c)t0); (c)t0 = link_map
   // (c)jr (c)t3
   // (if shift == 0): nop
   uint32_t offset = in.gotPlt->getVA() - in.plt->getVA();
-  uint32_t ptrload = config->isCheriAbi ? config->is64 ? CLC_128 : CLC_64
-                                        : config->is64 ? LD : LW;
-  uint32_t ptraddi = config->isCheriAbi ? CIncOffsetImm : ADDI;
+  uint32_t ptrload =
+      config->isCheriAbi
+          ? (!config->zCheriRiscvV9 ? CLC : (config->is64 ? CLC_128 : CLC_64))
+          : (config->is64 ? LD : LW);
+  uint32_t ptraddi = config->isCheriAbi
+                         ? (config->zCheriRiscvV9 ? CIncOffsetImm : CADDI)
+                         : ADDI;
   // Shift is log2(pltsize / ptrsize), which is 0 for CHERI-128 so skipped
   uint32_t shift = 2 - config->is64 - config->isCheriAbi;
   uint32_t ptrsize = config->isCheriAbi ? config->capabilitySize
@@ -282,8 +292,10 @@ void RISCV::writePlt(uint8_t *buf, const Symbol &sym,
   // l[wdc] (c)t3, %pcrel_lo(1b)((c)t3)
   // (c)jalr (c)t1, (c)t3
   // nop
-  uint32_t ptrload = config->isCheriAbi ? config->is64 ? CLC_128 : CLC_64
-                                        : config->is64 ? LD : LW;
+  uint32_t ptrload =
+      config->isCheriAbi
+          ? (!config->zCheriRiscvV9 ? CLC : (config->is64 ? CLC_128 : CLC_64))
+          : (config->is64 ? LD : LW);
   uint32_t entryva = sym.getGotPltVA();
   uint32_t offset = entryva - pltEntryAddr;
   write32le(buf + 0, utype(AUIPC, X_T3, hi20(offset)));

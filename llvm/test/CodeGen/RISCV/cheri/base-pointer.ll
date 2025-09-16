@@ -33,7 +33,7 @@ define i32 @caller(i32 zeroext %n) nounwind {
 ; RV32IXCHERI-NEXT:    csetbounds ca1, ca1, s2
 ; RV32IXCHERI-NEXT:    cincoffset ca0, cs1, 0
 ; RV32IXCHERI-NEXT:    csetbounds ca0, ca0, 1
-; RV32IXCHERI-NEXT:    ccall callee
+; RV32IXCHERI-NEXT:    call callee
 ; RV32IXCHERI-NEXT:    mv a0, s2
 ; RV32IXCHERI-NEXT:    cincoffset csp, cs0, -64
 ; RV32IXCHERI-NEXT:    lc cra, 56(csp) # 8-byte Folded Reload
@@ -67,7 +67,7 @@ define i32 @caller(i32 zeroext %n) nounwind {
 ; RV64IXCHERI-NEXT:    csetbounds ca1, ca1, s2
 ; RV64IXCHERI-NEXT:    cincoffset ca0, cs1, 0
 ; RV64IXCHERI-NEXT:    csetbounds ca0, ca0, 1
-; RV64IXCHERI-NEXT:    ccall callee
+; RV64IXCHERI-NEXT:    call callee
 ; RV64IXCHERI-NEXT:    mv a0, s2
 ; RV64IXCHERI-NEXT:    cincoffset csp, cs0, -128
 ; RV64IXCHERI-NEXT:    lc cra, 112(csp) # 16-byte Folded Reload

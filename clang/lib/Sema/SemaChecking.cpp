@@ -272,6 +272,38 @@ static bool checkCapArg(Sema &S, CallExpr *TheCall, unsigned ArgIndex,
   return false;
 }
 
+/// Check that a cheri-builtin is supported by bakewell.
+static bool SemaVerifyBakewellBuiltins(Sema &S, unsigned BuiltinID, CallExpr *TheCall) {
+  if(!S.Context.getTargetInfo().getTriple().isRISCV()){
+    return false;
+  }
+  if(!S.Context.getTargetInfo().hasFeature("zcheripurecap")){
+    return false;
+  }
+  switch (BuiltinID) {
+  case Builtin::BI__builtin_cheri_flags_get:
+  case Builtin::BI__builtin_cheri_flags_set:
+    if (S.Context.getTargetInfo().hasFeature("zcherihybrid"))
+      return false;
+    S.Diag(TheCall->getBeginLoc(), diag::err_bakewell_unsupported_builtin)
+        << TheCall->getSourceRange()
+        << StringRef("Requires zcherihybrid");
+    return true;
+  case Builtin::BI__builtin_cheri_cap_type_copy:
+  case Builtin::BI__builtin_cheri_unseal:
+  case Builtin::BI__builtin_cheri_conditional_seal:
+  case Builtin::BI__builtin_cheri_tag_clear:
+  case Builtin::BI__builtin_cheri_seal:
+  case Builtin::BI__builtin_cheri_cap_load_tags:
+    S.Diag(TheCall->getBeginLoc(), diag::err_bakewell_unsupported_builtin)
+        << TheCall->getSourceRange() << StringRef("Unsupported Builtin");
+    return true;
+
+  default:
+    return false;
+  }
+}
+
 static bool SemaBuiltinMSVCAnnotation(Sema &S, CallExpr *TheCall) {
   // We need at least one argument.
   if (TheCall->getNumArgs() < 1) {
@@ -2241,6 +2273,10 @@ Sema::CheckBuiltinFunctionCall(FunctionDecl *FDecl, unsigned BuiltinID,
         SemaBuiltinConstantArg(TheCall, ArgNo, Result))
       return true;
     ICEArguments &= ~(1 << ArgNo);
+  }
+
+  if(SemaVerifyBakewellBuiltins(*this, BuiltinID, TheCall)){
+    return ExprError();
   }
 
   FPOptions FPO;

@@ -14,7 +14,7 @@ define void @test_clgc(i32 signext %n) {
 ; RV32I:       # %bb.0: # %entry
 ; RV32I-NEXT:  .LBB0_3: # %entry
 ; RV32I-NEXT:    # Label of block must be emitted
-; RV32I-NEXT:    auipcc ca1, %got_pcrel_hi(g)
+; RV32I-NEXT:    auipc ca1, %got_pcrel_hi(g)
 ; RV32I-NEXT:    lc ca1, %pcrel_lo(.LBB0_3)(ca1)
 ; RV32I-NEXT:    li a2, 0
 ; RV32I-NEXT:  .LBB0_1: # %loop
@@ -29,7 +29,7 @@ define void @test_clgc(i32 signext %n) {
 ; RV64I:       # %bb.0: # %entry
 ; RV64I-NEXT:  .LBB0_3: # %entry
 ; RV64I-NEXT:    # Label of block must be emitted
-; RV64I-NEXT:    auipcc ca1, %got_pcrel_hi(g)
+; RV64I-NEXT:    auipc ca1, %got_pcrel_hi(g)
 ; RV64I-NEXT:    lc ca1, %pcrel_lo(.LBB0_3)(ca1)
 ; RV64I-NEXT:    li a2, 0
 ; RV64I-NEXT:  .LBB0_1: # %loop
@@ -60,7 +60,7 @@ define void @test_cla_tls_ie(i32 signext %n) {
 ; RV32I:       # %bb.0: # %entry
 ; RV32I-NEXT:  .LBB1_3: # %entry
 ; RV32I-NEXT:    # Label of block must be emitted
-; RV32I-NEXT:    auipcc ca2, %tls_ie_pcrel_hi(ie)
+; RV32I-NEXT:    auipc ca2, %tls_ie_pcrel_hi(ie)
 ; RV32I-NEXT:    lw a2, %pcrel_lo(.LBB1_3)(ca2)
 ; RV32I-NEXT:    li a1, 0
 ; RV32I-NEXT:    cincoffset ca2, ctp, a2
@@ -76,7 +76,7 @@ define void @test_cla_tls_ie(i32 signext %n) {
 ; RV64I:       # %bb.0: # %entry
 ; RV64I-NEXT:  .LBB1_3: # %entry
 ; RV64I-NEXT:    # Label of block must be emitted
-; RV64I-NEXT:    auipcc ca2, %tls_ie_pcrel_hi(ie)
+; RV64I-NEXT:    auipc ca2, %tls_ie_pcrel_hi(ie)
 ; RV64I-NEXT:    ld a2, %pcrel_lo(.LBB1_3)(ca2)
 ; RV64I-NEXT:    li a1, 0
 ; RV64I-NEXT:    cincoffset ca2, ctp, a2
@@ -115,12 +115,12 @@ define void @test_clc_tls_gd(i32 signext %n) nounwind {
 ; RV32I-NEXT:    li s2, 0
 ; RV32I-NEXT:  .LBB2_3: # %entry
 ; RV32I-NEXT:    # Label of block must be emitted
-; RV32I-NEXT:    auipcc cs1, %tls_gd_pcrel_hi(gd)
+; RV32I-NEXT:    auipc cs1, %tls_gd_pcrel_hi(gd)
 ; RV32I-NEXT:    cincoffset cs1, cs1, %pcrel_lo(.LBB2_3)
 ; RV32I-NEXT:  .LBB2_1: # %loop
 ; RV32I-NEXT:    # =>This Inner Loop Header: Depth=1
 ; RV32I-NEXT:    cmove ca0, cs1
-; RV32I-NEXT:    ccall __tls_get_addr
+; RV32I-NEXT:    call __tls_get_addr
 ; RV32I-NEXT:    lw a0, 0(ca0)
 ; RV32I-NEXT:    addi s2, s2, 1
 ; RV32I-NEXT:    blt s2, s0, .LBB2_1
@@ -143,12 +143,12 @@ define void @test_clc_tls_gd(i32 signext %n) nounwind {
 ; RV64I-NEXT:    li s2, 0
 ; RV64I-NEXT:  .LBB2_3: # %entry
 ; RV64I-NEXT:    # Label of block must be emitted
-; RV64I-NEXT:    auipcc cs1, %tls_gd_pcrel_hi(gd)
+; RV64I-NEXT:    auipc cs1, %tls_gd_pcrel_hi(gd)
 ; RV64I-NEXT:    cincoffset cs1, cs1, %pcrel_lo(.LBB2_3)
 ; RV64I-NEXT:  .LBB2_1: # %loop
 ; RV64I-NEXT:    # =>This Inner Loop Header: Depth=1
 ; RV64I-NEXT:    cmove ca0, cs1
-; RV64I-NEXT:    ccall __tls_get_addr
+; RV64I-NEXT:    call __tls_get_addr
 ; RV64I-NEXT:    lw a0, 0(ca0)
 ; RV64I-NEXT:    addiw s2, s2, 1
 ; RV64I-NEXT:    blt s2, s0, .LBB2_1

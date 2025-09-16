@@ -2206,6 +2206,27 @@ static void handleNoReturnAttr(Sema &S, Decl *D, const ParsedAttr &Attrs) {
   D->addAttr(::new (S.Context) NoReturnAttr(S.Context, Attrs));
 }
 
+static void handleNoCapRelocsAttr(Sema &S, Decl *D, const ParsedAttr &Attrs) {
+  const TargetInfo &TI = S.Context.getTargetInfo();
+  if (!TI.areAllPointersCapabilities()) {
+    S.Diag(Attrs.getLoc(), diag::warn_unknown_attribute_ignored)
+        << Attrs << Attrs.getRange();
+
+    return;
+  }
+  D->addAttr(::new (S.Context) NoCapRelocsAttr(S.Context, Attrs));
+}
+
+static void handleCHERIDontSealAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+  const TargetInfo &TI = S.Context.getTargetInfo();
+  if (!TI.areAllPointersCapabilities()) {
+    S.Diag(AL.getLoc(), diag::warn_unknown_attribute_ignored)
+        << AL << AL.getRange();
+    return;
+  }
+  D->addAttr(::new (S.Context) CHERIDontSealAttr(S.Context, AL));
+}
+
 static void handleStandardNoReturnAttr(Sema &S, Decl *D, const ParsedAttr &A) {
   // The [[_Noreturn]] spelling is deprecated in C23, so if that was used,
   // issue an appropriate diagnostic. However, don't issue a diagnostic if the
@@ -4700,7 +4721,8 @@ void Sema::CheckAlignasUnderalignment(Decl *D) {
   AlignedAttr *LastAlignedAttr = nullptr;
   unsigned Align = 0;
   // A decl has an alignment override if it has an aligned or packed attribute
-  bool hasAlignOverride = D->hasAttr<PackedAttr>();
+  bool hasAlignOverride =
+      D->hasAttr<PackedAttr>() || D->hasAttr<MaxFieldAlignmentAttr>();
   for (auto *I : D->specific_attrs<AlignedAttr>()) {
     if (I->isAlignmentDependent())
       return;
@@ -4717,12 +4739,16 @@ void Sema::CheckAlignasUnderalignment(Decl *D) {
   // when applied to record declarations. However, when it is applied to a
   // typedef type it sets it instead. According to comments in
   // ASTContext::getTypeInfoImpl() this is due to GCC compatibility...
+  // We can also get requested alignment information from MaxFieldAlignmentAttr
+  // which is provided through use of #pragma pack(), the alignment used for the
+  // type is whichever is higher.
   bool ShouldDiagnoseCheriAlign =
       Context.getTargetInfo().SupportsCapabilities();
   if (ShouldDiagnoseCheriAlign && (isa<RecordDecl>(D) || isa<FieldDecl>(D))) {
     // If the attribute is applied to a record declaration declaration we only
     // need to warn if it also has the packed attribute
-    ShouldDiagnoseCheriAlign = D->hasAttr<PackedAttr>();
+    ShouldDiagnoseCheriAlign =
+        D->hasAttr<PackedAttr>() || D->hasAttr<MaxFieldAlignmentAttr>();
     // Allow using the annotate attribute instead of a pragma warning silence
     if (auto *AA = D->getAttr<AnnotateAttr>()) {
       if (AA->getAnnotation() == "underaligned_capability")
@@ -4742,6 +4768,13 @@ void Sema::CheckAlignasUnderalignment(Decl *D) {
     } else {
       // Not a field -> we have the full definition and can use it
       MinAlign = Context.getDeclAlign(D);
+      // a RecordDecl can also have a MaxFieldAlignmentAttr provided
+      // with #pragma pack()
+      if (D->hasAttr<MaxFieldAlignmentAttr>()) {
+        unsigned MaxFieldAlign =
+            D->getAttr<MaxFieldAlignmentAttr>()->getAlignment();
+        MinAlign = std::max(MinAlign, Context.toCharUnitsFromBits(MaxFieldAlign));
+      }
     }
     if ((MinAlign < CapAlign) && Context.containsCapabilities(UnderlyingTy)) {
       Diag(D->getLocation(), diag::warn_cheri_underalign)
@@ -9527,6 +9560,9 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
   case ParsedAttr::AT_NoReturn:
     handleNoReturnAttr(S, D, AL);
     break;
+  case ParsedAttr::AT_NoCapRelocs:
+    handleNoCapRelocsAttr(S, D, AL);
+    break;
   case ParsedAttr::AT_CXX11NoReturn:
     handleStandardNoReturnAttr(S, D, AL);
     break;
@@ -9729,6 +9765,9 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
     break;
   case ParsedAttr::AT_CHERISubobjectBoundsUseRemainingSize:
     handleCHERISubobjectBoundsUseRemainingSizeAttr(S, D, AL);
+    break;
+  case ParsedAttr::AT_CHERIDontSeal:
+    handleCHERIDontSealAttr(S, D, AL);
     break;
   case ParsedAttr::AT_StdCall:
   case ParsedAttr::AT_CDecl:

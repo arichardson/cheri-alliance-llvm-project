@@ -50,6 +50,7 @@
 #include "llvm/ADT/SetVector.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/StringSwitch.h"
+#include "llvm/BinaryFormat/ELF.h"
 #include "llvm/Config/llvm-config.h"
 #include "llvm/LTO/LTO.h"
 #include "llvm/Object/Archive.h"
@@ -451,7 +452,7 @@ static void checkOptions() {
     if (config->exportDynamic)
       error("-r and --export-dynamic may not be used together");
   }
-  if (config->useRelativeElfCheriRelocs)
+  if (config->useRelativeElfCheriRelocs && config->emachine != EM_RISCV)
     error("local-cap-relocs=elf is not implemented yet");
 
   if (config->executeOnly) {
@@ -1459,6 +1460,7 @@ static void readConfigs(opt::InputArgList &args) {
       args.hasFlag(OPT_warn_symbol_ordering, OPT_no_warn_symbol_ordering, true);
   config->whyExtract = args.getLastArgValue(OPT_why_extract);
   config->zCapTableDebug = getZFlag(args, "captabledebug", "nocaptabledebug", false);
+  config->zCheriRiscvV9 = hasZOption(args, "cheri-riscv-v9");
   config->zCombreloc = getZFlag(args, "combreloc", "nocombreloc", true);
   config->zCopyreloc = getZFlag(args, "copyreloc", "nocopyreloc", true);
   config->zForceBti = hasZOption(args, "force-bti");

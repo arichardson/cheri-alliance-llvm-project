@@ -191,7 +191,7 @@ DEFINE_LIBUNWIND_FUNCTION(_ZN9libunwind20Registers_mips_cheri6jumptoEv)
 #endif
   CIncOffset $c3, $c3, _LIBUNWIND_CAPREG_START*8
 
-#define RESTORE_CAP_REG(reg, idx) clc $c ## reg, $zero, ((idx)*(__SIZEOF_UINTCAP__))($c3)
+#define RESTORE_CAP_REG(reg, idx) lc $c ## reg, $zero, ((idx)*(__SIZEOF_UINTCAP__))($c3)
 #define RESTORE_CAP(x) RESTORE_CAP_REG(x, x)
   // Use $c17 as the temporary when restoring $ddc since it is loaded last
   RESTORE_CAP_REG(17, 0)
@@ -1312,7 +1312,7 @@ DEFINE_LIBUNWIND_FUNCTION(_ZN9libunwind15Registers_sparc6jumptoEv)
 
 .macro restore_fpr num, ctxreg
 #ifdef __CHERI_PURE_CAPABILITY__
-  fld    f\num, (RISCV_FOFFSET + RISCV_FSIZE * \num)(c\ctxreg)
+  FLOAD   f\num, (__SIZEOF_CHERI_CAPABILITY__ * 32 + RISCV_FSIZE * \num)(c\ctxreg)
 #else
   FLOAD  f\num, (RISCV_FOFFSET + RISCV_FSIZE * \num)(\ctxreg)
 #endif

@@ -13,13 +13,12 @@ define i32 @get_ith_word(i32 signext %i, ...) addrspace(200) nounwind {
 ; CHECK-NEXT:    addi a0, a0, 1
 ; CHECK-NEXT:  .LBB0_1: # %while.cond
 ; CHECK-NEXT:    # =>This Inner Loop Header: Depth=1
-; CHECK-NEXT:    cmove ca2, ca1
 ; CHECK-NEXT:    addiw a0, a0, -1
 ; CHECK-NEXT:    cincoffset ca1, ca1, 4
 ; CHECK-NEXT:    bgtz a0, .LBB0_1
 ; CHECK-NEXT:  # %bb.2: # %while.end
 ; CHECK-NEXT:    sc ca1, 0(csp)
-; CHECK-NEXT:    lw a0, 0(ca2)
+; CHECK-NEXT:    lw a0, -4(ca1)
 ; CHECK-NEXT:    cincoffset csp, csp, 16
 ; CHECK-NEXT:    ret
 entry:
@@ -109,7 +108,7 @@ define void @test_varargs_odd_cap_reg() addrspace(200) nounwind {
 ; CHECK-NEXT:    sc cra, 16(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    li a0, 1
 ; CHECK-NEXT:    sc cnull, 0(csp)
-; CHECK-NEXT:    ccall varargs
+; CHECK-NEXT:    call varargs
 ; CHECK-NEXT:    lc cra, 16(csp) # 16-byte Folded Reload
 ; CHECK-NEXT:    cincoffset csp, csp, 32
 ; CHECK-NEXT:    ret

@@ -513,13 +513,19 @@ static bool isArmElf(const ObjectFile &Obj) {
   return Elf && Elf->getEMachine() == ELF::EM_ARM;
 }
 
+static bool isRiscvElf(const ObjectFile &Obj){
+  const auto *Elf = dyn_cast<ELFObjectFileBase>(&Obj);
+  return Elf && Elf->getEMachine() == ELF::EM_RISCV;
+}
+
 static bool isCSKYElf(const ObjectFile &Obj) {
   const auto *Elf = dyn_cast<ELFObjectFileBase>(&Obj);
   return Elf && Elf->getEMachine() == ELF::EM_CSKY;
 }
 
 static bool hasMappingSymbols(const ObjectFile &Obj) {
-  return isArmElf(Obj) || isAArch64Elf(Obj) || isCSKYElf(Obj) ;
+  return isArmElf(Obj) || isAArch64Elf(Obj) || isRiscvElf(Obj) ||
+         isCSKYElf(Obj);
 }
 
 static void printRelocation(formatted_raw_ostream &OS, StringRef FileName,
@@ -1522,12 +1528,16 @@ disassembleObject(ObjectFile &Obj, const ObjectFile &DbgObj,
                   SourcePrinter &SP, bool InlineRelocs) {
   DisassemblerTarget *DT = &PrimaryTarget;
   bool PrimaryIsThumb = false;
+  bool PrimaryIsCapMode = false;
   SmallVector<std::pair<uint64_t, uint64_t>, 0> CHPECodeMap;
 
   if (SecondaryTarget) {
     if (isArmElf(Obj)) {
       PrimaryIsThumb =
           PrimaryTarget.SubtargetInfo->checkFeatures("+thumb-mode");
+    } else if (isRiscvElf(Obj)) {
+      PrimaryIsCapMode =
+          PrimaryTarget.SubtargetInfo->checkFeatures("+cap-mode");
     } else if (const auto *COFFObj = dyn_cast<COFFObjectFile>(&Obj)) {
       const chpe_metadata *CHPEMetadata = COFFObj->getCHPEMetadata();
       if (CHPEMetadata && CHPEMetadata->CodeMapCount) {
@@ -1580,8 +1590,9 @@ disassembleObject(ObjectFile &Obj, const ObjectFile &DbgObj,
       // For a mapping symbol, store it within both AllSymbols and
       // AllMappingSymbols. If --show-all-symbols is unspecified, its label will
       // not be printed in disassembly listing.
+      const bool Skip = isRiscvElf(Obj) && !PrimaryTarget.SubtargetInfo->checkFeatures("+zcheripurecap");
       if (getElfSymbolType(Obj, Symbol) != ELF::STT_SECTION &&
-          hasMappingSymbols(Obj)) {
+          hasMappingSymbols(Obj) && !Skip) {
         section_iterator SecI = unwrapOrError(Symbol.getSection(), FileName);
         if (SecI != Obj.section_end()) {
           uint64_t SectionAddr = SecI->getAddress();
@@ -1589,8 +1600,13 @@ disassembleObject(ObjectFile &Obj, const ObjectFile &DbgObj,
           StringRef Name = *NameOrErr;
           if (Name.consume_front("$") && Name.size() &&
               strchr("adtx", Name[0])) {
+            char Id = Name[0];
+            if (Name.starts_with("x<capmode>"))
+              Id = 'c';
+            if (Name.starts_with("x<nocapmode>"))
+              Id = 'n';
             AllMappingSymbols[*SecI].emplace_back(Address - SectionAddr,
-                                                  Name[0]);
+                                                  Id);
             AllSymbols[*SecI].push_back(
                 createSymbolInfo(Obj, Symbol, /*MappingSymbol=*/true));
           }
@@ -2071,10 +2087,17 @@ disassembleObject(ObjectFile &Obj, const ObjectFile &DbgObj,
           char Kind = getMappingSymbolKind(MappingSymbols, Index);
           DumpARMELFData = Kind == 'd';
           if (SecondaryTarget) {
-            if (Kind == 'a') {
-              DT = PrimaryIsThumb ? &*SecondaryTarget : &PrimaryTarget;
-            } else if (Kind == 't') {
-              DT = PrimaryIsThumb ? &PrimaryTarget : &*SecondaryTarget;
+            if (isRiscvElf(Obj)) {
+              if (Kind == 'c')
+                DT = PrimaryIsCapMode ? &PrimaryTarget : &*SecondaryTarget;
+              else if (Kind == 'n')
+                DT = PrimaryIsCapMode ? &*SecondaryTarget : &PrimaryTarget;
+            } else {
+              if (Kind == 'a') {
+                DT = PrimaryIsThumb ? &*SecondaryTarget : &PrimaryTarget;
+              } else if (Kind == 't') {
+                DT = PrimaryIsThumb ? &PrimaryTarget : &*SecondaryTarget;
+              }
             }
           }
         } else if (!CHPECodeMap.empty()) {
@@ -2121,7 +2144,7 @@ disassembleObject(ObjectFile &Obj, const ObjectFile &DbgObj,
           Size = dumpARMELFData(SectionAddr, Index, End, Obj, Bytes,
                                 MappingSymbols, *DT->SubtargetInfo, FOS);
         } else {
-          // When -z or --disassemble-zeroes are given we always dissasemble
+          // When -z or --disassemble-zeroes are given we always disassemble
           // them. Otherwise we might want to skip zero bytes we see.
           if (!DisassembleZeroes) {
             uint64_t MaxOffset = End - Index;
@@ -2640,6 +2663,14 @@ static void disassembleObject(ObjectFile *Obj, bool InlineRelocs) {
         Features.AddFeature("-thumb-mode");
       else
         Features.AddFeature("+thumb-mode");
+      SecondaryTarget.emplace(PrimaryTarget, Features);
+    }
+  } else if (isRiscvElf(*Obj)) {
+    if (PrimaryTarget.SubtargetInfo->checkFeatures("+zcherihybrid")) {
+      if (PrimaryTarget.SubtargetInfo->checkFeatures("+cap-mode"))
+        Features.AddFeature("-cap-mode");
+      else
+        Features.AddFeature("+cap-mode");
       SecondaryTarget.emplace(PrimaryTarget, Features);
     }
   } else if (const auto *COFFObj = dyn_cast<COFFObjectFile>(Obj)) {

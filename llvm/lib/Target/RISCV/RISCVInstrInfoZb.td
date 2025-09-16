@@ -311,27 +311,29 @@ def XNOR  : ALU_rr<0b0100000, 0b100, "xnor">,
             Sched<[WriteIALU, ReadIALU, ReadIALU]>;
 } // Predicates = [HasStdExtZbbOrZbkb]
 
-let Predicates = [HasStdExtZba] in {
+let Predicates = [HasStdExtZba, NotCapMode] in {
 def SH1ADD : ALU_rr<0b0010000, 0b010, "sh1add">,
              Sched<[WriteSHXADD, ReadSHXADD, ReadSHXADD]>;
 def SH2ADD : ALU_rr<0b0010000, 0b100, "sh2add">,
              Sched<[WriteSHXADD, ReadSHXADD, ReadSHXADD]>;
 def SH3ADD : ALU_rr<0b0010000, 0b110, "sh3add">,
              Sched<[WriteSHXADD, ReadSHXADD, ReadSHXADD]>;
-} // Predicates = [HasStdExtZba]
+} // Predicates = [HasStdExtZba, NotCapMode]
 
+let Predicates = [HasStdExtZba, IsRV64, NotCapMode] in {
 let Predicates = [HasStdExtZba, IsRV64] in {
 def SLLI_UW : RVBShift_ri<0b00001, 0b001, OPC_OP_IMM_32, "slli.uw">,
               Sched<[WriteShiftImm32, ReadShiftImm32]>;
 def ADD_UW : ALUW_rr<0b0000100, 0b000, "add.uw">,
              Sched<[WriteIALU32, ReadIALU32, ReadIALU32]>;
+}
 def SH1ADD_UW : ALUW_rr<0b0010000, 0b010, "sh1add.uw">,
                 Sched<[WriteSHXADD32, ReadSHXADD32, ReadSHXADD32]>;
 def SH2ADD_UW : ALUW_rr<0b0010000, 0b100, "sh2add.uw">,
                 Sched<[WriteSHXADD32, ReadSHXADD32, ReadSHXADD32]>;
 def SH3ADD_UW : ALUW_rr<0b0010000, 0b110, "sh3add.uw">,
                 Sched<[WriteSHXADD32, ReadSHXADD32, ReadSHXADD32]>;
-} // Predicates = [HasStdExtZba, IsRV64]
+} // Predicates = [HasStdExtZba, IsRV64, NotCapMode]
 
 let Predicates = [HasStdExtZbbOrZbkb] in {
 def ROL   : ALU_rr<0b0110000, 0b001, "rol">,
@@ -672,7 +674,7 @@ def : Pat<(i32 (and GPR:$rs, 0xFFFF)), (ZEXT_H_RV32 GPR:$rs)>;
 let Predicates = [HasStdExtZbb, IsRV64] in
 def : Pat<(i64 (and GPR:$rs, 0xFFFF)), (ZEXT_H_RV64 GPR:$rs)>;
 
-let Predicates = [HasStdExtZba] in {
+let Predicates = [HasStdExtZba, NotCapMode] in {
 
 foreach i = {1,2,3} in {
   defvar shxadd = !cast<Instruction>("SH"#i#"ADD");
@@ -743,9 +745,10 @@ def : Pat<(mul_const_oneuse GPR:$r, (XLenVT 45)),
           (SH2ADD (SH3ADD GPR:$r, GPR:$r), (SH3ADD GPR:$r, GPR:$r))>;
 def : Pat<(mul_const_oneuse GPR:$r, (XLenVT 81)),
           (SH3ADD (SH3ADD GPR:$r, GPR:$r), (SH3ADD GPR:$r, GPR:$r))>;
-} // Predicates = [HasStdExtZba]
+} // Predicates = [HasStdExtZba, NotCapMode]
 
 let Predicates = [HasStdExtZba, IsRV64] in {
+let Predicates = [HasStdExtZba, IsRV64] in
 def : Pat<(i64 (shl (and GPR:$rs1, 0xFFFFFFFF), uimm5:$shamt)),
           (SLLI_UW GPR:$rs1, uimm5:$shamt)>;
 // Match a shifted 0xffffffff mask. Use SRLI to clear the LSBs and SLLI_UW to
@@ -753,9 +756,11 @@ def : Pat<(i64 (shl (and GPR:$rs1, 0xFFFFFFFF), uimm5:$shamt)),
 def : Pat<(i64 (and GPR:$rs1, Shifted32OnesMask:$mask)),
           (SLLI_UW (SRLI GPR:$rs1, Shifted32OnesMask:$mask),
                    Shifted32OnesMask:$mask)>;
+let Predicates = [HasStdExtZba, IsRV64] in {
 def : Pat<(i64 (add_non_imm12 (and GPR:$rs1, 0xFFFFFFFF), GPR:$rs2)),
           (ADD_UW GPR:$rs1, GPR:$rs2)>;
 def : Pat<(i64 (and GPR:$rs, 0xFFFFFFFF)), (ADD_UW GPR:$rs, (XLenVT X0))>;
+}
 
 def : Pat<(i64 (or_is_add_non_imm12 (and GPR:$rs1, 0xFFFFFFFF), GPR:$rs2)),
           (ADD_UW GPR:$rs1, GPR:$rs2)>;
@@ -804,7 +809,7 @@ def : Pat<(i64 (mul (and_oneuse GPR:$r, 0xFFFFFFFF), C5LeftShiftUW:$i)),
 def : Pat<(i64 (mul (and_oneuse GPR:$r, 0xFFFFFFFF), C9LeftShiftUW:$i)),
           (SH3ADD (SLLI_UW GPR:$r, (TrailingZeros C9LeftShiftUW:$i)),
                   (SLLI_UW GPR:$r, (TrailingZeros C9LeftShiftUW:$i)))>;
-} // Predicates = [HasStdExtZba, IsRV64]
+} // Predicates = [HasStdExtZba, IsRV64, NotCapMode]
 
 let Predicates = [HasStdExtZbcOrZbkc] in {
 def : PatGprGpr<riscv_clmul, CLMUL>;

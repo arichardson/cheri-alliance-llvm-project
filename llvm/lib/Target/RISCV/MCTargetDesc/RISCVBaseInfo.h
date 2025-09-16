@@ -420,10 +420,13 @@ struct SysReg {
   // unsigned Number;
   FeatureBitset FeaturesRequired;
   bool isRV32Only;
+  bool isDisabledInCapMode;
 
   bool haveRequiredFeatures(const FeatureBitset &ActiveFeatures) const {
     // Not in 32-bit mode.
     if (isRV32Only && ActiveFeatures[RISCV::Feature64Bit])
+      return false;
+    if (isDisabledInCapMode && ActiveFeatures[RISCV::FeatureCapMode])
       return false;
     // No required feature associated with the system register.
     if (FeaturesRequired.none())
@@ -445,6 +448,18 @@ struct SpecialCapReg {
 #define GET_SpecialCapRegsList_DECL
 #include "RISCVGenSearchableTables.inc"
 } // end namespace RISCVSpecialCapReg
+
+namespace RISCVCheriSysReg {
+
+struct CheriSysReg {
+  const char *Name;
+  unsigned Encoding;
+};
+
+#define GET_CheriSysRegsList_DECL
+#include "RISCVGenSearchableTables.inc"
+#undef GET_CheriSysRegsList_DECL
+} // end namespace RISCVCheriSysReg
 
 namespace RISCVInsnOpcode {
 struct RISCVOpcode {
@@ -511,7 +526,10 @@ inline static bool isCheriPureCapABI(ABI TargetABI) {
   }
 }
 // Returns the register holding shadow call stack pointer.
-MCRegister getSCSPReg();
+MCRegister getSCSPReg(ABI TargetABI);
+
+// Returns the register used for bounded mem/var args
+MCRegister getCheriBoundedArgReg();
 
 } // namespace RISCVABI
 

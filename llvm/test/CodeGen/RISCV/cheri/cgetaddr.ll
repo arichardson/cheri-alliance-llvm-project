@@ -33,7 +33,7 @@ define i64 @getaddr_call(i8 addrspace(200)* %arg) nounwind {
 ; CHECK-LABEL: getaddr_call:
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    mv a0, a0
-; CHECK-NEXT:    ctail use
+; CHECK-NEXT:    tail use
 entry:
   %addr = tail call i64 @llvm.cheri.cap.address.get.i64(i8 addrspace(200)* %arg)
   %ret = tail call i64 @use(i64 %addr)

@@ -54,21 +54,21 @@
 # HEX64: 0x000123c0 00000000 00000000 00000000 00000000
 
 ## &.got[2]-. = 0x12240-0x111b0 = 4096*1+144
-# DIS32:      111b0: auipcc ca0, 1
+# DIS32:      111b0: auipc ca0, 1
 # DIS32-NEXT:        lc ca0, 144(ca0)
 ## &.got[1]-. = 0x12238-0x111b8 = 4096*1+128
-# DIS32:      111b8: auipcc ca0, 1
+# DIS32:      111b8: auipc ca0, 1
 # DIS32-NEXT:        lc ca0, 128(ca0)
 
 ## &.got[2]-. = 0x123c0-0x112b0 = 4096*1+272
-# DIS64:      112b0: auipcc ca0, 1
+# DIS64:      112b0: auipc ca0, 1
 # DIS64-NEXT:        lc ca0, 272(ca0)
 ## &.got[1]-. = 0x123b0-0x112b8 = 4096*1+248
-# DIS64:      112b8: auipcc ca0, 1
+# DIS64:      112b8: auipc ca0, 1
 # DIS64-NEXT:        lc ca0, 248(ca0)
 
-clgc ca0, a
-clgc ca0, b
+lgc ca0, a
+lgc ca0, b
 
 .data
 a:

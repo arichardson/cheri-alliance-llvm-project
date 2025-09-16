@@ -50,12 +50,19 @@ struct capreloc {
 };
 static const __SIZE_TYPE__ function_reloc_flag = (__SIZE_TYPE__)1
                                                  << (__SIZE_WIDTH__ - 1);
+static const __SIZE_TYPE__ constant_reloc_flag = (__SIZE_TYPE__)1
+                                                 << (__SIZE_WIDTH__ - 2);
+static const __SIZE_TYPE__ indirect_reloc_flag = (__SIZE_TYPE__)1
+                                                 << (__SIZE_WIDTH__ - 3);
+static const __SIZE_TYPE__ code_reloc_flag = (__SIZE_TYPE__)1
+                                             << (__SIZE_WIDTH__ - 4);
+static const __SIZE_TYPE__ dont_seal_reloc_flag = (__SIZE_TYPE__)1
+                                                  << (__SIZE_WIDTH__ - 5);
+#if defined(__riscv_xcheri) || defined(__mips__)
 static const __SIZE_TYPE__ function_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
                      __CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ |
                      __CHERI_CAP_PERMISSION_PERMIT_STORE__);
-static const __SIZE_TYPE__ constant_reloc_flag = (__SIZE_TYPE__)1
-                                                 << (__SIZE_WIDTH__ - 2);
 static const __SIZE_TYPE__ constant_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
                      __CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ |
@@ -65,16 +72,24 @@ static const __SIZE_TYPE__ constant_pointer_permissions_mask =
 static const __SIZE_TYPE__ global_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_PERMIT_SEAL__ |
                      __CHERI_CAP_PERMISSION_PERMIT_EXECUTE__);
-static const __SIZE_TYPE__ indirect_reloc_flag = (__SIZE_TYPE__)1
-                                                 << (__SIZE_WIDTH__ - 3);
-static const __SIZE_TYPE__ code_reloc_flag = (__SIZE_TYPE__)1
-                                             << (__SIZE_WIDTH__ - 4);
+#else
+static const __SIZE_TYPE__ function_pointer_permissions_mask =
+    ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_WRITE__);
+static const __SIZE_TYPE__ constant_pointer_permissions_mask =
+    ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_WRITE__ |
+#ifdef __riscv_zcherilevels
+		     __CHERI_CAP_PERMISSION_STORE_LEVEL__ |
+#endif
+		     __CHERI_CAP_PERMISSION_EXECUTE__);
+static const __SIZE_TYPE__ global_pointer_permissions_mask =
+    ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_EXECUTE__);
+#endif
 
-__attribute__((weak)) extern struct capreloc __start___cap_relocs[];
-__attribute__((weak)) extern struct capreloc __stop___cap_relocs[];
+__attribute__((__weak__)) extern struct capreloc __start___cap_relocs[];
+__attribute__((__weak__)) extern struct capreloc __stop___cap_relocs[];
 
-__attribute__((weak)) extern void *__capability __cap_table_start[];
-__attribute__((weak)) extern void *__capability __cap_table_end[];
+__attribute__((__weak__)) extern void *__capability __cap_table_start[];
+__attribute__((__weak__)) extern void *__capability __cap_table_end[];
 
 /*
  * Sandbox data segments are relocated by moving DDC, since they're compiled as
@@ -206,7 +221,10 @@ cheri_init_globals_impl(const struct capreloc *start_relocs,
       src = __builtin_cheri_bounds_set(src, reloc->size);
     }
     src = __builtin_cheri_offset_increment(src, reloc->offset);
-    if ((reloc->permissions & function_reloc_flag) == function_reloc_flag) {
+    bool dont_seal =
+        (reloc->permissions & dont_seal_reloc_flag) == dont_seal_reloc_flag;
+    if ((reloc->permissions & function_reloc_flag) == function_reloc_flag &&
+        !dont_seal) {
       /* Convert function pointers to sentries: */
       src = __builtin_cheri_seal_entry(src);
     }
@@ -232,8 +250,8 @@ cheri_init_globals_3(void *__capability data_cap,
           "lla %1, __stop___cap_relocs\n\t"
           : "=r"(start_addr), "=r"(stop_addr));
 #else
-  __asm__("cllc %0, __start___cap_relocs\n\t"
-          "cllc %1, __stop___cap_relocs\n\t"
+  __asm__("llc %0, __start___cap_relocs\n\t"
+          "llc %1, __stop___cap_relocs\n\t"
           : "=C"(start_relocs), "=C"(stop_relocs));
   start_addr = cheri_address_or_offset_get(start_relocs);
   stop_addr = cheri_address_or_offset_get(stop_relocs);
@@ -289,6 +307,10 @@ cheri_init_globals_gdc(void *__capability gdc) {
 static __attribute__((always_inline, unused)) void cheri_init_globals(void) {
   cheri_init_globals_gdc(__builtin_cheri_global_data_get());
 }
+#endif
+
+#ifdef __riscv_zcheripurecap
+#include <cheri_init_globals_bw.h>
 #endif
 
 #ifdef __cplusplus

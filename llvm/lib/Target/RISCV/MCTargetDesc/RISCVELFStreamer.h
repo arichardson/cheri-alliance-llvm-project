@@ -21,14 +21,15 @@ class RISCVELFStreamer : public MCELFStreamer {
   void reset() override;
   void emitDataMappingSymbol();
   void emitInstructionsMappingSymbol();
+  void emitCapModeMappingSymbol();
+  void emitNoCapModeMappingSymbol();
   void emitMappingSymbol(StringRef Name);
 
-  enum ElfMappingSymbol { EMS_None, EMS_Instructions, EMS_Data };
+  enum ElfMappingSymbol { EMS_None, EMS_Instructions, EMS_Data, EMS_CapMode, EMS_NoCapMode };
 
   int64_t MappingSymbolCounter = 0;
   DenseMap<const MCSection *, ElfMappingSymbol> LastMappingSymbols;
   ElfMappingSymbol LastEMS = EMS_None;
-
 public:
   RISCVELFStreamer(MCContext &C, std::unique_ptr<MCAsmBackend> MAB,
                    std::unique_ptr<MCObjectWriter> MOW,
@@ -78,6 +79,7 @@ public:
   void emitDirectiveOptionNoRelax() override;
   void emitDirectiveOptionCapMode() override;
   void emitDirectiveOptionNoCapMode() override;
+  void emitDirectiveCheriDontSeal(MCSymbol &Symbol) override;
   void emitDirectiveVariantCC(MCSymbol &Symbol) override;
 
   void finish() override;

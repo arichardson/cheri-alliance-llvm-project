@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "RISCVISelLowering.h"
+#include "MCTargetDesc/RISCVMCTargetDesc.h"
 #include "MCTargetDesc/RISCVMatInt.h"
 #include "MCTargetDesc/RISCVCompressedCap.h"
 #include "RISCV.h"
@@ -23,6 +24,7 @@
 #include "llvm/ADT/Statistic.h"
 #include "llvm/Analysis/MemoryLocation.h"
 #include "llvm/Analysis/VectorUtils.h"
+#include "llvm/CHERI/cheri-compressed-cap/cheri_compressed_cap.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -85,6 +87,11 @@ static cl::opt<int>
 static cl::opt<bool>
     RV64LegalI32("riscv-experimental-rv64-legal-i32", cl::ReallyHidden,
                  cl::desc("Make i32 a legal type for SelectionDAG on RV64."));
+
+static cl::opt<bool>
+    NoCapTableRelocs("no-cap-table-relocs",
+		     cl::desc("Do not use the cap table for relocations"),
+		     cl::init(false));
 
 RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
                                          const RISCVSubtarget &STI)
@@ -153,7 +160,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
       addRegisterClass(MVT::f64, &RISCV::GPRPairRegClass);
   }
 
-  if (Subtarget.hasCheri()) {
+  if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
     CapType = Subtarget.typeForCapabilities();
     NullCapabilityRegister = RISCV::C0;
     addRegisterClass(CapType, &RISCV::GPCRRegClass);
@@ -262,7 +269,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
 
   // TODO: add all necessary setOperationAction calls.
   setOperationAction(ISD::DYNAMIC_STACKALLOC, XLenVT, Expand);
-  if (Subtarget.hasCheri())
+  if (Subtarget.hasStdExtZCheriPureCapOrCheri())
     setOperationAction(ISD::DYNAMIC_STACKALLOC, CapType, Expand);
 
   setOperationAction(ISD::BR_JT, MVT::Other, Expand);
@@ -638,7 +645,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   if (Subtarget.is64Bit())
     setOperationAction(ISD::Constant, MVT::i64, Custom);
 
-  if (Subtarget.hasCheri()) {
+  if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
     MVT CLenVT = Subtarget.typeForCapabilities();
     setOperationAction(ISD::BR_CC, CLenVT, Expand);
     setOperationAction(ISD::SELECT, CLenVT, Custom);
@@ -669,7 +676,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   // Some CHERI intrinsics return i1, which isn't legal, so we have to custom
   // lower them in the DAG combine phase before the first type legalization
   // pass.
-  if (Subtarget.hasCheri())
+  if (Subtarget.hasStdExtZCheriPureCapOrCheri())
     setTargetDAGCombine(ISD::INTRINSIC_WO_CHAIN);
 
   if (Subtarget.hasStdExtZicbop()) {
@@ -683,7 +690,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
     else
       setMinCmpXchgSizeInBits(32);
 
-    if (Subtarget.hasCheri())
+    if (Subtarget.hasStdExtZCheriPureCapOrCheri())
       SupportsAtomicCapabilityOperations = true;
   } else if (Subtarget.hasForcedAtomics()) {
     setMaxAtomicSizeInBitsSupported(Subtarget.getXLen());
@@ -6962,7 +6969,9 @@ SDValue RISCVTargetLowering::getAddr(NodeTy *N, EVT Ty, SelectionDAG &DAG,
 
   if (RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI())) {
     SDValue Addr = getTargetNode(N, DL, Ty, DAG, 0);
-    if (IsLocal && CanDeriveFromPcc) {
+    MachineFunction &MF = DAG.getMachineFunction();
+    bool NoCapRelocs = MF.getFunction().hasFnAttribute(Attribute::NoCapRelocs);
+    if (NoCapTableRelocs || NoCapRelocs || (IsLocal && CanDeriveFromPcc)) {
       // Use PC-relative addressing to access the symbol. This generates the
       // pattern (PseudoCLLC sym), which expands to
       // (cincoffsetimm (auipcc %pcrel_hi(sym)) %pcrel_lo(auipc)).
@@ -6974,8 +6983,7 @@ SDValue RISCVTargetLowering::getAddr(NodeTy *N, EVT Ty, SelectionDAG &DAG,
     }
     // Generate a sequence to load a capability from the GOT. This generates
     // the pattern (PseudoCLGC sym), which expands to
-    // (clc (auipcc %got_pcrel_hi(sym)) %pcrel_lo(auipc)).
-    MachineFunction &MF = DAG.getMachineFunction();
+    // (clc (auipc %got_pcrel_hi(sym)) %pcrel_lo(auipc)).
     MachineMemOperand *MemOp = MF.getMachineMemOperand(
         MachinePointerInfo::getGOT(MF),
         MachineMemOperand::MOLoad | MachineMemOperand::MODereferenceable |
@@ -7144,9 +7152,12 @@ SDValue RISCVTargetLowering::getStaticTLSAddr(GlobalAddressSDNode *N,
         DAG.getMachineNode(RISCV::PseudoCIncOffsetTPRel, DL, Ty, TPReg, MNHi,
                            AddrCIncOffset),
         0);
-    return SDValue(
-        DAG.getMachineNode(RISCV::CIncOffsetImm, DL, Ty, MNAdd, AddrLo),
-        0);
+    const bool HasZCheriPurecap =
+        Subtarget.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
+    return SDValue(DAG.getMachineNode(HasZCheriPurecap ? RISCV::CADDI
+                                                       : RISCV::CIncOffsetImm,
+                                      DL, Ty, MNAdd, AddrLo),
+                   0);
   }
 
   if (NotLocal) {
@@ -7621,9 +7632,43 @@ SDValue RISCVTargetLowering::lowerBRCOND(SDValue Op, SelectionDAG &DAG) const {
                      DAG.getCondCode(ISD::SETNE), Op.getOperand(2));
 }
 
+SDValue RISCVTargetLowering::lowerVASTARTCap(SDValue Op, SelectionDAG &DAG) const {
+  MachineFunction &MF = DAG.getMachineFunction();
+  RISCVMachineFunctionInfo *FuncInfo = MF.getInfo<RISCVMachineFunctionInfo>();
+  SDLoc DL(Op);
+  unsigned AllocaAS = MF.getDataLayout().getAllocaAddrSpace();
+  MVT PtrVT = getPointerTy(MF.getDataLayout(), AllocaAS);
+  unsigned PtrSize = MF.getDataLayout().getPointerSize(AllocaAS);
+  bool IsPurecap = RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
+  bool UseBoundedMemArgsCallee =
+      IsPurecap && Subtarget.hasCheriBoundMemArgCallee();
+
+  int Index = FuncInfo->getPureCapVarArgsIndex();
+  SDValue FI = DAG.getFrameIndex(Index, PtrVT);
+  SDValue VarPtr =
+      DAG.getLoad(PtrVT, DL, Op.getOperand(0), FI,
+                  MachinePointerInfo::getStack(MF, 0), Align(PtrSize));
+  SDValue Chain = VarPtr.getOperand(0);
+  if (UseBoundedMemArgsCallee) {
+    uint64_t PermMask = -1UL & ~(CAP_AP_X | CAP_AP_W);
+    VarPtr = DAG.getNode(ISD::INTRINSIC_WO_CHAIN, DL, PtrVT,
+                         DAG.getConstant(Intrinsic::cheri_cap_perms_and, DL,
+                                         Subtarget.getXLenVT()),
+                         VarPtr, DAG.getIntPtrConstant(PermMask, DL));
+  }
+  const Value *SV = cast<SrcValueSDNode>(Op.getOperand(2))->getValue();
+  return DAG.getStore(Chain, DL, VarPtr, Op.getOperand(1),
+                      MachinePointerInfo(SV));
+}
+
 SDValue RISCVTargetLowering::lowerVASTART(SDValue Op, SelectionDAG &DAG) const {
   MachineFunction &MF = DAG.getMachineFunction();
   RISCVMachineFunctionInfo *FuncInfo = MF.getInfo<RISCVMachineFunctionInfo>();
+  bool HasCheriBoundVarArg =
+      RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()) &&
+      Subtarget.hasCheriBoundVarArg();
+  if (HasCheriBoundVarArg)
+    return lowerVASTARTCap(Op, DAG);
 
   SDLoc DL(Op);
   unsigned AllocaAS = MF.getDataLayout().getAllocaAddrSpace();
@@ -16728,10 +16773,10 @@ void RISCVTargetLowering::computeKnownBitsForTargetNode(const SDValue Op,
       KnownBits KnownLengthBits = DAG.computeKnownBits(Op.getOperand(1));
       uint64_t MinLength = KnownLengthBits.One.getZExtValue();
       uint64_t MaxLength = (~KnownLengthBits.Zero).getZExtValue();
-      uint64_t MinRoundedLength =
-          RISCVCompressedCap::getRepresentableLength(MinLength, IsRV64);
-      uint64_t MaxRoundedLength =
-          RISCVCompressedCap::getRepresentableLength(MaxLength, IsRV64);
+      uint64_t MinRoundedLength = RISCVCompressedCap::getRepresentableLength(
+          MinLength, IsRV64, Subtarget.hasStdExtZCheriPureCap());
+      uint64_t MaxRoundedLength = RISCVCompressedCap::getRepresentableLength(
+          MaxLength, IsRV64, Subtarget.hasStdExtZCheriPureCap());
       bool MinRoundedOverflow = MinRoundedLength < MinLength;
       bool MaxRoundedOverflow = MaxRoundedLength < MaxLength;
 
@@ -16786,8 +16831,10 @@ void RISCVTargetLowering::computeKnownBitsForTargetNode(const SDValue Op,
       uint64_t MinLength = KnownLengthBits.One.getZExtValue();
       uint64_t MaxLength = (~KnownLengthBits.Zero).getZExtValue();
 
-      Known.Zero |= ~RISCVCompressedCap::getAlignmentMask(MinLength, IsRV64);
-      Known.One |= RISCVCompressedCap::getAlignmentMask(MaxLength, IsRV64);
+      Known.Zero |= ~RISCVCompressedCap::getAlignmentMask(
+          MinLength, IsRV64, Subtarget.hasStdExtZCheriPureCap());
+      Known.One |= RISCVCompressedCap::getAlignmentMask(
+          MaxLength, IsRV64, Subtarget.hasStdExtZCheriPureCap());
       break;
     }
     case Intrinsic::riscv_vsetvli:
@@ -16907,15 +16954,16 @@ RISCVTargetLowering::getTailPaddingForPreciseBounds(uint64_t Size) const {
   if (!RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()))
     return TailPaddingAmount::None;
 
-  return RISCVCompressedCap::getRequiredTailPadding(Size, Subtarget.is64Bit());
+  return RISCVCompressedCap::getRequiredTailPadding(
+      Size, Subtarget.is64Bit(), Subtarget.hasStdExtZCheriPureCap());
 }
 
-Align
-RISCVTargetLowering::getAlignmentForPreciseBounds(uint64_t Size) const {
+Align RISCVTargetLowering::getAlignmentForPreciseBounds(uint64_t Size) const {
   if (!RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI()))
     return Align();
 
-  return RISCVCompressedCap::getRequiredAlignment(Size, Subtarget.is64Bit());
+  return RISCVCompressedCap::getRequiredAlignment(
+      Size, Subtarget.is64Bit(), Subtarget.hasStdExtZCheriPureCap());
 }
 
 const Constant *
@@ -17079,8 +17127,10 @@ static MachineBasicBlock *emitSplitF64Pseudo(MachineInstr &MI,
       StoreOpcode = RISCV::SW_DDC;
       AddOpcode = RISCV::ADDI;
     } else {
+      const bool HasZCheriPurecap =
+          MF.getSubtarget().hasFeature(RISCV::FeatureStdExtZCheriPureCap);
       StoreOpcode = RISCV::SW_CAP;
-      AddOpcode = RISCV::CIncOffsetImm;
+      AddOpcode = HasZCheriPurecap ? RISCV::CADDI : RISCV::CIncOffsetImm;
     }
 
     Register TmpReg = MI.getOperand(2).getReg();
@@ -17906,11 +17956,12 @@ bool RISCV::CC_RISCV(const DataLayout &DL, RISCVABI::ABI ABI, unsigned ValNo,
   unsigned XLen = DL.getLargestLegalIntTypeSizeInBits();
   assert(XLen == 32 || XLen == 64);
   MVT XLenVT = XLen == 32 ? MVT::i32 : MVT::i64;
-  MVT CLenVT = Subtarget.hasCheri() ? Subtarget.typeForCapabilities()
+  MVT CLenVT = Subtarget.hasStdExtZCheriPureCapOrCheri() ? Subtarget.typeForCapabilities()
                                     : MVT();
   bool IsPureCap = RISCVABI::isCheriPureCapABI(ABI);
   MVT PtrVT = IsPureCap ? CLenVT : XLenVT;
   bool IsPureCapVarArgs = !IsFixed && IsPureCap;
+  bool IsBoundedVarArgs = IsPureCapVarArgs && Subtarget.hasCheriBoundVarArg();
 
   // Static chain parameter must not be passed in normal argument registers,
   // so we assign t2 for it as done in GCC's __builtin_call_with_static_chain
@@ -18007,6 +18058,36 @@ bool RISCV::CC_RISCV(const DataLayout &DL, RISCVABI::ABI ABI, unsigned ValNo,
 
   assert(PendingLocs.size() == PendingArgFlags.size() &&
          "PendingLocs and PendingArgFlags out of sync");
+
+  // Bounded VarArgs
+  // Each bounded varargs is assigned a 2*XLen slot on the stack
+  // If the value is small enough to fit into the slot it is passed
+  // directly - otherwise a capability to the value is filled into the
+  // slot.
+  if (!IsFixed && IsBoundedVarArgs) {
+    unsigned SlotSize = CLenVT.getFixedSizeInBits() / 8;
+    // Aggregates of size 2*XLen need special handling here
+    // as LLVM with treat them as two separate XLen wide arguments
+    if(LocVT == XLenVT && OrigTy && OrigTy->isAggregateType()){
+      PendingLocs.push_back(
+          CCValAssign::getPending(ValNo, ValVT, LocVT, LocInfo));
+      PendingArgFlags.push_back(ArgFlags);
+      if(PendingLocs.size() == 2){
+        CCValAssign VA = PendingLocs[0];
+        ISD::ArgFlagsTy AF = PendingArgFlags[0];
+        PendingLocs.clear();
+        PendingArgFlags.clear();
+        return CC_RISCVAssign2XLen(XLen, State, IsPureCapVarArgs, VA, AF, ValNo,
+                                   ValVT, LocVT, ArgFlags,
+                                   ABI == RISCVABI::ABI_ILP32E ||
+                                       ABI == RISCVABI::ABI_LP64E);
+      }
+      return false;
+    }
+    unsigned StackOffset = State.AllocateStack(SlotSize, Align(SlotSize));
+    State.addLoc(CCValAssign::getMem(ValNo, ValVT, StackOffset, LocVT, LocInfo));
+    return false;
+  }
 
   // Handle passing f64 on RV32D with a soft float ABI or when floating point
   // registers are exhausted. Also handle for pure capability varargs which are
@@ -18337,9 +18418,14 @@ static SDValue convertValVTToLocVT(SelectionDAG &DAG, SDValue Val,
 // passed with CCValAssign::Indirect.
 static SDValue unpackFromMemLoc(SelectionDAG &DAG, SDValue Chain,
                                 const CCValAssign &VA, const SDLoc &DL,
-                                EVT PtrVT) {
+                                EVT PtrVT, SDValue ArgRegArgs) {
   MachineFunction &MF = DAG.getMachineFunction();
   MachineFrameInfo &MFI = MF.getFrameInfo();
+  const RISCVSubtarget &STI = MF.getSubtarget<RISCVSubtarget>();
+  const bool IsPureCapABI = RISCVABI::isCheriPureCapABI(STI.getTargetABI());
+  const bool UseBoundedMemArgsCallee =
+      IsPureCapABI && STI.hasCheriBoundMemArgCallee();
+
   EVT LocVT = VA.getLocVT();
   EVT ValVT = VA.getValVT();
   if (ValVT.isScalableVector()) {
@@ -18348,9 +18434,15 @@ static SDValue unpackFromMemLoc(SelectionDAG &DAG, SDValue Chain,
     // type, instead of the scalable vector type.
     ValVT = LocVT;
   }
-  int FI = MFI.CreateFixedObject(ValVT.getStoreSize(), VA.getLocMemOffset(),
-                                 /*IsImmutable=*/true);
-  SDValue FIN = DAG.getFrameIndex(FI, PtrVT);
+  SDValue FIN;
+  int FI;
+  if (UseBoundedMemArgsCallee) {
+    FIN = DAG.getPointerAdd(DL, ArgRegArgs, VA.getLocMemOffset());
+  } else {
+    FI = MFI.CreateFixedObject(ValVT.getStoreSize(), VA.getLocMemOffset(),
+                                   /*IsImmutable=*/true);
+    FIN = DAG.getFrameIndex(FI, PtrVT);
+  }
   SDValue Val;
 
   ISD::LoadExtType ExtType;
@@ -18365,7 +18457,10 @@ static SDValue unpackFromMemLoc(SelectionDAG &DAG, SDValue Chain,
   }
   Val = DAG.getExtLoad(
       ExtType, DL, LocVT, Chain, FIN,
-      MachinePointerInfo::getFixedStack(DAG.getMachineFunction(), FI), ValVT);
+      UseBoundedMemArgsCallee
+          ? MachinePointerInfo()
+          : MachinePointerInfo::getFixedStack(DAG.getMachineFunction(), FI),
+      ValVT);
   return Val;
 }
 
@@ -18637,6 +18732,10 @@ SDValue RISCVTargetLowering::LowerFormalArguments(
         "Function interrupt attribute argument not supported!");
   }
 
+  if (Func.hasFnAttribute(Attribute::DontSeal)) {
+    MF.getInfo<RISCVMachineFunctionInfo>()->setIsDontSeal();
+  }
+
   EVT PtrVT = getPointerTy(DAG.getDataLayout(),
                            DAG.getDataLayout().getAllocaAddrSpace());
   MVT XLenVT = Subtarget.getXLenVT();
@@ -18654,6 +18753,37 @@ SDValue RISCVTargetLowering::LowerFormalArguments(
                      CallConv == CallingConv::Fast ? RISCV::CC_RISCV_FastCC
                                                    : RISCV::CC_RISCV);
 
+  bool HasMemArgs = false;
+  const bool IsCheriPureCapABI =
+      RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
+  const bool UseBoundedMemArgsCallee =
+      IsCheriPureCapABI && Subtarget.hasCheriBoundMemArgCallee();
+  const bool UseBoundedMemArgsCaller =
+      IsCheriPureCapABI && Subtarget.hasCheriBoundMemArgCaller();
+  const bool UseBoundedVarArgs = IsCheriPureCapABI && Subtarget.hasCheriBoundVarArg();
+  if (UseBoundedMemArgsCallee) {
+    for (size_t I = 0; I < Ins.size(); I++) {
+      CCValAssign &VA = ArgLocs[I];
+      if (Ins[I].Flags.isByVal()) {
+        HasMemArgs = true;
+        break;
+      }
+      if (!VA.isRegLoc()) {
+        HasMemArgs = true;
+        break;
+      }
+      assert(VA.getLocInfo() != CCValAssign::Indirect && "Unexpected loc info");
+    }
+  }
+  const bool UseCheriArgRegister =
+      IsCheriPureCapABI && ((IsVarArg && UseBoundedVarArgs) ||
+                            (HasMemArgs && UseBoundedMemArgsCallee));
+  SDValue ArgRegArgs;
+  if (UseCheriArgRegister){
+    Register VReg = MF.addLiveIn(RISCVABI::getCheriBoundedArgReg(), &RISCV::GPCRRegClass);
+    ArgRegArgs = DAG.getCopyFromReg(Chain, DL, VReg, PtrVT);
+  }
+
   for (unsigned i = 0, e = ArgLocs.size(), InsIdx = 0; i != e; ++i, ++InsIdx) {
     CCValAssign &VA = ArgLocs[i];
     SDValue ArgValue;
@@ -18666,7 +18796,7 @@ SDValue RISCVTargetLowering::LowerFormalArguments(
     } else if (VA.isRegLoc())
       ArgValue = unpackFromRegLoc(DAG, Chain, VA, DL, Ins[InsIdx], *this);
     else
-      ArgValue = unpackFromMemLoc(DAG, Chain, VA, DL, PtrVT);
+      ArgValue = unpackFromMemLoc(DAG, Chain, VA, DL, PtrVT, ArgRegArgs);
 
     if (VA.getLocInfo() == CCValAssign::Indirect) {
       // If the original argument was split and passed by reference (e.g. i128
@@ -18702,12 +18832,26 @@ SDValue RISCVTargetLowering::LowerFormalArguments(
   if (any_of(ArgLocs,
              [](CCValAssign &VA) { return VA.getLocVT().isScalableVector(); }))
     MF.getInfo<RISCVMachineFunctionInfo>()->setIsVectorCall();
-  if (IsVarArg && RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI())) {
-    // Record the frame index of the first variable argument
-    // which is a value necessary to VASTART.
-    int FI = MFI.CreateFixedObject(XLenInBytes, CCInfo.getStackSize(),
-                                   true);
-    RVFI->setVarArgsFrameIndex(FI);
+  if (IsVarArg && IsCheriPureCapABI) {
+    if (UseBoundedVarArgs) {
+      // create a new FI and store it there. VASTART will load it from location
+      unsigned CapSizeInBytes = PtrVT.getSizeInBits() / 8;
+      int FI =
+          MFI.CreateStackObject(CapSizeInBytes, Align(CapSizeInBytes), false);
+      SDValue FIN = DAG.getFrameIndex(FI, PtrVT);
+      SDValue VarArgPtr = ArgRegArgs;
+      if (UseBoundedMemArgsCaller)
+        VarArgPtr = DAG.getPointerAdd(
+            DL, ArgRegArgs, alignTo(CCInfo.getStackSize(), CapSizeInBytes));
+      Chain = DAG.getStore(ArgRegArgs.getValue(1), DL, VarArgPtr, FIN,
+                           MachinePointerInfo::getStack(MF, 0));
+      RVFI->setPureCapVarArgsIndex(FI);
+    } else {
+      // Record the frame index of the first variable argument
+      // which is a value necessary to VASTART.
+      int FI = MFI.CreateFixedObject(XLenInBytes, CCInfo.getStackSize(), true);
+      RVFI->setVarArgsFrameIndex(FI);
+    }
   } else if (IsVarArg) {
     ArrayRef<MCPhysReg> ArgRegs = RISCV::getArgGPRs(Subtarget.getTargetABI());
     unsigned Idx = CCInfo.getFirstUnallocated(ArgRegs);
@@ -18855,8 +18999,15 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
   EVT PtrVT = getPointerTy(DAG.getDataLayout(),
                            DAG.getDataLayout().getAllocaAddrSpace());
   MVT XLenVT = Subtarget.getXLenVT();
+  uint64_t PtrLenBytes = PtrVT.getSizeInBits() / 8;
 
   MachineFunction &MF = DAG.getMachineFunction();
+  bool PureCapABI = RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
+  bool UseBoundedVarArgs = PureCapABI && Subtarget.hasCheriBoundVarArg();
+  bool UseBoundeMemArgsCaller =
+      PureCapABI && Subtarget.hasCheriBoundMemArgCaller();
+  bool UseBoundeMemArgsCallee =
+      PureCapABI && Subtarget.hasCheriBoundMemArgCallee();
 
   // Analyze the operands of the call, assigning locations to each operand.
   SmallVector<CCValAssign, 16> ArgLocs;
@@ -18884,6 +19035,9 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
   // Get a count of how many bytes are to be pushed on the stack.
   unsigned NumBytes = ArgCCInfo.getStackSize();
 
+  if (IsVarArg && UseBoundedVarArgs)
+    NumBytes = alignTo(NumBytes, PtrLenBytes);
+
   // Create local copies for byval args
   SmallVector<SDValue, 8> ByValArgs;
   for (unsigned i = 0, e = Outs.size(); i != e; ++i) {
@@ -18908,8 +19062,32 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
     ByValArgs.push_back(FIPtr);
   }
 
+  int BoundedMemArgsFI;
+  bool HasBoundedMemArgsFI = false;
+  uint64_t BoundedMemArgsOff;
+  if (UseBoundeMemArgsCaller) {
+    auto ReqAlign = getAlignmentForPreciseBounds(NumBytes);
+    uint64_t ReqSize = NumBytes + static_cast<uint64_t>(
+                                      getTailPaddingForPreciseBounds(NumBytes));
+    if (ReqAlign > Align(PtrLenBytes) || ReqSize != NumBytes) {
+      assert(!IsTailCall && "Unexpected Tail Call");
+      HasBoundedMemArgsFI = true;
+      MachineFrameInfo &MFI = DAG.getMachineFunction().getFrameInfo();
+      BoundedMemArgsFI =
+          MFI.CreateStackObject(ReqSize, ReqAlign, /*isSpillSlot=*/false);
+      if (!MFI.hasVarSizedObjects())
+        MFI.CreateVariableSizedObject(ReqAlign, /*Alloca=*/nullptr);
+      assert(MFI.hasVarSizedObjects());
+      BoundedMemArgsOff = ReqSize - alignTo(NumBytes, PtrLenBytes);
+    }
+  }
+
   if (!IsTailCall)
     Chain = DAG.getCALLSEQ_START(Chain, NumBytes, 0, CLI.DL);
+
+  // Bookkeeping for cheri varargs/memargs
+  int VAArgStartOffset, VAArgEndOffset, MemArgStartOffset, MemArgEndOffset;
+  SDValue FirstAddr, FirstArgAddr;
 
   // Copy argument values to their designated locations.
   SmallVector<std::pair<Register, SDValue>, 8> RegsToPass;
@@ -18943,8 +19121,14 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
               DAG.getCopyFromReg(Chain, DL,
                                  getStackPointerRegisterToSaveRestore(),
                                  PtrVT);
-        SDValue Address =
-            DAG.getPointerAdd(DL, StackPtr, HiVA.getLocMemOffset());
+        SDValue Address;
+        if (HasBoundedMemArgsFI) {
+          StackPtr = DAG.getFrameIndex(BoundedMemArgsFI, PtrVT);
+          Address = DAG.getPointerAdd(DL, StackPtr, BoundedMemArgsOff);
+        } else {
+
+          Address = DAG.getPointerAdd(DL, StackPtr, HiVA.getLocMemOffset());
+        }
         // Emit the store.
         MemOpChains.push_back(
             DAG.getStore(Chain, DL, Hi, Address, MachinePointerInfo()));
@@ -19020,17 +19204,96 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
                             "for passing parameters");
 
       // Work out the address of the stack slot.
-      if (!StackPtr.getNode())
-        StackPtr =
-            DAG.getCopyFromReg(Chain, DL,
-                               getStackPointerRegisterToSaveRestore(),
-                               PtrVT);
+      if (!StackPtr.getNode()) {
+        StackPtr = DAG.getCopyFromReg(
+            Chain, DL, getStackPointerRegisterToSaveRestore(), PtrVT);
+        // Increment the stack pointer if BoundedMemArgs is used
+        if (HasBoundedMemArgsFI) {
+          assert(UseBoundeMemArgsCaller && "Must only be used");
+          StackPtr = DAG.getFrameIndex(BoundedMemArgsFI, PtrVT);
+          StackPtr = DAG.getPointerAdd(DL, StackPtr, BoundedMemArgsOff);
+        }
+      }
       SDValue Address =
           DAG.getPointerAdd(DL, StackPtr, VA.getLocMemOffset());
+
+      if (UseBoundeMemArgsCaller) {
+        if (FirstArgAddr == SDValue()) {
+          FirstArgAddr = Address;
+          MemArgStartOffset = VA.getLocMemOffset();
+        }
+        unsigned VTSize = VA.getValVT().getSizeInBits() / 8;
+        MemArgEndOffset = VA.getLocMemOffset() + VTSize;
+        if (!Outs[i].IsFixed) {
+          // we need to align to 16-byte slot
+          Align OffsetAlign = Align(PtrLenBytes);
+          Type *OrigTy = CLI.getArgs()[Outs[i].OrigArgIndex].Ty;
+          if (OrigTy && OrigTy->isAggregateType())
+            OffsetAlign = Align(PtrLenBytes / 2);
+          MemArgEndOffset = alignTo(MemArgEndOffset, OffsetAlign);
+        }
+      }
+      if (UseBoundedVarArgs && !Outs[i].IsFixed) {
+        if (FirstAddr == SDValue()) {
+          FirstAddr = Address;
+          VAArgStartOffset = VA.getLocMemOffset();
+        }
+        Align OffsetAlign = Align(PtrLenBytes);
+        Type *OrigTy = CLI.getArgs()[Outs[i].OrigArgIndex].Ty;
+        if (OrigTy && OrigTy->isAggregateType())
+          OffsetAlign = Align(PtrLenBytes / 2);
+
+        unsigned VTSize = VA.getValVT().getSizeInBits() / 8;
+        VAArgEndOffset = alignTo(VA.getLocMemOffset() + VTSize, OffsetAlign);
+      }
 
       // Emit the store.
       MemOpChains.push_back(
           DAG.getStore(Chain, DL, ArgValue, Address, MachinePointerInfo()));
+    }
+  }
+
+  if(IsVarArg && UseBoundedVarArgs && !UseBoundeMemArgsCaller) {
+    if (FirstAddr != SDValue()) {
+      SDValue VarArgs = DAG.getCSetBounds(
+          FirstAddr, DL, VAArgEndOffset - VAArgStartOffset, Align(),
+          "CHERI-RISCV variadic call lowering",
+          cheri::SetBoundsPointerSource::Stack, "varargs call bounds setting");
+      // clear write and execute permissions on varargs. Clearning other
+      // permissions shouldn't be necessary since the capability is derived from
+      // CSP and that shouldn't have these in the first place.
+      uint64_t PermMask = -1UL & ~(CAP_AP_X | CAP_AP_W);
+      VarArgs = DAG.getNode(
+          ISD::INTRINSIC_WO_CHAIN, DL, PtrVT,
+          DAG.getConstant(Intrinsic::cheri_cap_perms_and, DL, XLenVT), VarArgs,
+          DAG.getIntPtrConstant(PermMask, DL));
+      RegsToPass.push_back(
+          std::make_pair(RISCVABI::getCheriBoundedArgReg(), VarArgs));
+    } else {
+      // No varargs passed, set C6 to null
+      RegsToPass.push_back(std::make_pair(RISCVABI::getCheriBoundedArgReg(),
+                                          DAG.getNullCapability(DL)));
+    }
+  }
+
+  if (UseBoundeMemArgsCaller) {
+    if (FirstArgAddr != SDValue()) {
+      SDValue MemArgs = DAG.getCSetBounds(
+          FirstArgAddr, DL, MemArgEndOffset - MemArgStartOffset, Align(),
+          "CHERI-RISCV memory argument passing",
+          cheri::SetBoundsPointerSource::Stack, "memarg call bounds settings");
+      RegsToPass.push_back(
+          std::make_pair(RISCVABI::getCheriBoundedArgReg(), MemArgs));
+    } else {
+      bool ShouldClearArgReg = IsVarArg;
+      if (!ShouldClearArgReg && UseBoundeMemArgsCallee) {
+        auto *G = dyn_cast<GlobalAddressSDNode>(Callee);
+        ShouldClearArgReg = !G || !G->getGlobal()->hasInternalLinkage();
+      }
+      if (ShouldClearArgReg) {
+        RegsToPass.push_back(std::make_pair(RISCVABI::getCheriBoundedArgReg(),
+                                            DAG.getNullCapability(DL)));
+      }
     }
   }
 
@@ -19625,7 +19888,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
     case 'r':
       // Don't try to split/combine capabilities in order to use a GPR; give a
       // friendlier error message instead.
-      if (Subtarget.hasCheri() && VT == Subtarget.typeForCapabilities())
+      if (Subtarget.hasStdExtZCheriPureCapOrCheri() && VT == Subtarget.typeForCapabilities())
         break;
       // TODO: Support fixed vectors up to XLen for P extension?
       if (VT.isVector())
@@ -19638,7 +19901,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
         return std::make_pair(0U, &RISCV::GPRPairRegClass);
       return std::make_pair(0U, &RISCV::GPRNoX0RegClass);
     case 'C':
-      if (Subtarget.hasCheri() && VT == Subtarget.typeForCapabilities())
+      if (Subtarget.hasStdExtZCheriPureCapOrCheri() && VT == Subtarget.typeForCapabilities())
         return std::make_pair(0U, &RISCV::GPCRRegClass);
       break;
     case 'f':
@@ -19705,7 +19968,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
     return std::make_pair(XRegFromAlias, &RISCV::GPRRegClass);
 
   // Similarly, allow capability register ABI names to be used in constraint.
-  if (Subtarget.hasCheri()) {
+  if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
     Register CRegFromAlias = StringSwitch<Register>(Constraint.lower())
                                  .Case("{cnull}", RISCV::C0)
                                  .Case("{cra}", RISCV::C1)

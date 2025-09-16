@@ -24,7 +24,7 @@ clr.d.aq t1, (ct2)
 clr.d.rl t2, (ct3)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}lr.d.aqrl t3, (ct4)
 # CHECK-ASM: encoding: [0x2f,0xbe,0x0e,0x16]
-clr.d.aqrl t3, (ct4)
+lr.d.aqrl t3, (ct4)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}lr.c ct0, (ct1)
 # CHECK-ASM: encoding: [0xaf,0x42,0x03,0x10]
@@ -37,7 +37,7 @@ clr.c.aq ct1, (ct2)
 clr.c.rl ct2, (ct3)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}lr.c.aqrl ct3, (ct4)
 # CHECK-ASM: encoding: [0x2f,0xce,0x0e,0x16]
-clr.c.aqrl ct3, (ct4)
+lr.c.aqrl ct3, (ct4)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}sc.d t6, t5, (ct4)
 # CHECK-ASM: encoding: [0xaf,0xbf,0xee,0x19]
@@ -50,7 +50,7 @@ csc.d.aq t5, t4, (ct3)
 csc.d.rl t4, t3, (ct2)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}sc.d.aqrl t3, t2, (ct1)
 # CHECK-ASM: encoding: [0x2f,0x3e,0x73,0x1e]
-csc.d.aqrl t3, t2, (ct1)
+sc.d.aqrl t3, t2, (ct1)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}sc.c t6, ct5, (ct4)
 # CHECK-ASM: encoding: [0xaf,0xcf,0xee,0x19]
@@ -63,7 +63,7 @@ csc.c.aq t5, ct4, (ct3)
 csc.c.rl t4, ct3, (ct2)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}sc.c.aqrl t3, ct2, (ct1)
 # CHECK-ASM: encoding: [0x2f,0x4e,0x73,0x1e]
-csc.c.aqrl t3, ct2, (ct1)
+sc.c.aqrl t3, ct2, (ct1)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.d a4, ra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x37,0x14,0x08]
@@ -91,11 +91,11 @@ camomax.d s7, s6, (cs5)
 camominu.d s6, s5, (cs4)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amomaxu.d s5, s4, (cs3)
 # CHECK-ASM: encoding: [0xaf,0xba,0x49,0xe1]
-camomaxu.d s5, s4, (cs3)
+amomaxu.d s5, s4, (cs3)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.c ca4, cra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x47,0x14,0x08]
-camoswap.c ca4, cra, (cs0)
+amoswap.c ca4, cra, (cs0)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.d.aq a4, ra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x37,0x14,0x0c]
@@ -123,11 +123,11 @@ camomax.d.aq s7, s6, (cs5)
 camominu.d.aq s6, s5, (cs4)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amomaxu.d.aq s5, s4, (cs3)
 # CHECK-ASM: encoding: [0xaf,0xba,0x49,0xe5]
-camomaxu.d.aq s5, s4, (cs3)
+amomaxu.d.aq s5, s4, (cs3)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.c.aq ca4, cra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x47,0x14,0x0c]
-camoswap.c.aq ca4, cra, (cs0)
+amoswap.c.aq ca4, cra, (cs0)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.d.rl a4, ra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x37,0x14,0x0a]
@@ -155,11 +155,11 @@ camomax.d.rl s7, s6, (cs5)
 camominu.d.rl s6, s5, (cs4)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amomaxu.d.rl s5, s4, (cs3)
 # CHECK-ASM: encoding: [0xaf,0xba,0x49,0xe3]
-camomaxu.d.rl s5, s4, (cs3)
+amomaxu.d.rl s5, s4, (cs3)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.c.rl ca4, cra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x47,0x14,0x0a]
-camoswap.c.rl ca4, cra, (cs0)
+amoswap.c.rl ca4, cra, (cs0)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.d.aqrl a4, ra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x37,0x14,0x0e]
@@ -187,8 +187,8 @@ camomax.d.aqrl s7, s6, (cs5)
 camominu.d.aqrl s6, s5, (cs4)
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amomaxu.d.aqrl s5, s4, (cs3)
 # CHECK-ASM: encoding: [0xaf,0xba,0x49,0xe7]
-camomaxu.d.aqrl s5, s4, (cs3)
+amomaxu.d.aqrl s5, s4, (cs3)
 
 # CHECK-ASM-AND-OBJ: {{[[:<:]]}}amoswap.c.aqrl ca4, cra, (cs0)
 # CHECK-ASM: encoding: [0x2f,0x47,0x14,0x0e]
-camoswap.c.aqrl ca4, cra, (cs0)
+amoswap.c.aqrl ca4, cra, (cs0)

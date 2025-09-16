@@ -342,4 +342,27 @@ inline uint64_t overwriteULEB128(uint8_t *bufLoc, uint64_t val) {
     llvm_unreachable("unknown config->ekind");                                 \
   }
 
+#define invokeAndRetELFT(f, ...)                                               \
+  [&]() {                                                                      \
+    switch (config->ekind) {                                                   \
+    case ELF32LEKind:                                                          \
+      return f<ELF32LE>(__VA_ARGS__);                                          \
+    case ELF32BEKind:                                                          \
+      return f<ELF32BE>(__VA_ARGS__);                                          \
+    case ELF64LEKind:                                                          \
+      return f<ELF64LE>(__VA_ARGS__);                                          \
+    case ELF64BEKind:                                                          \
+      return f<ELF64BE>(__VA_ARGS__);                                          \
+    default:                                                                   \
+      llvm_unreachable("unknown config->ekind");                               \
+    };                                                                         \
+  }();
+
+#define invokeIs64Bit(f, ...)                                                  \
+  [&] {                                                                        \
+    if (config->is64)                                                          \
+      return f<true>(__VA_ARGS__);                                             \
+    return f<false>(__VA_ARGS__);                                              \
+  }();
+
 #endif
