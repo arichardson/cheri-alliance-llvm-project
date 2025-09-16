@@ -332,8 +332,8 @@ def : SysReg<"dpc", 0x7B1>;
 
 // "dscratch" is an alternative name for "dscratch0" which appeared in earlier
 // drafts of the RISC-V debug spec
-let AltName = "dscratch" in
 let isDisabledInCapMode = 1 in {
+let AltName = "dscratch" in
 def : SysReg<"dscratch0", 0x7B2>;
 def : SysReg<"dscratch1", 0x7B3>;
 } // isDisabledInCapMode = 1

@@ -19126,9 +19126,9 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
           StackPtr = DAG.getFrameIndex(BoundedMemArgsFI, PtrVT);
           Address = DAG.getPointerAdd(DL, StackPtr, BoundedMemArgsOff);
         } else {
-
           Address = DAG.getPointerAdd(DL, StackPtr, HiVA.getLocMemOffset());
         }
+
         // Emit the store.
         MemOpChains.push_back(
             DAG.getStore(Chain, DL, Hi, Address, MachinePointerInfo()));
@@ -20745,7 +20745,7 @@ EVT RISCVTargetLowering::getOptimalMemOpType(const MemOp &Op,
   // capability loads/stores or by making a runtime library call.
   // We can't use capability stores as an optimisation for memset unless zeroing.
   bool IsNonZeroMemset = Op.isMemset() && !Op.isZeroMemset();
-  if (Subtarget.hasCheri() && !IsNonZeroMemset) {
+  if (Subtarget.hasStdExtZCheriPureCapOrCheri() && !IsNonZeroMemset) {
     unsigned CapSize = Subtarget.typeForCapabilities().getSizeInBits() / 8;
     if (Op.size() >= CapSize) {
       Align CapAlign(CapSize);

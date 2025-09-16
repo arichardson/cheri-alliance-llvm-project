@@ -12,14 +12,13 @@ declare void @llvm.memmove.p200i8.p200i8.i64(i8 addrspace(200)* nocapture writeo
 define void @memcpy_no_attr(%struct.pair addrspace(200)* %a, %struct.pair addrspace(200)* %b) addrspace(200) nounwind {
 ; CHECK-LABEL: memcpy_no_attr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    lw a2, 12(ca1)
-; CHECK-NEXT:    sw a2, 12(ca0)
-; CHECK-NEXT:    lw a2, 8(ca1)
-; CHECK-NEXT:    sw a2, 8(ca0)
-; CHECK-NEXT:    lw a2, 4(ca1)
-; CHECK-NEXT:    sw a2, 4(ca0)
-; CHECK-NEXT:    lw a1, 0(ca1)
-; CHECK-NEXT:    sw a1, 0(ca0)
+; CHECK-NEXT:    caddi csp, csp, -16
+; CHECK-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
+; CHECK-NEXT:    li a2, 16
+; CHECK-NEXT:    li a3, 0
+; CHECK-NEXT:    call memcpy
+; CHECK-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
+; CHECK-NEXT:    caddi csp, csp, 16
 ; CHECK-NEXT:    ret
 entry:
   %a_i8 = bitcast %struct.pair addrspace(200)* %a to i8 addrspace(200)*
@@ -30,14 +29,13 @@ entry:
 define void @memmove_no_attr(%struct.pair addrspace(200)* %a, %struct.pair addrspace(200)* %b) addrspace(200) nounwind {
 ; CHECK-LABEL: memmove_no_attr:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    lw a2, 12(ca1)
-; CHECK-NEXT:    lw a3, 8(ca1)
-; CHECK-NEXT:    lw a4, 4(ca1)
-; CHECK-NEXT:    lw a1, 0(ca1)
-; CHECK-NEXT:    sw a2, 12(ca0)
-; CHECK-NEXT:    sw a3, 8(ca0)
-; CHECK-NEXT:    sw a4, 4(ca0)
-; CHECK-NEXT:    sw a1, 0(ca0)
+; CHECK-NEXT:    caddi csp, csp, -16
+; CHECK-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
+; CHECK-NEXT:    li a2, 16
+; CHECK-NEXT:    li a3, 0
+; CHECK-NEXT:    call memmove
+; CHECK-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
+; CHECK-NEXT:    caddi csp, csp, 16
 ; CHECK-NEXT:    ret
 entry:
   %a_i8 = bitcast %struct.pair addrspace(200)* %a to i8 addrspace(200)*

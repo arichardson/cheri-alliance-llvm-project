@@ -174,10 +174,6 @@ New checks
   Detects implicit conversions between pointers of different levels of
   indirection.
 
-<<<<<<< HEAD
-- New :doc:`bugprone-optional-value-conversion
-  <clang-tidy/checks/bugprone/optional-value-conversion>` check.
-=======
 - New :doc:`cheri-FixCapAsArraySubscript
   <clang-tidy/checks/cheri/FixCapAsArraySubscript>` check.
 
@@ -226,7 +222,9 @@ New checks
 
 - New :doc:`cppcoreguidelines-avoid-capturing-lambda-coroutines
   <clang-tidy/checks/cppcoreguidelines/avoid-capturing-lambda-coroutines>` check.
->>>>>>> codasip-rebased
+
+- New :doc:`bugprone-optional-value-conversion
+  <clang-tidy/checks/bugprone/optional-value-conversion>` check.
 
   Detects potentially unintentional and redundant conversions where a value is
   extracted from an optional-like type and then used to create a new instance

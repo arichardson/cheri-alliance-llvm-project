@@ -689,6 +689,7 @@ R"(All available -march extensions for RISC-V
     zihintntl           1.0
     zihintpause         2.0
     zihpm               2.0
+    zish4add            0.9
     zmmul               1.0
     za128rs             1.0
     za64rs              1.0
@@ -703,6 +704,10 @@ R"(All available -march extensions for RISC-V
     zcd                 1.0
     zce                 1.0
     zcf                 1.0
+    zcherihybrid        0.9
+    zcherilevels        0.9
+    zcheripte           0.9
+    zcheripurecap       0.9
     zcmp                1.0
     zcmt                1.0
     zba                 1.0

@@ -748,7 +748,6 @@ def : Pat<(mul_const_oneuse GPR:$r, (XLenVT 81)),
 } // Predicates = [HasStdExtZba, NotCapMode]
 
 let Predicates = [HasStdExtZba, IsRV64] in {
-let Predicates = [HasStdExtZba, IsRV64] in
 def : Pat<(i64 (shl (and GPR:$rs1, 0xFFFFFFFF), uimm5:$shamt)),
           (SLLI_UW GPR:$rs1, uimm5:$shamt)>;
 // Match a shifted 0xffffffff mask. Use SRLI to clear the LSBs and SLLI_UW to
@@ -756,15 +755,15 @@ def : Pat<(i64 (shl (and GPR:$rs1, 0xFFFFFFFF), uimm5:$shamt)),
 def : Pat<(i64 (and GPR:$rs1, Shifted32OnesMask:$mask)),
           (SLLI_UW (SRLI GPR:$rs1, Shifted32OnesMask:$mask),
                    Shifted32OnesMask:$mask)>;
-let Predicates = [HasStdExtZba, IsRV64] in {
 def : Pat<(i64 (add_non_imm12 (and GPR:$rs1, 0xFFFFFFFF), GPR:$rs2)),
           (ADD_UW GPR:$rs1, GPR:$rs2)>;
 def : Pat<(i64 (and GPR:$rs, 0xFFFFFFFF)), (ADD_UW GPR:$rs, (XLenVT X0))>;
-}
 
 def : Pat<(i64 (or_is_add_non_imm12 (and GPR:$rs1, 0xFFFFFFFF), GPR:$rs2)),
           (ADD_UW GPR:$rs1, GPR:$rs2)>;
+} // Predicates = [HasStdExtZba, IsRV64]
 
+let Predicates = [HasStdExtZba, IsRV64, NotCapMode] in {
 foreach i = {1,2,3} in {
   defvar shxadd_uw = !cast<Instruction>("SH"#i#"ADD_UW");
   def : Pat<(i64 (add_non_imm12 (shl (and GPR:$rs1, 0xFFFFFFFF), (i64 i)), (XLenVT GPR:$rs2))),

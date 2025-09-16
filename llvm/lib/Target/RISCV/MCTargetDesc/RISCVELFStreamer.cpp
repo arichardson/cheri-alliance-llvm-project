@@ -201,12 +201,11 @@ void RISCVELFStreamer::changeSection(MCSection *Section,
 
 void RISCVELFStreamer::emitInstruction(const MCInst &Inst,
                                        const MCSubtargetInfo &STI) {
-  if (STI.getFeatureBits()[RISCV::FeatureStdExtZCheriPureCap]) {
-    if (STI.getFeatureBits()[RISCV::FeatureCapMode]) {
+  if (STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap)) {
+    if (STI.hasFeature(RISCV::FeatureCapMode))
       emitCapModeMappingSymbol();
-    } else {
+    else
       emitNoCapModeMappingSymbol();
-    }
   } else {
     emitInstructionsMappingSymbol();
   }

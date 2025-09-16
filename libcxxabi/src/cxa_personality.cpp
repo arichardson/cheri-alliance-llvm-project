@@ -725,14 +725,9 @@ static void scan_eh_tab(scan_results &results, _Unwind_Action actions,
                 results.reason = _URC_CONTINUE_UNWIND;
                 return;
             }
-<<<<<<< HEAD
-            landingPad = (uintptr_t)lpStart + landingPad;
-#else  // __USING_SJLJ_EXCEPTIONS__ || __USING_WASM_EXCEPTIONS__
-=======
             if (!SealedLandingPad)
                 landingPad = (uintptr_t)lpStart + landingPad;
-#else  // __USING_SJLJ_EXCEPTIONS__
->>>>>>> codasip-rebased
+#else  // __USING_SJLJ_EXCEPTIONS__ || __USING_WASM_EXCEPTIONS__
             ++landingPad;
 #endif // __USING_SJLJ_EXCEPTIONS__ || __USING_WASM_EXCEPTIONS__
             results.landingPad = landingPad;
