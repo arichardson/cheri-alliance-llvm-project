@@ -191,7 +191,9 @@ cheri_init_globals_impl(const struct capreloc *start_relocs,
             data_cap, reloc->capability_location + base_addr);
     const void *__capability base_cap;
     bool can_set_bounds = true;
-    if (reloc->permissions == (function_reloc_flag | indirect_reloc_flag)) {
+    const bool dont_seal = (reloc->permissions & dont_seal_reloc_flag) == dont_seal_reloc_flag;
+    if (reloc->permissions == (function_reloc_flag | indirect_reloc_flag) ||
+        reloc->permissions == (function_reloc_flag | indirect_reloc_flag | dont_seal_reloc_flag)) {
         /*
          * IRELATIVE-like caprelocs require deferred processing, with a
          * target-specific set of parameters. Trap if the caller doesn't
@@ -204,7 +206,9 @@ cheri_init_globals_impl(const struct capreloc *start_relocs,
 #endif
     }
     if (reloc->permissions == function_reloc_flag ||
-        reloc->permissions == (function_reloc_flag | code_reloc_flag)) {
+        reloc->permissions == (function_reloc_flag | dont_seal_reloc_flag) ||
+        reloc->permissions == (function_reloc_flag | code_reloc_flag) ||
+        reloc->permissions == (function_reloc_flag | code_reloc_flag | dont_seal_reloc_flag)) {
       base_cap = code_cap; /* code pointer */
       /* Do not set tight bounds for functions (unless we are in the plt ABI) */
       can_set_bounds = tight_code_bounds;
@@ -221,8 +225,6 @@ cheri_init_globals_impl(const struct capreloc *start_relocs,
       src = __builtin_cheri_bounds_set(src, reloc->size);
     }
     src = __builtin_cheri_offset_increment(src, reloc->offset);
-    bool dont_seal =
-        (reloc->permissions & dont_seal_reloc_flag) == dont_seal_reloc_flag;
     if ((reloc->permissions & function_reloc_flag) == function_reloc_flag &&
         !dont_seal) {
       /* Convert function pointers to sentries: */
