@@ -517,10 +517,7 @@ bool RISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
       // offset can by construction, at worst, a LUI and a ADD.
       int64_t Val = Offset.getFixed();
       int64_t Lo12 = SignExtend64<12>(Val);
-      if ((MI.getOpcode() == RISCV::PREFETCH_I ||
-           MI.getOpcode() == RISCV::PREFETCH_R ||
-           MI.getOpcode() == RISCV::PREFETCH_W) &&
-          (Lo12 & 0b11111) != 0)
+      if (RISCV::isPrefetchInstr(MI) && (Lo12 & 0b11111) != 0)
         MI.getOperand(FIOperandNum + 1).ChangeToImmediate(0);
       else {
         MI.getOperand(FIOperandNum + 1).ChangeToImmediate(Lo12);

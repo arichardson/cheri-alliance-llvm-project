@@ -536,15 +536,19 @@ def CPREFETCH_W : CPrefetch_ri<0b00011, "prefetch.w">, Sched<[]>;
 } // Predicates = [HasStdExtZicbop, HasZCheriPurecap, IsCapMode]
 }
 
+def CapRegImmLsb00000 : ComplexPattern<cPTR, 2, "SelectCapRegImmLsb00000">;
+
 // Patterns
-let Predicates = [HasStdExtZicbop, HasZCheriPurecap, IsCapMode] in {
-  // FIXME: Match address with offset
-  def : Pat<(prefetch GPCR:$rs1, imm, imm, (XLenVT 0)),
-            (CPREFETCH_I GPCR:$rs1, 0)>;
-  def : Pat<(prefetch GPCR:$rs1, (XLenVT 0), imm, (XLenVT 1)),
-            (CPREFETCH_R GPCR:$rs1, 0)>;
-  def : Pat<(prefetch GPCR:$rs1, (XLenVT 1), imm, (XLenVT 1)),
-            (CPREFETCH_W GPCR:$rs1, 0)>;
+let Predicates = [HasStdExtZicbop, IsCapMode] in {
+  def : Pat<(prefetch (CapRegImmLsb00000 (CLenVT GPCR:$rs1), simm12_lsb00000:$imm12),
+                       timm, timm, (i32 0)),
+            (CPREFETCH_I GPCR:$rs1, simm12_lsb00000:$imm12)>;
+  def : Pat<(prefetch (CapRegImmLsb00000 (CLenVT GPCR:$rs1), simm12_lsb00000:$imm12),
+                      (i32 0), timm, (i32 1)),
+            (CPREFETCH_R GPCR:$rs1, simm12_lsb00000:$imm12)>;
+  def : Pat<(prefetch (CapRegImmLsb00000 (CLenVT GPCR:$rs1), simm12_lsb00000:$imm12),
+                      (i32 1), timm, (i32 1)),
+            (CPREFETCH_W GPCR:$rs1, simm12_lsb00000:$imm12)>;
 }
 
 //===----------------------------------------------------------------------===//

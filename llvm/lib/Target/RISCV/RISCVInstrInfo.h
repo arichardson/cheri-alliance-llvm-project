@@ -302,6 +302,11 @@ bool isZEXT_B(const MachineInstr &MI);
 // expect to see a FrameIndex operand.
 bool isRVVSpill(const MachineInstr &MI);
 
+bool isPrefetchInstr(const MachineInstr &MI);
+
+unsigned getPtrAddImmInst(const RISCVSubtarget &STI);
+unsigned getPtrAddInst(const RISCVSubtarget &STI);
+
 std::optional<std::pair<unsigned, unsigned>>
 isRVVSpillForZvlsseg(unsigned Opcode);
 

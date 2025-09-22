@@ -62,7 +62,10 @@ public:
     return SelectAddrRegImm(Addr, Base, Offset, true);
   }
   bool SelectCapRegImm(SDValue Addr, SDValue &Base, SDValue &Offset);
+  bool SelectRegImmLsb00000Common(SDValue Addr, SDValue &Base, SDValue &Offset,
+                                  EVT PtrVT);
   bool SelectAddrRegImmLsb00000(SDValue Addr, SDValue &Base, SDValue &Offset);
+  bool SelectCapRegImmLsb00000(SDValue Addr, SDValue &Base, SDValue &Offset);
   bool SelectCSetBndImm(SDValue N, SDValue &Val);
 
   bool SelectAddrRegRegScale(SDValue Addr, unsigned MaxShiftAmount,

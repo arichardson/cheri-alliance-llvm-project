@@ -1174,8 +1174,6 @@ bool RISCVExpandAtomicPseudo::expandAtomicCmpXchg(
 
   AtomicOrdering Ordering =
       static_cast<AtomicOrdering>(MI.getOperand(IsMasked ? 6 : 5).getImm());
-  const bool HasZCheriPurecap =
-      MF->getSubtarget().hasFeature(RISCV::FeatureStdExtZCheriPureCap);
 
   if (!IsMasked) {
     Register DestIntReg;

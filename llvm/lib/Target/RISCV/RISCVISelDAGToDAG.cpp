@@ -2514,17 +2514,13 @@ bool RISCVDAGToDAGISel::SelectCapRegImm(SDValue Cap, SDValue &Base,
                             Subtarget->typeForCapabilities(), false);
 }
 
-/// Similar to SelectAddrRegImm, except that the least significant 5 bits of
-/// Offset shoule be all zeros.
-bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000(SDValue Addr, SDValue &Base,
-                                                 SDValue &Offset) {
-  assert(!RISCVABI::isCheriPureCapABI(Subtarget->getTargetABI()) &&
-         "Not ported to CHERI yet");
-  if (SelectFrameIndexCommon(Addr, Base, Offset, Subtarget->getXLenVT()))
+bool RISCVDAGToDAGISel::SelectRegImmLsb00000Common(SDValue Addr, SDValue &Base,
+                                                   SDValue &Offset, EVT PtrVT) {
+  if (SelectFrameIndexCommon(Addr, Base, Offset, PtrVT))
     return true;
 
   SDLoc DL(Addr);
-  MVT VT = Addr.getSimpleValueType();
+  MVT AddrVT = Subtarget->getXLenVT();
 
   if (CurDAG->isBaseWithConstantOffset(Addr)) {
     int64_t CVal = cast<ConstantSDNode>(Addr.getOperand(1))->getSExtValue();
@@ -2534,19 +2530,20 @@ bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000(SDValue Addr, SDValue &Base,
       // Early-out if not a valid offset.
       if ((CVal & 0b11111) != 0) {
         Base = Addr;
-        Offset = CurDAG->getTargetConstant(0, DL, VT);
+        Offset = CurDAG->getTargetConstant(0, DL, AddrVT);
         return true;
       }
 
       if (auto *FIN = dyn_cast<FrameIndexSDNode>(Base))
-        Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), VT);
-      Offset = CurDAG->getTargetConstant(CVal, DL, VT);
+        Base = CurDAG->getTargetFrameIndex(FIN->getIndex(), PtrVT);
+      Offset = CurDAG->getTargetConstant(CVal, DL, AddrVT);
       return true;
     }
   }
 
   // Handle ADD with large immediates.
-  if (Addr.getOpcode() == ISD::ADD && isa<ConstantSDNode>(Addr.getOperand(1))) {
+  if ((Addr.getOpcode() == ISD::ADD || Addr.getOpcode() == ISD::PTRADD) &&
+      isa<ConstantSDNode>(Addr.getOperand(1))) {
     int64_t CVal = cast<ConstantSDNode>(Addr.getOperand(1))->getSExtValue();
     assert(!(isInt<12>(CVal) && isInt<12>(CVal)) &&
            "simm12 not already handled?");
@@ -2556,30 +2553,44 @@ bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000(SDValue Addr, SDValue &Base,
     if ((-2049 >= CVal && CVal >= -4096) || (4065 >= CVal && CVal >= 2017)) {
       int64_t Adj = CVal < 0 ? -2048 : 2016;
       int64_t AdjustedOffset = CVal - Adj;
+      unsigned Opc = RISCV::getPtrAddImmInst(*Subtarget);
       Base = SDValue(CurDAG->getMachineNode(
-                         RISCV::ADDI, DL, VT, Addr.getOperand(0),
-                         CurDAG->getTargetConstant(AdjustedOffset, DL, VT)),
+                         Opc, DL, PtrVT, Addr.getOperand(0),
+                         CurDAG->getTargetConstant(AdjustedOffset, DL, AddrVT)),
                      0);
-      Offset = CurDAG->getTargetConstant(Adj, DL, VT);
+      Offset = CurDAG->getTargetConstant(Adj, DL, AddrVT);
       return true;
     }
 
-    if (selectConstantAddr(CurDAG, DL, VT, Subtarget, Addr.getOperand(1), Base,
-                           Offset, true)) {
+    if (selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget,
+                           Addr.getOperand(1), Base, Offset, true)) {
       // Insert an ADD instruction with the materialized Hi52 bits.
+      unsigned Opc = RISCV::getPtrAddInst(*Subtarget);
       Base = SDValue(
-          CurDAG->getMachineNode(RISCV::ADD, DL, VT, Addr.getOperand(0), Base),
-          0);
+          CurDAG->getMachineNode(Opc, DL, PtrVT, Addr.getOperand(0), Base), 0);
       return true;
     }
   }
 
-  if (selectConstantAddr(CurDAG, DL, VT, Subtarget, Addr, Base, Offset, true))
+  if (selectConstantAddr(CurDAG, DL, PtrVT.getSimpleVT(), Subtarget, Addr, Base, Offset, true))
     return true;
 
   Base = Addr;
-  Offset = CurDAG->getTargetConstant(0, DL, VT);
+  Offset = CurDAG->getTargetConstant(0, DL, AddrVT);
   return true;
+}
+
+/// Similar to SelectAddrRegImm, except that the least significant 5 bits of
+/// Offset shoule be all zeros.
+bool RISCVDAGToDAGISel::SelectAddrRegImmLsb00000(SDValue Addr, SDValue &Base,
+                                                 SDValue &Offset) {
+  return SelectRegImmLsb00000Common(Addr, Base, Offset, Subtarget->getXLenVT());
+}
+
+bool RISCVDAGToDAGISel::SelectCapRegImmLsb00000(SDValue Addr, SDValue &Base,
+                                                SDValue &Offset) {
+  return SelectRegImmLsb00000Common(Addr, Base, Offset,
+                                    Subtarget->typeForCapabilities());
 }
 
 bool RISCVDAGToDAGISel::SelectCSetBndImm(SDValue N, SDValue &Val) {

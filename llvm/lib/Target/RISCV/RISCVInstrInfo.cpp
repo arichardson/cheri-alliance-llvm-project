@@ -3487,6 +3487,37 @@ bool RISCV::isRVVSpill(const MachineInstr &MI) {
   return true;
 }
 
+bool RISCV::isPrefetchInstr(const MachineInstr &MI) {
+  unsigned Opcode = MI.getOpcode();
+  switch (Opcode) {
+  default:
+    return false;
+  case RISCV::PREFETCH_I:
+  case RISCV::PREFETCH_R:
+  case RISCV::PREFETCH_W:
+  case RISCV::CPREFETCH_I:
+  case RISCV::CPREFETCH_R:
+  case RISCV::CPREFETCH_W:
+    return true;
+  }
+}
+
+unsigned RISCV::getPtrAddImmInst(const RISCVSubtarget &STI) {
+  bool IsPurecap = RISCVABI::isCheriPureCapABI(STI.getTargetABI());
+  bool IsZCheri = STI.hasStdExtZCheriPureCap();
+  if (IsPurecap)
+    return IsZCheri ? RISCV::CADDI : RISCV::CIncOffsetImm;
+  return RISCV::ADDI;
+}
+
+unsigned RISCV::getPtrAddInst(const RISCVSubtarget &STI) {
+  bool IsPurecap = RISCVABI::isCheriPureCapABI(STI.getTargetABI());
+  bool IsZCheri = STI.hasStdExtZCheriPureCap();
+  if (IsPurecap)
+    return IsZCheri ? RISCV::CADD : RISCV::CIncOffset;
+  return RISCV::ADD;
+}
+
 std::optional<std::pair<unsigned, unsigned>>
 RISCV::isRVVSpillForZvlsseg(unsigned Opcode) {
   switch (Opcode) {
