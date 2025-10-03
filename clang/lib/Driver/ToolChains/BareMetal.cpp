@@ -188,6 +188,7 @@ static bool isPPCBareMetal(const llvm::Triple &Triple) {
 }
 
 static void findMultilibsFromYAML(const ToolChain &TC, const Driver &D,
+                                  const llvm::Triple &Triple,
                                   StringRef MultilibPath, const ArgList &Args,
                                   DetectedMultilibs &Result) {
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> MB =
@@ -202,6 +203,11 @@ static void findMultilibsFromYAML(const ToolChain &TC, const Driver &D,
   Result.Multilibs = ErrorOrMultilibSet.get();
   if (Result.Multilibs.select(Flags, Result.SelectedMultilibs))
     return;
+
+  if (isRISCVBareMetal(Triple) && !detectGCCToolchainAdjacent(D) &&
+      findRISCVMultilibs(D, Triple, Args, Result))
+    return;
+
   D.Diag(clang::diag::warn_drv_missing_multilib) << llvm::join(Flags, " ");
   std::stringstream ss;
   for (const Multilib &Multilib : Result.Multilibs)
@@ -244,7 +250,7 @@ void BareMetal::findMultilibs(const Driver &D, const llvm::Triple &Triple,
   } else {
     llvm::SmallString<128> MultilibPath(computeBaseSysRoot(D, Triple));
     llvm::sys::path::append(MultilibPath, MultilibFilename);
-    findMultilibsFromYAML(*this, D, MultilibPath, Args, Result);
+    findMultilibsFromYAML(*this, D, Triple, MultilibPath, Args, Result);
     SelectedMultilibs = Result.SelectedMultilibs;
     Multilibs = Result.Multilibs;
   }
