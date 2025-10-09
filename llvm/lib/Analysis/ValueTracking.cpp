@@ -2963,6 +2963,13 @@ bool isKnownNonZero(const Value *V, const APInt &DemandedElts, unsigned Depth,
   // Check for pointer simplifications.
 
   if (PointerType *PtrTy = dyn_cast<PointerType>(V->getType())) {
+    // Alloca never returns null, malloc might.
+    if (isa<AllocaInst>(V)) {
+      unsigned AS = PtrTy->getAddressSpace();
+      // XXXAR: AMDGPU broke this because their allocaAddressSpace is weird
+      if (AS == 0 || Q.DL.isFatPointer(AS))
+        return true;
+    }
     // A byval, inalloca may not be null in a non-default addres space. A
     // nonnull argument is assumed never 0.
     if (const Argument *A = dyn_cast<Argument>(V)) {
