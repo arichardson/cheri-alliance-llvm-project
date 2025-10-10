@@ -14,6 +14,7 @@ add_clang_library(clangTidyCheriModule
   FixuserptrtoaddrCheck.cpp
   IoctlCheck.cpp
   PtrtointcastCheck.cpp
+  UapiCheck.cpp
 
   LINK_LIBS
   clangTidy

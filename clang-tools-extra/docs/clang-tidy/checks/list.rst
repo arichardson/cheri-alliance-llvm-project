@@ -536,6 +536,7 @@ Clang-Tidy Checks
    `cheri-FixUserPtrToAddr <cheri/FixUserPtrToAddr.html>`_, "Yes"
    `cheri-Ioctl <cheri/Ioctl.html>`_, "Yes"
    `cheri-PtrToIntCast <cheri/PtrToIntCast.html>`_,
+   `cheri-Uapi <cheri/Uapi.html>`_, "Yes"
    `clang-analyzer-core.DynamicTypePropagation <clang-analyzer/core.DynamicTypePropagation.html>`_,
    `clang-analyzer-core.uninitialized.CapturedBlockVariable <clang-analyzer/core.uninitialized.CapturedBlockVariable.html>`_,
    `clang-analyzer-cplusplus.InnerPointer <clang-analyzer/cplusplus.InnerPointer.html>`_,

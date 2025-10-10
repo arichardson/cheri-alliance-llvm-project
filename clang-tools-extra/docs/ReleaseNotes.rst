@@ -260,6 +260,12 @@ New checks
 
   Warn about suspicious casts between capabilities and plain addressese.
 
+- New :doc:`cheri-Uapi
+  <clang-tidy/checks/cheri/Uapi>` check.
+
+  Generate annotations for linux kernel UAPI headers that allow
+  automati generation of compat64 and compat32 headers.
+
 - New :doc:`modernize-min-max-use-initializer-list
   <clang-tidy/checks/modernize/min-max-use-initializer-list>` check.
 
