@@ -18,6 +18,7 @@
 #include "FixuserptrtoaddrCheck.h"
 #include "IoctlCheck.h"
 #include "PtrtointcastCheck.h"
+#include "UapiCheck.h"
 
 namespace clang::tidy {
 namespace cheri {
@@ -43,6 +44,8 @@ public:
     CheckFactories.registerCheck<IoctlCheck>(
         "cheri-Ioctl");
     CheckFactories.registerCheck<PtrtointcastCheck>("cheri-PtrToIntCast");
+    CheckFactories.registerCheck<UapiCheck>(
+        "cheri-Uapi");
   }
 };
 // Register the CheriTidyModule using this statically initialized

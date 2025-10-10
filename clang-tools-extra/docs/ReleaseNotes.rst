@@ -180,6 +180,114 @@ New checks
   Finds cases when an uninstantiated virtual member function in a template class
   causes cross-compiler incompatibility.
 
+- New :doc:`misc-use-internal-linkage
+  <clang-tidy/checks/misc/use-internal-linkage>` check.
+
+  Detects variables and functions that can be marked as static or moved into
+  an anonymous namespace to enforce internal linkage.
+
+- New :doc:`cheri-FixCapAsArraySubscript
+  <clang-tidy/checks/cheri/FixCapAsArraySubscript>` check.
+
+  Explicitly cast capabilities used as an array index to an unsigned long.
+
+- New :doc:`cheri-FixCapFormat
+  <clang-tidy/checks/cheri/FixCapFormat>` check.
+
+  Integer capabilities that are passed to printf-style functions
+  need a cast to "unsigned long" or printf will misinterpret the
+  value.
+
+- New :doc:`cheri-FixDriverData
+  <clang-tidy/checks/cheri/FixDriverData>` check.
+
+  Static initializations of driver data fields should use a cast to uintptr_t
+  instead of some variant of unsigned long.
+
+- New :doc:`cheri-FixIntToPtrCast
+  <clang-tidy/checks/cheri/FixIntToPtrCast>` check.
+
+  Warn about and fix casts where a smaller integer type is cast
+  to a pointer.
+
+- New :doc:`cheri-FixPtrToUlongCast
+  <clang-tidy/checks/cheri/FixPtrToUlongCast>` check.
+
+  Warn about explicit casts of pointers to a type that can only hold
+  an address.
+
+- New :doc:`cheri-FixUserCopy
+  <clang-tidy/checks/cheri/FixUserCopy>` check.
+
+  Check linux user copy calls that copy pointers.
+
+- New :doc:`cheri-FixUserPtrToAddr
+  <clang-tidy/checks/cheri/FixUserPtrToAddr>` check.
+
+  Warn about incorrect use for __c_ua() vs. __c_ua_u() in the linux kernel.
+
+- New :doc:`cheri-Ioctl
+  <clang-tidy/checks/cheri/Ioctl>` check.
+
+  Check prototypes of linux kernel ioctl functions and warn about
+  suspicious uses of the generic ioctl argument.
+
+- New :doc:`cheri-PtrToIntCast
+  <clang-tidy/checks/cheri/PtrToIntCast>` check.
+
+  Warn about suspicious casts between capabilities and plain addressese.
+
+- New :doc:`cheri-Uapi
+  <clang-tidy/checks/cheri/Uapi>` check.
+
+  Generate annotations for linux kernel UAPI headers that allow
+  automati generation of compat64 and compat32 headers.
+
+- New :doc:`modernize-min-max-use-initializer-list
+  <clang-tidy/checks/modernize/min-max-use-initializer-list>` check.
+
+  Replaces nested ``std::min`` and ``std::max`` calls with an initializer list
+  where applicable.
+
+- New :doc:`modernize-use-designated-initializers
+  <clang-tidy/checks/modernize/use-designated-initializers>` check.
+
+  Finds initializer lists for aggregate types that could be
+  written as designated initializers instead.
+
+- New :doc:`modernize-use-ranges
+  <clang-tidy/checks/modernize/use-ranges>` check.
+
+  Detects calls to standard library iterator algorithms that could be replaced
+  with a ranges version instead.
+
+- New :doc:`modernize-use-std-format
+  <clang-tidy/checks/modernize/use-std-format>` check.
+
+  Converts calls to ``absl::StrFormat``, or other functions via
+  configuration options, to C++20's ``std::format``, or another function
+  via a configuration option, modifying the format string appropriately and
+  removing now-unnecessary calls to ``std::string::c_str()`` and
+  ``std::string::data()``.
+
+- New :doc:`readability-enum-initial-value
+  <clang-tidy/checks/readability/enum-initial-value>` check.
+
+  Enforces consistent style for enumerators' initialization, covering three
+  styles: none, first only, or all initialized explicitly.
+
+- New :doc:`readability-math-missing-parentheses
+  <clang-tidy/checks/readability/math-missing-parentheses>` check.
+
+  Check for missing parentheses in mathematical expressions that involve
+  operators of different priorities.
+
+- New :doc:`readability-use-std-min-max
+  <clang-tidy/checks/readability/use-std-min-max>` check.
+
+  Replaces certain conditional statements with equivalent calls to
+  ``std::min`` or ``std::max``.
+
 New check aliases
 ^^^^^^^^^^^^^^^^^
 
