@@ -221,7 +221,8 @@ void tools::gcc::Linker::RenderExtraToolArgs(const JobAction &JA,
   // The types are (hopefully) good enough.
 }
 
-static const char *getLDMOption(const llvm::Triple &T, const ArgList &Args) {
+static const char *getLDMOption(const llvm::Triple &T, const ArgList &Args,
+                                bool isCheriPurecap) {
   switch (T.getArch()) {
   case llvm::Triple::x86:
     if (T.isOSIAMCU())
@@ -416,7 +417,8 @@ void tools::gnutools::Linker::ConstructJob(Compilation &C, const JobAction &JA,
 
   CmdArgs.push_back("--eh-frame-hdr");
 
-  if (const char *LDMOption = getLDMOption(ToolChain.getTriple(), Args)) {
+  if (const char *LDMOption = getLDMOption(ToolChain.getTriple(), Args,
+                                           ToolChain.isCheriPurecap())) {
     CmdArgs.push_back("-m");
     CmdArgs.push_back(LDMOption);
   } else {

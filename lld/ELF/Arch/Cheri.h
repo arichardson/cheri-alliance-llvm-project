@@ -194,7 +194,7 @@ public:
   uint32_t getTlsIndexOffset() const;
   uint32_t getTlsOffset(const Symbol &sym) const;
   bool isNeeded() const override {
-    return nonTlsEntryCount() != 0 || !dynTlsEntries.empty() ||
+    return nonTlsEntryCount() > 0 || !dynTlsEntries.empty() ||
            !tlsEntries.empty();
   }
   void writeTo(uint8_t *buf) override;
@@ -314,6 +314,9 @@ void addRelativeCapabilityRelocation(
     InputSectionBase &isec, uint64_t offsetInSec,
     llvm::PointerUnion<Symbol *, InputSectionBase *> symOrSec, int64_t addend,
     RelExpr expr, RelType type);
+
+uint64_t getCapMetaBits(int64_t a, const Symbol &sym,
+                        const InputSectionBase *isec, uint64_t offset);
 } // namespace elf
 } // namespace lld
 

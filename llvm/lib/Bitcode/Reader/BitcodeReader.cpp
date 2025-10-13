@@ -2059,6 +2059,10 @@ static Attribute::AttrKind getAttrFromCode(uint64_t Code) {
     return Attribute::NoImplicitFloat;
   case bitc::ATTR_KIND_NO_INLINE:
     return Attribute::NoInline;
+  case bitc::ATTR_KIND_NO_CAP_RELOCS:
+    return Attribute::NoCapRelocs;
+  case bitc::ATTR_KIND_DONT_SEAL:
+    return Attribute::DontSeal;
   case bitc::ATTR_KIND_NO_PRESERVE_CHERI_TAGS:
     return Attribute::NoPreserveCheriTags;
   case bitc::ATTR_KIND_NO_RECURSE:

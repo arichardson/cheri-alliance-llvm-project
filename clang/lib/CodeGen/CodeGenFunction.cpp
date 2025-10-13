@@ -1018,6 +1018,10 @@ void CodeGenFunction::StartFunction(GlobalDecl GD, QualType RetTy,
 
   if (D && D->hasAttr<NoProfileFunctionAttr>())
     Fn->addFnAttr(llvm::Attribute::NoProfile);
+  if (D && D->hasAttr<NoCapRelocsAttr>())
+    Fn->addFnAttr(llvm::Attribute::NoCapRelocs);
+  if (D && D->hasAttr<CHERIDontSealAttr>())
+    Fn->addFnAttr(llvm::Attribute::DontSeal);
 
   if (D) {
     // Function attributes take precedence over command line flags.
@@ -3030,7 +3034,8 @@ void CodeGenFunction::emitAlignmentAssumptionCheck(
 
   // Don't check pointers to volatile data. The behavior here is implementation-
   // defined.
-  if (Ty->getPointeeType().isVolatileQualified())
+  // CHERI: Intcap types can be treated as pointers, but they have no pointee type.
+  if (!Ty->isIntCapType() && Ty->getPointeeType().isVolatileQualified())
     return;
 
   // We need to temorairly remove the assumption so we can insert the

@@ -141,6 +141,7 @@ public:
   virtual void printMemtag() {}
 
   virtual void printCheriCapRelocs() {}
+  virtual void printCheriCapRelocsCBuildCap() {}
   virtual void printCheriCapTable() {}
   virtual void printCheriCapTableMapping() {}
 

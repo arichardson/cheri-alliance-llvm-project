@@ -2,18 +2,18 @@
 # RUN: echo '.globl bar, weak; .type bar,@function; .type weak,@function; bar: weak:' > %t1.s
 
 # RUN: %riscv32_cheri_purecap_llvm-mc -filetype=obj %t1.s -o %t1.32.o
-# RUN: ld.lld -shared %t1.32.o -soname=t1.32.so -o %t1.32.so
+# RUN: ld.lld -shared %t1.32.o -soname=t1.32.so -m elf32lriscv -o %t1.32.so
 # RUN: %riscv32_cheri_purecap_llvm-mc -filetype=obj %s -o %t.32.o
-# RUN: ld.lld %t.32.o %t1.32.so -z separate-code -o %t.32
+# RUN: ld.lld %t.32.o %t1.32.so -z separate-code -z cheri-riscv-v9 -o %t.32
 # RUN: llvm-readelf -S -s %t.32 | FileCheck --check-prefixes=SEC,NM %s
 # RUN: llvm-readobj -r --cap-relocs %t.32 | FileCheck --check-prefix=RELOC32 %s
 # RUN: llvm-readelf -x .got.plt %t.32 | FileCheck --check-prefix=GOTPLT32 %s
 # RUN: llvm-objdump --no-print-imm-hex -d --no-show-raw-insn %t.32 | FileCheck --check-prefixes=DIS,DIS32 %s
 
 # RUN: %riscv64_cheri_purecap_llvm-mc -filetype=obj %t1.s -o %t1.64.o
-# RUN: ld.lld -shared %t1.64.o -soname=t1.64.so -o %t1.64.so
+# RUN: ld.lld -shared %t1.64.o -soname=t1.64.so -m elf64lriscv -o %t1.64.so
 # RUN: %riscv64_cheri_purecap_llvm-mc -filetype=obj %s -o %t.64.o
-# RUN: ld.lld %t.64.o %t1.64.so -z separate-code -o %t.64
+# RUN: ld.lld %t.64.o %t1.64.so -z separate-code -z cheri-riscv-v9 -o %t.64
 # RUN: llvm-readelf -S -s %t.64 | FileCheck --check-prefixes=SEC,NM %s
 # RUN: llvm-readobj -r --cap-relocs %t.64 | FileCheck --check-prefix=RELOC64 %s
 # RUN: llvm-readelf -x .got.plt %t.64 | FileCheck --check-prefix=GOTPLT64 %s
@@ -55,23 +55,23 @@
 # DIS:      <_start>:
 ## Direct call
 ## foo - . = 0x11020-0x11000 = 32
-# DIS-NEXT:   11000: auipcc cra, 0
+# DIS-NEXT:   11000: auipc cra, 0
 # DIS-NEXT:          jalr 32(cra)
 ## bar@plt - . = 0x11050-0x11008 = 72
-# DIS-NEXT:   11008: auipcc cra, 0
+# DIS-NEXT:   11008: auipc cra, 0
 # DIS-NEXT:          jalr 72(cra)
 ## bar@plt - . = 0x11050-0x11010 = 64
-# DIS-NEXT:   11010: auipcc cra, 0
+# DIS-NEXT:   11010: auipc cra, 0
 # DIS-NEXT:          jalr 64(cra)
 ## weak@plt - . = 0x11060-0x11018 = 72
-# DIS-NEXT:   11018: auipcc cra, 0
+# DIS-NEXT:   11018: auipc cra, 0
 # DIS-NEXT:          jalr 72(cra)
 # DIS:      <foo>:
 # DIS-NEXT:   11020:
 
 # DIS:      Disassembly of section .plt:
 # DIS:      <.plt>:
-# DIS-NEXT:     auipcc ct2, 2
+# DIS-NEXT:     auipc ct2, 2
 # DIS-NEXT:     sub t1, t1, t3
 ## 32-bit: .got.plt - .plt = 0x13078 - 0x11030 = 4096*2+72
 ## 64-bit: .got.plt - .plt = 0x130f0 - 0x11030 = 4096*2+192
@@ -88,7 +88,7 @@
 
 ## 32-bit (.got.plt): &.got.plt[bar]-. = 0x13088-0x11050 = 4096*2+56
 ## 64-bit (.got.plt): &.got.plt[bar]-. = 0x13110-0x11050 = 4096*2+192
-# DIS:        11050: auipcc ct3, 2
+# DIS:        11050: auipc ct3, 2
 # DIS32-NEXT:   lc ct3, 56(ct3)
 # DIS64-NEXT:   lc ct3, 192(ct3)
 # DIS-NEXT:     jalr ct1, ct3
@@ -96,7 +96,7 @@
 
 ## 32-bit (.got.plt): &.got.plt[weak]-. = 0x13090-0x11060 = 4096*2+48
 ## 64-bit (.got.plt): &.got.plt[weak]-. = 0x13120-0x11060 = 4096*2+192
-# DIS:        11060: auipcc ct3, 2
+# DIS:        11060: auipc ct3, 2
 # DIS32-NEXT:   lc ct3, 48(ct3)
 # DIS64-NEXT:   lc ct3, 192(ct3)
 # DIS-NEXT:     jalr ct1, ct3
@@ -107,14 +107,15 @@
 
 .type _start, @function
 _start:
-  ccall foo
-  ccall bar
-  ccall bar@plt
-  ccall weak
+  call foo
+  call bar
+  call bar@plt
+  call weak
 .size _start, . - _start
 
 ## foo is local and non-preemptale, no PLT is generated.
 .type foo, @function
 foo:
-  cret
+  ret
 .size foo, . - foo
+

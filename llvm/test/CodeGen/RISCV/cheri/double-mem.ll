@@ -236,7 +236,7 @@ define dso_local void @ddc_fsd(double* %a, double %b, double %c) nounwind {
   ret void
 }
 
-; Uses both loaded values in an FP op to ensure a cfld is used, even for the
+; Uses both loaded values in an FP op to ensure a fld is used, even for the
 ; soft float ABI
 define dso_local double @cap_fld(double addrspace(200)* %a) nounwind {
 ; CHECK-ILP32-LABEL: cap_fld:

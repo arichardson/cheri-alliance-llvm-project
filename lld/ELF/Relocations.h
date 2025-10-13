@@ -118,6 +118,8 @@ enum RelExpr {
   R_MIPS_CHERI_CAPTAB_TLSGD,
   R_MIPS_CHERI_CAPTAB_TLSLD,
   R_MIPS_CHERI_CAPTAB_TPREL,
+  R_CHERI_CAPFRAG_ADDR,
+  R_CHERI_CAPFRAG_META,
   // Same as R_PC but with page-aligned semantics.
   R_LOONGARCH_PAGE_PC,
   // Same as R_PLT_PC but with page-aligned semantics.

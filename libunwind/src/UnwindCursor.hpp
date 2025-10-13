@@ -2850,9 +2850,9 @@ int UnwindCursor<A, R>::stepThroughSigReturn(Registers_riscv &) {
   const pint_t kOffsetSpToSigcontext = 128 + 8 + 8 + 24 + 8 + 128;
 
   const pint_t sigctx = _registers.getSP() + kOffsetSpToSigcontext;
-  _registers.setIP(_addressSpace.get64(sigctx));
+  _registers.setIP(_addressSpace.getP(sigctx));
   for (int i = UNW_RISCV_X1; i <= UNW_RISCV_X31; ++i) {
-    uint64_t value = _addressSpace.get64(sigctx + static_cast<pint_t>(i * 8));
+    uintptr_t value = _addressSpace.getP(sigctx + static_cast<pint_t>(i * __SIZEOF_POINTER__));
     _registers.setRegister(i, value);
   }
   _isSignalFrame = true;

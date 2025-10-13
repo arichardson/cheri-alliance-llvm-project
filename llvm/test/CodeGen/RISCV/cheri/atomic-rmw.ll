@@ -14,7 +14,7 @@ define i8 @atomicrmw_xchg_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -35,7 +35,7 @@ define i8 @atomicrmw_xchg_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -60,7 +60,7 @@ define i8 @atomicrmw_xchg_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -81,7 +81,7 @@ define i8 @atomicrmw_xchg_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -106,7 +106,7 @@ define i8 @atomicrmw_xchg_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -127,7 +127,7 @@ define i8 @atomicrmw_xchg_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -152,7 +152,7 @@ define i8 @atomicrmw_xchg_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -173,7 +173,7 @@ define i8 @atomicrmw_xchg_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -198,7 +198,7 @@ define i8 @atomicrmw_xchg_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -219,7 +219,7 @@ define i8 @atomicrmw_xchg_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_exchange_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -244,7 +244,7 @@ define i8 @atomicrmw_add_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -265,7 +265,7 @@ define i8 @atomicrmw_add_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -290,7 +290,7 @@ define i8 @atomicrmw_add_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -311,7 +311,7 @@ define i8 @atomicrmw_add_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -336,7 +336,7 @@ define i8 @atomicrmw_add_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -357,7 +357,7 @@ define i8 @atomicrmw_add_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -382,7 +382,7 @@ define i8 @atomicrmw_add_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -403,7 +403,7 @@ define i8 @atomicrmw_add_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -428,7 +428,7 @@ define i8 @atomicrmw_add_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -449,7 +449,7 @@ define i8 @atomicrmw_add_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -474,7 +474,7 @@ define i8 @atomicrmw_sub_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -496,7 +496,7 @@ define i8 @atomicrmw_sub_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -522,7 +522,7 @@ define i8 @atomicrmw_sub_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -544,7 +544,7 @@ define i8 @atomicrmw_sub_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -570,7 +570,7 @@ define i8 @atomicrmw_sub_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -592,7 +592,7 @@ define i8 @atomicrmw_sub_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -618,7 +618,7 @@ define i8 @atomicrmw_sub_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -640,7 +640,7 @@ define i8 @atomicrmw_sub_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -666,7 +666,7 @@ define i8 @atomicrmw_sub_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -688,7 +688,7 @@ define i8 @atomicrmw_sub_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -714,7 +714,7 @@ define i8 @atomicrmw_and_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -735,7 +735,7 @@ define i8 @atomicrmw_and_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -760,7 +760,7 @@ define i8 @atomicrmw_and_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -781,7 +781,7 @@ define i8 @atomicrmw_and_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -806,7 +806,7 @@ define i8 @atomicrmw_and_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -827,7 +827,7 @@ define i8 @atomicrmw_and_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -852,7 +852,7 @@ define i8 @atomicrmw_and_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -873,7 +873,7 @@ define i8 @atomicrmw_and_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -898,7 +898,7 @@ define i8 @atomicrmw_and_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -919,7 +919,7 @@ define i8 @atomicrmw_and_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -944,7 +944,7 @@ define i8 @atomicrmw_nand_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -966,7 +966,7 @@ define i8 @atomicrmw_nand_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -992,7 +992,7 @@ define i8 @atomicrmw_nand_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1014,7 +1014,7 @@ define i8 @atomicrmw_nand_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1040,7 +1040,7 @@ define i8 @atomicrmw_nand_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1062,7 +1062,7 @@ define i8 @atomicrmw_nand_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1088,7 +1088,7 @@ define i8 @atomicrmw_nand_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1110,7 +1110,7 @@ define i8 @atomicrmw_nand_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1136,7 +1136,7 @@ define i8 @atomicrmw_nand_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1158,7 +1158,7 @@ define i8 @atomicrmw_nand_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1184,7 +1184,7 @@ define i8 @atomicrmw_or_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1205,7 +1205,7 @@ define i8 @atomicrmw_or_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1230,7 +1230,7 @@ define i8 @atomicrmw_or_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1251,7 +1251,7 @@ define i8 @atomicrmw_or_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1276,7 +1276,7 @@ define i8 @atomicrmw_or_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1297,7 +1297,7 @@ define i8 @atomicrmw_or_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1322,7 +1322,7 @@ define i8 @atomicrmw_or_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1343,7 +1343,7 @@ define i8 @atomicrmw_or_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1368,7 +1368,7 @@ define i8 @atomicrmw_or_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1389,7 +1389,7 @@ define i8 @atomicrmw_or_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1414,7 +1414,7 @@ define i8 @atomicrmw_xor_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1435,7 +1435,7 @@ define i8 @atomicrmw_xor_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1460,7 +1460,7 @@ define i8 @atomicrmw_xor_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1481,7 +1481,7 @@ define i8 @atomicrmw_xor_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1506,7 +1506,7 @@ define i8 @atomicrmw_xor_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1527,7 +1527,7 @@ define i8 @atomicrmw_xor_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1552,7 +1552,7 @@ define i8 @atomicrmw_xor_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1573,7 +1573,7 @@ define i8 @atomicrmw_xor_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1598,7 +1598,7 @@ define i8 @atomicrmw_xor_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -1619,7 +1619,7 @@ define i8 @atomicrmw_xor_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_1
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_1
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -1662,7 +1662,7 @@ define i8 @atomicrmw_max_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB35_4
 ; RV32IXCHERI-NEXT:  .LBB35_2: # %atomicrmw.start
@@ -1723,7 +1723,7 @@ define i8 @atomicrmw_max_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB35_4
 ; RV64IXCHERI-NEXT:  .LBB35_2: # %atomicrmw.start
@@ -1788,7 +1788,7 @@ define i8 @atomicrmw_max_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB36_4
 ; RV32IXCHERI-NEXT:  .LBB36_2: # %atomicrmw.start
@@ -1849,7 +1849,7 @@ define i8 @atomicrmw_max_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB36_4
 ; RV64IXCHERI-NEXT:  .LBB36_2: # %atomicrmw.start
@@ -1914,7 +1914,7 @@ define i8 @atomicrmw_max_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB37_4
 ; RV32IXCHERI-NEXT:  .LBB37_2: # %atomicrmw.start
@@ -1975,7 +1975,7 @@ define i8 @atomicrmw_max_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB37_4
 ; RV64IXCHERI-NEXT:  .LBB37_2: # %atomicrmw.start
@@ -2040,7 +2040,7 @@ define i8 @atomicrmw_max_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB38_4
 ; RV32IXCHERI-NEXT:  .LBB38_2: # %atomicrmw.start
@@ -2101,7 +2101,7 @@ define i8 @atomicrmw_max_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB38_4
 ; RV64IXCHERI-NEXT:  .LBB38_2: # %atomicrmw.start
@@ -2166,7 +2166,7 @@ define i8 @atomicrmw_max_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB39_4
 ; RV32IXCHERI-NEXT:  .LBB39_2: # %atomicrmw.start
@@ -2227,7 +2227,7 @@ define i8 @atomicrmw_max_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB39_4
 ; RV64IXCHERI-NEXT:  .LBB39_2: # %atomicrmw.start
@@ -2292,7 +2292,7 @@ define i8 @atomicrmw_min_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB40_4
 ; RV32IXCHERI-NEXT:  .LBB40_2: # %atomicrmw.start
@@ -2353,7 +2353,7 @@ define i8 @atomicrmw_min_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB40_4
 ; RV64IXCHERI-NEXT:  .LBB40_2: # %atomicrmw.start
@@ -2418,7 +2418,7 @@ define i8 @atomicrmw_min_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB41_4
 ; RV32IXCHERI-NEXT:  .LBB41_2: # %atomicrmw.start
@@ -2479,7 +2479,7 @@ define i8 @atomicrmw_min_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB41_4
 ; RV64IXCHERI-NEXT:  .LBB41_2: # %atomicrmw.start
@@ -2544,7 +2544,7 @@ define i8 @atomicrmw_min_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB42_4
 ; RV32IXCHERI-NEXT:  .LBB42_2: # %atomicrmw.start
@@ -2605,7 +2605,7 @@ define i8 @atomicrmw_min_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB42_4
 ; RV64IXCHERI-NEXT:  .LBB42_2: # %atomicrmw.start
@@ -2670,7 +2670,7 @@ define i8 @atomicrmw_min_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB43_4
 ; RV32IXCHERI-NEXT:  .LBB43_2: # %atomicrmw.start
@@ -2731,7 +2731,7 @@ define i8 @atomicrmw_min_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB43_4
 ; RV64IXCHERI-NEXT:  .LBB43_2: # %atomicrmw.start
@@ -2796,7 +2796,7 @@ define i8 @atomicrmw_min_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB44_4
 ; RV32IXCHERI-NEXT:  .LBB44_2: # %atomicrmw.start
@@ -2857,7 +2857,7 @@ define i8 @atomicrmw_min_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB44_4
 ; RV64IXCHERI-NEXT:  .LBB44_2: # %atomicrmw.start
@@ -2921,7 +2921,7 @@ define i8 @atomicrmw_umax_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB45_4
 ; RV32IXCHERI-NEXT:  .LBB45_2: # %atomicrmw.start
@@ -2980,7 +2980,7 @@ define i8 @atomicrmw_umax_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB45_4
 ; RV64IXCHERI-NEXT:  .LBB45_2: # %atomicrmw.start
@@ -3043,7 +3043,7 @@ define i8 @atomicrmw_umax_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB46_4
 ; RV32IXCHERI-NEXT:  .LBB46_2: # %atomicrmw.start
@@ -3102,7 +3102,7 @@ define i8 @atomicrmw_umax_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB46_4
 ; RV64IXCHERI-NEXT:  .LBB46_2: # %atomicrmw.start
@@ -3165,7 +3165,7 @@ define i8 @atomicrmw_umax_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB47_4
 ; RV32IXCHERI-NEXT:  .LBB47_2: # %atomicrmw.start
@@ -3224,7 +3224,7 @@ define i8 @atomicrmw_umax_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB47_4
 ; RV64IXCHERI-NEXT:  .LBB47_2: # %atomicrmw.start
@@ -3287,7 +3287,7 @@ define i8 @atomicrmw_umax_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB48_4
 ; RV32IXCHERI-NEXT:  .LBB48_2: # %atomicrmw.start
@@ -3346,7 +3346,7 @@ define i8 @atomicrmw_umax_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB48_4
 ; RV64IXCHERI-NEXT:  .LBB48_2: # %atomicrmw.start
@@ -3409,7 +3409,7 @@ define i8 @atomicrmw_umax_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB49_4
 ; RV32IXCHERI-NEXT:  .LBB49_2: # %atomicrmw.start
@@ -3468,7 +3468,7 @@ define i8 @atomicrmw_umax_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB49_4
 ; RV64IXCHERI-NEXT:  .LBB49_2: # %atomicrmw.start
@@ -3531,7 +3531,7 @@ define i8 @atomicrmw_umin_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB50_4
 ; RV32IXCHERI-NEXT:  .LBB50_2: # %atomicrmw.start
@@ -3590,7 +3590,7 @@ define i8 @atomicrmw_umin_i8_monotonic(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB50_4
 ; RV64IXCHERI-NEXT:  .LBB50_2: # %atomicrmw.start
@@ -3653,7 +3653,7 @@ define i8 @atomicrmw_umin_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB51_4
 ; RV32IXCHERI-NEXT:  .LBB51_2: # %atomicrmw.start
@@ -3712,7 +3712,7 @@ define i8 @atomicrmw_umin_i8_acquire(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB51_4
 ; RV64IXCHERI-NEXT:  .LBB51_2: # %atomicrmw.start
@@ -3775,7 +3775,7 @@ define i8 @atomicrmw_umin_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB52_4
 ; RV32IXCHERI-NEXT:  .LBB52_2: # %atomicrmw.start
@@ -3834,7 +3834,7 @@ define i8 @atomicrmw_umin_i8_release(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB52_4
 ; RV64IXCHERI-NEXT:  .LBB52_2: # %atomicrmw.start
@@ -3897,7 +3897,7 @@ define i8 @atomicrmw_umin_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB53_4
 ; RV32IXCHERI-NEXT:  .LBB53_2: # %atomicrmw.start
@@ -3956,7 +3956,7 @@ define i8 @atomicrmw_umin_i8_acq_rel(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB53_4
 ; RV64IXCHERI-NEXT:  .LBB53_2: # %atomicrmw.start
@@ -4019,7 +4019,7 @@ define i8 @atomicrmw_umin_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV32IXCHERI-NEXT:    lb a1, 7(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB54_4
 ; RV32IXCHERI-NEXT:  .LBB54_2: # %atomicrmw.start
@@ -4078,7 +4078,7 @@ define i8 @atomicrmw_umin_i8_seq_cst(i8 addrspace(200)* %a, i8 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_1
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_1
 ; RV64IXCHERI-NEXT:    lb a1, 15(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB54_4
 ; RV64IXCHERI-NEXT:  .LBB54_2: # %atomicrmw.start
@@ -4124,7 +4124,7 @@ define i16 @atomicrmw_xchg_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4145,7 +4145,7 @@ define i16 @atomicrmw_xchg_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4170,7 +4170,7 @@ define i16 @atomicrmw_xchg_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4191,7 +4191,7 @@ define i16 @atomicrmw_xchg_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4216,7 +4216,7 @@ define i16 @atomicrmw_xchg_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4237,7 +4237,7 @@ define i16 @atomicrmw_xchg_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4262,7 +4262,7 @@ define i16 @atomicrmw_xchg_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4283,7 +4283,7 @@ define i16 @atomicrmw_xchg_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4308,7 +4308,7 @@ define i16 @atomicrmw_xchg_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4329,7 +4329,7 @@ define i16 @atomicrmw_xchg_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_exchange_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4354,7 +4354,7 @@ define i16 @atomicrmw_add_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4375,7 +4375,7 @@ define i16 @atomicrmw_add_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4400,7 +4400,7 @@ define i16 @atomicrmw_add_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4421,7 +4421,7 @@ define i16 @atomicrmw_add_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4446,7 +4446,7 @@ define i16 @atomicrmw_add_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4467,7 +4467,7 @@ define i16 @atomicrmw_add_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4492,7 +4492,7 @@ define i16 @atomicrmw_add_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4513,7 +4513,7 @@ define i16 @atomicrmw_add_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4538,7 +4538,7 @@ define i16 @atomicrmw_add_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4559,7 +4559,7 @@ define i16 @atomicrmw_add_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4584,7 +4584,7 @@ define i16 @atomicrmw_sub_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4606,7 +4606,7 @@ define i16 @atomicrmw_sub_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4632,7 +4632,7 @@ define i16 @atomicrmw_sub_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4654,7 +4654,7 @@ define i16 @atomicrmw_sub_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4680,7 +4680,7 @@ define i16 @atomicrmw_sub_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4702,7 +4702,7 @@ define i16 @atomicrmw_sub_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4728,7 +4728,7 @@ define i16 @atomicrmw_sub_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4750,7 +4750,7 @@ define i16 @atomicrmw_sub_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4776,7 +4776,7 @@ define i16 @atomicrmw_sub_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4798,7 +4798,7 @@ define i16 @atomicrmw_sub_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4824,7 +4824,7 @@ define i16 @atomicrmw_and_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4845,7 +4845,7 @@ define i16 @atomicrmw_and_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4870,7 +4870,7 @@ define i16 @atomicrmw_and_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4891,7 +4891,7 @@ define i16 @atomicrmw_and_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4916,7 +4916,7 @@ define i16 @atomicrmw_and_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4937,7 +4937,7 @@ define i16 @atomicrmw_and_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -4962,7 +4962,7 @@ define i16 @atomicrmw_and_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -4983,7 +4983,7 @@ define i16 @atomicrmw_and_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5008,7 +5008,7 @@ define i16 @atomicrmw_and_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5029,7 +5029,7 @@ define i16 @atomicrmw_and_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5054,7 +5054,7 @@ define i16 @atomicrmw_nand_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5076,7 +5076,7 @@ define i16 @atomicrmw_nand_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5102,7 +5102,7 @@ define i16 @atomicrmw_nand_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5124,7 +5124,7 @@ define i16 @atomicrmw_nand_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5150,7 +5150,7 @@ define i16 @atomicrmw_nand_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5172,7 +5172,7 @@ define i16 @atomicrmw_nand_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5198,7 +5198,7 @@ define i16 @atomicrmw_nand_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5220,7 +5220,7 @@ define i16 @atomicrmw_nand_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5246,7 +5246,7 @@ define i16 @atomicrmw_nand_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5268,7 +5268,7 @@ define i16 @atomicrmw_nand_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5294,7 +5294,7 @@ define i16 @atomicrmw_or_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5315,7 +5315,7 @@ define i16 @atomicrmw_or_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5340,7 +5340,7 @@ define i16 @atomicrmw_or_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5361,7 +5361,7 @@ define i16 @atomicrmw_or_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5386,7 +5386,7 @@ define i16 @atomicrmw_or_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5407,7 +5407,7 @@ define i16 @atomicrmw_or_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5432,7 +5432,7 @@ define i16 @atomicrmw_or_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5453,7 +5453,7 @@ define i16 @atomicrmw_or_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5478,7 +5478,7 @@ define i16 @atomicrmw_or_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5499,7 +5499,7 @@ define i16 @atomicrmw_or_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5524,7 +5524,7 @@ define i16 @atomicrmw_xor_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5545,7 +5545,7 @@ define i16 @atomicrmw_xor_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5570,7 +5570,7 @@ define i16 @atomicrmw_xor_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5591,7 +5591,7 @@ define i16 @atomicrmw_xor_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5616,7 +5616,7 @@ define i16 @atomicrmw_xor_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5637,7 +5637,7 @@ define i16 @atomicrmw_xor_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5662,7 +5662,7 @@ define i16 @atomicrmw_xor_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5683,7 +5683,7 @@ define i16 @atomicrmw_xor_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5708,7 +5708,7 @@ define i16 @atomicrmw_xor_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -5729,7 +5729,7 @@ define i16 @atomicrmw_xor_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_2
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_2
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -5772,7 +5772,7 @@ define i16 @atomicrmw_max_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB90_4
 ; RV32IXCHERI-NEXT:  .LBB90_2: # %atomicrmw.start
@@ -5833,7 +5833,7 @@ define i16 @atomicrmw_max_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB90_4
 ; RV64IXCHERI-NEXT:  .LBB90_2: # %atomicrmw.start
@@ -5898,7 +5898,7 @@ define i16 @atomicrmw_max_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB91_4
 ; RV32IXCHERI-NEXT:  .LBB91_2: # %atomicrmw.start
@@ -5959,7 +5959,7 @@ define i16 @atomicrmw_max_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB91_4
 ; RV64IXCHERI-NEXT:  .LBB91_2: # %atomicrmw.start
@@ -6024,7 +6024,7 @@ define i16 @atomicrmw_max_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB92_4
 ; RV32IXCHERI-NEXT:  .LBB92_2: # %atomicrmw.start
@@ -6085,7 +6085,7 @@ define i16 @atomicrmw_max_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB92_4
 ; RV64IXCHERI-NEXT:  .LBB92_2: # %atomicrmw.start
@@ -6150,7 +6150,7 @@ define i16 @atomicrmw_max_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB93_4
 ; RV32IXCHERI-NEXT:  .LBB93_2: # %atomicrmw.start
@@ -6211,7 +6211,7 @@ define i16 @atomicrmw_max_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB93_4
 ; RV64IXCHERI-NEXT:  .LBB93_2: # %atomicrmw.start
@@ -6276,7 +6276,7 @@ define i16 @atomicrmw_max_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB94_4
 ; RV32IXCHERI-NEXT:  .LBB94_2: # %atomicrmw.start
@@ -6337,7 +6337,7 @@ define i16 @atomicrmw_max_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB94_4
 ; RV64IXCHERI-NEXT:  .LBB94_2: # %atomicrmw.start
@@ -6402,7 +6402,7 @@ define i16 @atomicrmw_min_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB95_4
 ; RV32IXCHERI-NEXT:  .LBB95_2: # %atomicrmw.start
@@ -6463,7 +6463,7 @@ define i16 @atomicrmw_min_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwind
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB95_4
 ; RV64IXCHERI-NEXT:  .LBB95_2: # %atomicrmw.start
@@ -6528,7 +6528,7 @@ define i16 @atomicrmw_min_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB96_4
 ; RV32IXCHERI-NEXT:  .LBB96_2: # %atomicrmw.start
@@ -6589,7 +6589,7 @@ define i16 @atomicrmw_min_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB96_4
 ; RV64IXCHERI-NEXT:  .LBB96_2: # %atomicrmw.start
@@ -6654,7 +6654,7 @@ define i16 @atomicrmw_min_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB97_4
 ; RV32IXCHERI-NEXT:  .LBB97_2: # %atomicrmw.start
@@ -6715,7 +6715,7 @@ define i16 @atomicrmw_min_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB97_4
 ; RV64IXCHERI-NEXT:  .LBB97_2: # %atomicrmw.start
@@ -6780,7 +6780,7 @@ define i16 @atomicrmw_min_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB98_4
 ; RV32IXCHERI-NEXT:  .LBB98_2: # %atomicrmw.start
@@ -6841,7 +6841,7 @@ define i16 @atomicrmw_min_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB98_4
 ; RV64IXCHERI-NEXT:  .LBB98_2: # %atomicrmw.start
@@ -6906,7 +6906,7 @@ define i16 @atomicrmw_min_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 6(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB99_4
 ; RV32IXCHERI-NEXT:  .LBB99_2: # %atomicrmw.start
@@ -6967,7 +6967,7 @@ define i16 @atomicrmw_min_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB99_4
 ; RV64IXCHERI-NEXT:  .LBB99_2: # %atomicrmw.start
@@ -7034,7 +7034,7 @@ define i16 @atomicrmw_umax_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB100_4
 ; RV32IXCHERI-NEXT:  .LBB100_2: # %atomicrmw.start
@@ -7097,7 +7097,7 @@ define i16 @atomicrmw_umax_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB100_4
 ; RV64IXCHERI-NEXT:  .LBB100_2: # %atomicrmw.start
@@ -7164,7 +7164,7 @@ define i16 @atomicrmw_umax_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB101_4
 ; RV32IXCHERI-NEXT:  .LBB101_2: # %atomicrmw.start
@@ -7227,7 +7227,7 @@ define i16 @atomicrmw_umax_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB101_4
 ; RV64IXCHERI-NEXT:  .LBB101_2: # %atomicrmw.start
@@ -7294,7 +7294,7 @@ define i16 @atomicrmw_umax_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB102_4
 ; RV32IXCHERI-NEXT:  .LBB102_2: # %atomicrmw.start
@@ -7357,7 +7357,7 @@ define i16 @atomicrmw_umax_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB102_4
 ; RV64IXCHERI-NEXT:  .LBB102_2: # %atomicrmw.start
@@ -7424,7 +7424,7 @@ define i16 @atomicrmw_umax_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB103_4
 ; RV32IXCHERI-NEXT:  .LBB103_2: # %atomicrmw.start
@@ -7487,7 +7487,7 @@ define i16 @atomicrmw_umax_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB103_4
 ; RV64IXCHERI-NEXT:  .LBB103_2: # %atomicrmw.start
@@ -7554,7 +7554,7 @@ define i16 @atomicrmw_umax_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB104_4
 ; RV32IXCHERI-NEXT:  .LBB104_2: # %atomicrmw.start
@@ -7617,7 +7617,7 @@ define i16 @atomicrmw_umax_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB104_4
 ; RV64IXCHERI-NEXT:  .LBB104_2: # %atomicrmw.start
@@ -7684,7 +7684,7 @@ define i16 @atomicrmw_umin_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB105_4
 ; RV32IXCHERI-NEXT:  .LBB105_2: # %atomicrmw.start
@@ -7747,7 +7747,7 @@ define i16 @atomicrmw_umin_i16_monotonic(i16 addrspace(200)* %a, i16 %b) nounwin
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB105_4
 ; RV64IXCHERI-NEXT:  .LBB105_2: # %atomicrmw.start
@@ -7814,7 +7814,7 @@ define i16 @atomicrmw_umin_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB106_4
 ; RV32IXCHERI-NEXT:  .LBB106_2: # %atomicrmw.start
@@ -7877,7 +7877,7 @@ define i16 @atomicrmw_umin_i16_acquire(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB106_4
 ; RV64IXCHERI-NEXT:  .LBB106_2: # %atomicrmw.start
@@ -7944,7 +7944,7 @@ define i16 @atomicrmw_umin_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB107_4
 ; RV32IXCHERI-NEXT:  .LBB107_2: # %atomicrmw.start
@@ -8007,7 +8007,7 @@ define i16 @atomicrmw_umin_i16_release(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB107_4
 ; RV64IXCHERI-NEXT:  .LBB107_2: # %atomicrmw.start
@@ -8074,7 +8074,7 @@ define i16 @atomicrmw_umin_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB108_4
 ; RV32IXCHERI-NEXT:  .LBB108_2: # %atomicrmw.start
@@ -8137,7 +8137,7 @@ define i16 @atomicrmw_umin_i16_acq_rel(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB108_4
 ; RV64IXCHERI-NEXT:  .LBB108_2: # %atomicrmw.start
@@ -8204,7 +8204,7 @@ define i16 @atomicrmw_umin_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs1
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV32IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB109_4
 ; RV32IXCHERI-NEXT:  .LBB109_2: # %atomicrmw.start
@@ -8267,7 +8267,7 @@ define i16 @atomicrmw_umin_i16_seq_cst(i16 addrspace(200)* %a, i16 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_2
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_2
 ; RV64IXCHERI-NEXT:    lh a1, 14(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB109_4
 ; RV64IXCHERI-NEXT:  .LBB109_2: # %atomicrmw.start
@@ -8314,7 +8314,7 @@ define i32 @atomicrmw_xchg_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8329,7 +8329,7 @@ define i32 @atomicrmw_xchg_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8348,7 +8348,7 @@ define i32 @atomicrmw_xchg_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8363,7 +8363,7 @@ define i32 @atomicrmw_xchg_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8382,7 +8382,7 @@ define i32 @atomicrmw_xchg_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8397,7 +8397,7 @@ define i32 @atomicrmw_xchg_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8416,7 +8416,7 @@ define i32 @atomicrmw_xchg_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8431,7 +8431,7 @@ define i32 @atomicrmw_xchg_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8450,7 +8450,7 @@ define i32 @atomicrmw_xchg_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8465,7 +8465,7 @@ define i32 @atomicrmw_xchg_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_exchange_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8484,7 +8484,7 @@ define i32 @atomicrmw_add_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8499,7 +8499,7 @@ define i32 @atomicrmw_add_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8518,7 +8518,7 @@ define i32 @atomicrmw_add_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8533,7 +8533,7 @@ define i32 @atomicrmw_add_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8552,7 +8552,7 @@ define i32 @atomicrmw_add_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8567,7 +8567,7 @@ define i32 @atomicrmw_add_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8586,7 +8586,7 @@ define i32 @atomicrmw_add_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8601,7 +8601,7 @@ define i32 @atomicrmw_add_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8620,7 +8620,7 @@ define i32 @atomicrmw_add_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8635,7 +8635,7 @@ define i32 @atomicrmw_add_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8654,7 +8654,7 @@ define i32 @atomicrmw_sub_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8670,7 +8670,7 @@ define i32 @atomicrmw_sub_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8690,7 +8690,7 @@ define i32 @atomicrmw_sub_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8706,7 +8706,7 @@ define i32 @atomicrmw_sub_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8726,7 +8726,7 @@ define i32 @atomicrmw_sub_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8742,7 +8742,7 @@ define i32 @atomicrmw_sub_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8762,7 +8762,7 @@ define i32 @atomicrmw_sub_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8778,7 +8778,7 @@ define i32 @atomicrmw_sub_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8798,7 +8798,7 @@ define i32 @atomicrmw_sub_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8814,7 +8814,7 @@ define i32 @atomicrmw_sub_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8834,7 +8834,7 @@ define i32 @atomicrmw_and_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8849,7 +8849,7 @@ define i32 @atomicrmw_and_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8868,7 +8868,7 @@ define i32 @atomicrmw_and_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8883,7 +8883,7 @@ define i32 @atomicrmw_and_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8902,7 +8902,7 @@ define i32 @atomicrmw_and_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8917,7 +8917,7 @@ define i32 @atomicrmw_and_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8936,7 +8936,7 @@ define i32 @atomicrmw_and_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8951,7 +8951,7 @@ define i32 @atomicrmw_and_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -8970,7 +8970,7 @@ define i32 @atomicrmw_and_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -8985,7 +8985,7 @@ define i32 @atomicrmw_and_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9004,7 +9004,7 @@ define i32 @atomicrmw_nand_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9026,7 +9026,7 @@ define i32 @atomicrmw_nand_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9052,7 +9052,7 @@ define i32 @atomicrmw_nand_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9074,7 +9074,7 @@ define i32 @atomicrmw_nand_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9100,7 +9100,7 @@ define i32 @atomicrmw_nand_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9122,7 +9122,7 @@ define i32 @atomicrmw_nand_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9148,7 +9148,7 @@ define i32 @atomicrmw_nand_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9170,7 +9170,7 @@ define i32 @atomicrmw_nand_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9196,7 +9196,7 @@ define i32 @atomicrmw_nand_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9218,7 +9218,7 @@ define i32 @atomicrmw_nand_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9244,7 +9244,7 @@ define i32 @atomicrmw_or_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9259,7 +9259,7 @@ define i32 @atomicrmw_or_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9278,7 +9278,7 @@ define i32 @atomicrmw_or_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9293,7 +9293,7 @@ define i32 @atomicrmw_or_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9312,7 +9312,7 @@ define i32 @atomicrmw_or_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9327,7 +9327,7 @@ define i32 @atomicrmw_or_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9346,7 +9346,7 @@ define i32 @atomicrmw_or_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9361,7 +9361,7 @@ define i32 @atomicrmw_or_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9380,7 +9380,7 @@ define i32 @atomicrmw_or_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9395,7 +9395,7 @@ define i32 @atomicrmw_or_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9414,7 +9414,7 @@ define i32 @atomicrmw_xor_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9429,7 +9429,7 @@ define i32 @atomicrmw_xor_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9448,7 +9448,7 @@ define i32 @atomicrmw_xor_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9463,7 +9463,7 @@ define i32 @atomicrmw_xor_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9482,7 +9482,7 @@ define i32 @atomicrmw_xor_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9497,7 +9497,7 @@ define i32 @atomicrmw_xor_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9516,7 +9516,7 @@ define i32 @atomicrmw_xor_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9531,7 +9531,7 @@ define i32 @atomicrmw_xor_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9550,7 +9550,7 @@ define i32 @atomicrmw_xor_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -9565,7 +9565,7 @@ define i32 @atomicrmw_xor_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_4
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_4
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -9599,7 +9599,7 @@ define i32 @atomicrmw_max_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB145_4
 ; RV32IXCHERI-NEXT:  .LBB145_2: # %atomicrmw.start
@@ -9646,7 +9646,7 @@ define i32 @atomicrmw_max_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB145_4
 ; RV64IXCHERI-NEXT:  .LBB145_2: # %atomicrmw.start
@@ -9697,7 +9697,7 @@ define i32 @atomicrmw_max_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB146_4
 ; RV32IXCHERI-NEXT:  .LBB146_2: # %atomicrmw.start
@@ -9744,7 +9744,7 @@ define i32 @atomicrmw_max_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB146_4
 ; RV64IXCHERI-NEXT:  .LBB146_2: # %atomicrmw.start
@@ -9795,7 +9795,7 @@ define i32 @atomicrmw_max_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB147_4
 ; RV32IXCHERI-NEXT:  .LBB147_2: # %atomicrmw.start
@@ -9842,7 +9842,7 @@ define i32 @atomicrmw_max_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB147_4
 ; RV64IXCHERI-NEXT:  .LBB147_2: # %atomicrmw.start
@@ -9893,7 +9893,7 @@ define i32 @atomicrmw_max_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB148_4
 ; RV32IXCHERI-NEXT:  .LBB148_2: # %atomicrmw.start
@@ -9940,7 +9940,7 @@ define i32 @atomicrmw_max_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB148_4
 ; RV64IXCHERI-NEXT:  .LBB148_2: # %atomicrmw.start
@@ -9991,7 +9991,7 @@ define i32 @atomicrmw_max_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB149_4
 ; RV32IXCHERI-NEXT:  .LBB149_2: # %atomicrmw.start
@@ -10038,7 +10038,7 @@ define i32 @atomicrmw_max_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB149_4
 ; RV64IXCHERI-NEXT:  .LBB149_2: # %atomicrmw.start
@@ -10089,7 +10089,7 @@ define i32 @atomicrmw_min_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB150_4
 ; RV32IXCHERI-NEXT:  .LBB150_2: # %atomicrmw.start
@@ -10136,7 +10136,7 @@ define i32 @atomicrmw_min_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwind
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB150_4
 ; RV64IXCHERI-NEXT:  .LBB150_2: # %atomicrmw.start
@@ -10187,7 +10187,7 @@ define i32 @atomicrmw_min_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB151_4
 ; RV32IXCHERI-NEXT:  .LBB151_2: # %atomicrmw.start
@@ -10234,7 +10234,7 @@ define i32 @atomicrmw_min_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB151_4
 ; RV64IXCHERI-NEXT:  .LBB151_2: # %atomicrmw.start
@@ -10285,7 +10285,7 @@ define i32 @atomicrmw_min_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB152_4
 ; RV32IXCHERI-NEXT:  .LBB152_2: # %atomicrmw.start
@@ -10332,7 +10332,7 @@ define i32 @atomicrmw_min_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB152_4
 ; RV64IXCHERI-NEXT:  .LBB152_2: # %atomicrmw.start
@@ -10383,7 +10383,7 @@ define i32 @atomicrmw_min_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB153_4
 ; RV32IXCHERI-NEXT:  .LBB153_2: # %atomicrmw.start
@@ -10430,7 +10430,7 @@ define i32 @atomicrmw_min_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB153_4
 ; RV64IXCHERI-NEXT:  .LBB153_2: # %atomicrmw.start
@@ -10481,7 +10481,7 @@ define i32 @atomicrmw_min_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB154_4
 ; RV32IXCHERI-NEXT:  .LBB154_2: # %atomicrmw.start
@@ -10528,7 +10528,7 @@ define i32 @atomicrmw_min_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB154_4
 ; RV64IXCHERI-NEXT:  .LBB154_2: # %atomicrmw.start
@@ -10579,7 +10579,7 @@ define i32 @atomicrmw_umax_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB155_4
 ; RV32IXCHERI-NEXT:  .LBB155_2: # %atomicrmw.start
@@ -10626,7 +10626,7 @@ define i32 @atomicrmw_umax_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB155_4
 ; RV64IXCHERI-NEXT:  .LBB155_2: # %atomicrmw.start
@@ -10677,7 +10677,7 @@ define i32 @atomicrmw_umax_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB156_4
 ; RV32IXCHERI-NEXT:  .LBB156_2: # %atomicrmw.start
@@ -10724,7 +10724,7 @@ define i32 @atomicrmw_umax_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB156_4
 ; RV64IXCHERI-NEXT:  .LBB156_2: # %atomicrmw.start
@@ -10775,7 +10775,7 @@ define i32 @atomicrmw_umax_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB157_4
 ; RV32IXCHERI-NEXT:  .LBB157_2: # %atomicrmw.start
@@ -10822,7 +10822,7 @@ define i32 @atomicrmw_umax_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB157_4
 ; RV64IXCHERI-NEXT:  .LBB157_2: # %atomicrmw.start
@@ -10873,7 +10873,7 @@ define i32 @atomicrmw_umax_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB158_4
 ; RV32IXCHERI-NEXT:  .LBB158_2: # %atomicrmw.start
@@ -10920,7 +10920,7 @@ define i32 @atomicrmw_umax_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB158_4
 ; RV64IXCHERI-NEXT:  .LBB158_2: # %atomicrmw.start
@@ -10971,7 +10971,7 @@ define i32 @atomicrmw_umax_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB159_4
 ; RV32IXCHERI-NEXT:  .LBB159_2: # %atomicrmw.start
@@ -11018,7 +11018,7 @@ define i32 @atomicrmw_umax_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB159_4
 ; RV64IXCHERI-NEXT:  .LBB159_2: # %atomicrmw.start
@@ -11069,7 +11069,7 @@ define i32 @atomicrmw_umin_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a3, 0
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB160_4
 ; RV32IXCHERI-NEXT:  .LBB160_2: # %atomicrmw.start
@@ -11116,7 +11116,7 @@ define i32 @atomicrmw_umin_i32_monotonic(i32 addrspace(200)* %a, i32 %b) nounwin
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB160_4
 ; RV64IXCHERI-NEXT:  .LBB160_2: # %atomicrmw.start
@@ -11167,7 +11167,7 @@ define i32 @atomicrmw_umin_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB161_4
 ; RV32IXCHERI-NEXT:  .LBB161_2: # %atomicrmw.start
@@ -11214,7 +11214,7 @@ define i32 @atomicrmw_umin_i32_acquire(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB161_4
 ; RV64IXCHERI-NEXT:  .LBB161_2: # %atomicrmw.start
@@ -11265,7 +11265,7 @@ define i32 @atomicrmw_umin_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
 ; RV32IXCHERI-NEXT:    li a4, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB162_4
 ; RV32IXCHERI-NEXT:  .LBB162_2: # %atomicrmw.start
@@ -11312,7 +11312,7 @@ define i32 @atomicrmw_umin_i32_release(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB162_4
 ; RV64IXCHERI-NEXT:  .LBB162_2: # %atomicrmw.start
@@ -11363,7 +11363,7 @@ define i32 @atomicrmw_umin_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB163_4
 ; RV32IXCHERI-NEXT:  .LBB163_2: # %atomicrmw.start
@@ -11410,7 +11410,7 @@ define i32 @atomicrmw_umin_i32_acq_rel(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB163_4
 ; RV64IXCHERI-NEXT:  .LBB163_2: # %atomicrmw.start
@@ -11461,7 +11461,7 @@ define i32 @atomicrmw_umin_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a4, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs2
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV32IXCHERI-NEXT:    lw a3, 12(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB164_4
 ; RV32IXCHERI-NEXT:  .LBB164_2: # %atomicrmw.start
@@ -11508,7 +11508,7 @@ define i32 @atomicrmw_umin_i32_seq_cst(i32 addrspace(200)* %a, i32 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs1
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_4
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_4
 ; RV64IXCHERI-NEXT:    lw a1, 12(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB164_4
 ; RV64IXCHERI-NEXT:  .LBB164_2: # %atomicrmw.start
@@ -11544,7 +11544,7 @@ define i64 @atomicrmw_xchg_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11554,7 +11554,7 @@ define i64 @atomicrmw_xchg_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11564,7 +11564,7 @@ define i64 @atomicrmw_xchg_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11583,7 +11583,7 @@ define i64 @atomicrmw_xchg_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11593,7 +11593,7 @@ define i64 @atomicrmw_xchg_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11603,7 +11603,7 @@ define i64 @atomicrmw_xchg_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11622,7 +11622,7 @@ define i64 @atomicrmw_xchg_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11632,7 +11632,7 @@ define i64 @atomicrmw_xchg_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11642,7 +11642,7 @@ define i64 @atomicrmw_xchg_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11661,7 +11661,7 @@ define i64 @atomicrmw_xchg_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11671,7 +11671,7 @@ define i64 @atomicrmw_xchg_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11681,7 +11681,7 @@ define i64 @atomicrmw_xchg_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11700,7 +11700,7 @@ define i64 @atomicrmw_xchg_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11710,7 +11710,7 @@ define i64 @atomicrmw_xchg_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_exchange_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11720,7 +11720,7 @@ define i64 @atomicrmw_xchg_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_exchange_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11739,7 +11739,7 @@ define i64 @atomicrmw_add_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11749,7 +11749,7 @@ define i64 @atomicrmw_add_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11759,7 +11759,7 @@ define i64 @atomicrmw_add_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11778,7 +11778,7 @@ define i64 @atomicrmw_add_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11788,7 +11788,7 @@ define i64 @atomicrmw_add_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11798,7 +11798,7 @@ define i64 @atomicrmw_add_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11817,7 +11817,7 @@ define i64 @atomicrmw_add_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11827,7 +11827,7 @@ define i64 @atomicrmw_add_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11837,7 +11837,7 @@ define i64 @atomicrmw_add_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11856,7 +11856,7 @@ define i64 @atomicrmw_add_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11866,7 +11866,7 @@ define i64 @atomicrmw_add_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11876,7 +11876,7 @@ define i64 @atomicrmw_add_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11895,7 +11895,7 @@ define i64 @atomicrmw_add_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11905,7 +11905,7 @@ define i64 @atomicrmw_add_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11915,7 +11915,7 @@ define i64 @atomicrmw_add_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_add_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_add_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11934,7 +11934,7 @@ define i64 @atomicrmw_sub_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11944,7 +11944,7 @@ define i64 @atomicrmw_sub_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11954,7 +11954,7 @@ define i64 @atomicrmw_sub_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -11974,7 +11974,7 @@ define i64 @atomicrmw_sub_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -11984,7 +11984,7 @@ define i64 @atomicrmw_sub_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -11994,7 +11994,7 @@ define i64 @atomicrmw_sub_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12014,7 +12014,7 @@ define i64 @atomicrmw_sub_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12024,7 +12024,7 @@ define i64 @atomicrmw_sub_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12034,7 +12034,7 @@ define i64 @atomicrmw_sub_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12054,7 +12054,7 @@ define i64 @atomicrmw_sub_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12064,7 +12064,7 @@ define i64 @atomicrmw_sub_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12074,7 +12074,7 @@ define i64 @atomicrmw_sub_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12094,7 +12094,7 @@ define i64 @atomicrmw_sub_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12104,7 +12104,7 @@ define i64 @atomicrmw_sub_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12114,7 +12114,7 @@ define i64 @atomicrmw_sub_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_sub_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_sub_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12134,7 +12134,7 @@ define i64 @atomicrmw_and_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12144,7 +12144,7 @@ define i64 @atomicrmw_and_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12154,7 +12154,7 @@ define i64 @atomicrmw_and_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12173,7 +12173,7 @@ define i64 @atomicrmw_and_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12183,7 +12183,7 @@ define i64 @atomicrmw_and_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12193,7 +12193,7 @@ define i64 @atomicrmw_and_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12212,7 +12212,7 @@ define i64 @atomicrmw_and_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12222,7 +12222,7 @@ define i64 @atomicrmw_and_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12232,7 +12232,7 @@ define i64 @atomicrmw_and_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12251,7 +12251,7 @@ define i64 @atomicrmw_and_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12261,7 +12261,7 @@ define i64 @atomicrmw_and_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12271,7 +12271,7 @@ define i64 @atomicrmw_and_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12290,7 +12290,7 @@ define i64 @atomicrmw_and_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12300,7 +12300,7 @@ define i64 @atomicrmw_and_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12310,7 +12310,7 @@ define i64 @atomicrmw_and_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_and_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_and_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12329,7 +12329,7 @@ define i64 @atomicrmw_nand_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12339,7 +12339,7 @@ define i64 @atomicrmw_nand_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12349,7 +12349,7 @@ define i64 @atomicrmw_nand_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12375,7 +12375,7 @@ define i64 @atomicrmw_nand_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12385,7 +12385,7 @@ define i64 @atomicrmw_nand_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12395,7 +12395,7 @@ define i64 @atomicrmw_nand_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12421,7 +12421,7 @@ define i64 @atomicrmw_nand_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12431,7 +12431,7 @@ define i64 @atomicrmw_nand_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12441,7 +12441,7 @@ define i64 @atomicrmw_nand_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12467,7 +12467,7 @@ define i64 @atomicrmw_nand_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12477,7 +12477,7 @@ define i64 @atomicrmw_nand_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12487,7 +12487,7 @@ define i64 @atomicrmw_nand_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12513,7 +12513,7 @@ define i64 @atomicrmw_nand_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12523,7 +12523,7 @@ define i64 @atomicrmw_nand_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12533,7 +12533,7 @@ define i64 @atomicrmw_nand_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_nand_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_nand_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12559,7 +12559,7 @@ define i64 @atomicrmw_or_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12569,7 +12569,7 @@ define i64 @atomicrmw_or_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12579,7 +12579,7 @@ define i64 @atomicrmw_or_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12598,7 +12598,7 @@ define i64 @atomicrmw_or_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12608,7 +12608,7 @@ define i64 @atomicrmw_or_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12618,7 +12618,7 @@ define i64 @atomicrmw_or_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12637,7 +12637,7 @@ define i64 @atomicrmw_or_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12647,7 +12647,7 @@ define i64 @atomicrmw_or_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12657,7 +12657,7 @@ define i64 @atomicrmw_or_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12676,7 +12676,7 @@ define i64 @atomicrmw_or_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12686,7 +12686,7 @@ define i64 @atomicrmw_or_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12696,7 +12696,7 @@ define i64 @atomicrmw_or_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12715,7 +12715,7 @@ define i64 @atomicrmw_or_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12725,7 +12725,7 @@ define i64 @atomicrmw_or_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12735,7 +12735,7 @@ define i64 @atomicrmw_or_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_or_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_or_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12754,7 +12754,7 @@ define i64 @atomicrmw_xor_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12764,7 +12764,7 @@ define i64 @atomicrmw_xor_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12774,7 +12774,7 @@ define i64 @atomicrmw_xor_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12793,7 +12793,7 @@ define i64 @atomicrmw_xor_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12803,7 +12803,7 @@ define i64 @atomicrmw_xor_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 2
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12813,7 +12813,7 @@ define i64 @atomicrmw_xor_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12832,7 +12832,7 @@ define i64 @atomicrmw_xor_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12842,7 +12842,7 @@ define i64 @atomicrmw_xor_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 3
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12852,7 +12852,7 @@ define i64 @atomicrmw_xor_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12871,7 +12871,7 @@ define i64 @atomicrmw_xor_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12881,7 +12881,7 @@ define i64 @atomicrmw_xor_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 4
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12891,7 +12891,7 @@ define i64 @atomicrmw_xor_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12910,7 +12910,7 @@ define i64 @atomicrmw_xor_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a3, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -12920,7 +12920,7 @@ define i64 @atomicrmw_xor_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IAXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IAXCHERI-NEXT:    li a3, 5
-; RV32IAXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV32IAXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV32IAXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IAXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IAXCHERI-NEXT:    ret
@@ -12930,7 +12930,7 @@ define i64 @atomicrmw_xor_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_fetch_xor_8
+; RV64IXCHERI-NEXT:    call __atomic_fetch_xor_8
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -12968,7 +12968,7 @@ define i64 @atomicrmw_max_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a4, 0
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB200_7
@@ -13026,7 +13026,7 @@ define i64 @atomicrmw_max_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a4, 0
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB200_7
@@ -13080,7 +13080,7 @@ define i64 @atomicrmw_max_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB200_4
 ; RV64IXCHERI-NEXT:  .LBB200_2: # %atomicrmw.start
@@ -13133,7 +13133,7 @@ define i64 @atomicrmw_max_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB201_7
@@ -13191,7 +13191,7 @@ define i64 @atomicrmw_max_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB201_7
@@ -13245,7 +13245,7 @@ define i64 @atomicrmw_max_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB201_4
 ; RV64IXCHERI-NEXT:  .LBB201_2: # %atomicrmw.start
@@ -13298,7 +13298,7 @@ define i64 @atomicrmw_max_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB202_7
@@ -13356,7 +13356,7 @@ define i64 @atomicrmw_max_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB202_7
@@ -13410,7 +13410,7 @@ define i64 @atomicrmw_max_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB202_4
 ; RV64IXCHERI-NEXT:  .LBB202_2: # %atomicrmw.start
@@ -13463,7 +13463,7 @@ define i64 @atomicrmw_max_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB203_7
@@ -13521,7 +13521,7 @@ define i64 @atomicrmw_max_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB203_7
@@ -13575,7 +13575,7 @@ define i64 @atomicrmw_max_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB203_4
 ; RV64IXCHERI-NEXT:  .LBB203_2: # %atomicrmw.start
@@ -13628,7 +13628,7 @@ define i64 @atomicrmw_max_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a5, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB204_7
@@ -13686,7 +13686,7 @@ define i64 @atomicrmw_max_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    li a5, 5
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB204_7
@@ -13740,7 +13740,7 @@ define i64 @atomicrmw_max_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB204_4
 ; RV64IXCHERI-NEXT:  .LBB204_2: # %atomicrmw.start
@@ -13793,7 +13793,7 @@ define i64 @atomicrmw_min_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a4, 0
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB205_7
@@ -13851,7 +13851,7 @@ define i64 @atomicrmw_min_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a4, 0
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB205_7
@@ -13905,7 +13905,7 @@ define i64 @atomicrmw_min_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwind
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB205_4
 ; RV64IXCHERI-NEXT:  .LBB205_2: # %atomicrmw.start
@@ -13958,7 +13958,7 @@ define i64 @atomicrmw_min_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB206_7
@@ -14016,7 +14016,7 @@ define i64 @atomicrmw_min_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB206_7
@@ -14070,7 +14070,7 @@ define i64 @atomicrmw_min_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB206_4
 ; RV64IXCHERI-NEXT:  .LBB206_2: # %atomicrmw.start
@@ -14123,7 +14123,7 @@ define i64 @atomicrmw_min_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB207_7
@@ -14181,7 +14181,7 @@ define i64 @atomicrmw_min_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB207_7
@@ -14235,7 +14235,7 @@ define i64 @atomicrmw_min_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB207_4
 ; RV64IXCHERI-NEXT:  .LBB207_2: # %atomicrmw.start
@@ -14288,7 +14288,7 @@ define i64 @atomicrmw_min_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB208_7
@@ -14346,7 +14346,7 @@ define i64 @atomicrmw_min_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB208_7
@@ -14400,7 +14400,7 @@ define i64 @atomicrmw_min_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB208_4
 ; RV64IXCHERI-NEXT:  .LBB208_2: # %atomicrmw.start
@@ -14453,7 +14453,7 @@ define i64 @atomicrmw_min_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IXCHERI-NEXT:    li a5, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB209_7
@@ -14511,7 +14511,7 @@ define i64 @atomicrmw_min_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV32IAXCHERI-NEXT:    li a5, 5
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB209_7
@@ -14565,7 +14565,7 @@ define i64 @atomicrmw_min_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind {
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB209_4
 ; RV64IXCHERI-NEXT:  .LBB209_2: # %atomicrmw.start
@@ -14618,7 +14618,7 @@ define i64 @atomicrmw_umax_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a4, 0
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB210_7
@@ -14676,7 +14676,7 @@ define i64 @atomicrmw_umax_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a4, 0
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB210_7
@@ -14730,7 +14730,7 @@ define i64 @atomicrmw_umax_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB210_4
 ; RV64IXCHERI-NEXT:  .LBB210_2: # %atomicrmw.start
@@ -14783,7 +14783,7 @@ define i64 @atomicrmw_umax_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB211_7
@@ -14841,7 +14841,7 @@ define i64 @atomicrmw_umax_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB211_7
@@ -14895,7 +14895,7 @@ define i64 @atomicrmw_umax_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB211_4
 ; RV64IXCHERI-NEXT:  .LBB211_2: # %atomicrmw.start
@@ -14948,7 +14948,7 @@ define i64 @atomicrmw_umax_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB212_7
@@ -15006,7 +15006,7 @@ define i64 @atomicrmw_umax_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB212_7
@@ -15060,7 +15060,7 @@ define i64 @atomicrmw_umax_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB212_4
 ; RV64IXCHERI-NEXT:  .LBB212_2: # %atomicrmw.start
@@ -15113,7 +15113,7 @@ define i64 @atomicrmw_umax_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB213_7
@@ -15171,7 +15171,7 @@ define i64 @atomicrmw_umax_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB213_7
@@ -15225,7 +15225,7 @@ define i64 @atomicrmw_umax_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB213_4
 ; RV64IXCHERI-NEXT:  .LBB213_2: # %atomicrmw.start
@@ -15278,7 +15278,7 @@ define i64 @atomicrmw_umax_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a5, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB214_7
@@ -15336,7 +15336,7 @@ define i64 @atomicrmw_umax_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    li a5, 5
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB214_7
@@ -15390,7 +15390,7 @@ define i64 @atomicrmw_umax_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB214_4
 ; RV64IXCHERI-NEXT:  .LBB214_2: # %atomicrmw.start
@@ -15443,7 +15443,7 @@ define i64 @atomicrmw_umin_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a4, 0
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB215_7
@@ -15501,7 +15501,7 @@ define i64 @atomicrmw_umin_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a4, 0
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB215_7
@@ -15555,7 +15555,7 @@ define i64 @atomicrmw_umin_i64_monotonic(i64 addrspace(200)* %a, i64 %b) nounwin
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a3, 0
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB215_4
 ; RV64IXCHERI-NEXT:  .LBB215_2: # %atomicrmw.start
@@ -15608,7 +15608,7 @@ define i64 @atomicrmw_umin_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB216_7
@@ -15666,7 +15666,7 @@ define i64 @atomicrmw_umin_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB216_7
@@ -15720,7 +15720,7 @@ define i64 @atomicrmw_umin_i64_acquire(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB216_4
 ; RV64IXCHERI-NEXT:  .LBB216_2: # %atomicrmw.start
@@ -15773,7 +15773,7 @@ define i64 @atomicrmw_umin_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IXCHERI-NEXT:    li a5, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB217_7
@@ -15831,7 +15831,7 @@ define i64 @atomicrmw_umin_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
 ; RV32IAXCHERI-NEXT:    li a5, 0
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB217_7
@@ -15885,7 +15885,7 @@ define i64 @atomicrmw_umin_i64_release(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
 ; RV64IXCHERI-NEXT:    li a4, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB217_4
 ; RV64IXCHERI-NEXT:  .LBB217_2: # %atomicrmw.start
@@ -15938,7 +15938,7 @@ define i64 @atomicrmw_umin_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a5, 2
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB218_7
@@ -15996,7 +15996,7 @@ define i64 @atomicrmw_umin_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    li a5, 2
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB218_7
@@ -16050,7 +16050,7 @@ define i64 @atomicrmw_umin_i64_acq_rel(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 2
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB218_4
 ; RV64IXCHERI-NEXT:  .LBB218_2: # %atomicrmw.start
@@ -16103,7 +16103,7 @@ define i64 @atomicrmw_umin_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IXCHERI-NEXT:    li a5, 5
 ; RV32IXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IXCHERI-NEXT:    cmove ca1, cs3
-; RV32IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IXCHERI-NEXT:    bnez a0, .LBB219_7
@@ -16161,7 +16161,7 @@ define i64 @atomicrmw_umin_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV32IAXCHERI-NEXT:    li a5, 5
 ; RV32IAXCHERI-NEXT:    cmove ca0, cs0
 ; RV32IAXCHERI-NEXT:    cmove ca1, cs3
-; RV32IAXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV32IAXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV32IAXCHERI-NEXT:    lw a5, 4(csp)
 ; RV32IAXCHERI-NEXT:    lw a4, 0(csp)
 ; RV32IAXCHERI-NEXT:    bnez a0, .LBB219_7
@@ -16215,7 +16215,7 @@ define i64 @atomicrmw_umin_i64_seq_cst(i64 addrspace(200)* %a, i64 %b) nounwind 
 ; RV64IXCHERI-NEXT:    li a4, 5
 ; RV64IXCHERI-NEXT:    cmove ca0, cs0
 ; RV64IXCHERI-NEXT:    cmove ca1, cs2
-; RV64IXCHERI-NEXT:    ccall __atomic_compare_exchange_8
+; RV64IXCHERI-NEXT:    call __atomic_compare_exchange_8
 ; RV64IXCHERI-NEXT:    ld a3, 8(csp)
 ; RV64IXCHERI-NEXT:    bnez a0, .LBB219_4
 ; RV64IXCHERI-NEXT:  .LBB219_2: # %atomicrmw.start
@@ -16249,7 +16249,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_monotonic(i8 addrspace(200)* addrs
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 0
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV32IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -16264,7 +16264,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_monotonic(i8 addrspace(200)* addrs
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 0
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV64IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -16283,7 +16283,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_acquire(i8 addrspace(200)* addrspa
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 2
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV32IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -16298,7 +16298,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_acquire(i8 addrspace(200)* addrspa
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 2
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV64IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -16317,7 +16317,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_release(i8 addrspace(200)* addrspa
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 3
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV32IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -16332,7 +16332,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_release(i8 addrspace(200)* addrspa
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 3
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV64IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -16351,7 +16351,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_acq_rel(i8 addrspace(200)* addrspa
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 4
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV32IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -16366,7 +16366,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_acq_rel(i8 addrspace(200)* addrspa
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 4
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV64IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret
@@ -16385,7 +16385,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_seq_cst(i8 addrspace(200)* addrspa
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    li a2, 5
-; RV32IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV32IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
 ; RV32IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV32IXCHERI-NEXT:    ret
@@ -16400,7 +16400,7 @@ define i8 addrspace(200)* @atomicrmw_xchg_cap_seq_cst(i8 addrspace(200)* addrspa
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, -16
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    li a2, 5
-; RV64IXCHERI-NEXT:    ccall __atomic_exchange_cap
+; RV64IXCHERI-NEXT:    call __atomic_exchange_cap
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
 ; RV64IXCHERI-NEXT:    cincoffset csp, csp, 16
 ; RV64IXCHERI-NEXT:    ret

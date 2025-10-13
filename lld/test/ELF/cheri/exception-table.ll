@@ -84,9 +84,12 @@
 
 ;; Should also emit __cap_relocs for RISC-V:
 ; RUN: ld.lld -shared %t/riscv.o -o %t/riscv.so
-; RUN: llvm-readelf -r --symbols --cap-relocs %t/riscv.so | FileCheck %s --check-prefixes=RV64-RELOCS,RV64-RELOCS-WEAK
+; RUN: llvm-readelf -S -r --symbols --cap-relocs %t/riscv.so | FileCheck %s --check-prefixes=RV64-RELOCS,RV64-RELOCS-WEAK
 ; RUN: ld.lld -shared %t/riscv.o %t/riscv-override.o -o %t/riscv.so
-; RUN: llvm-readelf -r --symbols --cap-relocs %t/riscv.so | FileCheck %s --check-prefixes=RV64-RELOCS,RV64-RELOCS-OVERRIDE
+; RUN: llvm-readelf -S -r --symbols --cap-relocs %t/riscv.so | FileCheck %s --check-prefixes=RV64-RELOCS,RV64-RELOCS-OVERRIDE
+
+; RV64-RELOCS-LABEL: Section Headers:
+; RV64-RELOCS: [ [[TEXT_SECT_IDX:[0-9]+]]] .text PROGBITS
 
 ; RV64-RELOCS-LABEL: Symbol table '.symtab' contains
 ; RV64-RELOCS: [[#%.16x,TEST_ADDR:]]        116 FUNC    LOCAL  DEFAULT     9 .L_Z4testll$local

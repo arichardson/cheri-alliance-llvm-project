@@ -28,10 +28,10 @@ define i32 @unaligned_float(float addrspace(200)* nocapture readonly %arg, float
 ; RV32IFXCHERI-NEXT:    or a2, a3, a2
 ; RV32IFXCHERI-NEXT:    or a0, a2, a0
 ; RV32IFXCHERI-NEXT:    fmv.w.x fa0, a0
-; RV32IFXCHERI-NEXT:    ccall __extendsfdf2
+; RV32IFXCHERI-NEXT:    call __extendsfdf2
 ; RV32IFXCHERI-NEXT:    sw a1, 4(csp)
 ; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
-; RV32IFXCHERI-NEXT:    ccall printf
+; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    fmv.x.w a1, fs0
 ; RV32IFXCHERI-NEXT:    srli a2, a1, 24
 ; RV32IFXCHERI-NEXT:    sb a2, 3(cs0)
@@ -66,9 +66,9 @@ define i32 @unaligned_float(float addrspace(200)* nocapture readonly %arg, float
 ; RV64IFXCHERI-NEXT:    or a0, a2, a0
 ; RV64IFXCHERI-NEXT:    sw a0, 8(csp)
 ; RV64IFXCHERI-NEXT:    flw fa0, 8(csp)
-; RV64IFXCHERI-NEXT:    ccall __extendsfdf2
+; RV64IFXCHERI-NEXT:    call __extendsfdf2
 ; RV64IFXCHERI-NEXT:    sd a0, 0(csp)
-; RV64IFXCHERI-NEXT:    ccall printf
+; RV64IFXCHERI-NEXT:    call printf
 ; RV64IFXCHERI-NEXT:    fsw fs0, 16(csp)
 ; RV64IFXCHERI-NEXT:    lw a1, 16(csp)
 ; RV64IFXCHERI-NEXT:    sb a1, 0(cs0)
@@ -112,7 +112,7 @@ define i32 @unaligned_double(double addrspace(200)* nocapture readonly %arg, dou
 ; RV32IFXCHERI-NEXT:    or a2, a2, a3
 ; RV32IFXCHERI-NEXT:    sw a2, 4(csp)
 ; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
-; RV32IFXCHERI-NEXT:    ccall printf
+; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    srli a1, s0, 16
 ; RV32IFXCHERI-NEXT:    sh a1, 6(cs2)
 ; RV32IFXCHERI-NEXT:    sh s0, 4(cs2)
@@ -145,7 +145,7 @@ define i32 @unaligned_double(double addrspace(200)* nocapture readonly %arg, dou
 ; RV64IFXCHERI-NEXT:    or a2, a3, a2
 ; RV64IFXCHERI-NEXT:    or a0, a2, a0
 ; RV64IFXCHERI-NEXT:    sd a0, 0(csp)
-; RV64IFXCHERI-NEXT:    ccall printf
+; RV64IFXCHERI-NEXT:    call printf
 ; RV64IFXCHERI-NEXT:    srli a1, s0, 48
 ; RV64IFXCHERI-NEXT:    sh a1, 6(cs1)
 ; RV64IFXCHERI-NEXT:    srli a1, s0, 32
@@ -189,10 +189,10 @@ define i32 @unaligned_fp128(fp128 addrspace(200)* nocapture readonly %arg, fp128
 ; RV32IFXCHERI-NEXT:    sw a0, 20(csp)
 ; RV32IFXCHERI-NEXT:    cincoffset ca0, csp, 16
 ; RV32IFXCHERI-NEXT:    sw a1, 16(csp)
-; RV32IFXCHERI-NEXT:    ccall __trunctfdf2
+; RV32IFXCHERI-NEXT:    call __trunctfdf2
 ; RV32IFXCHERI-NEXT:    sw a1, 4(csp)
 ; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
-; RV32IFXCHERI-NEXT:    ccall printf
+; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    sw s4, 12(cs0)
 ; RV32IFXCHERI-NEXT:    sw s3, 8(cs0)
 ; RV32IFXCHERI-NEXT:    sw s2, 4(cs0)
@@ -224,9 +224,9 @@ define i32 @unaligned_fp128(fp128 addrspace(200)* nocapture readonly %arg, fp128
 ; RV64IFXCHERI-NEXT:    or a0, a0, a1
 ; RV64IFXCHERI-NEXT:    slli a1, a2, 32
 ; RV64IFXCHERI-NEXT:    or a1, a1, a3
-; RV64IFXCHERI-NEXT:    ccall __trunctfdf2
+; RV64IFXCHERI-NEXT:    call __trunctfdf2
 ; RV64IFXCHERI-NEXT:    sd a0, 0(csp)
-; RV64IFXCHERI-NEXT:    ccall printf
+; RV64IFXCHERI-NEXT:    call printf
 ; RV64IFXCHERI-NEXT:    srli a1, s0, 32
 ; RV64IFXCHERI-NEXT:    sw a1, 12(cs2)
 ; RV64IFXCHERI-NEXT:    sw s0, 8(cs2)
@@ -265,7 +265,7 @@ define i32 @unaligned_int(i32 addrspace(200)* nocapture readonly %arg) unnamed_a
 ; RV32IFXCHERI-NEXT:    or a2, a3, a2
 ; RV32IFXCHERI-NEXT:    or a0, a2, a0
 ; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
-; RV32IFXCHERI-NEXT:    ccall printf
+; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    sb zero, 3(cs0)
 ; RV32IFXCHERI-NEXT:    sb zero, 2(cs0)
 ; RV32IFXCHERI-NEXT:    sb zero, 1(cs0)
@@ -293,7 +293,7 @@ define i32 @unaligned_int(i32 addrspace(200)* nocapture readonly %arg) unnamed_a
 ; RV64IFXCHERI-NEXT:    or a2, a3, a2
 ; RV64IFXCHERI-NEXT:    or a0, a2, a0
 ; RV64IFXCHERI-NEXT:    sd a0, 0(csp)
-; RV64IFXCHERI-NEXT:    ccall printf
+; RV64IFXCHERI-NEXT:    call printf
 ; RV64IFXCHERI-NEXT:    sb zero, 3(cs0)
 ; RV64IFXCHERI-NEXT:    sb zero, 2(cs0)
 ; RV64IFXCHERI-NEXT:    sb zero, 1(cs0)

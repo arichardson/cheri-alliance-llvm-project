@@ -56,39 +56,39 @@
 # RV32-SO-GOT-NEXT: 0x00002290 00000000 00000000
 
 # 0x12248 - 0x111b4 = 0x1094 (GD evar)
-# RV32-DIS:      111b4: auipcc ca0, 1
+# RV32-DIS:      111b4: auipc ca0, 1
 # RV32-DIS-NEXT:        cincoffset ca0, ca0, 148
 
 # 0x12250 - 0x111bc = 0x1094 (IE evar)
-# RV32-DIS:      111bc: auipcc ca0, 1
+# RV32-DIS:      111bc: auipc ca0, 1
 # RV32-DIS-NEXT:        lw a0, 148(ca0)
 
 # 0x12258 - 0x111c4 = 0x1094 (GD lvar)
-# RV32-DIS:      111c4: auipcc ca0, 1
+# RV32-DIS:      111c4: auipc ca0, 1
 # RV32-DIS-NEXT:        cincoffset ca0, ca0, 148
 
 # 0x12260 - 0x111cc = 0x1094 (IE lvar)
-# RV32-DIS:      111cc: auipcc ca0, 1
+# RV32-DIS:      111cc: auipc ca0, 1
 # RV32-DIS-NEXT:        lw a0, 148(ca0)
 
 # RV32-DIS:      111d4: lui a0, 0
-# RV32-DIS-NEXT:        cincoffset ca0, ctp, a0
-# RV32-DIS-NEXT:        cincoffset ca0, ca0, 4
+# RV32-DIS-NEXT:        cincoffset       ca0, ctp, a0
+# RV32-DIS-NEXT:        cincoffset  ca0, ca0, 4
 
 # 0x2278 - 0x11f0 = 0x1088 (GD evar)
-# RV32-SO-DIS:      11f0: auipcc ca0, 1
+# RV32-SO-DIS:      11f0: auipc ca0, 1
 # RV32-SO-DIS-NEXT:       cincoffset ca0, ca0, 136
 
 # 0x2280 - 0x11f8 = 0x1088 (IE evar)
-# RV32-SO-DIS:      11f8: auipcc ca0, 1
+# RV32-SO-DIS:      11f8: auipc ca0, 1
 # RV32-SO-DIS-NEXT:       lw a0, 136(ca0)
 
 # 0x2288 - 0x1200 = 0x1088 (GD lvar)
-# RV32-SO-DIS:      1200: auipcc ca0, 1
+# RV32-SO-DIS:      1200: auipc ca0, 1
 # RV32-SO-DIS-NEXT:       cincoffset ca0, ca0, 136
 
 # 0x2290 - 0x1208 = 0x1088 (IE lvar)
-# RV32-SO-DIS:      1208: auipcc ca0, 1
+# RV32-SO-DIS:      1208: auipc ca0, 1
 # RV32-SO-DIS-NEXT:       lw a0, 136(ca0)
 
 # RV64-REL:      .rela.dyn {
@@ -120,39 +120,39 @@
 # RV64-SO-GOT-NEXT: 0x00002440 00000000 00000000 00000000 00000000
 
 # 0x123c0 - 0x112b8 = 0x1108 (GD evar)
-# RV64-DIS:      112b8: auipcc ca0, 1
+# RV64-DIS:      112b8: auipc ca0, 1
 # RV64-DIS-NEXT:        cincoffset ca0, ca0, 264
 
 # 0x123d0 - 0x112c0 = 0x1110 (IE evar)
-# RV64-DIS:      112c0: auipcc ca0, 1
+# RV64-DIS:      112c0: auipc ca0, 1
 # RV64-DIS-NEXT:        ld a0, 272(ca0)
 
 # 0x123e0 - 0x112c8 = 0x1118 (GD lvar)
-# RV64-DIS:      112c8: auipcc ca0, 1
+# RV64-DIS:      112c8: auipc ca0, 1
 # RV64-DIS-NEXT:        cincoffset ca0, ca0, 280
 
 # 0x123f0 - 0x112d0 = 0x1120 (IE lvar)
-# RV64-DIS:      112d0: auipcc ca0, 1
+# RV64-DIS:      112d0: auipc ca0, 1
 # RV64-DIS-NEXT:        ld a0, 288(ca0)
 
 # RV64-DIS:      112d8: lui a0, 0
-# RV64-DIS-NEXT:        cincoffset ca0, ctp, a0
+# RV64-DIS-NEXT:        cincoffset  ca0, ctp, a0
 # RV64-DIS-NEXT:        cincoffset ca0, ca0, 4
 
 # 0x2410 - 0x1318 = 0x10f8 (GD evar)
-# RV64-SO-DIS:      1318: auipcc ca0, 1
+# RV64-SO-DIS:      1318: auipc ca0, 1
 # RV64-SO-DIS-NEXT:       cincoffset ca0, ca0, 248
 
 # 0x2420 - 0x1320 = 0x1100 (IE evar)
-# RV64-SO-DIS:      1320: auipcc ca0, 1
+# RV64-SO-DIS:      1320: auipc ca0, 1
 # RV64-SO-DIS-NEXT:       ld a0, 256(ca0)
 
 # 0x2430 - 0x1328 = 0x1108 (GD lvar)
-# RV64-SO-DIS:      1328: auipcc ca0, 1
+# RV64-SO-DIS:      1328: auipc ca0, 1
 # RV64-SO-DIS-NEXT:       cincoffset ca0, ca0, 264
 
 # 0x2440 - 0x1330 = 0x1110 (IE lvar)
-# RV64-SO-DIS:      1330: auipcc ca0, 1
+# RV64-SO-DIS:      1330: auipc ca0, 1
 # RV64-SO-DIS-NEXT:       ld a0, 272(ca0)
 
 .global _start

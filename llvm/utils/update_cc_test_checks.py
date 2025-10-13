@@ -49,6 +49,7 @@ SUBST = {
     '%riscv64_cheri_purecap_cc1': ['-cc1', "-triple=riscv64-unknown-freebsd", "-target-feature", "+xcheri", "-target-abi", "l64pc128", '-target-feature', '+cap-mode'],
     '%riscv32_cheri_purecap_clang': ['-target', 'riscv32-unknown-freebsd', '-march=rv32imafdcxcheri', '-mabi=il32pc64'],
     '%riscv64_cheri_purecap_clang': ['-target', 'riscv64-unknown-freebsd', '-march=rv64imafdcxcheri', '-mabi=l64pc128'],
+    '%riscv64_bakewell_hybrid_cc1': ['-cc1', '-triple=riscv64-unknown-freebsd', '-target-feature', '+zcherihybrid']
 }
 
 def get_line2func_list(clang_cmd: Command):
@@ -251,6 +252,11 @@ def config():
             builtin_include_dir,
             "-nostdsysteminc",
         ]
+        tools = ["%riscv32_cheri_purecap_cc1", "%riscv64_cheri_purecap_cc1"]
+        for t in tools:
+            SUBST[t].extend(["-internal-isystem",
+                                         builtin_include_dir,
+                                         "-nostdsysteminc"])
     except subprocess.CalledProcessError:
         common.warn(
             "Could not determine clang builtins directory, some tests "

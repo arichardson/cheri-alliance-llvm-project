@@ -12,7 +12,7 @@ define double @constant_pool(double %a) nounwind {
 ; L64PC128-LABEL: constant_pool:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB0_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %pcrel_hi(.LCPI0_0)
+; L64PC128-NEXT:    auipc ca0, %pcrel_hi(.LCPI0_0)
 ; L64PC128-NEXT:    cincoffset ca0, ca0, %pcrel_lo(.LBB0_1)
 ; L64PC128-NEXT:    fld fa5, 0(ca0)
 ; L64PC128-NEXT:    fadd.d fa0, fa0, fa5
@@ -30,7 +30,7 @@ define i8 addrspace(200)* @blockaddress() nounwind {
 ; L64PC128-NEXT:  # %bb.1: # %block
 ; L64PC128-NEXT:  .LBB1_2: # %block
 ; L64PC128-NEXT:    # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %pcrel_hi(.Ltmp0)
+; L64PC128-NEXT:    auipc ca0, %pcrel_hi(.Ltmp0)
 ; L64PC128-NEXT:    cincoffset ca0, ca0, %pcrel_lo(.LBB1_2)
 ; L64PC128-NEXT:    ret
 entry:
@@ -52,7 +52,7 @@ define i64 @load_external_global_variable(double %a) nounwind {
 ; L64PC128-LABEL: load_external_global_variable:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB2_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(external_variable)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(external_variable)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB2_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -65,7 +65,7 @@ define i64 @load_external_global_constant(double %a) nounwind {
 ; L64PC128-LABEL: load_external_global_constant:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB3_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(external_constant)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(external_constant)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB3_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -78,7 +78,7 @@ define i64 @load_dso_local_external_global_variable(double %a) nounwind {
 ; L64PC128-LABEL: load_dso_local_external_global_variable:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB4_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(dso_local_external_variable)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(dso_local_external_variable)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB4_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -92,7 +92,7 @@ define i64 @load_dso_local_external_global_constant(double %a) nounwind {
 ; L64PC128-LABEL: load_dso_local_external_global_constant:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB5_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(dso_local_external_constant)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(dso_local_external_constant)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB5_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -105,7 +105,7 @@ define i64 @load_defined_variable(double %a) nounwind {
 ; L64PC128-LABEL: load_defined_variable:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB6_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(defined_variable)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(defined_variable)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB6_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -118,7 +118,7 @@ define i64 @load_defined_constant(double %a) nounwind {
 ; L64PC128-LABEL: load_defined_constant:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB7_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(defined_constant)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(defined_constant)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB7_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -131,7 +131,7 @@ define i64 @load_hidden_variable(double %a) nounwind {
 ; L64PC128-LABEL: load_hidden_variable:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB8_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(hidden_variable)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(hidden_variable)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB8_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -144,7 +144,7 @@ define i64 @load_hidden_constant(double %a) nounwind {
 ; L64PC128-LABEL: load_hidden_constant:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB9_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(hidden_constant)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(hidden_constant)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB9_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -157,7 +157,7 @@ define i64 @load_dso_local_variable(double %a) nounwind {
 ; L64PC128-LABEL: load_dso_local_variable:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB10_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(dso_local_variable)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(dso_local_variable)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB10_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret
@@ -170,7 +170,7 @@ define i64 @load_dso_local_constant(double %a) nounwind {
 ; L64PC128-LABEL: load_dso_local_constant:
 ; L64PC128:       # %bb.0:
 ; L64PC128-NEXT:  .LBB11_1: # Label of block must be emitted
-; L64PC128-NEXT:    auipcc ca0, %got_pcrel_hi(dso_local_constant)
+; L64PC128-NEXT:    auipc ca0, %got_pcrel_hi(dso_local_constant)
 ; L64PC128-NEXT:    lc ca0, %pcrel_lo(.LBB11_1)(ca0)
 ; L64PC128-NEXT:    ld a0, 0(ca0)
 ; L64PC128-NEXT:    ret

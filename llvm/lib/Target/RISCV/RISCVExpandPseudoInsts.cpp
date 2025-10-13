@@ -12,8 +12,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "MCTargetDesc/RISCVBaseInfo.h"
+#include "MCTargetDesc/RISCVMCTargetDesc.h"
 #include "RISCV.h"
 #include "RISCVInstrInfo.h"
+#include "RISCVSubtarget.h"
 #include "RISCVTargetMachine.h"
 
 #include "llvm/CodeGen/LivePhysRegs.h"
@@ -247,19 +250,25 @@ bool RISCVExpandPseudo::expandAuipccInstPair(
 bool RISCVExpandPseudo::expandCapLoadLocalCap(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MBBI,
     MachineBasicBlock::iterator &NextMBBI) {
+  const auto &STI = MBB.getParent()->getSubtarget<RISCVSubtarget>();
+  const bool HasZCheriPurecap =
+      STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
   return expandAuipccInstPair(MBB, MBBI, NextMBBI, RISCVII::MO_PCREL_HI,
-                              RISCV::CIncOffsetImm);
+                              HasZCheriPurecap ? RISCV::CADDI
+                                               : RISCV::CIncOffsetImm);
 }
 
 bool RISCVExpandPseudo::expandCapLoadGlobalCap(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MBBI,
     MachineBasicBlock::iterator &NextMBBI) {
-  MachineFunction *MF = MBB.getParent();
-
-  const auto &STI = MF->getSubtarget<RISCVSubtarget>();
-  unsigned SecondOpcode = STI.is64Bit() ? RISCV::CLC_128 : RISCV::CLC_64;
+  const auto &STI = MBB.getParent()->getSubtarget<RISCVSubtarget>();
+  const bool HasZCheriPurecap =
+      STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
+  unsigned LoadCapOpc = HasZCheriPurecap
+                            ? RISCV::CLC
+                            : (STI.is64Bit() ? RISCV::CLC_128 : RISCV::CLC_64);
   return expandAuipccInstPair(MBB, MBBI, NextMBBI, RISCVII::MO_GOT_HI,
-                              SecondOpcode);
+                              LoadCapOpc);
 }
 
 bool RISCVExpandPseudo::expandCapLoadTLSIEAddress(
@@ -276,8 +285,13 @@ bool RISCVExpandPseudo::expandCapLoadTLSIEAddress(
 bool RISCVExpandPseudo::expandCapLoadTLSGDCap(
     MachineBasicBlock &MBB, MachineBasicBlock::iterator MBBI,
     MachineBasicBlock::iterator &NextMBBI) {
+  const auto &STI = MBB.getParent()->getSubtarget<RISCVSubtarget>();
+  const bool HasZCheriPurecap =
+      STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
+  const unsigned IncOpc =
+      HasZCheriPurecap ? RISCV::CADDI : RISCV::CIncOffsetImm;
   return expandAuipccInstPair(MBB, MBBI, NextMBBI, RISCVII::MO_TLS_GD_HI,
-                              RISCV::CIncOffsetImm);
+                              IncOpc);
 }
 
 bool RISCVExpandPseudo::expandCGetAddr(MachineBasicBlock &MBB,

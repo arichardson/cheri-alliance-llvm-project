@@ -22,13 +22,13 @@ define void @test() addrspace(200) personality i8 addrspace(200)* bitcast (i32 (
 ; RV32IXCHERI-NEXT:    sc cra, 8(csp) # 8-byte Folded Spill
 ; RV32IXCHERI-NEXT:    .cfi_offset ra, -8
 ; RV32IXCHERI-NEXT:  .Ltmp0:
-; RV32IXCHERI-NEXT:    ccall throw_exception
+; RV32IXCHERI-NEXT:    call throw_exception
 ; RV32IXCHERI-NEXT:  .Ltmp1:
 ; RV32IXCHERI-NEXT:    j .LBB0_2
 ; RV32IXCHERI-NEXT:  .LBB0_1: # %lpad
 ; RV32IXCHERI-NEXT:  .Ltmp2:
-; RV32IXCHERI-NEXT:    ccall __cxa_begin_catch
-; RV32IXCHERI-NEXT:    ccall __cxa_end_catch
+; RV32IXCHERI-NEXT:    call __cxa_begin_catch
+; RV32IXCHERI-NEXT:    call __cxa_end_catch
 ; RV32IXCHERI-NEXT:    j .LBB0_2
 ; RV32IXCHERI-NEXT:  .LBB0_2: # %try.cont
 ; RV32IXCHERI-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
@@ -42,13 +42,13 @@ define void @test() addrspace(200) personality i8 addrspace(200)* bitcast (i32 (
 ; RV64IXCHERI-NEXT:    sc cra, 0(csp) # 16-byte Folded Spill
 ; RV64IXCHERI-NEXT:    .cfi_offset ra, -16
 ; RV64IXCHERI-NEXT:  .Ltmp0:
-; RV64IXCHERI-NEXT:    ccall throw_exception
+; RV64IXCHERI-NEXT:    call throw_exception
 ; RV64IXCHERI-NEXT:  .Ltmp1:
 ; RV64IXCHERI-NEXT:    j .LBB0_2
 ; RV64IXCHERI-NEXT:  .LBB0_1: # %lpad
 ; RV64IXCHERI-NEXT:  .Ltmp2:
-; RV64IXCHERI-NEXT:    ccall __cxa_begin_catch
-; RV64IXCHERI-NEXT:    ccall __cxa_end_catch
+; RV64IXCHERI-NEXT:    call __cxa_begin_catch
+; RV64IXCHERI-NEXT:    call __cxa_end_catch
 ; RV64IXCHERI-NEXT:    j .LBB0_2
 ; RV64IXCHERI-NEXT:  .LBB0_2: # %try.cont
 ; RV64IXCHERI-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload

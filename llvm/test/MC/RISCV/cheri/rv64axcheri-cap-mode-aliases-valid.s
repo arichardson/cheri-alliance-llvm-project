@@ -9,7 +9,7 @@
 # RUN:     | llvm-objdump -d --mattr=+a,+xcheri,+cap-mode - \
 # RUN:     | FileCheck -check-prefix=CHECK-ALIAS %s
 
-# The below tests for clr.d, csc.d and camo*.d, using `0(reg)` are actually
+# The below tests for lr.d, sc.d and amo*.d, using `0(reg)` are actually
 # implemented using a custom parser, but we test them as if they're aliases.
 
 # CHECK-INST: {{[[:<:]]}}lr.d a1, (ca0)

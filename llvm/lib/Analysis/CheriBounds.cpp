@@ -73,6 +73,9 @@ bool CheriNeedBoundsChecker::useNeedsBounds(const Use &U,
       DBG_INDENTED("Adding stack bounds since it is passed to call: ";
                    I->dump());
       return true;
+    case Intrinsic::prefetch:
+      DBG_INDENTED("Adding stack bounds for llvm.prefetch.\n");
+      return true;
     case Intrinsic::lifetime_start:
     case Intrinsic::lifetime_end:
       DBG_INDENTED("No need for stack bounds for lifetime_{start,end}: ";

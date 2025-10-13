@@ -174,6 +174,52 @@ New checks
   Detects variables and functions that can be marked as static or moved into
   an anonymous namespace to enforce internal linkage.
 
+- New :doc:`cheri-FixCapAsArraySubscript
+  <clang-tidy/checks/cheri/FixCapAsArraySubscript>` check.
+
+  Explicitly cast capabilities used as an array index to an unsigned long.
+
+- New :doc:`cheri-FixCapFormat
+  <clang-tidy/checks/cheri/FixCapFormat>` check.
+
+  Integer capabilities that are passed to printf-style functions
+  need a cast to "unsigned long" or printf will misinterpret the
+  value.
+
+- New :doc:`cheri-FixDriverData
+  <clang-tidy/checks/cheri/FixDriverData>` check.
+
+  Static initializations of driver data fields should use a cast to uintptr_t
+  instead of some variant of unsigned long.
+
+- New :doc:`cheri-FixIntToPtrCast
+  <clang-tidy/checks/cheri/FixIntToPtrCast>` check.
+
+  Warn about and fix casts where a smaller integer type is cast
+  to a pointer.
+
+- New :doc:`cheri-FixPtrToUlongCast
+  <clang-tidy/checks/cheri/FixPtrToUlongCast>` check.
+
+  Warn about explicit casts of pointers to a type that can only hold
+  an address.
+
+- New :doc:`cheri-FixUserPtrToAddr
+  <clang-tidy/checks/cheri/FixUserPtrToAddr>` check.
+
+  Warn about incorrect use for __c_ua() vs. __c_ua_u() in the linux kernel.
+
+- New :doc:`cheri-Ioctl
+  <clang-tidy/checks/cheri/Ioctl>` check.
+
+  Check prototypes of linux kernel ioctl functions and warn about
+  suspicious uses of the generic ioctl argument.
+
+- New :doc:`cheri-PtrToIntCast
+  <clang-tidy/checks/cheri/PtrToIntCast>` check.
+
+  Warn about suspicious casts between capabilities and plain addressese.
+
 - New :doc:`modernize-min-max-use-initializer-list
   <clang-tidy/checks/modernize/min-max-use-initializer-list>` check.
 

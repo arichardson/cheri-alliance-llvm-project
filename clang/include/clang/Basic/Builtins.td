@@ -4998,3 +4998,15 @@ def CheriConditionalSeal : Builtin {
   let Attributes = [CustomTypeChecking, NoThrow, Const];
   let Prototype = "void* __capability(void const* __capability, void const* __capability)";
 }
+
+def CheriCopyFromHigh : Builtin {
+  let Spellings = ["__builtin_cheri_copy_from_high"];
+  let Attributes = [NoThrow, Const];
+  let Prototype = "size_t (void const *__capability)";
+}
+
+def CheriCopyToHigh : Builtin {
+  let Spellings = ["__builtin_cheri_copy_to_high"];
+  let Attributes = [NoThrow, Const];
+  let Prototype = "void *__capability(void const *__capability, size_t)";
+}

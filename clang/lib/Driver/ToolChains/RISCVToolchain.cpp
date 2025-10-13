@@ -166,10 +166,11 @@ void RISCV::Linker::ConstructJob(Compilation &C, const JobAction &JA,
 
   bool IsRV64 = ToolChain.getArch() == llvm::Triple::riscv64;
   CmdArgs.push_back("-m");
+
   if (IsRV64) {
-    CmdArgs.push_back("elf64lriscv");
+    CmdArgs.push_back(Args.MakeArgString("elf64lriscv"));
   } else {
-    CmdArgs.push_back("elf32lriscv");
+    CmdArgs.push_back(Args.MakeArgString("elf32lriscv"));
   }
   CmdArgs.push_back("-X");
 

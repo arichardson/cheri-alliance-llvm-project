@@ -1333,12 +1333,15 @@ DynamicSection<ELFT>::DynamicSection()
 // - part.relaDyn
 // - in.relaPlt: this is included if a linker script places .rela.plt inside
 //   .rela.dyn
+// - in.relaDyn: this is included if R_CHERI_RELATIVE relocations are created.
 //
 // DT_RELASZ is the total size of the included sections.
 static uint64_t addRelaSz(const RelocationBaseSection &relaDyn) {
   size_t size = relaDyn.getSize();
   if (in.relaPlt->getParent() == relaDyn.getParent())
     size += in.relaPlt->getSize();
+  if (in.relaDyn->getParent() == relaDyn.getParent())
+    size += in.relaDyn->getSize();
   return size;
 }
 
@@ -1346,7 +1349,13 @@ static uint64_t addRelaSz(const RelocationBaseSection &relaDyn) {
 // output section. When this occurs we cannot just use the OutputSection
 // Size. Moreover the [DT_JMPREL, DT_JMPREL + DT_PLTRELSZ) is permitted to
 // overlap with the [DT_RELA, DT_RELA + DT_RELASZ).
-static uint64_t addPltRelSz() { return in.relaPlt->getSize(); }
+static uint64_t addPltRelSz() {
+  size_t size = in.relaPlt->getSize();
+  if (in.relaDyn->getParent() == in.relaPlt->getParent() &&
+      (in.relaDyn->name == in.relaPlt->name))
+    size += in.relaDyn->getSize();
+  return size;
+}
 
 // Add remaining entries to complete .dynamic contents.
 template <class ELFT>
@@ -1433,7 +1442,9 @@ DynamicSection<ELFT>::computeContents() {
   if (!config->shared && !config->relocatable && !config->zRodynamic)
     addInt(DT_DEBUG, 0);
 
-  if (part.relaDyn->isNeeded()) {
+  if (part.relaDyn->isNeeded() ||
+      (in.relaDyn->isNeeded() &&
+       part.relaDyn->getParent() == in.relaDyn->getParent())) {
     addInSec(part.relaDyn->dynamicTag, *part.relaDyn);
     entries.emplace_back(part.relaDyn->sizeDynamicTag,
                          addRelaSz(*part.relaDyn));
@@ -1466,7 +1477,7 @@ DynamicSection<ELFT>::computeContents() {
     addInt(DT_AARCH64_AUTH_RELRSZ, part.relrAuthDyn->getParent()->size);
     addInt(DT_AARCH64_AUTH_RELRENT, sizeof(Elf_Relr));
   }
-  if (isMain && in.relaPlt->isNeeded()) {
+  if (isMain && (in.relaPlt->isNeeded() || in.relaDyn->isNeeded())) {
     addInSec(DT_JMPREL, *in.relaPlt);
     entries.emplace_back(DT_PLTRELSZ, addPltRelSz());
     switch (config->emachine) {
@@ -1763,7 +1774,8 @@ void RelocationBaseSection::partitionRels() {
   numRelativeRelocs = std::stable_partition(relocs.begin(), relocs.end(),
                                             [=](auto &r) {
                                               return r.type == relativeRel ||
-                                                     r.type == relativeFuncRel;
+                                                     r.type == relativeFuncRel ||
+                                                     r.type == R_RISCV_CHERI_RELATIVE;
                                             }) -
                       relocs.begin();
 }
@@ -1787,7 +1799,15 @@ void RelocationBaseSection::finalizeContents() {
       assert(in.mipsCheriCapTable->getParent()->sectionIndex != UINT32_MAX);
       getParent()->info = in.mipsCheriCapTable->getParent()->sectionIndex;
     } else {
-      getParent()->info = in.gotPlt->getParent()->sectionIndex;
+      if (in.relaPlt.get() == this)
+        getParent()->info = in.gotPlt->getParent()->sectionIndex;
+    }
+    if (in.relaDyn.get() == this) {
+      if (in.igotPlt && in.igotPlt->isNeeded()) {
+        getParent()->info = in.igotPlt->getParent()->sectionIndex;
+      } else if (!config->hasDynSymTab) {
+        getParent()->info = 0;
+      }
     }
   }
   for (auto reloc : relocs) {
@@ -4616,6 +4636,7 @@ void InStruct::reset() {
   relaPlt.reset();
   debugNames.reset();
   gdbIndex.reset();
+  relaDyn.reset();
   shStrTab.reset();
   strTab.reset();
   symTab.reset();
@@ -5026,6 +5047,18 @@ template <class ELFT> void elf::createSyntheticSections() {
       config->isRela ? ".rela.plt" : ".rel.plt", /*sort=*/false,
       /*threadCount=*/1);
   add(*in.relaPlt);
+
+  // add the dynRela section
+  if (config->emachine == EM_RISCV && config->useRelativeElfCheriRelocs)
+    in.relaDyn =
+        std::make_unique<RelocationSection<ELFT>>(relaDynName, false, 1);
+  else if (config->androidPackDynRelocs)
+    in.relaDyn =
+        std::make_unique<AndroidPackedRelocationSection<ELFT>>(relaDynName, 1);
+  else
+    in.relaDyn = std::make_unique<RelocationSection<ELFT>>(
+        relaDynName, config->zCombreloc, 1);
+  add(*in.relaDyn);
 
   if ((config->emachine == EM_386 || config->emachine == EM_X86_64) &&
       (config->andFeatures & GNU_PROPERTY_X86_FEATURE_1_IBT)) {

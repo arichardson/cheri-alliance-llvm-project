@@ -84,6 +84,7 @@ private:
   std::unique_ptr<FileOutputBuffer> &buffer;
 
   void addRelIpltSymbols();
+  void addCapDynRelocsSymbols();
   void addStartEndSymbols();
   void addStartStopSymbols(OutputSection &osec);
 
@@ -824,6 +825,27 @@ template <class ELFT> void Writer<ELFT>::addRelIpltSymbols() {
   ElfSym::relaIpltEnd = addOptionalRegular(name, Out::elfHeader, 0, STV_HIDDEN);
 }
 
+// TODO - remove this duplicate, see SyntheticSections.cpp
+static bool needsInterpSection() {
+  return !config->relocatable && !config->shared &&
+         !config->dynamicLinker.empty() && script->needsInterpSection();
+}
+
+template <class ELFT> void Writer<ELFT>::addCapDynRelocsSymbols() {
+  if (config->emachine != EM_RISCV || config->relocatable ||
+      needsInterpSection())
+    return;
+
+  ElfSym::relaDynStart = addOptionalRegular(config->isRela ? "__rela_dyn_start"
+                                                           : "__rel_dyn_start",
+                                            Out::elfHeader, 0, STV_HIDDEN,
+                                            /*canBeSectionStart=*/true);
+  ElfSym::relaDynEnd =
+      addOptionalRegular(config->isRela ? "__rela_dyn_end" : "rel_dyn_end",
+                         Out::elfHeader, 0, STV_HIDDEN,
+                         /*canBeSectionStart=*/false);
+}
+
 // This function generates assignments for predefined symbols (e.g. _end or
 // _etext) and inserts them into the commands sequence to be processed at the
 // appropriate time. This ensures that the value is going to be correct by the
@@ -845,6 +867,14 @@ template <class ELFT> void Writer<ELFT>::setReservedSymbolSections() {
     ElfSym::relaIpltStart->section = mainPart->relaDyn.get();
     ElfSym::relaIpltEnd->section = mainPart->relaDyn.get();
     ElfSym::relaIpltEnd->value = mainPart->relaDyn->getSize();
+  }
+
+  // __rela_dyn_{start,end} symbols if needed.
+  if (ElfSym::relaDynStart && in.relaDyn->isNeeded()) {
+    ElfSym::relaDynStart->section = in.relaDyn.get();
+    ElfSym::relaDynEnd->section = in.relaDyn.get();
+    ElfSym::relaDynEnd->value = in.relaDyn->getSize();
+    ElfSym::relaDynEnd->isSectionStartSymbol = false;
   }
 
   PhdrEntry *last = nullptr;
@@ -1759,6 +1789,9 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     // Define __rel[a]_iplt_{start,end} symbols if needed.
     addRelIpltSymbols();
 
+    // Define __rela_dyn_{start,end} symbols if needed.
+    addCapDynRelocsSymbols();
+
     // RISC-V's gp can address +/- 2 KiB, set it to .sdata + 0x800. This symbol
     // should only be defined in an executable. If .sdata does not exist, its
     // value/section does not matter but it has to be relative, so set its
@@ -2046,6 +2079,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
     finalizeSynthetic(in.iplt.get());
     finalizeSynthetic(in.ppc32Got2.get());
     finalizeSynthetic(in.partIndex.get());
+    finalizeSynthetic(in.relaDyn.get());
 
     // Dynamic section must be the last one in this list and dynamic
     // symbol table section (dynSymTab) must be the first one.

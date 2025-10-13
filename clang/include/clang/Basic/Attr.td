@@ -2368,6 +2368,11 @@ def NoReturn : InheritableAttr {
   let Documentation = [Undocumented];
 }
 
+def NoCapRelocs : InheritableAttr {
+  let Spellings = [GCC<"nocaprelocs">, Declspec<"nocaprelocs">];
+  let Documentation = [Undocumented];
+}
+
 def NoInstrumentFunction : InheritableAttr {
   let Spellings = [GCC<"no_instrument_function">];
   let Subjects = SubjectList<[Function, ObjCMethod]>;
@@ -2734,6 +2739,15 @@ def CHERINoProvenance : TypeAttr {
                    CXX11<"cheri","no_provenance">,
                    C23<"cheri", "no_provenance">];
   let Documentation = [Undocumented]; // FIXME
+}
+
+// Attributes for exception handler functions
+def CHERIDontSeal : InheritableAttr {
+  let Spellings = [GNU<"cheri_dont_seal">,
+                  CXX11<"cheri", "dont_seal">,
+                  C23<"cheri", "dont_seal">];
+  let Subjects = SubjectList<[Function]>;
+  let Documentation = [Undocumented];
 }
 
 def IntelOclBicc : DeclOrTypeAttr {

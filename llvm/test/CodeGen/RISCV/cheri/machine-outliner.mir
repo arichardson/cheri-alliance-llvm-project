@@ -142,11 +142,11 @@ body:             |
 # ASM-NEXT:    andi a1, a1, 1
 # ASM-NEXT:    beqz a1, .LBB0_2
 # ASM-NEXT:  .LBB0_1:
-# ASM-NEXT:    ccall ct0, OUTLINED_FUNCTION_0
+# ASM-NEXT:    call ct0, OUTLINED_FUNCTION_0
 # ASM-NEXT:    andi a4, a4, 1
 # ASM-NEXT:    beqz a4, .LBB0_3
 # ASM-NEXT:  .LBB0_2:
-# ASM-NEXT:    ccall ct0, OUTLINED_FUNCTION_0
+# ASM-NEXT:    call ct0, OUTLINED_FUNCTION_0
 # ASM-NEXT:    andi a5, a4, 1
 # ASM-NEXT:    cmove ca4, cnull
 # ASM-NEXT:  .LBB0_3:

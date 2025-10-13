@@ -7889,12 +7889,21 @@ NamedDecl *Sema::ActOnVariableDeclarator(
       case SC_Auto:
         Diag(E->getExprLoc(), diag::warn_asm_label_on_auto_decl) << Label;
         break;
-      case SC_Register:
+      case SC_Register: {
+        const auto &TI = Context.getTargetInfo();
         // Local Named register
-        if (!Context.getTargetInfo().isValidGCCRegisterName(Label) &&
+        if (!TI.isValidGCCRegisterName(Label) &&
             DeclAttrsMatchCUDAMode(getLangOpts(), getCurFunctionDecl()))
           Diag(E->getExprLoc(), diag::err_asm_unknown_register_name) << Label;
+        if ((TI.isValidCHERIRegister(Label) &&
+                    !R->isCHERICapabilityType(Context)) ||
+                   (!TI.isValidCHERIRegister(Label) &&
+                    R->isCHERICapabilityType(Context))) {
+          Diag(D.getBeginLoc(), diag::err_asm_bad_register_type);
+          NewVD->setInvalidDecl(true);
+        }
         break;
+      }
       case SC_Static:
       case SC_Extern:
       case SC_PrivateExtern:
@@ -7902,8 +7911,8 @@ NamedDecl *Sema::ActOnVariableDeclarator(
       }
     } else if (SC == SC_Register) {
       // Global Named register
+      const auto &TI = Context.getTargetInfo();
       if (DeclAttrsMatchCUDAMode(getLangOpts(), NewVD)) {
-        const auto &TI = Context.getTargetInfo();
         bool HasSizeMismatch;
 
         if (!TI.isValidGCCRegisterName(Label))
@@ -7917,6 +7926,12 @@ NamedDecl *Sema::ActOnVariableDeclarator(
       }
 
       if (!R->isIntegralType(Context) && !R->isPointerType()) {
+        Diag(D.getBeginLoc(), diag::err_asm_bad_register_type);
+        NewVD->setInvalidDecl(true);
+      } else if ((TI.isValidCHERIRegister(Label) &&
+                  !R->isCHERICapabilityType(Context)) ||
+                 (!TI.isValidCHERIRegister(Label) &&
+                  R->isCHERICapabilityType(Context))) {
         Diag(D.getBeginLoc(), diag::err_asm_bad_register_type);
         NewVD->setInvalidDecl(true);
       }
@@ -19421,7 +19436,8 @@ void Sema::ActOnFields(Scope *S, SourceLocation RecLoc, Decl *EnclosingDecl,
     }
   }
 
-  if (Record && Record->hasAttr<PackedAttr>() && !Record->isDependentType()) {
+  if (Record && (Record->hasAttr<PackedAttr>() || Record->hasAttr<MaxFieldAlignmentAttr>()) &&
+      !Record->isDependentType()) {
     std::function<bool(const RecordDecl *R)> contains_capabilities =
       [&](const RecordDecl *R) {
         for (const auto *F : R->fields()) {

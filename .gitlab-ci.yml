@@ -1,0 +1,49 @@
+variables:
+  BUILD_DIR: $CI_PROJECT_DIR/build
+  INSTALL_DIR: $CI_PROJECT_DIR/install
+  KUBERNETES_CPU_REQUEST: "16"
+  KUBERNETES_CPU_LIMIT: "16"
+  OMP_NUM_THREADS: "16"
+  KUBERNETES_MEMORY_REQUEST: "256Gi"
+  KUBERNETES_MEMORY_LIMIT: "256Gi"
+  PACKAGE_NAME: "bakewell_compiler.tar.gz"
+
+default:
+  tags:
+    - linux
+    - container
+  image: container-registry.codasip.com/cheri/software/bakewell/cherillvm:0.1.3
+
+stages:
+  - build_and_test
+  - nightly_build
+
+build_and_test_llvm:
+  stage: build_and_test
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - mkdir -p $BUILD_DIR
+    - cmake -B $BUILD_DIR -S $CI_PROJECT_DIR/llvm
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            -DCMAKE_BUILD_TYPE="Debug" -DLLVM_USE_LINKER=lld
+            -DLLVM_PARALLEL_LINK_JOBS=4 -DLLVM_ENABLE_PROJECTS="clang;lld;clang-tools-extra"
+    - cmake --build $BUILD_DIR -j $(nproc) --target check-all
+
+nightly_build:
+  stage:
+    nightly_build
+  rules:
+  - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - mkdir -p $BUILD_DIR && mkdir -p $INSTALL_DIR
+    - cmake -B $BUILD_DIR -S $CI_PROJECT_DIR/llvm
+            -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            -DCMAKE_BUILD_TYPE="Release" -DLLVM_USE_LINKER=lld
+            -DLLVM_TARGETS_TO_BUILD="RISCV" -DLLVM_ENABLE_PROJECTS="clang;lld;clang-tools-extra"
+            -DLLVM_PARALLEL_LINK_JOBS=4
+            -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR
+    - cmake --build $BUILD_DIR -j $(nproc) --target install
+    - BW_CLANG_VERSION=$($BUILD_DIR/bin/clang --version | head -n 1 | awk '{print $3}')
+    - tar -czvf $PACKAGE_NAME $INSTALL_DIR
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file $PACKAGE_NAME "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/bakewell_compiler/$BW_CLANG_VERSION/$PACKAGE_NAME"'

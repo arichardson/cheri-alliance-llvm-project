@@ -422,6 +422,9 @@ Changes to the LLVM tools
   be disabled by ``--no-verify-note-sections``. (`#90458
   <https://github.com/llvm/llvm-project/pull/90458>`).
 
+* llvm-objcopy now supports ``--gap-fill`` and ``--pad-to`` options, for
+  ELF input and binary output files only.
+
 Changes to LLDB
 ---------------------------------
 

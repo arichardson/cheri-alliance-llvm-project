@@ -68,15 +68,16 @@ RISCVRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
     return CSR_NoRegs_SaveList;
   if (MF->getFunction().hasFnAttribute("interrupt")) {
     if (Subtarget.hasStdExtD())
-      return Subtarget.hasCheri() ? CSR_XLEN_CLEN_F64_Interrupt_SaveList
-                                  : CSR_XLEN_F64_Interrupt_SaveList;
+      return Subtarget.hasStdExtZCheriPureCapOrCheri()
+                 ? CSR_XLEN_CLEN_F64_Interrupt_SaveList
+                 : CSR_XLEN_F64_Interrupt_SaveList;
     if (Subtarget.hasStdExtF()) {
-      if (Subtarget.hasCheri())
+      if (Subtarget.hasStdExtZCheriPureCapOrCheri())
         return CSR_XLEN_CLEN_F32_Interrupt_SaveList;
       return Subtarget.hasStdExtE() ? CSR_XLEN_F32_Interrupt_RVE_SaveList
                                : CSR_XLEN_F32_Interrupt_SaveList;
     }
-    if (Subtarget.hasCheri())
+    if (Subtarget.hasStdExtZCheriPureCapOrCheri())
       return CSR_XLEN_CLEN_Interrupt_SaveList;
     return Subtarget.hasStdExtE() ? CSR_Interrupt_RVE_SaveList
                              : CSR_Interrupt_SaveList;
@@ -221,9 +222,11 @@ void RISCVRegisterInfo::adjustReg(MachineBasicBlock &MBB,
   unsigned Opc;
   unsigned OpcImm;
   const bool IsPureCapABI = RISCVABI::isCheriPureCapABI(ST.getTargetABI());
+  const bool HasZCheriPurecap =
+      ST.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
   if (IsPureCapABI) {
-    Opc = RISCV::CIncOffset;
-    OpcImm = RISCV::CIncOffsetImm;
+    Opc = HasZCheriPurecap ? RISCV::CADD : RISCV::CIncOffset;
+    OpcImm = HasZCheriPurecap ? RISCV::CADDI : RISCV::CIncOffsetImm;
   } else {
     Opc = RISCV::ADD;
     OpcImm = RISCV::ADDI;
@@ -538,8 +541,7 @@ bool RISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
       // 32 bit immediate sequence.  We still need to clear the portion of the
       // offset encoded in the immediate.
       MI.getOperand(FIOperandNum + 1).ChangeToImmediate(0);
-    } else if ((Opc == RISCV::PREFETCH_I || Opc == RISCV::PREFETCH_R ||
-                Opc == RISCV::PREFETCH_W) &&
+    } else if (RISCV::isPrefetchInstr(MI) &&
                (Lo12 & 0b11111) != 0) {
       // Prefetch instructions require the offset to be 32 byte aligned.
       MI.getOperand(FIOperandNum + 1).ChangeToImmediate(0);
@@ -562,7 +564,9 @@ bool RISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
 
   if (Offset.getScalable() || Offset.getFixed()) {
     Register DestReg;
-    if (MI.getOpcode() == RISCV::ADDI || MI.getOpcode() == RISCV::CIncOffsetImm)
+    if (MI.getOpcode() == RISCV::ADDI ||
+        MI.getOpcode() == RISCV::CIncOffsetImm ||
+        MI.getOpcode() == RISCV::CADDI)
       DestReg = MI.getOperand(0).getReg();
     else if (RISCVABI::isCheriPureCapABI(ST.getTargetABI()))
       DestReg = MRI.createVirtualRegister(&RISCV::GPCRRegClass);
@@ -720,8 +724,10 @@ Register RISCVRegisterInfo::materializeFrameBaseRegister(MachineBasicBlock *MBB,
 
   unsigned Opc;
   Register BaseReg;
+  const bool HasZCheriPurecap =
+      ST.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
   if (RISCVABI::isCheriPureCapABI(ST.getTargetABI())) {
-    Opc = RISCV::CIncOffsetImm;
+    Opc = HasZCheriPurecap ? RISCV::CADDI : RISCV::CIncOffsetImm;
     BaseReg = MFI.createVirtualRegister(&RISCV::GPCRRegClass);
   } else {
     Opc = RISCV::ADDI;
