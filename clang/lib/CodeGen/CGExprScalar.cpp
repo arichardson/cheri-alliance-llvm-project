@@ -2672,7 +2672,8 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
     }
 
     // Handle CHERI pointers casts (e.g. __cheri_{input,output} qualifiers, etc)
-    if (E->getType()->isPointerType() && DestTy->isPointerType())
+    if (E->getType()->isCHERICapabilityType(CGF.getContext()) &&
+        DestTy->isCHERICapabilityType(CGF.getContext()))
       return CGF.EmitPointerCast(Src, E->getType(), DestTy);
 
     llvm::Value *Result = Builder.CreateBitCast(Src, DstTy);
