@@ -122,7 +122,7 @@ _LIBCPP_HIDE_FROM_ABI decltype(auto) __visit_format_arg(_Visitor&& __vis, basic_
 #  endif
   case __format::__arg_t::__signed_intcap:
 #  if __has_feature(capabilities)
-    return _VSTD::invoke(_VSTD::forward<_Visitor>(__vis), __arg.__value_.__intcap_);
+    return std::invoke(std::forward<_Visitor>(__vis), __arg.__value_.__intcap_);
 #  else
     __libcpp_unreachable();
 #  endif
@@ -138,7 +138,7 @@ _LIBCPP_HIDE_FROM_ABI decltype(auto) __visit_format_arg(_Visitor&& __vis, basic_
 #  endif
   case __format::__arg_t::__unsigned_intcap:
 #  if __has_feature(capabilities)
-    return _VSTD::invoke(_VSTD::forward<_Visitor>(__vis), __arg.__value_.__uintcap_);
+    return std::invoke(std::forward<_Visitor>(__vis), __arg.__value_.__uintcap_);
 #  else
     __libcpp_unreachable();
 #  endif

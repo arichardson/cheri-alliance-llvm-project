@@ -282,6 +282,17 @@ public:
 #endif
       return *this;
     }
+    LocalProgramCounter &operator++() {
+#ifdef __CHERI_PURE_CAPABILITY__
+      if (isImmutable()) {
+        addend++;
+        return *this;
+      }
+#else
+      value = (void *)((uintptr_t)value + 1);
+#endif
+      return *this;
+    }
     LocalProgramCounter &operator&=(addr_t a) {
 #ifdef __CHERI_PURE_CAPABILITY__
       if (isImmutable()) {
