@@ -492,7 +492,7 @@ TEST(FunctionTest, BasicBlockNumbers) {
   Type *VoidType = Type::getVoidTy(Context);
   FunctionType *FuncType = FunctionType::get(VoidType, false);
   std::unique_ptr<Function> Func(
-      Function::Create(FuncType, GlobalValue::ExternalLinkage));
+      Function::Create(FuncType, GlobalValue::ExternalLinkage, 0));
 
   EXPECT_EQ(Func->getBlockNumberEpoch(), 0u);
   EXPECT_EQ(Func->getMaxBlockNumber(), 0u);
@@ -551,7 +551,7 @@ TEST(FunctionTest, BasicBlockNumbers) {
   EXPECT_EQ(Func->getMaxBlockNumber(), 5u);
 
   std::unique_ptr<Function> Func2(
-      Function::Create(FuncType, GlobalValue::ExternalLinkage));
+      Function::Create(FuncType, GlobalValue::ExternalLinkage, 0));
   BasicBlock *BB6 = BasicBlock::Create(Context, "bb6", Func2.get());
   EXPECT_EQ(BB6->getNumber(), 0u);
   EXPECT_EQ(Func2->getMaxBlockNumber(), 1u);
