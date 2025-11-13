@@ -690,7 +690,7 @@ kernel void test_target_features_kernel(global int *i) {
 // NOCPU: attributes #[[ATTR4]] = { convergent noinline nounwind optnone "denormal-fp-math-f32"="preserve-sign,preserve-sign" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 // NOCPU: attributes #[[ATTR5]] = { convergent nounwind "denormal-fp-math-f32"="preserve-sign,preserve-sign" "enqueued-block" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
 // NOCPU: attributes #[[ATTR6]] = { convergent noinline norecurse nounwind optnone "amdgpu-flat-work-group-size"="1,256" "denormal-fp-math-f32"="preserve-sign,preserve-sign" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-features"="+s-memtime-inst" "uniform-work-group-size"="false" }
-// NOCPU: attributes #[[ATTR7:[0-9]+]] = { nocallback nofree nosync nounwind willreturn }
+// NOCPU: attributes #[[ATTR7:[0-9]+]] = { hassideeffects nocallback nofree nosync nounwind willreturn }
 // NOCPU: attributes #[[ATTR8]] = { convergent nounwind }
 //.
 // GFX900: attributes #[[ATTR0:[0-9]+]] = { "objc_arc_inert" }
@@ -700,7 +700,7 @@ kernel void test_target_features_kernel(global int *i) {
 // GFX900: attributes #[[ATTR4:[0-9]+]] = { nocallback nofree nounwind willreturn memory(argmem: readwrite) }
 // GFX900: attributes #[[ATTR5]] = { convergent nounwind "denormal-fp-math-f32"="preserve-sign,preserve-sign" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="gfx900" "target-features"="+16-bit-insts,+ci-insts,+dpp,+gfx8-insts,+gfx9-insts,+s-memrealtime,+s-memtime-inst,+wavefrontsize64,-sram-ecc" }
 // GFX900: attributes #[[ATTR6]] = { convergent nounwind "denormal-fp-math-f32"="preserve-sign,preserve-sign" "enqueued-block" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="gfx900" "target-features"="+16-bit-insts,+ci-insts,+dpp,+gfx8-insts,+gfx9-insts,+s-memrealtime,+s-memtime-inst,+wavefrontsize64,-sram-ecc" }
-// GFX900: attributes #[[ATTR7:[0-9]+]] = { nocallback nofree nosync nounwind willreturn }
+// GFX900: attributes #[[ATTR7:[0-9]+]] = { hassideeffects nocallback nofree nosync nounwind willreturn }
 // GFX900: attributes #[[ATTR8]] = { nounwind }
 // GFX900: attributes #[[ATTR9]] = { convergent nounwind }
 //.
