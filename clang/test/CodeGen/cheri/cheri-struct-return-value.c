@@ -545,7 +545,7 @@ typedef struct {
 // CHECK-NEXT:    [[IN_SROA_0_0_INSERT_INSERT:%.*]] = add nuw nsw i128 [[IN_SROA_2_0_INSERT_EXT]], 1
 // CHECK-NEXT:    [[TMP0:%.*]] = lshr i128 [[IN_SROA_0_0_INSERT_INSERT]], 64
 // CHECK-NEXT:    [[DOTTR:%.*]] = trunc nuw nsw i128 [[TMP0]] to i64
-// CHECK-NEXT:    [[DOTNARROW:%.*]] = add i64 [[DOTTR]], [[IN_COERCE0]]
+// CHECK-NEXT:    [[DOTNARROW:%.*]] = add i64 [[IN_COERCE0]], [[DOTTR]]
 // CHECK-NEXT:    [[RETVAL_SROA_2_0_EXTRACT_TRUNC:%.*]] = trunc i128 [[IN_SROA_0_0_INSERT_INSERT]] to i64
 // CHECK-NEXT:    [[DOTFCA_0_INSERT:%.*]] = insertvalue { i64, i64 } poison, i64 [[DOTNARROW]], 0
 // CHECK-NEXT:    [[DOTFCA_1_INSERT:%.*]] = insertvalue { i64, i64 } [[DOTFCA_0_INSERT]], i64 [[RETVAL_SROA_2_0_EXTRACT_TRUNC]], 1
@@ -561,7 +561,7 @@ Int128 int128(Int128 in) {
   // ASM-NEXT:  dsll $1, $1, 32
   // ASM-NEXT:  dsrl $1, $1, 32
   // ASM-NEXT:  cjr     $c17
-  // ASM-NEXT:  daddu $2, $1, $4
+  // ASM-NEXT:  daddu $2, $4, $1
 }
 
 typedef struct {

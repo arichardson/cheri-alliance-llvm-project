@@ -20,7 +20,7 @@ int *y;
 // CHECK-SAME: (ptr addrspace(200) readnone [[M_COERCE:%.*]]) local_unnamed_addr addrspace(200) #[[ATTR0:[0-9]+]] {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) @x, align 16, !tbaa [[TBAA4:![0-9]+]]
-// CHECK-NEXT:    [[CMP:%.*]] = icmp eq ptr addrspace(200) [[TMP0]], [[M_COERCE]]
+// CHECK-NEXT:    [[CMP:%.*]] = icmp eq ptr addrspace(200) [[M_COERCE]], [[TMP0]]
 // CHECK-NEXT:    [[TMP1:%.*]] = load ptr addrspace(200), ptr addrspace(200) @y, align 16
 // CHECK-NEXT:    [[RETVAL_0:%.*]] = select i1 [[CMP]], ptr addrspace(200) [[TMP1]], ptr addrspace(200) [[M_COERCE]]
 // CHECK-NEXT:    ret ptr addrspace(200) [[RETVAL_0]]
