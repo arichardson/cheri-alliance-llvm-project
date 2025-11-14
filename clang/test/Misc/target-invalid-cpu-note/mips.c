@@ -5,7 +5,11 @@
 // RUN: not %clang_cc1 -triple mips--- -target-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s
 // CHECK: error: unknown target CPU 'not-a-cpu'
 // CHECK-NEXT: note: valid target CPU values are:
-// CHECK-SAME: {{^}} mips1
+// CHECK-SAME: {{^}} cheri128
+// CHECK-SAME: {{^}}, cheri256
+// CHECK-SAME: {{^}}, cheri64
+// CHECK-SAME: {{^}}, beri
+// CHECK-SAME: {{^}}, mips1
 // CHECK-SAME: {{^}}, mips2
 // CHECK-SAME: {{^}}, mips3
 // CHECK-SAME: {{^}}, mips4
