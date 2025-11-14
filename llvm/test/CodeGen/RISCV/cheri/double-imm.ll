@@ -8,7 +8,7 @@
 ;; they are in a read-only data section, so they will be in the code segment
 ;; and thus within PCC bounds.
 
-; CHECK-LABEL: .section .srodata.cst8,"aM",@progbits,8
+; CHECK-LABEL: .section .rodata.cst8,"aM",@progbits,8
 ; CHECK-NEXT:  .p2align 3
 ; CHECK-NEXT: .LCPI0_0:
 ; CHECK-NEXT:  .quad 0x3ff0000000000000 # double 1
