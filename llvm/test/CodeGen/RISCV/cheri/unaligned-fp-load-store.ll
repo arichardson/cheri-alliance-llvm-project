@@ -29,8 +29,7 @@ define i32 @unaligned_float(float addrspace(200)* nocapture readonly %arg, float
 ; RV32IFXCHERI-NEXT:    or a0, a2, a0
 ; RV32IFXCHERI-NEXT:    fmv.w.x fa0, a0
 ; RV32IFXCHERI-NEXT:    call __extendsfdf2
-; RV32IFXCHERI-NEXT:    sw a1, 4(csp)
-; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
+; RV32IFXCHERI-NEXT:    mv zero, a0
 ; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    fmv.x.w a1, fs0
 ; RV32IFXCHERI-NEXT:    srli a2, a1, 24
@@ -94,11 +93,11 @@ bb:
 define i32 @unaligned_double(double addrspace(200)* nocapture readonly %arg, double %newval) unnamed_addr addrspace(200) nounwind {
 ; RV32IFXCHERI-LABEL: unaligned_double:
 ; RV32IFXCHERI:       # %bb.0: # %bb
-; RV32IFXCHERI-NEXT:    cincoffset csp, csp, -48
-; RV32IFXCHERI-NEXT:    sc cra, 40(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs0, 32(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs1, 24(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs2, 16(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    cincoffset csp, csp, -32
+; RV32IFXCHERI-NEXT:    sc cra, 24(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs0, 16(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs1, 8(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs2, 0(csp) # 8-byte Folded Spill
 ; RV32IFXCHERI-NEXT:    mv s0, a2
 ; RV32IFXCHERI-NEXT:    mv s1, a1
 ; RV32IFXCHERI-NEXT:    cmove cs2, ca0
@@ -107,11 +106,9 @@ define i32 @unaligned_double(double addrspace(200)* nocapture readonly %arg, dou
 ; RV32IFXCHERI-NEXT:    lhu a2, 6(cs2)
 ; RV32IFXCHERI-NEXT:    lhu a3, 4(cs2)
 ; RV32IFXCHERI-NEXT:    slli a0, a0, 16
-; RV32IFXCHERI-NEXT:    or a0, a0, a1
-; RV32IFXCHERI-NEXT:    slli a2, a2, 16
-; RV32IFXCHERI-NEXT:    or a2, a2, a3
-; RV32IFXCHERI-NEXT:    sw a2, 4(csp)
-; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
+; RV32IFXCHERI-NEXT:    or zero, a0, a1
+; RV32IFXCHERI-NEXT:    slli a1, a2, 16
+; RV32IFXCHERI-NEXT:    or a1, a1, a3
 ; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    srli a1, s0, 16
 ; RV32IFXCHERI-NEXT:    sh a1, 6(cs2)
@@ -119,11 +116,11 @@ define i32 @unaligned_double(double addrspace(200)* nocapture readonly %arg, dou
 ; RV32IFXCHERI-NEXT:    srli a1, s1, 16
 ; RV32IFXCHERI-NEXT:    sh a1, 2(cs2)
 ; RV32IFXCHERI-NEXT:    sh s1, 0(cs2)
-; RV32IFXCHERI-NEXT:    lc cra, 40(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs0, 32(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs1, 24(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs2, 16(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    cincoffset csp, csp, 48
+; RV32IFXCHERI-NEXT:    lc cra, 24(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs0, 16(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs1, 8(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs2, 0(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    cincoffset csp, csp, 32
 ; RV32IFXCHERI-NEXT:    ret
 ;
 ; RV64IFXCHERI-LABEL: unaligned_double:
@@ -168,13 +165,13 @@ bb:
 define i32 @unaligned_fp128(fp128 addrspace(200)* nocapture readonly %arg, fp128 %newval) unnamed_addr addrspace(200) nounwind {
 ; RV32IFXCHERI-LABEL: unaligned_fp128:
 ; RV32IFXCHERI:       # %bb.0: # %bb
-; RV32IFXCHERI-NEXT:    cincoffset csp, csp, -80
-; RV32IFXCHERI-NEXT:    sc cra, 72(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs0, 64(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs1, 56(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs2, 48(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs3, 40(csp) # 8-byte Folded Spill
-; RV32IFXCHERI-NEXT:    sc cs4, 32(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    cincoffset csp, csp, -64
+; RV32IFXCHERI-NEXT:    sc cra, 56(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs0, 48(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs1, 40(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs2, 32(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs3, 24(csp) # 8-byte Folded Spill
+; RV32IFXCHERI-NEXT:    sc cs4, 16(csp) # 8-byte Folded Spill
 ; RV32IFXCHERI-NEXT:    cmove cs0, ca0
 ; RV32IFXCHERI-NEXT:    lw s1, 0(ca1)
 ; RV32IFXCHERI-NEXT:    lw s2, 4(ca1)
@@ -184,26 +181,25 @@ define i32 @unaligned_fp128(fp128 addrspace(200)* nocapture readonly %arg, fp128
 ; RV32IFXCHERI-NEXT:    lw a0, 4(ca0)
 ; RV32IFXCHERI-NEXT:    lw a2, 8(cs0)
 ; RV32IFXCHERI-NEXT:    lw a3, 12(cs0)
-; RV32IFXCHERI-NEXT:    sw a3, 28(csp)
-; RV32IFXCHERI-NEXT:    sw a2, 24(csp)
-; RV32IFXCHERI-NEXT:    sw a0, 20(csp)
-; RV32IFXCHERI-NEXT:    cincoffset ca0, csp, 16
-; RV32IFXCHERI-NEXT:    sw a1, 16(csp)
+; RV32IFXCHERI-NEXT:    sw a3, 12(csp)
+; RV32IFXCHERI-NEXT:    sw a2, 8(csp)
+; RV32IFXCHERI-NEXT:    sw a0, 4(csp)
+; RV32IFXCHERI-NEXT:    cincoffset ca0, csp, 0
+; RV32IFXCHERI-NEXT:    sw a1, 0(csp)
 ; RV32IFXCHERI-NEXT:    call __trunctfdf2
-; RV32IFXCHERI-NEXT:    sw a1, 4(csp)
-; RV32IFXCHERI-NEXT:    sw a0, 0(csp)
+; RV32IFXCHERI-NEXT:    mv zero, a0
 ; RV32IFXCHERI-NEXT:    call printf
 ; RV32IFXCHERI-NEXT:    sw s4, 12(cs0)
 ; RV32IFXCHERI-NEXT:    sw s3, 8(cs0)
 ; RV32IFXCHERI-NEXT:    sw s2, 4(cs0)
 ; RV32IFXCHERI-NEXT:    sw s1, 0(cs0)
-; RV32IFXCHERI-NEXT:    lc cra, 72(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs0, 64(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs1, 56(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs2, 48(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs3, 40(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    lc cs4, 32(csp) # 8-byte Folded Reload
-; RV32IFXCHERI-NEXT:    cincoffset csp, csp, 80
+; RV32IFXCHERI-NEXT:    lc cra, 56(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs0, 48(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs1, 40(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs2, 32(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs3, 24(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    lc cs4, 16(csp) # 8-byte Folded Reload
+; RV32IFXCHERI-NEXT:    cincoffset csp, csp, 64
 ; RV32IFXCHERI-NEXT:    ret
 ;
 ; RV64IFXCHERI-LABEL: unaligned_fp128:

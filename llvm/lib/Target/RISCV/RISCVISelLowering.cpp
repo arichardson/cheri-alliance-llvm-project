@@ -19100,7 +19100,7 @@ static bool CC_RISCVAssign2XLen(unsigned XLen, CCState &State,
       State.getMachineFunction().getSubtarget<RISCVSubtarget>();
   ArrayRef<MCPhysReg> ArgGPRs = RISCV::getArgGPRs(STI.getTargetABI());
 
-  if (Register Reg = IsPureCapVarArgs ? 0 :State.AllocateReg(ArgGPRs)) {
+  if (Register Reg = IsPureCapVarArgs ? RISCV::X0 :State.AllocateReg(ArgGPRs)) {
     // At least one half can be passed via register.
     State.addLoc(CCValAssign::getReg(VA1.getValNo(), VA1.getValVT(), Reg,
                                      VA1.getLocVT(), CCValAssign::Full));
@@ -19287,7 +19287,7 @@ bool RISCV::CC_RISCV(const DataLayout &DL, RISCVABI::ABI ABI, unsigned ValNo,
     // GPRs, split between a GPR and the stack, or passed completely on the
     // stack. LowerCall/LowerFormalArguments/LowerReturn must recognise these
     // cases. Pure capability varargs are always passed on the stack.
-    Register Reg = IsPureCapVarArgs ? 0 : State.AllocateReg(ArgGPRs);
+    Register Reg = IsPureCapVarArgs ? X0 : State.AllocateReg(ArgGPRs);
     if (!Reg) {
       unsigned StackOffset = State.AllocateStack(8, Align(8));
       State.addLoc(

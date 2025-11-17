@@ -75,21 +75,21 @@ entry:
 define i32 @caller_test_struct(i32 %x, [2 x float] %y.coerce, i32 %z, { i8 addrspace(200)*, i64} %u.coerce) local_unnamed_addr addrspace(200) nounwind {
 ; CHECK-LABEL: caller_test_struct:
 ; CHECK:       # %bb.0: # %entry
-; CHECK-NEXT:    cincoffset csp, csp, -80
-; CHECK-NEXT:    sc cra, 64(csp) # 16-byte Folded Spill
+; CHECK-NEXT:    cincoffset csp, csp, -64
+; CHECK-NEXT:    sc cra, 48(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    mv a5, a0
-; CHECK-NEXT:    sc ca4, 48(csp)
-; CHECK-NEXT:    sd a3, 32(csp)
-; CHECK-NEXT:    sd a2, 24(csp)
-; CHECK-NEXT:    sd a1, 16(csp)
-; CHECK-NEXT:    csetbounds ca0, csp, 64
+; CHECK-NEXT:    mv zero, a1
+; CHECK-NEXT:    sc ca4, 32(csp)
+; CHECK-NEXT:    sd a3, 16(csp)
+; CHECK-NEXT:    csetbounds ca0, csp, 48
 ; CHECK-NEXT:    li a1, -11
 ; CHECK-NEXT:    candperm ct1, ca0, a1
 ; CHECK-NEXT:    li a0, 3
 ; CHECK-NEXT:    sd a5, 0(csp)
+; CHECK-NEXT:    mv a1, a2
 ; CHECK-NEXT:    call callee
-; CHECK-NEXT:    lc cra, 64(csp) # 16-byte Folded Reload
-; CHECK-NEXT:    cincoffset csp, csp, 80
+; CHECK-NEXT:    lc cra, 48(csp) # 16-byte Folded Reload
+; CHECK-NEXT:    cincoffset csp, csp, 64
 ; CHECK-NEXT:    ret
 entry:
   %call = tail call i32 (i32, ...) @callee(i32 3, i32 %x, [2 x float] %y.coerce, i32 %z, { i8 addrspace(200)*, i64} %u.coerce) nounwind
