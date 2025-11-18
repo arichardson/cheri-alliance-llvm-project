@@ -2465,7 +2465,8 @@ static TemplateDeductionResult DeduceTemplateArgumentsByTypeMatch(
         // Perform deduction on the pointer type.
         if (TemplateDeductionResult Result = DeduceTemplateArgumentsByTypeMatch(
                 S, TemplateParams, PointerParam->getPointerType(),
-                PointerArg->getPointerType(), Info, Deduced, TDF);
+                PointerArg->getPointerType(), Info, Deduced, TDF,
+                false, /*DeducedFromArrayBound=*/false, HasDeducedAnyParam);
             Result != TemplateDeductionResult::Success)
           return Result;
 
@@ -2484,7 +2485,7 @@ static TemplateDeductionResult DeduceTemplateArgumentsByTypeMatch(
         // Perform deduction on the pointer type.
         if (TemplateDeductionResult Result = DeduceTemplateArgumentsByTypeMatch(
                 S, TemplateParams, PointerParam->getPointerType(),
-                DefaultPointerArg, Info, Deduced, TDF);
+                DefaultPointerArg, Info, Deduced, TDF, false, false, HasDeducedAnyParam);
             Result != TemplateDeductionResult::Success)
           return Result;
 
@@ -2509,7 +2510,7 @@ static TemplateDeductionResult DeduceTemplateArgumentsByTypeMatch(
         // Perform deduction on the pointer (reference) type.
         if (TemplateDeductionResult Result = DeduceTemplateArgumentsByTypeMatch(
                 S, TemplateParams, PointerParam->getPointerType(),
-                DefaultReferenceArg, Info, Deduced, TDF);
+                DefaultReferenceArg, Info, Deduced, TDF, false, false, HasDeducedAnyParam);
             Result != TemplateDeductionResult::Success)
           return Result;
 
