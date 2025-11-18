@@ -8017,12 +8017,9 @@ static SDValue getMemcpyLoadsAndStores(
 
   if (DstAlignCanChange) {
     Type *Ty = MemOps[0].getTypeForEVT(C);
-    LLVM_DEBUG(dbgs() << " DstAlignCanChange -> using type "; Ty->dump());
     Align NewAlign = DL.getABITypeAlign(Ty);
-    LLVM_DEBUG(dbgs() << "\t->NewAlign = " << NewAlign.value() << ", stack alignment="
-                      << DL.getStackAlignment().value() << "\n");
     if (MemOps[0].isFatPointer()) {
-      assert(!DL.exceedsNaturalStackAlignment(NewAlign) &&
+      assert(NewAlign <= *DL.getStackAlignment() &&
              "Stack not capability-aligned?");
     }
 
@@ -8251,7 +8248,7 @@ static SDValue getMemmoveLoadsAndStores(
     Type *Ty = MemOps[0].getTypeForEVT(C);
     Align NewAlign = DL.getABITypeAlign(Ty);
     if (MemOps[0].isFatPointer()) {
-      assert(!DL.exceedsNaturalStackAlignment(NewAlign) &&
+      assert(NewAlign <= *DL.getStackAlignment() &&
              "Stack not capability-aligned?");
     }
 
@@ -8373,7 +8370,7 @@ static SDValue getMemsetStores(SelectionDAG &DAG, const SDLoc &dl,
     const DataLayout &DL = DAG.getDataLayout();
     Align NewAlign = DL.getABITypeAlign(Ty);
     if (MemOps[0].isFatPointer()) {
-      assert(!DL.exceedsNaturalStackAlignment(NewAlign) &&
+      assert(NewAlign <= *DL.getStackAlignment() &&
              "Stack not capability-aligned?");
     }
 
