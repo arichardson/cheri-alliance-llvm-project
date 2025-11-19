@@ -253,7 +253,7 @@ public:
       return false;
 
     // We also need to check if the vector of address is valid.
-    EVT PointerTypeVT = EVT(TLI->getPointerTy(DL));
+    EVT PointerTypeVT = EVT(TLI->getPointerRangeTy(DL));
     if (DataTypeVT.isScalableVector() &&
         !TLI->isLegalElementTypeForRVV(PointerTypeVT))
       return false;
