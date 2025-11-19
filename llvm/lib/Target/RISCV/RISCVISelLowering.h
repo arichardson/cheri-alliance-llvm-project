@@ -1119,6 +1119,10 @@ private:
   SDValue emitFlushICache(SelectionDAG &DAG, SDValue InChain, SDValue Start,
                           SDValue End, SDValue Flags, SDLoc DL) const;
 
+  bool functionArgumentNeedsConsecutiveRegisters(
+      Type *Ty, CallingConv::ID CallConv, bool isVarArg,
+      const DataLayout &DL) const override;
+
   std::pair<const TargetRegisterClass *, uint8_t>
   findRepresentativeClass(const TargetRegisterInfo *TRI, MVT VT) const override;
 };

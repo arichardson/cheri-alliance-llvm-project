@@ -11,13 +11,11 @@ define dso_local signext i32 @foo(i32 noundef signext %a, i32 noundef signext %b
 ; CHECK-NEXT:    sc cra, 32(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    sc cs0, 16(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    sc cs1, 0(csp) # 16-byte Folded Spill
-; CHECK-NEXT:    lc cs0, 16(ct1)
+; CHECK-NEXT:    lc cs0, 16(ct6)
 ; CHECK-NEXT:    mv a0, a1
-; CHECK-NEXT:    cmv ct1, cnull
 ; CHECK-NEXT:    call bar
 ; CHECK-NEXT:    mv s1, a0
 ; CHECK-NEXT:    cmv ca0, cs0
-; CHECK-NEXT:    cmv ct1, cnull
 ; CHECK-NEXT:    call baz
 ; CHECK-NEXT:    addw a0, a0, s1
 ; CHECK-NEXT:    lc cra, 32(csp) # 16-byte Folded Reload
@@ -50,27 +48,25 @@ define dso_local signext i32 @baf(i32 noundef signext %a, i32 noundef signext %b
 ; CHECK-NEXT:    sc cra, 64(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    sc cs0, 48(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    sc cs1, 32(csp) # 16-byte Folded Spill
-; CHECK-NEXT:    caddi ca0, ct1, 32
+; CHECK-NEXT:    caddi ca0, ct6, 32
 ; CHECK-NEXT:    caddi ca1, csp, 16
-; CHECK-NEXT:    li a2, -11
+; CHECK-NEXT:    lui a2, 1048544
 ; CHECK-NEXT:    sc ca0, 0(csp)
 ; CHECK-NEXT:    scbndsi ca1, ca1, 16
+; CHECK-NEXT:    addiw a2, a2, -2
+; CHECK-NEXT:    lc cs0, 16(ct6)
+; CHECK-NEXT:    ld s1, 0(ct6)
 ; CHECK-NEXT:    acperm ca0, ca0, a2
-; CHECK-NEXT:    lc cs0, 16(ct1)
-; CHECK-NEXT:    ld s1, 0(ct1)
 ; CHECK-NEXT:    sc ca0, 0(ca1)
 ; CHECK-NEXT:    lc ca0, 16(csp)
 ; CHECK-NEXT:    caddi ca1, ca0, 16
 ; CHECK-NEXT:    sc ca1, 16(csp)
 ; CHECK-NEXT:    lc ca0, 0(ca0)
-; CHECK-NEXT:    cmv ct1, cnull
 ; CHECK-NEXT:    call try
 ; CHECK-NEXT:    mv a0, s1
-; CHECK-NEXT:    cmv ct1, cnull
 ; CHECK-NEXT:    call bar
 ; CHECK-NEXT:    mv s1, a0
 ; CHECK-NEXT:    cmv ca0, cs0
-; CHECK-NEXT:    cmv ct1, cnull
 ; CHECK-NEXT:    call baz
 ; CHECK-NEXT:    addw a0, a0, s1
 ; CHECK-NEXT:    lc cra, 64(csp) # 16-byte Folded Reload
@@ -101,11 +97,12 @@ define i32 @bb([4 x float] %f1.coerce, [4 x float] %f2.coerce, [4 x float] %f3.c
 ; CHECK-NEXT:    caddi csp, csp, -32
 ; CHECK-NEXT:    .cfi_def_cfa_offset 32
 ; CHECK-NEXT:    caddi ca2, csp, 16
-; CHECK-NEXT:    li a4, -11
+; CHECK-NEXT:    lui a4, 1048544
 ; CHECK-NEXT:    scbndsi ca2, ca2, 16
-; CHECK-NEXT:    acperm ca4, ct1, a4
+; CHECK-NEXT:    addiw a4, a4, -2
+; CHECK-NEXT:    acperm ca4, ct6, a4
 ; CHECK-NEXT:    sc ca4, 0(ca2)
-; CHECK-NEXT:    sc ct1, 0(csp)
+; CHECK-NEXT:    sc ct6, 0(csp)
 ; CHECK-NEXT:    lc ca2, 16(csp)
 ; CHECK-NEXT:    fmv.w.x fa5, a1
 ; CHECK-NEXT:    fmv.w.x fa4, a0
@@ -167,7 +164,7 @@ define i32 @biz() local_unnamed_addr addrspace(200) {
 ; CHECK-NEXT:    li a6, 6
 ; CHECK-NEXT:    sd a0, 48(csp)
 ; CHECK-NEXT:    sd a0, 32(csp)
-; CHECK-NEXT:    scbndsr ct1, csp, a7
+; CHECK-NEXT:    scbndsr ct6, csp, a7
 ; CHECK-NEXT:    li a7, 7
 ; CHECK-NEXT:    sd s1, 0(csp)
 ; CHECK-NEXT:    li a0, 0
@@ -181,7 +178,7 @@ define i32 @biz() local_unnamed_addr addrspace(200) {
 ; CHECK-NEXT:    li a4, 4
 ; CHECK-NEXT:    li a5, 5
 ; CHECK-NEXT:    li a6, 6
-; CHECK-NEXT:    scbndsr ct1, csp, a0
+; CHECK-NEXT:    scbndsr ct6, csp, a0
 ; CHECK-NEXT:    li a7, 7
 ; CHECK-NEXT:    sd s1, 0(csp)
 ; CHECK-NEXT:    li a0, 0
@@ -210,19 +207,20 @@ define i32 @f(i32 %0, i32 %1, i32 %2, i32 %3, i32 %4, i32 %5, i32 %6, i32 %7, i3
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    caddi csp, csp, -32
 ; CHECK-NEXT:    .cfi_def_cfa_offset 32
-; CHECK-NEXT:    caddi ca0, ct1, 16
+; CHECK-NEXT:    caddi ca0, ct6, 16
 ; CHECK-NEXT:    caddi ca1, csp, 16
-; CHECK-NEXT:    li a2, -11
+; CHECK-NEXT:    lui a2, 1048544
 ; CHECK-NEXT:    sc ca0, 0(csp)
 ; CHECK-NEXT:    scbndsi ca1, ca1, 16
+; CHECK-NEXT:    addiw a2, a2, -2
+; CHECK-NEXT:    lw a3, 0(ct6)
 ; CHECK-NEXT:    acperm ca0, ca0, a2
-; CHECK-NEXT:    lw a2, 0(ct1)
 ; CHECK-NEXT:    sc ca0, 0(ca1)
 ; CHECK-NEXT:    lc ca0, 16(csp)
 ; CHECK-NEXT:    caddi ca1, ca0, 16
 ; CHECK-NEXT:    sc ca1, 16(csp)
 ; CHECK-NEXT:    lw a0, 0(ca0)
-; CHECK-NEXT:    addw a0, a0, a2
+; CHECK-NEXT:    addw a0, a0, a3
 ; CHECK-NEXT:    caddi csp, csp, 32
 ; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
@@ -265,7 +263,7 @@ define i32 @callargs() {
 ; CHECK-NEXT:    sd a6, 32(csp)
 ; CHECK-NEXT:    li a6, 7
 ; CHECK-NEXT:    sd a7, 0(csp)
-; CHECK-NEXT:    scbndsr ct1, csp, t0
+; CHECK-NEXT:    scbndsr ct6, csp, t0
 ; CHECK-NEXT:    li a7, 8
 ; CHECK-NEXT:    sc cnull, 16(csp)
 ; CHECK-NEXT:    call readmemargs
@@ -283,13 +281,13 @@ define i32 @readmemargs(i32, i32, i32, i32, i32, i32, i32, i32, i32 %memarg1, pt
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    caddi csp, csp, -16
 ; CHECK-NEXT:    .cfi_def_cfa_offset 16
-; CHECK-NEXT:    caddi ca0, ct1, 48
+; CHECK-NEXT:    caddi ca0, ct6, 48
 ; CHECK-NEXT:    sc ca0, 0(csp)
-; CHECK-NEXT:    lc ca0, 16(ct1)
-; CHECK-NEXT:    lw a1, 32(ct1)
-; CHECK-NEXT:    lw a2, 0(ct1)
+; CHECK-NEXT:    lc ca0, 16(ct6)
+; CHECK-NEXT:    lw a1, 32(ct6)
+; CHECK-NEXT:    lw a2, 0(ct6)
 ; CHECK-NEXT:    lw a0, 0(ca0)
-; CHECK-NEXT:    lw a3, 40(ct1)
+; CHECK-NEXT:    lw a3, 40(ct6)
 ; CHECK-NEXT:    add a1, a2, a1
 ; CHECK-NEXT:    add a0, a0, a1
 ; CHECK-NEXT:    addw a0, a0, a3
@@ -322,7 +320,7 @@ define i32 @calltyhitassert() {
 ; CHECK-NEXT:    li a5, 6
 ; CHECK-NEXT:    li a6, 7
 ; CHECK-NEXT:    sd a7, 16(csp)
-; CHECK-NEXT:    scbndsr ct1, csp, t1
+; CHECK-NEXT:    scbndsr ct6, csp, t1
 ; CHECK-NEXT:    li a7, 8
 ; CHECK-NEXT:    sd t0, 0(csp)
 ; CHECK-NEXT:    call tryhitassert
@@ -341,19 +339,20 @@ define i32 @tryhitassert(i32, i32, i32, i32, i32, i32, i32, i32, i32 %memarg, ..
 ; CHECK:       # %bb.0: # %entry
 ; CHECK-NEXT:    caddi csp, csp, -32
 ; CHECK-NEXT:    .cfi_def_cfa_offset 32
-; CHECK-NEXT:    caddi ca0, ct1, 16
+; CHECK-NEXT:    caddi ca0, ct6, 16
 ; CHECK-NEXT:    caddi ca1, csp, 16
-; CHECK-NEXT:    li a2, -11
+; CHECK-NEXT:    lui a2, 1048544
 ; CHECK-NEXT:    sc ca0, 0(csp)
 ; CHECK-NEXT:    scbndsi ca1, ca1, 16
+; CHECK-NEXT:    addiw a2, a2, -2
+; CHECK-NEXT:    lw a3, 0(ct6)
 ; CHECK-NEXT:    acperm ca0, ca0, a2
-; CHECK-NEXT:    lw a2, 0(ct1)
 ; CHECK-NEXT:    sc ca0, 0(ca1)
 ; CHECK-NEXT:    lc ca0, 16(csp)
 ; CHECK-NEXT:    caddi ca1, ca0, 16
 ; CHECK-NEXT:    sc ca1, 16(csp)
 ; CHECK-NEXT:    lw a0, 0(ca0)
-; CHECK-NEXT:    addw a0, a2, a0
+; CHECK-NEXT:    addw a0, a3, a0
 ; CHECK-NEXT:    caddi csp, csp, 32
 ; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
@@ -376,10 +375,10 @@ define i32 @aggregate(i32, i32, i32, i32, i32, i32, %struct.agg %arg, ...) {
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    caddi csp, csp, -16
 ; CHECK-NEXT:    .cfi_def_cfa_offset 16
-; CHECK-NEXT:    caddi ca0, ct1, 32
+; CHECK-NEXT:    caddi ca0, ct6, 32
 ; CHECK-NEXT:    sc ca0, 0(csp)
-; CHECK-NEXT:    lb a0, 0(ct1)
-; CHECK-NEXT:    lb a1, 8(ct1)
+; CHECK-NEXT:    lb a0, 0(ct6)
+; CHECK-NEXT:    lb a1, 8(ct6)
 ; CHECK-NEXT:    add a6, a6, a7
 ; CHECK-NEXT:    add a0, a6, a0
 ; CHECK-NEXT:    addw a0, a0, a1
@@ -430,7 +429,7 @@ define i32 @callAggr() {
 ; CHECK-NEXT:    li a3, 4
 ; CHECK-NEXT:    li a4, 5
 ; CHECK-NEXT:    sd a5, 32(csp)
-; CHECK-NEXT:    scbndsr ct1, csp, t1
+; CHECK-NEXT:    scbndsr ct6, csp, t1
 ; CHECK-NEXT:    li a5, 6
 ; CHECK-NEXT:    sd t0, 0(csp)
 ; CHECK-NEXT:    call aggregate

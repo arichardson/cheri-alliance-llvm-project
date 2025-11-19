@@ -338,12 +338,15 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
 
   unsigned XLen = Subtarget.getXLen();
   MVT XLenVT = Subtarget.getXLenVT();
-  MVT CLenVT = Subtarget.hasStdExtZCheriPureCapOrCheri() ? Subtarget.typeForCapabilities()
-                                    : MVT();
+
+  MVT CLenVT = Subtarget.hasStdExtZCheriPureCapOrCheri()
+	           ? Subtarget.typeForCapabilities()
+                   : MVT();
   bool IsPureCap = RISCVABI::isCheriPureCapABI(ABI);
   MVT PtrVT = IsPureCap ? CLenVT : XLenVT;
   bool IsPureCapVarArgs = !IsFixed && IsPureCap;
   bool IsBoundedVarArgs = IsPureCapVarArgs && Subtarget.hasCheriBoundVarArg();
+  unsigned SlotSize = PtrVT.getFixedSizeInBits() / 8;
 
   // Static chain parameter must not be passed in normal argument registers,
   // so we assign t2 for it as done in GCC's __builtin_call_with_static_chain
@@ -469,7 +472,7 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   // changed when RV32E/ILP32E is ratified.
   // TODO: Pure capability varargs bounds
   unsigned TwoXLenInBytes = (2 * XLen) / 8;
-  if (!IsFixed && !RISCVABI::isCheriPureCapABI(ABI) &&
+  if (!IsFixed && !IsPureCap &&
       ArgFlags.getNonZeroOrigAlign() == TwoXLenInBytes &&
       DL.getTypeAllocSize(OrigTy) == TwoXLenInBytes &&
       ABI != RISCVABI::ABI_ILP32E) {
@@ -486,36 +489,6 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   assert(PendingLocs.size() == PendingArgFlags.size() &&
          "PendingLocs and PendingArgFlags out of sync");
 
-  // Bounded VarArgs
-  // Each bounded varargs is assigned a 2*XLen slot on the stack
-  // If the value is small enough to fit into the slot it is passed
-  // directly - otherwise a capability to the value is filled into the
-  // slot.
-  if (!IsFixed && IsBoundedVarArgs) {
-    unsigned SlotSize = CLenVT.getFixedSizeInBits() / 8;
-    // Aggregates of size 2*XLen need special handling here
-    // as LLVM with treat them as two separate XLen wide arguments
-    if(LocVT == XLenVT && OrigTy && OrigTy->isAggregateType()){
-      PendingLocs.push_back(
-          CCValAssign::getPending(ValNo, ValVT, LocVT, LocInfo));
-      PendingArgFlags.push_back(ArgFlags);
-      if(PendingLocs.size() == 2){
-        CCValAssign VA = PendingLocs[0];
-        ISD::ArgFlagsTy AF = PendingArgFlags[0];
-        PendingLocs.clear();
-        PendingArgFlags.clear();
-        return CC_RISCVAssign2XLen(XLen, State, IsPureCapVarArgs, VA, AF, ValNo,
-                                   ValVT, LocVT, ArgFlags,
-                                   ABI == RISCVABI::ABI_ILP32E ||
-                                       ABI == RISCVABI::ABI_LP64E);
-      }
-      return false;
-    }
-    unsigned StackOffset = State.AllocateStack(SlotSize, Align(SlotSize));
-    State.addLoc(CCValAssign::getMem(ValNo, ValVT, StackOffset, LocVT, LocInfo));
-    return false;
-  }
-
   // Handle passing f64 on RV32D with a soft float ABI or when floating point
   // registers are exhausted. Also handle for pure capability varargs which are
   // always passed on the stack.
@@ -527,7 +500,9 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
     // cases. Pure capability varargs are always passed on the stack.
     MCRegister Reg = IsPureCapVarArgs ? MCRegister{0} : State.AllocateReg(ArgGPRs);
     if (!Reg) {
-      int64_t StackOffset = State.AllocateStack(8, Align(8));
+      int64_t StackOffset =
+          IsBoundedVarArgs ? State.AllocateStack(SlotSize, Align(SlotSize))
+                           : State.AllocateStack(8, Align(8));
       State.addLoc(
           CCValAssign::getMem(ValNo, ValVT, StackOffset, LocVT, LocInfo));
       return false;
@@ -543,6 +518,37 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
       State.addLoc(
           CCValAssign::getCustomMem(ValNo, ValVT, StackOffset, LocVT, LocInfo));
     }
+    return false;
+  }
+
+  // For purecap bounded varargs - aggregate types which can fit into a stack
+  // slot are passed to CC_RISCV as separate arguments. We need to align the
+  // first argument to a CLEN alignment.
+  if (IsBoundedVarArgs && ArgFlags.isInConsecutiveRegs()) {
+    PendingLocs.push_back(
+        CCValAssign::getPending(ValNo, ValVT, LocVT, LocInfo));
+    PendingArgFlags.push_back(ArgFlags);
+    if (!ArgFlags.isInConsecutiveRegsLast())
+      return false;
+  }
+
+  if (IsBoundedVarArgs && ArgFlags.isInConsecutiveRegsLast()) {
+    for (size_t I = 0, E = PendingLocs.size(); I < E; I++){
+      CCValAssign VA = PendingLocs[I];
+      unsigned Size =
+          VA.getValVT() == CLenVT ? DL.getPointerSize(200) : XLen / 8;
+      Align Alignment(Size);
+      // For consecutive types the first item needs to be aligned.
+      if (I == 0)
+        Alignment = Align(SlotSize);
+
+      unsigned StackOffset = State.AllocateStack(Size, Alignment);
+      State.addLoc(CCValAssign::getMem(VA.getValNo(), VA.getValVT(),
+                                       StackOffset, VA.getLocVT(),
+                                       VA.getLocInfo()));
+    }
+    PendingLocs.clear();
+    PendingArgFlags.clear();
     return false;
   }
 
@@ -571,8 +577,8 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
     ISD::ArgFlagsTy AF = PendingArgFlags[0];
     PendingLocs.clear();
     PendingArgFlags.clear();
-    return CC_RISCVAssign2XLen(
-        XLen, State, IsPureCapVarArgs, VA, AF, ValNo, ValVT, LocVT, ArgFlags,
+    return CC_RISCVAssign2XLen(XLen, State, IsPureCapVarArgs, VA, AF, ValNo,
+        ValVT, LocVT, ArgFlags,
         ABI == RISCVABI::ABI_ILP32E || ABI == RISCVABI::ABI_LP64E);
   }
 
@@ -628,7 +634,10 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   }
 
   int64_t StackOffset =
-      Reg ? 0 : State.AllocateStack(StoreSizeBytes, StackAlign);
+      Reg ? 0
+          : (IsBoundedVarArgs
+                 ? State.AllocateStack(SlotSize, Align(SlotSize))
+                 : State.AllocateStack(StoreSizeBytes, StackAlign));
 
   // If we reach this point and PendingLocs is non-empty, we must be at the
   // end of a split argument that must be passed indirectly.

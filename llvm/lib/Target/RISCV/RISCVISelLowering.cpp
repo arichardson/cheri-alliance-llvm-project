@@ -26,6 +26,7 @@
 #include "llvm/Analysis/MemoryLocation.h"
 #include "llvm/Analysis/VectorUtils.h"
 #include "llvm/CHERI/cheri-compressed-cap/cheri_compressed_cap.h"
+#include "llvm/CodeGen/Analysis.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
@@ -2636,6 +2637,22 @@ bool RISCVTargetLowering::isLegalElementTypeForRVV(EVT ScalarTy) const {
 
 unsigned RISCVTargetLowering::combineRepeatedFPDivisors() const {
   return NumRepeatedDivisors;
+}
+
+bool RISCVTargetLowering::functionArgumentNeedsConsecutiveRegisters(
+    Type *Ty, CallingConv::ID CallConv, bool isVarArg,
+    const DataLayout &DL) const {
+  const bool IsPureCapABI =
+      RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
+  const bool HasBoundedVarArgs =
+      IsPureCapABI && Subtarget.hasCheriBoundVarArg();
+  if (!Ty->isArrayTy())
+    return false;
+
+  // All non aggregate members of the type must have the same type
+  SmallVector<EVT> ValueVTs;
+  ComputeValueVTs(*this, DL, Ty, ValueVTs);
+  return all_equal(ValueVTs) && isVarArg && HasBoundedVarArgs;
 }
 
 static SDValue getVLOperand(SDValue Op) {
@@ -8844,7 +8861,8 @@ SDValue RISCVTargetLowering::lowerVASTARTCap(SDValue Op, SelectionDAG &DAG) cons
   unsigned PtrSize = MF.getDataLayout().getPointerSize(AllocaAS);
   bool IsPurecap = RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
   bool UseBoundedMemArgsCallee =
-      IsPurecap && Subtarget.hasCheriBoundMemArgCallee();
+      IsPurecap && Subtarget.hasCheriBoundMemArgCallee() &&
+      MF.getFunction().getCallingConv() != CallingConv::Fast;
 
   int Index = FuncInfo->getPureCapVarArgsIndex();
   SDValue FI = DAG.getFrameIndex(Index, PtrVT);
@@ -8853,7 +8871,11 @@ SDValue RISCVTargetLowering::lowerVASTARTCap(SDValue Op, SelectionDAG &DAG) cons
                   MachinePointerInfo::getStack(MF, 0), Align(PtrSize));
   SDValue Chain = VarPtr.getOperand(0);
   if (UseBoundedMemArgsCallee) {
-    uint64_t PermMask = -1UL & ~(CAP_AP_X | CAP_AP_W);
+    uint64_t ExecPerm =
+        Subtarget.hasStdExtZCheriPureCap() ? (1 << 17) : (1 << 1);
+    uint64_t WritePerm =
+        Subtarget.hasStdExtZCheriPureCap() ? (1 << 0) : (1 << 3);
+    uint64_t PermMask = -1UL & ~(ExecPerm | WritePerm);
     VarPtr = DAG.getNode(ISD::INTRINSIC_WO_CHAIN, DL, PtrVT,
                          DAG.getConstant(Intrinsic::cheri_cap_perms_and, DL,
                                          Subtarget.getXLenVT()),
@@ -20659,7 +20681,8 @@ static SDValue unpackFromMemLoc(SelectionDAG &DAG, SDValue Chain,
   const RISCVSubtarget &STI = MF.getSubtarget<RISCVSubtarget>();
   const bool IsPureCapABI = RISCVABI::isCheriPureCapABI(STI.getTargetABI());
   const bool UseBoundedMemArgsCallee =
-      IsPureCapABI && STI.hasCheriBoundMemArgCallee();
+      IsPureCapABI && STI.hasCheriBoundMemArgCallee() &&
+      MF.getFunction().getCallingConv() != CallingConv::Fast;
 
   EVT LocVT = VA.getLocVT();
   EVT ValVT = VA.getValVT();
@@ -20793,11 +20816,13 @@ SDValue RISCVTargetLowering::LowerFormalArguments(
   bool HasMemArgs = false;
   const bool IsCheriPureCapABI =
       RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
+  const bool IsFastCC = CallConv == CallingConv::Fast;
   const bool UseBoundedMemArgsCallee =
-      IsCheriPureCapABI && Subtarget.hasCheriBoundMemArgCallee();
+      IsCheriPureCapABI && Subtarget.hasCheriBoundMemArgCallee() && !IsFastCC;
   const bool UseBoundedMemArgsCaller =
-      IsCheriPureCapABI && Subtarget.hasCheriBoundMemArgCaller();
-  const bool UseBoundedVarArgs = IsCheriPureCapABI && Subtarget.hasCheriBoundVarArg();
+      IsCheriPureCapABI && Subtarget.hasCheriBoundMemArgCaller() && !IsFastCC;
+  const bool UseBoundedVarArgs =
+      IsCheriPureCapABI && Subtarget.hasCheriBoundVarArg();
   if (UseBoundedMemArgsCallee) {
     for (size_t I = 0; I < Ins.size(); I++) {
       CCValAssign &VA = ArgLocs[I];
@@ -21040,11 +21065,13 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
 
   MachineFunction &MF = DAG.getMachineFunction();
   bool PureCapABI = RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI());
-  bool UseBoundedVarArgs = PureCapABI && Subtarget.hasCheriBoundVarArg();
+  bool IsFastCC = CallConv == CallingConv::Fast;
+  bool UseBoundedVarArgs =
+      PureCapABI && Subtarget.hasCheriBoundVarArg() && !IsFastCC;
   bool UseBoundeMemArgsCaller =
-      PureCapABI && Subtarget.hasCheriBoundMemArgCaller();
+      PureCapABI && Subtarget.hasCheriBoundMemArgCaller() && !IsFastCC;
   bool UseBoundeMemArgsCallee =
-      PureCapABI && Subtarget.hasCheriBoundMemArgCallee();
+      PureCapABI && Subtarget.hasCheriBoundMemArgCallee() && !IsFastCC;
 
   // Analyze the operands of the call, assigning locations to each operand.
   SmallVector<CCValAssign, 16> ArgLocs;
@@ -21124,7 +21151,7 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
 
   // Bookkeeping for cheri varargs/memargs
   int VAArgStartOffset, VAArgEndOffset, MemArgStartOffset, MemArgEndOffset;
-  SDValue FirstAddr, FirstArgAddr;
+  SDValue FirstVAAddr, FirstArgAddr;
 
   // Copy argument values to their designated locations.
   SmallVector<std::pair<Register, SDValue>, 8> RegsToPass;
@@ -21262,27 +21289,17 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
         }
         unsigned VTSize = VA.getValVT().getSizeInBits() / 8;
         MemArgEndOffset = VA.getLocMemOffset() + VTSize;
-        if (!Outs[i].IsFixed) {
-          // we need to align to 16-byte slot
-          Align OffsetAlign = Align(PtrLenBytes);
-          Type *OrigTy = CLI.getArgs()[Outs[i].OrigArgIndex].Ty;
-          if (OrigTy && OrigTy->isAggregateType())
-            OffsetAlign = Align(PtrLenBytes / 2);
-          MemArgEndOffset = alignTo(MemArgEndOffset, OffsetAlign);
-        }
       }
+
       if (UseBoundedVarArgs && !Outs[i].IsFixed) {
-        if (FirstAddr == SDValue()) {
-          FirstAddr = Address;
+        if (FirstVAAddr == SDValue()) {
+          FirstVAAddr = Address;
           VAArgStartOffset = VA.getLocMemOffset();
         }
-        Align OffsetAlign = Align(PtrLenBytes);
-        Type *OrigTy = CLI.getArgs()[Outs[i].OrigArgIndex].Ty;
-        if (OrigTy && OrigTy->isAggregateType())
-          OffsetAlign = Align(PtrLenBytes / 2);
-
         unsigned VTSize = VA.getValVT().getSizeInBits() / 8;
-        VAArgEndOffset = alignTo(VA.getLocMemOffset() + VTSize, OffsetAlign);
+        VAArgEndOffset =
+            alignTo(VA.getLocMemOffset() + VTSize, Align(PtrLenBytes));
+        MemArgEndOffset = VAArgEndOffset;
       }
 
       // Emit the store.
@@ -21293,15 +21310,19 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
   }
 
   if(IsVarArg && UseBoundedVarArgs && !UseBoundeMemArgsCaller) {
-    if (FirstAddr != SDValue()) {
+    if (FirstVAAddr != SDValue()) {
       SDValue VarArgs = DAG.getCSetBounds(
-          FirstAddr, DL, VAArgEndOffset - VAArgStartOffset, Align(),
+          FirstVAAddr, DL, VAArgEndOffset - VAArgStartOffset, Align(),
           "CHERI-RISCV variadic call lowering",
           cheri::SetBoundsPointerSource::Stack, "varargs call bounds setting");
       // clear write and execute permissions on varargs. Clearning other
       // permissions shouldn't be necessary since the capability is derived from
       // CSP and that shouldn't have these in the first place.
-      uint64_t PermMask = -1UL & ~(CAP_AP_X | CAP_AP_W);
+      uint64_t ExecPerm =
+          Subtarget.hasStdExtZCheriPureCap() ? (1 << 17) : (1 << 1);
+      uint64_t WritePerm =
+          Subtarget.hasStdExtZCheriPureCap() ? (1 << 0) : (1 << 3);
+      uint64_t PermMask = -1UL & ~(ExecPerm | WritePerm);
       VarArgs = DAG.getNode(
           ISD::INTRINSIC_WO_CHAIN, DL, PtrVT,
           DAG.getConstant(Intrinsic::cheri_cap_perms_and, DL, XLenVT), VarArgs,
@@ -21325,7 +21346,7 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
           std::make_pair(RISCVABI::getCheriBoundedArgReg(), MemArgs));
     } else {
       bool ShouldClearArgReg = IsVarArg;
-      if (!ShouldClearArgReg && UseBoundeMemArgsCallee) {
+      if (!ShouldClearArgReg && !UseBoundeMemArgsCallee) {
         auto *G = dyn_cast<GlobalAddressSDNode>(Callee);
         ShouldClearArgReg = !G || !G->getGlobal()->hasInternalLinkage();
       }
