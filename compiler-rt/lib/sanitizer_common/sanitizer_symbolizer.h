@@ -192,8 +192,6 @@ class Symbolizer final {
 
    private:
     static const uptr kInitialCapacity = 1000;
-    InternalMmapVector<const char*> storage_;
-    const char *last_match_;
 
     Mutex *mu_;
     const char *last_match_ SANITIZER_GUARDED_BY(mu_);
