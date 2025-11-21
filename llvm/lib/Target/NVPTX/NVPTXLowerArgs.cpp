@@ -267,7 +267,7 @@ static void convertToParamAS(Use *OldUse, Value *Param, bool HasCvtaParam,
 
         CallInst *B = Builder.CreateMemTransferInst(
             ID, MI->getRawDest(), MI->getDestAlign(), I.NewParam,
-            MI->getSourceAlign(), MI->getLength(), MI->isVolatile());
+            MI->getSourceAlign(), MI->getLength(), PreserveCheriTags::Unnecessary, MI->isVolatile());
         for (unsigned I : {0, 1})
           if (uint64_t Bytes = MI->getParamDereferenceableBytes(I))
             B->addDereferenceableParamAttr(I, Bytes);
