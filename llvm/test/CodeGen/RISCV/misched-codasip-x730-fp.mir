@@ -1,0 +1,118 @@
+# RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
+# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
+# RUN:  -misched-dump-schedule-trace -misched-postra-direction=topdown \
+# RUN:  -o - %s 2>&1 | FileCheck --check-prefix=TOPDOWN %s
+# RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
+# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
+# RUN:  -misched-dump-schedule-trace -misched-postra-direction=bottomup \
+# RUN:  -o - %s 2>&1 | FileCheck --check-prefix=BOTTOMUP %s
+# RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
+# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
+# RUN:  -misched-dump-schedule-trace \
+# RUN:  -misched-postra-direction=bidirectional -o - %s 2>&1 \
+# RUN: | FileCheck --check-prefix=BIDIRECTIONAL %s
+
+# REQUIRES: asserts
+
+---
+name:            test
+tracksRegLiveness: true
+body:             |
+  bb.0.entry:
+    liveins: $f10_d, $f11_d
+
+    renamable $f13_d = FADD_D renamable $f11_d, renamable $f10_d, 7
+    renamable $f14_d = FSUB_D renamable $f11_d, renamable $f10_d, 7
+    renamable $f15_d = FSUB_D renamable $f11_d, renamable $f14_d, 7
+    renamable $f16_d = FMUL_D renamable $f11_d, renamable $f10_d, 7
+    renamable $f17_d = FADD_D renamable $f15_d, renamable $f16_d, 7
+
+    renamable $x18 = FMV_X_D renamable $f17_d
+
+    PseudoRET implicit $x18
+...
+
+
+# TOPDOWN: *** Final schedule for %bb.0 ***
+# TOPDOWN-NEXT:  * Schedule table (TopDown):
+# TOPDOWN-NEXT:   i: issue
+# TOPDOWN-NEXT:   x: resource booked
+# TOPDOWN-NEXT: Cycle              | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 |
+# TOPDOWN-NEXT: SU(1)              | i  |    |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:            X730FPU | x  |    |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:         X730PipeI0 | x  |    |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 | x  |    |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(3)              |    | i  |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:            X730FPU |    | x  |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:         X730PipeI0 |    | x  |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    | x  |    |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(0)              |    |    | i  |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:            X730FPU |    |    | x  |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:         X730PipeI0 |    |    | x  |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    |    | x  |    |    |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(2)              |    |    |    |    | i  |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:            X730FPU |    |    |    |    | x  |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:         X730PipeI0 |    |    |    |    | x  |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    |    |    |    | x  |    |    |    |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(4)              |    |    |    |    |    |    |    |    | i  |    |    |    |    |
+# TOPDOWN-NEXT:            X730FPU |    |    |    |    |    |    |    |    | x  |    |    |    |    |
+# TOPDOWN-NEXT:         X730PipeI0 |    |    |    |    |    |    |    |    | x  |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    |    |    |    |    |    |    |    | x  |    |    |    |    |
+# TOPDOWN-NEXT: SU(5)              |    |    |    |    |    |    |    |    |    |    |    |    | i  |
+# TOPDOWN-NEXT:            X730FPU |    |    |    |    |    |    |    |    |    |    |    |    | x  |
+# TOPDOWN-NEXT:         X730PipeI0 |    |    |    |    |    |    |    |    |    |    |    |    | x  |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    |    |    |    |    |    |    |    |    |    |    |    | x  |
+# TOPDOWN-NEXT: SU(1):   renamable $f14_d = FSUB_D renamable $f11_d, renamable $f10_d, 7
+# TOPDOWN-NEXT: SU(3):   renamable $f16_d = FMUL_D renamable $f11_d, renamable $f10_d, 7
+# TOPDOWN-NEXT: SU(0):   renamable $f13_d = FADD_D renamable $f11_d, renamable $f10_d, 7
+# TOPDOWN-NEXT: SU(2):   renamable $f15_d = FSUB_D renamable $f11_d, renamable $f14_d, 7
+# TOPDOWN-NEXT: SU(4):   renamable $f17_d = FADD_D renamable $f15_d, renamable $f16_d, 7
+# TOPDOWN-NEXT: SU(5):   renamable $x18 = FMV_X_D renamable $f17_d
+
+# BOTTOMUP: *** Final schedule for %bb.0 ***
+# BOTTOMUP-NEXT:  * Schedule table (BottomUp):
+# BOTTOMUP-NEXT:   i: issue
+# BOTTOMUP-NEXT:   x: resource booked
+# BOTTOMUP-NEXT: Cycle              | 15 | 14 | 13 | 12 | 11 | 10 | 9  | 8  | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
+# BOTTOMUP-NEXT: SU(1)              | i  |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:            X730FPU | x  |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:         X730PipeI0 | x  |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 | x  |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT: SU(3)              |    |    | i  |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:            X730FPU |    |    | x  |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:         X730PipeI0 |    |    | x  |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    | x  |    |    |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT: SU(2)              |    |    |    |    | i  |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:            X730FPU |    |    |    |    | x  |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:         X730PipeI0 |    |    |    |    | x  |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    | x  |    |    |    |    |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT: SU(4)              |    |    |    |    |    |    |    |    | i  |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:            X730FPU |    |    |    |    |    |    |    |    | x  |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:         X730PipeI0 |    |    |    |    |    |    |    |    | x  |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    |    |    |    |    | x  |    |    |    |    |    |    |    |
+# BOTTOMUP-NEXT: SU(5)              |    |    |    |    |    |    |    |    |    |    |    |    | i  |    |    |    |
+# BOTTOMUP-NEXT:            X730FPU |    |    |    |    |    |    |    |    |    |    |    |    | x  |    |    |    |
+# BOTTOMUP-NEXT:         X730PipeI0 |    |    |    |    |    |    |    |    |    |    |    |    | x  |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    |    |    |    |    |    |    |    |    | x  |    |    |    |
+# BOTTOMUP-NEXT: SU(0)              |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    | i  |
+# BOTTOMUP-NEXT:            X730FPU |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    | x  |
+# BOTTOMUP-NEXT:         X730PipeI0 |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    | x  |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    | x  |
+# BOTTOMUP-NEXT: SU(1):   renamable $f14_d = FSUB_D renamable $f11_d, renamable $f10_d, 7
+# BOTTOMUP-NEXT: SU(3):   renamable $f16_d = FMUL_D renamable $f11_d, renamable $f10_d, 7
+# BOTTOMUP-NEXT: SU(2):   renamable $f15_d = FSUB_D renamable $f11_d, renamable $f14_d, 7
+# BOTTOMUP-NEXT: SU(4):   renamable $f17_d = FADD_D renamable $f15_d, renamable $f16_d, 7
+# BOTTOMUP-NEXT: SU(5):   renamable $x18 = FMV_X_D renamable $f17_d
+# BOTTOMUP-NEXT: SU(0):   renamable $f13_d = FADD_D renamable $f11_d, renamable $f10_d, 7
+
+# BIDIRECTIONAL: *** Final schedule for %bb.0 ***
+# BIDIRECTIONAL-NEXT: * Schedule table (Bidirectional): not implemented
+# BIDIRECTIONAL-NEXT: SU(1):   renamable $f14_d = FSUB_D renamable $f11_d, renamable $f10_d, 7
+# BIDIRECTIONAL-NEXT: SU(3):   renamable $f16_d = FMUL_D renamable $f11_d, renamable $f10_d, 7
+# BIDIRECTIONAL-NEXT: SU(2):   renamable $f15_d = FSUB_D renamable $f11_d, renamable $f14_d, 7
+# BIDIRECTIONAL-NEXT: SU(4):   renamable $f17_d = FADD_D renamable $f15_d, renamable $f16_d, 7
+# BIDIRECTIONAL-NEXT: SU(5):   renamable $x18 = FMV_X_D renamable $f17_d
+# BIDIRECTIONAL-NEXT: SU(0):   renamable $f13_d = FADD_D renamable $f11_d, renamable $f10_d, 7
