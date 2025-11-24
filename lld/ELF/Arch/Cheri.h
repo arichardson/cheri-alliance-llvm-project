@@ -202,13 +202,13 @@ public:
   size_t getSize() const override {
     size_t nonTlsEntries = nonTlsEntryCount();
     if (nonTlsEntries > 0 || !tlsEntries.empty() || !dynTlsEntries.empty()) {
-      assert(config->capabilitySize > 0 &&
+      assert(ctx.arg.capabilitySize > 0 &&
              "Cap table entries present but cap size unknown???");
     }
     size_t bytes =
-        nonTlsEntryCount() * config->capabilitySize +
-        (dynTlsEntries.size() * 2 + tlsEntries.size()) * config->wordsize;
-    return llvm::alignTo(bytes, config->capabilitySize);
+        nonTlsEntryCount() * ctx.arg.capabilitySize +
+        (dynTlsEntries.size() * 2 + tlsEntries.size()) * ctx.arg.wordsize;
+    return llvm::alignTo(bytes, ctx.arg.capabilitySize);
   }
 private:
   struct CapTableIndex {
@@ -238,7 +238,7 @@ private:
                                               uint64_t offset);
   size_t nonTlsEntryCount() const {
     size_t totalCount = globalEntries.size();
-    if (LLVM_LIKELY(config->capTableScope == CapTableScopePolicy::All)) {
+    if (LLVM_LIKELY(ctx.arg.capTableScope == CapTableScopePolicy::All)) {
       assert(perFileEntries.empty() && perFunctionEntries.empty());
     } else {
       // Add all the per-file and per-function entries
@@ -275,7 +275,7 @@ class MipsCheriCapTableMappingSection : public SyntheticSection {
 public:
   MipsCheriCapTableMappingSection();
   bool isNeeded() const override {
-    if (config->capTableScope == CapTableScopePolicy::All)
+    if (ctx.arg.capTableScope == CapTableScopePolicy::All)
       return false;
     return ctx.in.mipsCheriCapTable && ctx.in.mipsCheriCapTable->isNeeded();
   }

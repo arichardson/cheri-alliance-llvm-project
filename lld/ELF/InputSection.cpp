@@ -712,7 +712,7 @@ static int64_t getTlsTpOffset(const Symbol &s) {
     // data and 0xf000 of the program's TLS segment.
     //
     // For CheriABI we always use an offset of 0 to stay representable.
-    if (!config->isCheriAbi)
+    if (!ctx.arg.isCheriAbi)
       return s.getVA(0) + (tls->p_vaddr & (tls->p_align - 1)) - 0x7000;
     LLVM_FALLTHROUGH;
   case EM_LOONGARCH:
@@ -1007,22 +1007,22 @@ void InputSectionBase::addRelocCap(const Relocation &r) {
   assert(r.expr == R_ABS_CAP);
 
   RelExpr exprLo = R_ABS_CAP_ADDR, exprHi = R_ABS_CAP_META;
-  if (!config->isLE)
+  if (!ctx.arg.isLE)
     std::swap(exprLo, exprHi);
 
   addReloc({exprLo, r.type, r.offset, r.addend, r.sym});
-  addReloc({exprHi, r.type, r.offset + config->wordsize, r.addend, r.sym});
+  addReloc({exprHi, r.type, r.offset + ctx.arg.wordsize, r.addend, r.sym});
 
   // Handle deprecated CHERI-256
-  if (config->capabilitySize == config->wordsize * 4) {
+  if (ctx.arg.capabilitySize == ctx.arg.wordsize * 4) {
     assert(r.sym->isUndefined() &&
            "can encode only null-derived capabilities for CHERI-256");
-    addReloc({R_ABS_CAP_META, r.type, r.offset + 2 * config->wordsize,
+    addReloc({R_ABS_CAP_META, r.type, r.offset + 2 * ctx.arg.wordsize,
               r.addend, r.sym});
-    addReloc({R_ABS_CAP_META, r.type, r.offset + 3 * config->wordsize,
+    addReloc({R_ABS_CAP_META, r.type, r.offset + 3 * ctx.arg.wordsize,
               r.addend, r.sym});
   } else
-    assert(config->capabilitySize == config->wordsize * 2);
+    assert(ctx.arg.capabilitySize == ctx.arg.wordsize * 2);
 }
 
 // This function applies relocations to sections without SHF_ALLOC bit.

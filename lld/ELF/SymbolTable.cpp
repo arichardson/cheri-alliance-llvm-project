@@ -42,7 +42,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
 
   auto it = localSymbolsForDynsym.find(original);
   if (it != localSymbolsForDynsym.end()) {
-    if (config->verboseCapRelocs)
+    if (ctx.arg.verboseCapRelocs)
       message("Reusing existing 'fake' symbol " + toString(*it->second) +
               " to allow relocation against " + verboseToString(original));
     return it->second;
@@ -66,7 +66,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
 
   assert(newSym->isFunc() && "This should only be used for functions");
 
-  if (config->verboseCapRelocs)
+  if (ctx.arg.verboseCapRelocs)
     message("Adding new symbol " + toString(*newSym) +
             " to allow relocation against " + verboseToString(original));
   localSymbolsForDynsym[original] = cast<Defined>(newSym);

@@ -82,9 +82,9 @@ template <class ELFT> uint32_t MIPS<ELFT>::calcEFlags() const {
 
 template <class ELFT> int MIPS<ELFT>::getCapabilitySize() const {
   // Compute the size of a CHERI capability based on the MIPS ABI flags:
-  if ((config->eflags & EF_MIPS_MACH) == EF_MIPS_MACH_CHERI128)
+  if ((ctx.arg.eflags & EF_MIPS_MACH) == EF_MIPS_MACH_CHERI128)
     return 16;
-  if ((config->eflags & EF_MIPS_MACH) == EF_MIPS_MACH_CHERI256)
+  if ((ctx.arg.eflags & EF_MIPS_MACH) == EF_MIPS_MACH_CHERI256)
     return 32;
   return 0;
 }
@@ -621,7 +621,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
   // Detect cross-mode jump/branch and fix instruction.
   val = fixupCrossModeJump<ELFT>(loc, type, val);
 
-  if (!config->isCheriAbi) {
+  if (!ctx.arg.isCheriAbi) {
     // Thread pointer and DRP offsets from the start of TLS data area.
     // https://www.linux-mips.org/wiki/NPTL
     if (type == R_MIPS_TLS_DTPREL_HI16 || type == R_MIPS_TLS_DTPREL_LO16 ||
@@ -828,7 +828,7 @@ void MIPS<ELFT>::relocate(uint8_t *loc, const Relocation &rel,
   case R_MIPS_CHERI_CAPABILITY:
   case R_MIPS_CHERI_CAPABILITY_CALL:
     // Write a word within the capability
-    if (config->is64)
+    if (ctx.arg.is64)
       write64(loc, val);
     else
       write32(loc, val);

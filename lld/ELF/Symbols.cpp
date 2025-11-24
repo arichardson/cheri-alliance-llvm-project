@@ -259,12 +259,12 @@ uint64_t Symbol::getMipsCheriCapTableVA(const InputSectionBase *isec,
 
 uint64_t Symbol::getMipsCheriCapTableOffset(const InputSectionBase *isec,
                                             uint64_t offset) const {
-  return config->capabilitySize *
+  return ctx.arg.capabilitySize *
          ctx.in.mipsCheriCapTable->getIndex(*this, isec, offset);
 }
 
 uint64_t Defined::getSize() const {
-  if (LLVM_UNLIKELY(config->isCheriAbi && isSectionStartSymbol)) {
+  if (LLVM_UNLIKELY(ctx.arg.isCheriAbi && isSectionStartSymbol)) {
     assert(value == 0 && "Bad section start symbol?");
     if (!section)
       return 0; // Section is not included in the output

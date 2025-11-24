@@ -472,7 +472,7 @@ static void checkOptions(Ctx &ctx) {
     if (!ctx.arg.zSectionHeader)
       error("-r and -z nosectionheader may not be used together");
   }
-  if (config->useRelativeElfCheriRelocs && config->emachine != EM_RISCV)
+  if (ctx.arg.useRelativeElfCheriRelocs && ctx.arg.emachine != EM_RISCV)
     error("local-cap-relocs=elf is not implemented yet");
 
   if (ctx.arg.executeOnly) {
@@ -1284,7 +1284,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
       hasZOption(args, "muldefs") ||
       args.hasFlag(OPT_allow_multiple_definition,
                    OPT_no_allow_multiple_definition, false);
-  config->allowUndefinedCapRelocs = args.hasArg(OPT_allow_undefined_cap_relocs);
+  ctx.arg.allowUndefinedCapRelocs = args.hasArg(OPT_allow_undefined_cap_relocs);
   ctx.arg.androidMemtagHeap =
       args.hasFlag(OPT_android_memtag_heap, OPT_no_android_memtag_heap, false);
   ctx.arg.androidMemtagStack = args.hasFlag(OPT_android_memtag_stack,
@@ -1306,7 +1306,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
     else if (arg->getOption().matches(OPT_Bsymbolic))
       ctx.arg.bsymbolic = BsymbolicKind::All;
   }
-  config->capTableScope = getCapTableScope(args);
+  ctx.arg.capTableScope = getCapTableScope(args);
   ctx.arg.callGraphProfileSort = getCGProfileSortKind(args);
   ctx.arg.checkSections =
       args.hasFlag(OPT_check_sections, OPT_no_check_sections, true);
@@ -1366,7 +1366,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
       args.hasArg(OPT_ignore_function_address_equality);
   ctx.arg.init = args.getLastArgValue(OPT_init, "_init");
   // TODO: change default to true
-  config->useRelativeElfCheriRelocs =
+  ctx.arg.useRelativeElfCheriRelocs =
       args.hasFlag(OPT_local_caprelocs_elf, OPT_local_caprelocs_legacy, false);
   ctx.arg.ltoAAPipeline = args.getLastArgValue(OPT_lto_aa_pipeline);
   ctx.arg.ltoCSProfileGenerate = args.hasArg(OPT_lto_cs_profile_generate);
@@ -1468,7 +1468,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
   ctx.arg.shared = args.hasArg(OPT_shared);
   ctx.arg.singleRoRx = !args.hasFlag(OPT_rosegment, OPT_no_rosegment, true);
   ctx.arg.soName = args.getLastArgValue(OPT_soname);
-  config->sortCapRelocs =
+  ctx.arg.sortCapRelocs =
       args.hasFlag(OPT_sort_cap_relocs, OPT_no_sort_cap_relocs, true);
   ctx.arg.sortSection = getSortSection(args);
   ctx.arg.splitStackAdjustSize =
@@ -1520,15 +1520,15 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
   ctx.arg.unique = args.hasArg(OPT_unique);
   ctx.arg.useAndroidRelrTags = args.hasFlag(
       OPT_use_android_relr_tags, OPT_no_use_android_relr_tags, false);
-  config->verboseCapRelocs = args.hasArg(OPT_verbose_cap_relocs);
+  ctx.arg.verboseCapRelocs = args.hasArg(OPT_verbose_cap_relocs);
   ctx.arg.warnBackrefs =
       args.hasFlag(OPT_warn_backrefs, OPT_no_warn_backrefs, false);
   ctx.arg.warnCommon = args.hasFlag(OPT_warn_common, OPT_no_warn_common, false);
   ctx.arg.warnSymbolOrdering =
       args.hasFlag(OPT_warn_symbol_ordering, OPT_no_warn_symbol_ordering, true);
   ctx.arg.whyExtract = args.getLastArgValue(OPT_why_extract);
-  config->zCapTableDebug = getZFlag(args, "captabledebug", "nocaptabledebug", false);
-  config->zCheriRiscvV9 = hasZOption(args, "cheri-riscv-v9");
+  ctx.arg.zCapTableDebug = getZFlag(args, "captabledebug", "nocaptabledebug", false);
+  ctx.arg.zCheriRiscvV9 = hasZOption(args, "cheri-riscv-v9");
   ctx.arg.zCombreloc = getZFlag(args, "combreloc", "nocombreloc", true);
   ctx.arg.zCopyreloc = getZFlag(args, "copyreloc", "nocopyreloc", true);
   ctx.arg.zForceBti = hasZOption(args, "force-bti");
@@ -1752,7 +1752,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
   // Parse ELF{32,64}{LE,BE} and CPU type.
   if (auto *arg = args.getLastArg(OPT_m)) {
     StringRef s = arg->getValue();
-    std::tie(ctx.arg.ekind, ctx.arg.emachine, ctx.arg.osabi, config->isCheriAbi) =
+    std::tie(ctx.arg.ekind, ctx.arg.emachine, ctx.arg.osabi, ctx.arg.isCheriAbi) =
         parseEmulation(s);
     ctx.arg.mipsN32Abi =
         (s.starts_with("elf32btsmipn32") || s.starts_with("elf32ltsmipn32"));
@@ -1804,7 +1804,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
   }
 
   for (auto *arg : args.filtered(OPT_warn_file_linked))
-    config->warnIfFileLinked.push_back(arg->getValue());
+    ctx.arg.warnIfFileLinked.push_back(arg->getValue());
 
   assert(ctx.arg.versionDefinitions.empty());
   ctx.arg.versionDefinitions.push_back(
@@ -2128,13 +2128,13 @@ static uint64_t getMaxPageSize(Ctx &ctx, opt::InputArgList &args) {
 // If -m <machine_type> did not force a CheriABI emulation, infer it from
 // object files.
 void LinkerDriver::inferIsCheriAbi() {
-  if (config->isCheriAbi)
+  if (ctx.arg.isCheriAbi)
     return;
 
   for (InputFile *f : files) {
     if (f->ekind == ELFNoneKind)
       continue;
-    config->isCheriAbi = isCheriAbi(f);
+    ctx.arg.isCheriAbi = isCheriAbi(f);
     return;
   }
 }
@@ -3190,13 +3190,13 @@ template <class ELFT> void LinkerDriver::link(opt::InputArgList &args) {
   ctx.arg.commonPageSize = getCommonPageSize(ctx, args);
 
   ctx.arg.imageBase = getImageBase(ctx, args);
-  config->capabilitySize = ctx.target->getCapabilitySize();
+  ctx.arg.capabilitySize = ctx.target->getCapabilitySize();
 
   // CapabilitySize must be set if we are targeting the purecap ABI
-  if (config->isCheriAbi) {
+  if (ctx.arg.isCheriAbi) {
     if (errorCount())
       return;
-    assert(config->capabilitySize > 0);
+    assert(ctx.arg.capabilitySize > 0);
   }
 
   // This adds a .comment section containing a version string.
