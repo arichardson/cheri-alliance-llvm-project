@@ -873,11 +873,15 @@ defm : CPrefixedInstAlias<"sd $rs2, (${rs1})", (CSD  GPR:$rs2, GPCR:$rs1, 0)>;
 /// 'A' (Atomic Instructions) extension
 
 let Predicates = [HasZCheriPurecapOrCheri, HasStdExtA, IsCapMode] in {
-defm CLR_B       : CLR_r_aq_rl<0b000, "lr.b">;
-defm CSC_B       : CAMO_rr_aq_rl<0b00011, 0b000, "sc.b">;
+defm CLR_B       : CLR_r_aq_rl<0b000, "lr.b">,
+                       Sched<[WriteCHERIAtomicLDB, ReadCHERIAtomicLDB]>;
+defm CSC_B       : CAMO_rr_aq_rl<0b00011, 0b000, "sc.b">,
+                       Sched<[WriteCHERIAtomicSTB, ReadCHERIAtomicSTB]>;
 
-defm CLR_H       : CLR_r_aq_rl<0b001, "lr.h">;
-defm CSC_H       : CAMO_rr_aq_rl<0b00011, 0b001, "sc.h">;
+defm CLR_H       : CLR_r_aq_rl<0b001, "lr.h">,
+                       Sched<[WriteCHERIAtomicLDH, ReadCHERIAtomicLDH]>;
+defm CSC_H       : CAMO_rr_aq_rl<0b00011, 0b001, "sc.h">,
+                       Sched<[WriteCHERIAtomicSTH, ReadCHERIAtomicSTH]>;
 
 defm CLR_W       : CLR_r_aq_rl<0b010, "lr.w">;
 defm CSC_W       : CAMO_rr_aq_rl<0b00011, 0b010, "sc.w">;

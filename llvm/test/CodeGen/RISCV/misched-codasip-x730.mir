@@ -1,0 +1,95 @@
+# RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
+# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
+# RUN:  -misched-dump-schedule-trace -misched-postra-direction=topdown \
+# RUN:  -o - %s 2>&1 | FileCheck --check-prefix=TOPDOWN %s
+# RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
+# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
+# RUN:  -misched-dump-schedule-trace -misched-postra-direction=bottomup \
+# RUN:  -o - %s 2>&1 | FileCheck --check-prefix=BOTTOMUP %s
+# RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
+# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
+# RUN:  -misched-dump-schedule-trace \
+# RUN:  -misched-postra-direction=bidirectional -o - %s 2>&1 \
+# RUN: | FileCheck --check-prefix=BIDIRECTIONAL %s
+
+# REQUIRES: asserts
+
+---
+name:            test
+tracksRegLiveness: true
+body:             |
+  bb.0.entry:
+    liveins: $x10, $x11
+
+    renamable $x13 = ADD renamable $x11, renamable $x10
+    renamable $x14 = SUB renamable $x11, renamable $x13
+    renamable $x15 = XOR renamable $x11, renamable $x14
+    renamable $x12 = MUL renamable $x11, renamable $x10
+    renamable $x16 = AND renamable $x12, renamable $x15
+    PseudoRET implicit $x16
+...
+
+# TOPDOWN: *** Final schedule for %bb.0 ***
+# TOPDOWN-NEXT:  * Schedule table (TopDown):
+# TOPDOWN-NEXT:   i: issue
+# TOPDOWN-NEXT:   x: resource booked
+# TOPDOWN-NEXT: Cycle              | 0  | 1  | 2  | 3  | 4  | 5  | 6  |
+# TOPDOWN-NEXT: SU(3)              | i  |    |    |    |    |    |    |
+# TOPDOWN-NEXT:            X730Mul | x  |    |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 | x  |    |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(0)              | i  |    |    |    |    |    |    |
+# TOPDOWN-NEXT:   X730EarlyLateALU | x  |    |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 | x  |    |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(1)              |    | i  |    |    |    |    |    |
+# TOPDOWN-NEXT:   X730EarlyLateALU |    | x  |    |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    | x  |    |    |    |    |    |
+# TOPDOWN-NEXT: SU(2)              |    |    | i  |    |    |    |    |
+# TOPDOWN-NEXT:   X730EarlyLateALU |    |    | x  |    |    |    |    |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    |    | x  |    |    |    |    |
+# TOPDOWN-NEXT: SU(4)              |    |    |    |    |    |    | i  |
+# TOPDOWN-NEXT:   X730EarlyLateALU |    |    |    |    |    |    | x  |
+# TOPDOWN-NEXT:       X730PipeI0I1 |    |    |    |    |    |    | x  |
+# TOPDOWN-NEXT: SU(3):   renamable $x12 = MUL renamable $x11, renamable $x10
+# TOPDOWN-NEXT: SU(0):   renamable $x13 = ADD renamable $x11, renamable $x10
+# TOPDOWN-NEXT: SU(1):   renamable $x14 = SUB renamable $x11, renamable $x13
+# TOPDOWN-NEXT: SU(2):   renamable $x15 = XOR renamable $x11, renamable $x14
+# TOPDOWN-NEXT: SU(4):   renamable $x16 = AND renamable $x12, renamable $x15
+
+# BOTTOMUP: *** Final schedule for %bb.0 ***
+# BOTTOMUP-NEXT:  * Schedule table (BottomUp):
+# BOTTOMUP-NEXT:   i: issue
+# BOTTOMUP-NEXT:   x: resource booked
+# BOTTOMUP-NEXT: Cycle              | 7  | 6  | 5  | 4  | 3  | 2  | 1  |
+# BOTTOMUP-NEXT: SU(3)              | i  |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:            X730Mul | x  |    |    |    |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 | x  |    |    |    |    |    |    |
+# BOTTOMUP-NEXT: SU(0)              |    |    |    | i  |    |    |    |
+# BOTTOMUP-NEXT:   X730EarlyLateALU |    |    |    | x  |    |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    | x  |    |    |    |
+# BOTTOMUP-NEXT: SU(1)              |    |    |    |    | i  |    |    |
+# BOTTOMUP-NEXT:   X730EarlyLateALU |    |    |    |    | x  |    |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    | x  |    |    |
+# BOTTOMUP-NEXT: SU(2)              |    |    |    |    |    | i  |    |
+# BOTTOMUP-NEXT:   X730EarlyLateALU |    |    |    |    |    | x  |    |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    |    | x  |    |
+# BOTTOMUP-NEXT: SU(4)              |    |    |    |    |    |    | i  |
+# BOTTOMUP-NEXT:   X730EarlyLateALU |    |    |    |    |    |    | x  |
+# BOTTOMUP-NEXT:       X730PipeI0I1 |    |    |    |    |    |    | x  |
+# BOTTOMUP-NEXT: SU(3):   renamable $x12 = MUL renamable $x11, renamable $x10
+# BOTTOMUP-NEXT: SU(0):   renamable $x13 = ADD renamable $x11, renamable $x10
+# BOTTOMUP-NEXT: SU(1):   renamable $x14 = SUB renamable $x11, renamable $x13
+# BOTTOMUP-NEXT: SU(2):   renamable $x15 = XOR renamable $x11, renamable $x14
+# BOTTOMUP-NEXT: SU(4):   renamable $x16 = AND renamable $x12, renamable $x15
+
+# BIDIRECTIONAL: *** Final schedule for %bb.0 ***
+# BIDIRECTIONAL-NEXT: * Schedule table (Bidirectional): not implemented
+# BIDIRECTIONAL-NEXT: SU(3):   renamable $x12 = MUL renamable $x11, renamable $x10
+# BIDIRECTIONAL-NEXT: SU(0):   renamable $x13 = ADD renamable $x11, renamable $x10
+# BIDIRECTIONAL-NEXT: SU(1):   renamable $x14 = SUB renamable $x11, renamable $x13
+# BIDIRECTIONAL-NEXT: SU(2):   renamable $x15 = XOR renamable $x11, renamable $x14
+# BIDIRECTIONAL-NEXT: SU(4):   renamable $x16 = AND renamable $x12, renamable $x15
+
+

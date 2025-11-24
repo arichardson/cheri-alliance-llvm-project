@@ -263,4 +263,5 @@ defm : UnsupportedSchedZfh;
 defm : UnsupportedSchedSFB;
 defm : UnsupportedSchedXsfvcp;
 defm : UnsupportedSchedZvk;
+defm : UnsupportedSchedZCheriPurecap;
 }

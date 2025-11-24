@@ -111,6 +111,7 @@ multiclass SCR3_Unsupported {
   defm : UnsupportedSchedZfa;
   defm : UnsupportedSchedZfh;
   defm : UnsupportedSchedZvk;
+  defm : UnsupportedSchedZCheriPurecap;
 }
 
 // Bypasses (none)

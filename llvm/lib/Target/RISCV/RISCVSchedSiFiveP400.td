@@ -367,4 +367,5 @@ defm : UnsupportedSchedZfa;
 defm : UnsupportedSchedV;
 defm : UnsupportedSchedXsfvcp;
 defm : UnsupportedSchedZvk;
+defm : UnsupportedSchedZCheriPurecap;
 }

@@ -47,16 +47,23 @@ class ZCheri_rr<bits<7> funct7, bits<3> funct3, string opcodestr,
 //===----------------------------------------------------------------------===//
 
 let Predicates = [HasZCheriPurecap] in {
-def GCTAG  : ZCheri_r<0x0, "gctag" >;
-def GCPERM : ZCheri_r<0x1, "gcperm">;
-def GCHI   : ZCheri_r<0x4, "gchi"  >;
-def GCBASE : ZCheri_r<0x5, "gcbase">;
-def GCLEN  : ZCheri_r<0x6, "gclen" >;
-def GCTYPE : ZCheri_r<0x2, "gctype">;
+def GCTAG  : ZCheri_r<0x0, "gctag" >,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
+def GCPERM : ZCheri_r<0x1, "gcperm">,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
+def GCHI   : ZCheri_r<0x4, "gchi"  >,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
+def GCBASE : ZCheri_r<0x5, "gcbase">,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
+def GCLEN  : ZCheri_r<0x6, "gclen" >,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
+def GCTYPE : ZCheri_r<0x2, "gctype">,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
 } // Predicates = [HasZCheriPurecap]
 
 let Predicates = [HasZCheriHybrid] in {
-def GCMODE : ZCheri_r<0x3, "gcmode">;
+def GCMODE : ZCheri_r<0x3, "gcmode">,
+                 Sched<[WriteCHERIInspect, ReadCHERIInspect]>;
 } // Predicates = [HasZCheriHybrid]
 
 //===----------------------------------------------------------------------===//
@@ -64,26 +71,36 @@ def GCMODE : ZCheri_r<0x3, "gcmode">;
 //===----------------------------------------------------------------------===//
 
 let Predicates = [HasZCheriPurecap] in {
-def SCADDR        : ZCheri_rr<0x6, 0x1, "scaddr">;
-def ACPERM        : ZCheri_rr<0x6, 0x2, "acperm">;
-def SCHI          : ZCheri_rr<0x6, 0x3, "schi">;
+def SCADDR        : ZCheri_rr<0x6, 0x1, "scaddr">,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
+def ACPERM        : ZCheri_rr<0x6, 0x2, "acperm">,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
+def SCHI          : ZCheri_rr<0x6, 0x3, "schi">,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
 let isReMaterializable = 1, isAsCheapAsAMove = 1 in {
-def CADD          : CheriRVInstR<0x6, 0x0, OPC_OP, "cadd", GPCR, GPCR, GPRNoX0>;
-def CADDI         : CheriRVInstrI<0x2, OPC_OP_IMM_32, "caddi", 1>;
+def CADD          : CheriRVInstR<0x6, 0x0, OPC_OP, "cadd", GPCR, GPCR, GPRNoX0>,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
+def CADDI         : CheriRVInstrI<0x2, OPC_OP_IMM_32, "caddi", 1>,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
 }
 let defsCanBeSealed = 1 in {
-def SENTRY        : ZCheri_r<0x8, "sentry", GPCR>;
-def CBLD          : ZCheri_rr<0x6, 0x5, "cbld", GPCR, GPCRNoC0, GPCR>;
+def SENTRY        : ZCheri_r<0x8, "sentry", GPCR>,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
+def CBLD          : ZCheri_rr<0x6, 0x5, "cbld", GPCR, GPCRNoC0, GPCR>,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
 } // defsCanBeSealed = 1
 
-def SCBNDS        : ZCheri_rr<0x7, 0x0, "scbnds">;
-def SCBNDSR       : ZCheri_rr<0x7, 0x1, "scbndsr">;
+def SCBNDS        : ZCheri_rr<0x7, 0x0, "scbnds">,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
+def SCBNDSR       : ZCheri_rr<0x7, 0x1, "scbndsr">,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
 def SCBNDSI
     : RVInstCheriSetBoundsImmFmt<0x1, 0x5, OPC_OP_IMM, (outs GPCR:$rd),
                                  (ins GPCR:$rs1, csetbnd_imm:$imm),
                                  "scbndsi", "$rd, $rs1, $imm"
-                                >;
+                                >,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
 
 def : InstAlias<"scbnds $cd, $cs1, $imm",
                 (SCBNDSI GPCR:$cd, GPCR:$cs1, csetbnd_imm:$imm), 0>;
@@ -94,7 +111,8 @@ def : InstAlias<"add $cd, $cs1, $rs2",
 } // HasZCheriPurecap
 
 let Predicates = [HasZCheriHybrid] in {
-def SCMODE        : ZCheri_rr<0x6, 0x7, "scmode">;
+def SCMODE        : ZCheri_rr<0x6, 0x7, "scmode">,
+                        Sched<[WriteCHERIMod, ReadCHERIMod]>;
 }
 
 //===----------------------------------------------------------------------===//
@@ -113,7 +131,8 @@ def MODESW_INT : CheriModeSwitchInstr<0xA, OPC_OP, "modesw.int">;
 let Predicates = [HasZCheriPurecap] in {
 let isMoveReg = 1, isReMaterializable = 1, isAsCheapAsAMove = 1,
     defsCanBeSealed = 1 in
-def CMV       : Cheri_SrcDst<0x6, 0x0, 0x0, OPC_OP, "cmv", GPCR>;
+def CMV       : Cheri_SrcDst<0x6, 0x0, 0x0, OPC_OP, "cmv", GPCR>,
+                    Sched<[WriteCHERIMove, ReadCHERIMove]>;
 def : InstAlias<"mv $cd, $cs1",
                 (CMV GPCR:$cd, GPCR:$cs1), 0>;
 } // HasZCheriPurecap
@@ -124,7 +143,8 @@ def : InstAlias<"mv $cd, $cs1",
 //===----------------------------------------------------------------------===//
 
 let Predicates = [HasZCheriPurecap] in {
-def CRAM_ : ZCheri_r<0x7, "cram", GPR, GPR>;
+def CRAM_ : ZCheri_r<0x7, "cram", GPR, GPR>,
+                Sched<[WriteCHERIComputeMask, ReadCHERIComputeMask]>;
 
 } // HasZCheriPurecap
 
@@ -133,8 +153,10 @@ def CRAM_ : ZCheri_r<0x7, "cram", GPR, GPR>;
 //===----------------------------------------------------------------------===//
 
 let Predicates = [HasZCheriPurecap] in {
-def SCSS : ZCheri_rr<0x6, 0x6, "scss", GPR, GPCRNoC0, GPCR>;
-def SCEQ : ZCheri_rr<0x6, 0x4, "sceq", GPR, GPCR, GPCR>;
+def SCSS : ZCheri_rr<0x6, 0x6, "scss", GPR, GPCRNoC0, GPCR>,
+               Sched<[WriteCHERITest, ReadCHERITest]>;
+def SCEQ : ZCheri_rr<0x6, 0x4, "sceq", GPR, GPCR, GPCR>,
+               Sched<[WriteCHERITest, ReadCHERITest]>;
 }
 
 //===----------------------------------------------------------------------===//
@@ -232,12 +254,14 @@ let Predicates = [HasZCheriPurecap, NotCapMode] in {
 let DecoderNamespace = "ZCheriOnly_", hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
 def LC  : RVInstI<0b100, OPC_MISC_MEM, (outs GPCR:$rd),
                       (ins GPR:$rs1, simm12:$imm12),
-                      "lc", "$rd, ${imm12}(${rs1})">;
+                      "lc", "$rd, ${imm12}(${rs1})">,
+              Sched<[WriteCHERILoadCap, ReadCHERILoadCap]>;
 
 let DecoderNamespace = "ZCheriOnly_", hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
 def SC  : RVInstS<0b100, OPC_STORE, (outs),
                       (ins GPCR:$rs2, GPR:$rs1, simm12:$imm12),
-                      "sc", "$rs2, ${imm12}(${rs1})">;
+                      "sc", "$rs2, ${imm12}(${rs1})">,
+              Sched<[WriteCHERIStoreCap, ReadCHERIStoreCap]>;
 
 let EmitPriority = 0 in {
 def : InstAlias<"lc $rd, (${rs1})",
@@ -249,9 +273,11 @@ def : InstAlias<"sc $rs2, (${rs1})",
 
 let Predicates = [HasZCheriPurecap, HasStdExtA, NotCapMode] in {
 let DecoderNamespace = "ZCheriOnly_" in {
-  defm LR_C      : LR_C_r_aq_rl<"", 0b100, "lr.c">;
+  defm LR_C      : LR_C_r_aq_rl<"", 0b100, "lr.c">,
+                       Sched<[WriteCHERIAtomicLDC, ReadCHERIAtomicLDC]>;
   defm SC_C      : AMO_C_rr_aq_rl<"", 0b00011, 0b100, "sc.c", GPR>;
-  defm AMOSWAP_C : AMO_C_rr_aq_rl<"", 0b00001, 0b100, "amoswap.c", GPCR>;
+  defm AMOSWAP_C : AMO_C_rr_aq_rl<"", 0b00001, 0b100, "amoswap.c", GPCR>,
+                       Sched<[WriteCHERIAtomicC, ReadCHERIAtomicC]>;
 }
 }
 
