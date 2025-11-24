@@ -617,9 +617,13 @@ bool RISCVTargetInfo::validateGlobalRegisterVariable(
     StringRef RegName, unsigned RegSize, bool &HasSizeMismatch) const {
   if (RegName == "ra" || RegName == "sp" || RegName == "gp" ||
       RegName == "tp" || RegName.starts_with("x") || RegName.starts_with("a") ||
-      RegName.starts_with("s") || RegName.starts_with("t")) {
+      RegName.starts_with("s") || RegName.starts_with("t") ||
+      (HasCheri && RegName.starts_with("c"))) {
     unsigned XLen = getTriple().isArch64Bit() ? 64 : 32;
-    HasSizeMismatch = RegSize != XLen;
+    if (!HasCheri)
+      HasSizeMismatch = RegSize != XLen;
+    else
+      HasSizeMismatch = false; // FIXME: Actually check the size...
     return true;
   }
   return false;

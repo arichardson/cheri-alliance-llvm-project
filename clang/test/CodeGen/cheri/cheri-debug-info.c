@@ -19,22 +19,22 @@
 
 int foo(int* i) { // CHECK-IR:  #dbg_declare(ptr{{( addrspace\(200\))?}} %i.addr, !14, !DIExpression(), !15)
 	if (i) {
-		int j = 2; // CHECK-IR: #dbg_declare(ptr{{( addrspace\(200\))?}} %j, !19, !DIExpression(), !21)
+		int j = 2; // CHECK-IR: #dbg_declare(ptr{{( addrspace\(200\))?}} %j, !18, !DIExpression(), !20)
 	}
 	else {
-		int j = 3;  // CHECK-IR: #dbg_declare(ptr{{( addrspace\(200\))?}} %j1, !23, !DIExpression(), !25)
+		int j = 3;  // CHECK-IR: #dbg_declare(ptr{{( addrspace\(200\))?}} %j1, !22, !DIExpression(), !24)
 	}
 	return (int)i;
-// CHECK-IR: ret i32 %{{.+}}, !dbg !28
+// CHECK-IR: ret i32 %{{.+}}, !dbg !27
 // Both MIPS and purecap should have the same number of metadata nodes:
 // CHECK-IR: !12 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !3, size: {{64|128|256}})
 // CHECK-IR: !14 = !DILocalVariable(name: "i", arg: 1, scope: !8, file: !9, line: [[#FOO_DECL_LINE:]], type: !12)
 // check that we have both j variables listed:
-// CHECK-IR: !19 = !DILocalVariable(name: "j", scope: !20, file: !9, line: [[#FOO_DECL_LINE + 2]], type: !3)
-// CHECK-IR: !20 = distinct !DILexicalBlock(scope: !17, file: !9, line: [[#FOO_DECL_LINE + 1]], column: 9)
-// CHECK-IR: !23 = !DILocalVariable(name: "j", scope: !24, file: !9, line: [[#FOO_DECL_LINE + 5]], type: !3)
-// CHECK-IR: !24 = distinct !DILexicalBlock(scope: !17, file: !9, line: [[#FOO_DECL_LINE + 4]], column: 7)
-// CHECK-IR: !28 = !DILocation(line: [[#FOO_DECL_LINE + 7]], column: 2, scope: !8)
+// CHECK-IR: !18 = !DILocalVariable(name: "j", scope: !19, file: !9, line: [[#FOO_DECL_LINE + 2]], type: !3)
+// CHECK-IR: !19 = distinct !DILexicalBlock(scope: !17, file: !9, line: [[#FOO_DECL_LINE + 1]], column: 9)
+// CHECK-IR: !22 = !DILocalVariable(name: "j", scope: !23, file: !9, line: [[#FOO_DECL_LINE + 5]], type: !3)
+// CHECK-IR: !23 = distinct !DILexicalBlock(scope: !17, file: !9, line: [[#FOO_DECL_LINE + 4]], column: 7)
+// CHECK-IR: !27 = !DILocation(line: [[#FOO_DECL_LINE + 7]], column: 2, scope: !8)
 }
 
 // Previoulsy llvm-dwarfdump would not handle MIPS relocations for a CHERI triple:
