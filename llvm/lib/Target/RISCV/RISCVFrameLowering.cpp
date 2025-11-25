@@ -817,7 +817,7 @@ void RISCVFrameLowering::deallocateStack(MachineFunction &MF,
                                          int64_t CFAOffset) const {
   const RISCVRegisterInfo *RI = STI.getRegisterInfo();
 
-  Register SPReg = getSPReg(STI);
+  Register SPReg = getSPReg();
 
   RI->adjustReg(MBB, MBBI, DL, SPReg, SPReg, StackOffset::getFixed(StackSize),
                 MachineInstr::FrameDestroy, getStackAlign());
