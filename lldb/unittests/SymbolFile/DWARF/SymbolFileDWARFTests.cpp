@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 
 #include "llvm/ADT/STLExtras.h"
+#include "llvm/ADT/ArrayRef.h"
 #include "llvm/DebugInfo/DWARF/DWARFDebugArangeSet.h"
 #include "llvm/DebugInfo/PDB/PDBSymbolData.h"
 #include "llvm/DebugInfo/PDB/PDBSymbolExe.h"
@@ -92,7 +93,7 @@ TEST_F(SymbolFileDWARFTests, ParseArangesNonzeroSegmentSize) {
       // END TUPLES
       0, 0, 0, 0, 0, 0, 0, 0, 0 // terminator
   };
-  llvm::DWARFDataExtractor data(llvm::ArrayRef(binary_data),
+  llvm::DWARFDataExtractor data(llvm::ArrayRef<unsigned char>(binary_data),
                                 /*isLittleEndian=*/false, /*AddrSize=*/4);
 
   DWARFDebugArangeSet debug_aranges;
