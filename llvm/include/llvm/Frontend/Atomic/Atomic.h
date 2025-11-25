@@ -198,7 +198,7 @@ public:
     AttributeList Attr;
     Module *M = Builder->GetInsertBlock()->getModule();
     const DataLayout &DL = M->getDataLayout();
-    Args.push_back(ConstantInt::get(DL.getIntPtrType(Ctx),
+    Args.push_back(ConstantInt::get(DL.getIntPtrType(Ctx, DL.getDefaultGlobalsAddressSpace()),
                                     this->getAtomicSizeInBits() / 8));
 
     Value *PtrVal = getAtomicPointer();
