@@ -135,7 +135,7 @@ def DisableSanitizerInstrumentation: EnumAttr<"disable_sanitizer_instrumentation
 def ElementType : TypeAttr<"elementtype", IntersectPreserve, [ParamAttr]>;
 
 /// Function has additional side-effects.
-def HasSideEffects : EnumAttr<"hassideeffects", [FnAttr]>;
+def HasSideEffects : EnumAttr<"hassideeffects", IntersectPreserve, [FnAttr]>;
 
 /// Whether to keep return instructions, or replace with a jump to an external
 /// symbol.
@@ -223,10 +223,10 @@ def NoRedZone : EnumAttr<"noredzone", IntersectPreserve, [FnAttr]>;
 def NoReturn : EnumAttr<"noreturn", IntersectAnd, [FnAttr]>;
 
 /// Disable use of CAP relocs in this function. Only affects CHERI
-def NoCapRelocs : EnumAttr<"nocaprelocs", [FnAttr]>;
+def NoCapRelocs : EnumAttr<"nocaprelocs", IntersectPreserve, [FnAttr]>;
 
 /// Don't seal function. Only affects CHERI
-def DontSeal : EnumAttr<"dont_seal", [FnAttr]>;
+def DontSeal : EnumAttr<"dont_seal", IntersectPreserve, [FnAttr]>;
 
 /// Function does not synchronize.
 def NoSync : EnumAttr<"nosync", IntersectAnd, [FnAttr]>;
@@ -381,11 +381,11 @@ def ZExt : EnumAttr<"zeroext", IntersectPreserve, [ParamAttr, RetAttr]>;
 
 // This MemTransferInst may transfer capabilities and must not be
 // split into smaller loads/stores that would break this property
-def MustPreserveCheriTags : EnumAttr<"must_preserve_cheri_tags", [FnAttr]>;
+def MustPreserveCheriTags : EnumAttr<"must_preserve_cheri_tags", IntersectPreserve, [FnAttr]>;
 // This MemTransferInst will never transfer capabilities and can
 // therefore be split into smaller loads/stores and/or be lowered to
 // copy instructions/functions that do not retain CHERI tags.
-def NoPreserveCheriTags : EnumAttr<"no_preserve_cheri_tags", [FnAttr]>;
+def NoPreserveCheriTags : EnumAttr<"no_preserve_cheri_tags", IntersectAnd, [FnAttr]>;
 
 /// Function is required to make Forward Progress.
 def MustProgress : EnumAttr<"mustprogress", IntersectAnd, [FnAttr]>;
