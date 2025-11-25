@@ -1734,7 +1734,7 @@ bool TreePatternNode::UpdateNodeTypeFromInst(unsigned ResNo,
 
   // PointerLikeRegClass has a type that is determined at runtime.
   if (Operand->isSubClassOf("PointerLikeRegClass")) {
-    Record *R = Operand->getValueAsDef("RegClassType");
+    const Record *R = Operand->getValueAsDef("RegClassType");
     return UpdateNodeType(ResNo, getValueType(R), TP);
   }
 
@@ -2298,7 +2298,7 @@ static TypeSetByHwMode getImplicitType(const Record *R, unsigned ResNo,
   }
   if (R->isSubClassOf("PointerLikeRegClass")) {
     assert(ResNo == 0 && "Regclass can only have one result!");
-    Record *T = R->getValueAsDef("RegClassType");
+    const Record *T = R->getValueAsDef("RegClassType");
     TypeSetByHwMode VTS(getValueType(T));
     TP.getInfer().expandOverloads(VTS);
     return VTS;
