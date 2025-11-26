@@ -7943,7 +7943,7 @@ NamedDecl *Sema::ActOnVariableDeclarator(
                     !R->isCHERICapabilityType(Context)) ||
                    (!TI.isValidCHERIRegister(Label) &&
                     R->isCHERICapabilityType(Context))) {
-          Diag(D.getBeginLoc(), diag::err_asm_bad_register_type);
+          Diag(D.getBeginLoc(), diag::err_asm_unsupported_register_type);
           NewVD->setInvalidDecl(true);
         }
         break;
@@ -7978,7 +7978,7 @@ NamedDecl *Sema::ActOnVariableDeclarator(
                   !R->isCHERICapabilityType(Context)) ||
                  (!TI.isValidCHERIRegister(Label) &&
                   R->isCHERICapabilityType(Context))) {
-        Diag(D.getBeginLoc(), diag::err_asm_bad_register_type);
+        Diag(D.getBeginLoc(), diag::err_asm_unsupported_register_type);
         NewVD->setInvalidDecl(true);
       }
     }
