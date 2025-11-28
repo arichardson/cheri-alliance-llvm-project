@@ -418,9 +418,9 @@ Error DataLayout::parsePointerSpec(StringRef Spec) {
   assert(Spec.front() == 'p');
   Spec.drop_front().split(Components, ':');
 
-  bool isFat = false;
+  bool IsFat = false;
   if (!Components[0].empty() && (Components[0].front() == 'f')) {
-    isFat = true;
+    IsFat = true;
     Components[0] = Components[0].drop_front();
   }
   if (Components.size() < 3 || Components.size() > 5)
@@ -431,7 +431,7 @@ Error DataLayout::parsePointerSpec(StringRef Spec) {
   if (!Components[0].empty())
     if (Error Err = parseAddrSpace(Components[0], AddrSpace))
       return Err;
-  if (isFat)
+  if (IsFat)
     assert(AddrSpace == 200
         && "CHERI caps must use AS 200 since there are still some hardcoded checks");
 
@@ -467,7 +467,7 @@ Error DataLayout::parsePointerSpec(StringRef Spec) {
         "index size cannot be larger than the pointer size");
 
   setPointerSpec(AddrSpace, BitWidth, ABIAlign, PrefAlign, IndexBitWidth,
-                 false, isFat);
+                 IsFat, IsFat);
   return Error::success();
 }
 
@@ -693,6 +693,7 @@ void DataLayout::setPointerSpec(uint32_t AddrSpace, uint32_t BitWidth,
                                 Align ABIAlign, Align PrefAlign,
                                 uint32_t IndexBitWidth,
                                 bool IsNonIntegral, bool IsFatPointer) {
+  assert((IsNonIntegral || !IsFatPointer) && "IsFat requires IsNonIntegral!");
   auto I = lower_bound(PointerSpecs, AddrSpace, LessPointerAddrSpace());
   if (I == PointerSpecs.end() || I->AddrSpace != AddrSpace) {
     PointerSpecs.insert(I, PointerSpec{AddrSpace, BitWidth, ABIAlign, PrefAlign,
