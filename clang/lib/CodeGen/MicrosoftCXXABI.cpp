@@ -531,7 +531,7 @@ public:
       return ClassHierarchyDescriptorType;
     // Forward-declare RTTIClassHierarchyDescriptor to break a cycle.
     ClassHierarchyDescriptorType =
-        llvm::StructType::create(FieldTypes, "rtti.ClassHierarchyDescriptor");
+        llvm::StructType::create(CGM.getLLVMContext(), "rtti.ClassHierarchyDescriptor");
     const unsigned AS = CGM.getTargetCodeGenInfo().getDefaultAS();
     llvm::Type *FieldTypes[] = {
         CGM.IntTy,
