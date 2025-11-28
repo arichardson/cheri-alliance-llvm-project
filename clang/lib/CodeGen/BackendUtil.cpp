@@ -1060,7 +1060,7 @@ void EmitAssemblyHelper::RunOptimizationPipeline(
     // Run the CSetBounds logging past after all IR-level optimization have run.
     if (cheri::ShouldCollectCSetBoundsStats) {
       PB.registerOptimizerLastEPCallback(
-          [](ModulePassManager &MPM, OptimizationLevel Level) {
+          [](ModulePassManager &MPM, OptimizationLevel Level, ThinOrFullLTOPhase) {
             FunctionPassManager FPM;
             FPM.addPass(CheriLogSetBoundsPass());
             MPM.addPass(createModuleToFunctionPassAdaptor(std::move(FPM)));
