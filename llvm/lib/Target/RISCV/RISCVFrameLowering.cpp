@@ -891,6 +891,8 @@ void RISCVFrameLowering::emitEpilogue(MachineFunction &MF,
   MachineFrameInfo &MFI = MF.getFrameInfo();
   auto *RVFI = MF.getInfo<RISCVMachineFunctionInfo>();
   const RISCVInstrInfo *TII = STI.getInstrInfo();
+  Register FPReg = getFPReg();
+  Register SPReg = getSPReg();
 
   // All calls are tail calls in GHC calling conv, and functions have no
   // prologue/epilogue.
