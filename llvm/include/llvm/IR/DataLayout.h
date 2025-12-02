@@ -80,11 +80,6 @@ public:
     uint32_t IndexBitWidth;
     bool IsFatPointer;
 
-    /// Pointers in this address space don't have a well-defined bitwise
-    /// representation (e.g. may be relocated by a copying garbage collector).
-    /// Additionally, they may also be non-integral (i.e. containing additional
-    /// metadata such as bounds information/permissions).
-    bool IsNonIntegral;
     bool operator==(const PointerSpec &Other) const;
   };
 
@@ -141,6 +136,10 @@ private:
   // The StructType -> StructLayout map.
   mutable void *LayoutMap = nullptr;
 
+  /// Pointers in these address spaces are non-integral, and don't have a
+  /// well-defined bitwise representation.
+  SmallVector<unsigned, 8> NonIntegralAddressSpaces;
+
   /// Sets or updates the specification for the given primitive type.
   void setPrimitiveSpec(char Specifier, uint32_t BitWidth, Align ABIAlign,
                         Align PrefAlign);
@@ -151,8 +150,7 @@ private:
 
   /// Sets or updates the specification for pointer in the given address space.
   void setPointerSpec(uint32_t AddrSpace, uint32_t BitWidth, Align ABIAlign,
-                      Align PrefAlign, uint32_t IndexBitWidth,
-                      bool IsNonIntegral, bool IsFatPointer);
+                      Align PrefAlign, uint32_t IndexBitWidth, bool IsFatPointer);
 
   /// Internal helper to get alignment for integer of given bitwidth.
   Align getIntegerAlignment(uint32_t BitWidth, bool abi_or_pref) const;
@@ -170,8 +168,7 @@ private:
   Error parsePointerSpec(StringRef Spec);
 
   /// Attempts to parse a single specification.
-  Error parseSpecification(StringRef Spec,
-                           SmallVectorImpl<unsigned> &NonIntegralAddressSpaces);
+  Error parseSpecification(StringRef Spec);
 
   /// Attempts to parse a data layout string.
   Error parseLayoutString(StringRef LayoutString);
@@ -374,17 +371,13 @@ public:
 
   /// Return the address spaces containing non-integral pointers.  Pointers in
   /// this address space don't have a well-defined bitwise representation.
-  SmallVector<unsigned, 8> getNonIntegralAddressSpaces() const {
-    SmallVector<unsigned, 8> AddrSpaces;
-    for (const PointerSpec &PS : PointerSpecs) {
-      if (PS.IsNonIntegral)
-        AddrSpaces.push_back(PS.AddrSpace);
-    }
-    return AddrSpaces;
+  ArrayRef<unsigned> getNonIntegralAddressSpaces() const {
+    return NonIntegralAddressSpaces;
   }
 
   bool isNonIntegralAddressSpace(unsigned AddrSpace) const {
-    return getPointerSpec(AddrSpace).IsNonIntegral;
+    ArrayRef<unsigned> NonIntegralSpaces = getNonIntegralAddressSpaces();
+    return is_contained(NonIntegralSpaces, AddrSpace);
   }
 
   bool isNonIntegralPointerType(PointerType *PT) const {
