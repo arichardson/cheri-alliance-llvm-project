@@ -41,12 +41,12 @@ class LLVM_LIBRARY_VISIBILITY MipsTargetInfo : public TargetInfo {
     } else if (ABI == "n64") {
       if (IsCHERI) {
         if (CapSize == 64) {
-          Layout = "m:e-pf200:64:64:64:32-i8:8:32-i16:16:32-i64:64-n32:64-S128";
+          Layout = "m:e-pf200:64:64:64:32-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128";
         } else if (CapSize == 128) {
-          Layout = "m:e-pf200:128:128:128:64-i8:8:32-i16:16:32-i64:64-n32:64-S128";
+          Layout = "m:e-pf200:128:128:128:64-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128";
         } else {
           assert(CapSize == 256);
-          Layout = "m:e-pf200:256:256:256:64-i8:8:32-i16:16:32-i64:64-n32:64-S256";
+          Layout = "m:e-pf200:256:256:256:64-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S256";
         }
       } else
         Layout = "m:e-i8:8:32-i16:16:32-i64:64-i128:128-n32:64-S128";
