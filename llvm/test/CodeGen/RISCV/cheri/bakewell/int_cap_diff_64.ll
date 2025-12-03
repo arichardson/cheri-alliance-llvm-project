@@ -13,6 +13,7 @@ define dso_local signext i32 @capdiff(i32 addrspace(200)* noundef %a, i32 addrsp
 ; RV64PURECAP-NEXT:    sext.w a0, a0
 ; RV64PURECAP-NEXT:    sc ca1, 0(csp)
 ; RV64PURECAP-NEXT:    caddi csp, csp, 32
+; RV64PURECAP-NEXT:    .cfi_def_cfa_offset 0
 ; RV64PURECAP-NEXT:    ret
 entry:
 

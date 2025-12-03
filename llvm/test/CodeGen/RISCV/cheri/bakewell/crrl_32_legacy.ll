@@ -13,6 +13,7 @@ define dso_local i32 @cram(i32 noundef %len) {
 ; RV32LEGACY-NEXT:    sw a0, 12(sp)
 ; RV32LEGACY-NEXT:    mv a0, a1
 ; RV32LEGACY-NEXT:    addi sp, sp, 16
+; RV32LEGACY-NEXT:    .cfi_def_cfa_offset 0
 ; RV32LEGACY-NEXT:    ret
 entry:
   %len.addr = alloca i32, align 4

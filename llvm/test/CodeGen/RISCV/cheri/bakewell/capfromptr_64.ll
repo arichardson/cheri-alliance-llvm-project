@@ -19,6 +19,7 @@ define dso_local i8 addrspace(200)* @capfromptr(i8* noundef %foo, i8 addrspace(2
 ; RV64LEGACY-NEXT:  .LBB0_3: # %entry
 ; RV64LEGACY-NEXT:    sc ca0, 0(sp)
 ; RV64LEGACY-NEXT:    addi sp, sp, 48
+; RV64LEGACY-NEXT:    .cfi_def_cfa_offset 0
 ; RV64LEGACY-NEXT:    ret
 entry:
   %foo.addr = alloca i8*, align 8

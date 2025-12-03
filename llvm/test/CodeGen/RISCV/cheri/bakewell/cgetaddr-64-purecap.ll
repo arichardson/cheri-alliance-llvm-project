@@ -11,6 +11,7 @@ define dso_local signext i32 @foo(i8 addrspace(200)* noundef %cap) addrspace(200
 ; RV32PURECAP-NEXT:    sc ca0, 0(csp)
 ; RV32PURECAP-NEXT:    mv a0, a1
 ; RV32PURECAP-NEXT:    caddi csp, csp, 16
+; RV32PURECAP-NEXT:    .cfi_def_cfa_offset 0
 ; RV32PURECAP-NEXT:    ret
 entry:
   %cap.addr = alloca i8 addrspace(200)*, align 16, addrspace(200)

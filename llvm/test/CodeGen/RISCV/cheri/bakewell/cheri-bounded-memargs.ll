@@ -120,6 +120,7 @@ define i32 @bb([4 x float] %f1.coerce, [4 x float] %f2.coerce, [4 x float] %f3.c
 ; CHECK-NEXT:    fadd.s fa5, fa5, fa4
 ; CHECK-NEXT:    fcvt.w.s a0, fa5, rtz
 ; CHECK-NEXT:    caddi csp, csp, 32
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 entry:
   %va = alloca ptr addrspace(200), align 16, addrspace(200)
@@ -189,7 +190,11 @@ define i32 @biz() local_unnamed_addr addrspace(200) {
 ; CHECK-NEXT:    lc cra, 96(csp) # 16-byte Folded Reload
 ; CHECK-NEXT:    lc cs0, 80(csp) # 16-byte Folded Reload
 ; CHECK-NEXT:    lc cs1, 64(csp) # 16-byte Folded Reload
+; CHECK-NEXT:    .cfi_restore ra
+; CHECK-NEXT:    .cfi_restore s0
+; CHECK-NEXT:    .cfi_restore s1
 ; CHECK-NEXT:    caddi csp, csp, 112
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 entry:
   %call = call i32 (i32, i32, i32, i32, i32, i32, i32, i32, i32, ptr addrspace(200), ...) @fiz(i32 0, i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, ptr addrspace(200) null, i32 1, i32 1)
@@ -219,6 +224,7 @@ define i32 @f(i32 %0, i32 %1, i32 %2, i32 %3, i32 %4, i32 %5, i32 %6, i32 %7, i3
 ; CHECK-NEXT:    lw a0, 0(ca0)
 ; CHECK-NEXT:    addw a0, a0, a1
 ; CHECK-NEXT:    caddi csp, csp, 32
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 entry:
   %va = alloca ptr addrspace(200), align 16, addrspace(200)
@@ -264,7 +270,9 @@ define i32 @callargs() {
 ; CHECK-NEXT:    sc cnull, 16(csp)
 ; CHECK-NEXT:    call readmemargs
 ; CHECK-NEXT:    lc cra, 80(csp) # 16-byte Folded Reload
+; CHECK-NEXT:    .cfi_restore ra
 ; CHECK-NEXT:    caddi csp, csp, 96
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
   %1 = call i32 (i32, i32, i32, i32, i32, i32, i32, i32, i32, ptr addrspace(200), i32, i32, ...) @readmemargs(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, i32 100, ptr addrspace(200) null, i32 101, i32 102, i32 103, i32 104)
   ret i32 %1
@@ -286,6 +294,7 @@ define i32 @readmemargs(i32, i32, i32, i32, i32, i32, i32, i32, i32 %memarg1, pt
 ; CHECK-NEXT:    add a0, a0, a1
 ; CHECK-NEXT:    addw a0, a0, a3
 ; CHECK-NEXT:    caddi csp, csp, 16
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 entry:
   %ptr.val = load i32, ptr addrspace(200) %memarg2, align 16
@@ -318,7 +327,9 @@ define i32 @calltyhitassert() {
 ; CHECK-NEXT:    sd t0, 0(csp)
 ; CHECK-NEXT:    call tryhitassert
 ; CHECK-NEXT:    lc cra, 32(csp) # 16-byte Folded Reload
+; CHECK-NEXT:    .cfi_restore ra
 ; CHECK-NEXT:    caddi csp, csp, 48
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 entry:
  %val = call i32 (i32, i32, i32, i32, i32, i32, i32, i32, i32 , ...) @tryhitassert(i32 1, i32 2, i32 3, i32 4, i32 5, i32 6, i32 7, i32 8, i32 101, i32 201)
@@ -344,6 +355,7 @@ define i32 @tryhitassert(i32, i32, i32, i32, i32, i32, i32, i32, i32 %memarg, ..
 ; CHECK-NEXT:    lw a0, 0(ca0)
 ; CHECK-NEXT:    addw a0, a1, a0
 ; CHECK-NEXT:    caddi csp, csp, 32
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 entry:
   %va = alloca ptr addrspace(200), align 16, addrspace(200)
@@ -372,6 +384,7 @@ define i32 @aggregate(i32, i32, i32, i32, i32, i32, %struct.agg %arg, ...) {
 ; CHECK-NEXT:    add a0, a6, a0
 ; CHECK-NEXT:    addw a0, a0, a1
 ; CHECK-NEXT:    caddi csp, csp, 16
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
   %a = extractvalue %struct.agg %arg, 0
   %b = extractvalue %struct.agg %arg, 1
@@ -422,7 +435,9 @@ define i32 @callAggr() {
 ; CHECK-NEXT:    sd t0, 0(csp)
 ; CHECK-NEXT:    call aggregate
 ; CHECK-NEXT:    lc cra, 64(csp) # 16-byte Folded Reload
+; CHECK-NEXT:    .cfi_restore ra
 ; CHECK-NEXT:    caddi csp, csp, 80
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
   %struct = alloca %struct.agg, addrspace(200)
   store %struct.agg { i32 100, i32 101, i8 12, i8 13, i32 200}, ptr addrspace(200) %struct

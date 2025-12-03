@@ -14,6 +14,7 @@ define dso_local i32 @crrl(i32 noundef %len) addrspace(200) {
 ; RV32PURECAP-NEXT:    sw a0, 12(csp)
 ; RV32PURECAP-NEXT:    mv a0, a1
 ; RV32PURECAP-NEXT:    caddi csp, csp, 16
+; RV32PURECAP-NEXT:    .cfi_def_cfa_offset 0
 ; RV32PURECAP-NEXT:    ret
 entry:
   %len.addr = alloca i32, align 4, addrspace(200)

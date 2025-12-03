@@ -13,6 +13,7 @@ define dso_local i32 @capdiff(i32 addrspace(200)* noundef %a, i32 addrspace(200)
 ; RV32PURECAP-NEXT:    srai a0, a0, 2
 ; RV32PURECAP-NEXT:    sc ca1, 0(csp)
 ; RV32PURECAP-NEXT:    caddi csp, csp, 16
+; RV32PURECAP-NEXT:    .cfi_def_cfa_offset 0
 ; RV32PURECAP-NEXT:    ret
 entry:
   %a.addr = alloca i32 addrspace(200)*, align 8, addrspace(200)

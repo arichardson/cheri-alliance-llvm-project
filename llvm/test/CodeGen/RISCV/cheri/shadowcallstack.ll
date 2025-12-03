@@ -43,7 +43,9 @@ define i32 @f3() shadowcallstack {
 ; RV32-NEXT:    .cfi_offset ra, -8
 ; RV32-NEXT:    call bar
 ; RV32-NEXT:    lc cra, 8(csp) # 8-byte Folded Reload
+; RV32-NEXT:    .cfi_restore ra
 ; RV32-NEXT:    caddi csp, csp, 16
+; RV32-NEXT:    .cfi_def_cfa_offset 0
 ; RV32-NEXT:    lc cra, -8(cgp)
 ; RV32-NEXT:    caddi cgp, cgp, -8
 ; RV32-NEXT:    .cfi_restore gp
@@ -60,7 +62,9 @@ define i32 @f3() shadowcallstack {
 ; RV64-NEXT:    .cfi_offset ra, -16
 ; RV64-NEXT:    call bar
 ; RV64-NEXT:    lc cra, 0(csp) # 16-byte Folded Reload
+; RV64-NEXT:    .cfi_restore ra
 ; RV64-NEXT:    caddi csp, csp, 16
+; RV64-NEXT:    .cfi_def_cfa_offset 0
 ; RV64-NEXT:    lc cra, -16(cgp)
 ; RV64-NEXT:    caddi cgp, cgp, -16
 ; RV64-NEXT:    .cfi_restore gp
@@ -100,7 +104,12 @@ define i32 @f4() shadowcallstack {
 ; RV32-NEXT:    lc cs0, 16(csp) # 8-byte Folded Reload
 ; RV32-NEXT:    lc cs1, 8(csp) # 8-byte Folded Reload
 ; RV32-NEXT:    lc cs2, 0(csp) # 8-byte Folded Reload
+; RV32-NEXT:    .cfi_restore ra
+; RV32-NEXT:    .cfi_restore s0
+; RV32-NEXT:    .cfi_restore s1
+; RV32-NEXT:    .cfi_restore s2
 ; RV32-NEXT:    caddi csp, csp, 32
+; RV32-NEXT:    .cfi_def_cfa_offset 0
 ; RV32-NEXT:    lc cra, -8(cgp)
 ; RV32-NEXT:    caddi cgp, cgp, -8
 ; RV32-NEXT:    .cfi_restore gp
@@ -135,7 +144,12 @@ define i32 @f4() shadowcallstack {
 ; RV64-NEXT:    lc cs0, 32(csp) # 16-byte Folded Reload
 ; RV64-NEXT:    lc cs1, 16(csp) # 16-byte Folded Reload
 ; RV64-NEXT:    lc cs2, 0(csp) # 16-byte Folded Reload
+; RV64-NEXT:    .cfi_restore ra
+; RV64-NEXT:    .cfi_restore s0
+; RV64-NEXT:    .cfi_restore s1
+; RV64-NEXT:    .cfi_restore s2
 ; RV64-NEXT:    caddi csp, csp, 64
+; RV64-NEXT:    .cfi_def_cfa_offset 0
 ; RV64-NEXT:    lc cra, -16(cgp)
 ; RV64-NEXT:    caddi cgp, cgp, -16
 ; RV64-NEXT:    .cfi_restore gp

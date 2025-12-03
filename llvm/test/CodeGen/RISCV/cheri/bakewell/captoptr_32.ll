@@ -13,6 +13,7 @@ define dso_local void @captoptr(i8 addrspace(200)* noundef %foo)  {
 ; RV32LEGACY-NEXT:    and a0, a0, a1
 ; RV32LEGACY-NEXT:    sw a0, 4(sp)
 ; RV32LEGACY-NEXT:    addi sp, sp, 16
+; RV32LEGACY-NEXT:    .cfi_def_cfa_offset 0
 ; RV32LEGACY-NEXT:    ret
 entry:
   %foo.addr = alloca i8 addrspace(200)*, align 8

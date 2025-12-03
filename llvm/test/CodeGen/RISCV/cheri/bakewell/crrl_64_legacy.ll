@@ -15,6 +15,7 @@ define dso_local signext i32 @crrl(i32 noundef signext %len) {
 ; RV64LEGACY-NEXT:    sw a0, 12(sp)
 ; RV64LEGACY-NEXT:    mv a0, a1
 ; RV64LEGACY-NEXT:    addi sp, sp, 16
+; RV64LEGACY-NEXT:    .cfi_def_cfa_offset 0
 ; RV64LEGACY-NEXT:    ret
 entry:
   %len.addr = alloca i32, align 4

@@ -26,15 +26,20 @@ define dso_local noundef signext i32 @_Z8do_catchv() local_unnamed_addr addrspac
 ; CHECK-NEXT:    sc cs0, 0(csp) # 16-byte Folded Spill
 ; CHECK-NEXT:    .cfi_offset ra, -16
 ; CHECK-NEXT:    .cfi_offset s0, -32
+; CHECK-NEXT:    .cfi_remember_state
 ; CHECK-NEXT:  .Ltmp0:
 ; CHECK-NEXT:    call _Z3foov
 ; CHECK-NEXT:  .Ltmp1:
 ; CHECK-NEXT:  .LBB0_1: # %return
 ; CHECK-NEXT:    lc cra, 16(csp) # 16-byte Folded Reload
 ; CHECK-NEXT:    lc cs0, 0(csp) # 16-byte Folded Reload
+; CHECK-NEXT:    .cfi_restore ra
+; CHECK-NEXT:    .cfi_restore s0
 ; CHECK-NEXT:    caddi csp, csp, 32
+; CHECK-NEXT:    .cfi_def_cfa_offset 0
 ; CHECK-NEXT:    ret
 ; CHECK-NEXT:  .LBB0_2: # %lpad
+; CHECK-NEXT:    .cfi_restore_state
 ; CHECK-NEXT:  .Ltmp2:
 ; CHECK-NEXT:    sext.w s0, a1
 ; CHECK-NEXT:    call __cxa_begin_catch

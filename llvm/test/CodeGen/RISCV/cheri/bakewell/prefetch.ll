@@ -725,11 +725,7 @@ define void @test_prefetch_frameindex_1() nounwind {
 ; RV32I-NEXT:    caddi csp, csp, -144
 ; RV32I-NEXT:    andi a0, sp, -64
 ; RV32I-NEXT:    scaddr csp, csp, a0
-; RV32I-NEXT:    lui a0, 1048575
-; RV32I-NEXT:    addi a0, a0, -128
-; RV32I-NEXT:    cadd csp, cs0, a0
-; RV32I-NEXT:    caddi csp, csp, 2032
-; RV32I-NEXT:    caddi csp, csp, 160
+; RV32I-NEXT:    caddi csp, cs0, -2032
 ; RV32I-NEXT:    lc cra, 2024(csp) # 8-byte Folded Reload
 ; RV32I-NEXT:    lc cs0, 2016(csp) # 8-byte Folded Reload
 ; RV32I-NEXT:    caddi csp, csp, 2032
@@ -759,11 +755,7 @@ define void @test_prefetch_frameindex_1() nounwind {
 ; RV32ZICBOP-NEXT:    caddi ca1, csp, 64
 ; RV32ZICBOP-NEXT:    scbndsr ca0, ca1, a0
 ; RV32ZICBOP-NEXT:    prefetch.r 0(ca0)
-; RV32ZICBOP-NEXT:    lui a0, 1048575
-; RV32ZICBOP-NEXT:    addi a0, a0, -128
-; RV32ZICBOP-NEXT:    cadd csp, cs0, a0
-; RV32ZICBOP-NEXT:    caddi csp, csp, 2032
-; RV32ZICBOP-NEXT:    caddi csp, csp, 160
+; RV32ZICBOP-NEXT:    caddi csp, cs0, -2032
 ; RV32ZICBOP-NEXT:    lc cra, 2024(csp) # 8-byte Folded Reload
 ; RV32ZICBOP-NEXT:    lc cs0, 2016(csp) # 8-byte Folded Reload
 ; RV32ZICBOP-NEXT:    caddi csp, csp, 2032

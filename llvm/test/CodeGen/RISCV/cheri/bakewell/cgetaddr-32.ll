@@ -11,6 +11,7 @@ define dso_local i8* @foo(i8 addrspace(200)* noundef %cap) {
 ; RV32LEGACY-NEXT:    sc ca0, 8(sp)
 ; RV32LEGACY-NEXT:    mv a0, a1
 ; RV32LEGACY-NEXT:    addi sp, sp, 16
+; RV32LEGACY-NEXT:    .cfi_def_cfa_offset 0
 ; RV32LEGACY-NEXT:    ret
 entry:
   %cap.addr = alloca i8 addrspace(200)*, align 8
