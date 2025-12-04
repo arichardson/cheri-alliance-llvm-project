@@ -321,7 +321,7 @@ typedef struct {
 // CHECK-NEXT:    [[ADD:%.*]] = add nsw i64 [[IN_COERCE0]], 1
 // CHECK-NEXT:    [[TMP0:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE2]], i64 2
 // CHECK-NEXT:    [[DOTFCA_0_INSERT:%.*]] = insertvalue { i64, i64, ptr addrspace(200) } poison, i64 [[ADD]], 0
-// CHECK-NEXT:    [[DOTFCA_1_INSERT:%.*]] = insertvalue { i64, i64, ptr addrspace(200) } [[DOTFCA_0_INSERT]], i64 undef, 1
+// CHECK-NEXT:    [[DOTFCA_1_INSERT:%.*]] = insertvalue { i64, i64, ptr addrspace(200) } [[DOTFCA_0_INSERT]], i64 0, 1
 // CHECK-NEXT:    [[DOTFCA_2_INSERT:%.*]] = insertvalue { i64, i64, ptr addrspace(200) } [[DOTFCA_1_INSERT]], ptr addrspace(200) [[TMP0]], 2
 // CHECK-NEXT:    ret { i64, i64, ptr addrspace(200) } [[DOTFCA_2_INSERT]]
 //
@@ -331,8 +331,9 @@ IntAndCap int_and_cap(IntAndCap in) {
   // ASM-LABEL: int_and_cap:
   // ASM: # %bb.0: # %entry
   // ASM-NEXT:  daddiu $2, $4, 1
-  // ASM-NEXT:  cjr     $c17
   // ASM-NEXT:  cincoffset $c3, $c3, 2
+  // ASM-NEXT:  cjr     $c17
+  // ASM-NEXT:  daddiu $3, $zero, 0
 }
 
 typedef struct {
@@ -346,7 +347,7 @@ typedef struct {
 // CHECK-NEXT:    [[ADD3:%.*]] = add nsw i64 [[IN_COERCE1]], 1
 // CHECK-NEXT:    [[DOTFCA_0_INSERT:%.*]] = insertvalue { ptr addrspace(200), i64, i64 } poison, ptr addrspace(200) [[TMP0]], 0
 // CHECK-NEXT:    [[DOTFCA_1_INSERT:%.*]] = insertvalue { ptr addrspace(200), i64, i64 } [[DOTFCA_0_INSERT]], i64 [[ADD3]], 1
-// CHECK-NEXT:    [[DOTFCA_2_INSERT:%.*]] = insertvalue { ptr addrspace(200), i64, i64 } [[DOTFCA_1_INSERT]], i64 undef, 2
+// CHECK-NEXT:    [[DOTFCA_2_INSERT:%.*]] = insertvalue { ptr addrspace(200), i64, i64 } [[DOTFCA_1_INSERT]], i64 0, 2
 // CHECK-NEXT:    ret { ptr addrspace(200), i64, i64 } [[DOTFCA_2_INSERT]]
 //
 CapAndInt cap_and_int(CapAndInt in) {
@@ -355,8 +356,9 @@ CapAndInt cap_and_int(CapAndInt in) {
   // ASM-LABEL: cap_and_int:
   // ASM: # %bb.0: # %entry
   // ASM-NEXT:  cincoffset $c3, $c3, 2
-  // ASM-NEXT:  cjr     $c17
   // ASM-NEXT:  daddiu $2, $4, 1
+  // ASM-NEXT:  cjr     $c17
+  // ASM-NEXT:  daddiu  $3, $zero, 0
 }
 
 typedef struct {
@@ -375,6 +377,8 @@ typedef struct {
 // CHECK-NEXT:    [[I:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 32
 // CHECK-NEXT:    [[ADD5:%.*]] = add nsw i64 [[IN_COERCE2]], 1
 // CHECK-NEXT:    store i64 [[ADD5]], ptr addrspace(200) [[I]], align 16, !tbaa [[TBAA14:![0-9]+]]
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 40
+// CHECK-NEXT:    store i64 0, ptr addrspace(200) [[TMP3]], align 8
 // CHECK-NEXT:    ret void
 //
 CapCapInt cap_cap_int(CapCapInt in) {
@@ -382,13 +386,14 @@ CapCapInt cap_cap_int(CapCapInt in) {
   // Argument is split up into two cap reg and an int reg, but return value is indirect
   // ASM-LABEL: cap_cap_int:
   // ASM: # %bb.0: # %entry
-  // ASM-NEXT:       cincoffset $c1, $c4, 2
+  // ASM-NEXT:  cincoffset $c1, $c4, 2
   // ASM-NEXT:  csc     $c1, $zero, 0($c3)
   // ASM-NEXT:  cincoffset $c1, $c5, 3
   // ASM-NEXT:  csc     $c1, $zero, [[#CAP_SIZE]]($c3)
-  // ASM-NEXT:  addiu $1, $5, 1
+  // ASM-NEXT:  daddiu $1, $5, 1
+  // ASM-NEXT:  csd $1, $zero, [[#mul(CAP_SIZE,2)]]($c3)
   // ASM-NEXT:  cjr     $c17
-  // ASM-NEXT:  csd $1, $zero, [[#CAP_SIZE * 2]]($c3)
+  // ASM-NEXT:  csd $zero, $zero, [[#add(mul(CAP_SIZE,2),8)]]($c3)
 }
 
 typedef struct {
@@ -401,12 +406,14 @@ typedef struct {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[ADD:%.*]] = add nsw i64 [[IN_COERCE0]], 1
 // CHECK-NEXT:    store i64 [[ADD]], ptr addrspace(200) [[AGG_RESULT]], align 16, !tbaa [[TBAA15:![0-9]+]]
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 8
+// CHECK-NEXT:    store i64 0, ptr addrspace(200) [[TMP1]], align 8
 // CHECK-NEXT:    [[C1:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 16
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE2]], i64 2
-// CHECK-NEXT:    store ptr addrspace(200) [[TMP1]], ptr addrspace(200) [[C1]], align 16, !tbaa [[TBAA17:![0-9]+]]
+// CHECK-NEXT:    [[TMP2:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE2]], i64 2
+// CHECK-NEXT:    store ptr addrspace(200) [[TMP2]], ptr addrspace(200) [[C1]], align 16, !tbaa [[TBAA17:![0-9]+]]
 // CHECK-NEXT:    [[C2:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 32
-// CHECK-NEXT:    [[TMP2:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE3]], i64 3
-// CHECK-NEXT:    store ptr addrspace(200) [[TMP2]], ptr addrspace(200) [[C2]], align 16, !tbaa [[TBAA18:![0-9]+]]
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE3]], i64 3
+// CHECK-NEXT:    store ptr addrspace(200) [[TMP3]], ptr addrspace(200) [[C2]], align 16, !tbaa !18
 // CHECK-NEXT:    ret void
 //
 IntCapCap int_cap_cap(IntCapCap in) {
@@ -416,11 +423,12 @@ IntCapCap int_cap_cap(IntCapCap in) {
   // ASM: # %bb.0: # %entry
   // ASM-NEXT:  daddiu $1, $5, 1
   // ASM-NEXT:  csd $1, $zero, 0($c3)
+  // ASM-NEXT:  csd     $zero, $zero, 8($c3)
   // ASM-NEXT:  cincoffset $c1, $c4, 2
   // ASM-NEXT:  csc $c1, $zero, [[#CAP_SIZE]]($c3)
   // ASM-NEXT:  cincoffset $c1, $c5, 3
   // ASM-NEXT:  cjr     $c17
-  // ASM-NEXT:  csc     $c1, $zero, [[#CAP_SIZE * 2]]($c3)
+  // ASM-NEXT:  csc     $c1, $zero, [[#mul(CAP_SIZE,2)]]($c3)
 }
 
 typedef struct {
@@ -485,6 +493,8 @@ typedef struct {
 // CHECK-NEXT:    [[I:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 32
 // CHECK-NEXT:    [[ADD6:%.*]] = add nsw i64 [[IN_COERCE2]], 3
 // CHECK-NEXT:    store i64 [[ADD6]], ptr addrspace(200) [[I]], align 16, !tbaa [[TBAA20:![0-9]+]]
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 40
+// CHECK-NEXT:    store i64 0, ptr addrspace(200) [[TMP3]], align 8
 // CHECK-NEXT:    ret void
 //
 TwoCapArrayAndInt two_cap_array_and_int(TwoCapArrayAndInt in) {
@@ -497,8 +507,9 @@ TwoCapArrayAndInt two_cap_array_and_int(TwoCapArrayAndInt in) {
   // ASM-NEXT:  cincoffset $c1, $c5, 2
   // ASM-NEXT:  csc $c1, $zero, [[#CAP_SIZE]]($c3)
   // ASM-NEXT:  daddiu $1, $5, 3
+  // ASM-NEXT:  csd $1, $zero, [[#mul(CAP_SIZE,2)]]($c3)
   // ASM-NEXT:  cjr     $c17
-  // ASM-NEXT:  csd $1, $zero, [[#CAP_SIZE * 2]]($c3)
+  // ASM-NEXT:  csd $zero, $zero, [[#add(mul(CAP_SIZE,2),8)]]($c3)
 }
 
 typedef struct {

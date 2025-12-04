@@ -198,12 +198,15 @@ int test_semun_pass_int(union semun s) {
 }
 
 // CHECK-LABEL: @test_semun_pass_int_2(
+//
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[DOTCOMPOUNDLITERAL:%.*]] = alloca [[UNION_SEMUN:%.*]], align 16, addrspace(200)
 // CHECK-NEXT:    store i32 1234, ptr addrspace(200) [[DOTCOMPOUNDLITERAL]], align 16
+// CHECK-NEXT:    [[TMP0:%.*]] = getelementptr i8, ptr addrspace(200) [[DOTCOMPOUNDLITERAL]], i64 4
+// CHECK-NEXT:    call void @llvm.memset.p200.i64(ptr addrspace(200) align 4 [[TMP0]], i8 0, i64 12, i1 false)
 // CHECK-NEXT:    [[COERCE_DIVE:%.*]] = getelementptr inbounds nuw [[UNION_SEMUN]], ptr addrspace(200) [[DOTCOMPOUNDLITERAL]], i32 0, i32 0
-// CHECK-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[COERCE_DIVE]], align 16
-// CHECK-NEXT:    [[CALL:%.*]] = call signext i32 @semun_pass_int_helper(ptr addrspace(200) inreg [[TMP0]])
+// CHECK-NEXT:    [[TMP1:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[COERCE_DIVE]], align 16
+// CHECK-NEXT:    [[CALL:%.*]] = call signext i32 @semun_pass_int_helper(ptr addrspace(200) inreg [[TMP1]])
 // CHECK-NEXT:    ret i32 [[CALL]]
 //
 int test_semun_pass_int_2() {
