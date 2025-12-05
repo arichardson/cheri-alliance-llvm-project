@@ -280,10 +280,6 @@ static bool isCompatible(Ctx &ctx, InputFile *file) {
         return true;
       onlyCheriAbi = true;
     }
-    if (ctx.arg.emachine != EM_MIPS)
-      return true;
-    if (isMipsN32Abi(ctx, *file) == ctx.arg.mipsN32Abi)
-      return true;
   }
 
   StringRef target =
