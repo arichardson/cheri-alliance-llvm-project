@@ -5,7 +5,17 @@
 // RUN: not %clang_cc1 -triple riscv32 -target-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix RISCV32
 // RISCV32: error: unknown target CPU 'not-a-cpu'
 // RISCV32-NEXT: note: valid target CPU values are:
-// RISCV32-SAME: {{^}} generic-rv32
+// RISCV32-SAME: {{^}} codasip-v735-amber
+// RISCV32-SAME: {{^}}, codasip-l730-amethyst
+// RISCV32-SAME: {{^}}, codasip-l730-diamond
+// RISCV32-SAME: {{^}}, codasip-l730-glim
+// RISCV32-SAME: {{^}}, codasip-l735-ruby
+// RISCV32-SAME: {{^}}, codasip-l735-ruby-codal
+// RISCV32-SAME: {{^}}, codasip-v730-shine
+// RISCV32-SAME: {{^}}, codasip-v739-spinel
+// RISCV32-SAME: {{^}}, codasip-l739-topaz
+// RISCV32-SAME: {{^}}, codasip-l730-zephire
+// RISCV32-SAME: {{^}}, generic-rv32
 // RISCV32-SAME: {{^}}, rocket-rv32
 // RISCV32-SAME: {{^}}, rp2350-hazard3
 // RISCV32-SAME: {{^}}, sifive-e20
@@ -24,7 +34,15 @@
 // RUN: not %clang_cc1 -triple riscv64 -target-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix RISCV64
 // RISCV64: error: unknown target CPU 'not-a-cpu'
 // RISCV64-NEXT: note: valid target CPU values are:
-// RISCV64-SAME: {{^}} generic-rv64
+// RISCV64-SAME: {{^}} codasip-a730-aura
+// RISCV64-SAME: {{^}}, codasip-a730-aura-codal
+// RISCV64-SAME: {{^}}, codasip-a730-flint
+// RISCV64-SAME: {{^}}, codasip-x730-jade
+// RISCV64-SAME: {{^}}, codasip-x730-lapis
+// RISCV64-SAME: {{^}}, codasip-x730-lunox
+// RISCV64-SAME: {{^}}, codasip-x730-lux
+// RISCV64-SAME: {{^}}, codasip-x730-spark
+// RISCV64-SAME: {{^}}, generic-rv64
 // RISCV64-SAME: {{^}}, mips-p8700
 // RISCV64-SAME: {{^}}, rocket-rv64
 // RISCV64-SAME: {{^}}, sifive-p450
@@ -51,7 +69,17 @@
 // RUN: not %clang_cc1 -triple riscv32 -tune-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix TUNE-RISCV32
 // TUNE-RISCV32: error: unknown target CPU 'not-a-cpu'
 // TUNE-RISCV32-NEXT: note: valid target CPU values are:
-// TUNE-RISCV32-SAME: {{^}} generic-rv32
+// TUNE-RISCV32-SAME: {{^}} codasip-v735-amber
+// TUNE-RISCV32-SAME: {{^}}, codasip-l730-amethyst
+// TUNE-RISCV32-SAME: {{^}}, codasip-l730-diamond
+// TUNE-RISCV32-SAME: {{^}}, codasip-l730-glim
+// TUNE-RISCV32-SAME: {{^}}, codasip-l735-ruby
+// TUNE-RISCV32-SAME: {{^}}, codasip-l735-ruby-codal
+// TUNE-RISCV32-SAME: {{^}}, codasip-v730-shine
+// TUNE-RISCV32-SAME: {{^}}, codasip-v739-spinel
+// TUNE-RISCV32-SAME: {{^}}, codasip-l739-topaz
+// TUNE-RISCV32-SAME: {{^}}, codasip-l730-zephire
+// TUNE-RISCV32-SAME: {{^}}, generic-rv32
 // TUNE-RISCV32-SAME: {{^}}, rocket-rv32
 // TUNE-RISCV32-SAME: {{^}}, rp2350-hazard3
 // TUNE-RISCV32-SAME: {{^}}, sifive-e20
@@ -73,7 +101,15 @@
 // RUN: not %clang_cc1 -triple riscv64 -tune-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix TUNE-RISCV64
 // TUNE-RISCV64: error: unknown target CPU 'not-a-cpu'
 // TUNE-RISCV64-NEXT: note: valid target CPU values are:
-// TUNE-RISCV64-SAME: {{^}} generic-rv64
+// TUNE-RISCV64-SAME: {{^}} codasip-a730-aura
+// TUNE-RISCV64-SAME: {{^}}, codasip-a730-aura-codal
+// TUNE-RISCV64-SAME: {{^}}, codasip-a730-flint
+// TUNE-RISCV64-SAME: {{^}}, codasip-x730-jade
+// TUNE-RISCV64-SAME: {{^}}, codasip-x730-lapis
+// TUNE-RISCV64-SAME: {{^}}, codasip-x730-lunox
+// TUNE-RISCV64-SAME: {{^}}, codasip-x730-lux
+// TUNE-RISCV64-SAME: {{^}}, codasip-x730-spark
+// TUNE-RISCV64-SAME: {{^}}, generic-rv64
 // TUNE-RISCV64-SAME: {{^}}, mips-p8700
 // TUNE-RISCV64-SAME: {{^}}, rocket-rv64
 // TUNE-RISCV64-SAME: {{^}}, sifive-p450
