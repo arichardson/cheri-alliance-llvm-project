@@ -496,12 +496,10 @@ Function::iterator Function::erase(Function::iterator FromIt,
 //===----------------------------------------------------------------------===//
 static unsigned computeAddrSpace(unsigned AddrSpace, Module *M) {
   // If AS == -1 and we are passed a valid module pointer we place the function
-  // in the program address space and otherwise we default to AS0
+  // in the program address space. Otherwise we default to AS0.
   // TODO: assert(M || AddrSpace != static_cast<unsigned>(-1));
-  if (AddrSpace == static_cast<unsigned>(-1)) {
-    assert(M && "Need either Module* or an explicit address space");
-    return M ? DefaultAddrSpaceForFunctions(*M) : 0;
-  }
+  if (AddrSpace == static_cast<unsigned>(-1))
+    return M ? M->getDataLayout().getProgramAddressSpace() : 0;
   return AddrSpace;
 }
 
