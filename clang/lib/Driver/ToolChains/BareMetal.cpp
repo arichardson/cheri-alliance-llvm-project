@@ -57,10 +57,11 @@ static bool findRISCVMultilibs(const Driver &D,
 
     // Multilib reuse
     bool UseImafdc =
-        (Arch == "rv64imafdc") || (Arch == "rv64gc") || (CPU == "codasip-a730");
+        (Arch == "rv64imafdc") || (Arch == "rv64gc") ||
+        (CPU.starts_with("codasip-a"));
     
     bool UseImafdc_zcherihybrid =
-        (Arch == "rv64imafdc_zcherihybrid") || (CPU == "codasip-x730");
+        (Arch == "rv64imafdc_zcherihybrid") || (CPU.starts_with("codasip-x"));
 
     addMultilibFlag((Arch == "rv64imac"), "-march=rv64imac", Flags);
     addMultilibFlag(UseImafdc, "-march=rv64imafdc", Flags);
@@ -68,7 +69,7 @@ static bool findRISCVMultilibs(const Driver &D,
                     Flags);
     addMultilibFlag(Abi == "lp64", "-mabi=lp64", Flags);
     addMultilibFlag(Abi == "lp64d", "-mabi=lp64d", Flags);
-    addMultilibFlag(Abi == "l64pc128d" || CPU == "codasip-x730",
+    addMultilibFlag(Abi == "l64pc128d" || CPU.starts_with("codasip-x"),
                     "-mabi=l64pc128d", Flags);
 
     Result.Multilibs =
@@ -100,10 +101,10 @@ static bool findRISCVMultilibs(const Driver &D,
     bool UseI = (Arch == "rv32i") || (Arch == "rv32ic");    // ic => i
     bool UseIm = (Arch == "rv32im") || (Arch == "rv32imc"); // imc => im
     bool UseImafc = (Arch == "rv32imafc") || (Arch == "rv32imafdc") ||
-                    (Arch == "rv32gc") || (CPU == "codasip-v730");
+                    (Arch == "rv32gc") || (CPU.starts_with("codasip-l"));
     bool UseImafc_zcherihybrid =
         (Arch == "rv32imafc_zcherihybrid") ||
-        (Arch == "rv32imafdc_zcherihybrid") || (CPU == "codasip-v730");
+        (Arch == "rv32imafdc_zcherihybrid") || (CPU.starts_with("codasip-v"));
 
     addMultilibFlag(UseI, "-march=rv32i", Flags);
     addMultilibFlag(UseIm, "-march=rv32im", Flags);
@@ -114,7 +115,7 @@ static bool findRISCVMultilibs(const Driver &D,
                     Flags);
     addMultilibFlag(Abi == "ilp32", "-mabi=ilp32", Flags);
     addMultilibFlag(Abi == "ilp32f", "-mabi=ilp32f", Flags);
-    addMultilibFlag(Abi == "il32pc64f" || CPU == "codasip-v730",
+    addMultilibFlag(Abi == "il32pc64f" || CPU.starts_with("codasip-v"),
                     "-mabi=il32pc64f", Flags);
 
     Result.Multilibs =

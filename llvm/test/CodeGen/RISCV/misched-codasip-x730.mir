@@ -1,15 +1,15 @@
 # RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
-# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -mattr=+d -mcpu=codasip-x730-spark -enable-post-misched \
 # RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
 # RUN:  -misched-dump-schedule-trace -misched-postra-direction=topdown \
 # RUN:  -o - %s 2>&1 | FileCheck --check-prefix=TOPDOWN %s
 # RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
-# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -mattr=+d -mcpu=codasip-x730-spark -enable-post-misched \
 # RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
 # RUN:  -misched-dump-schedule-trace -misched-postra-direction=bottomup \
 # RUN:  -o - %s 2>&1 | FileCheck --check-prefix=BOTTOMUP %s
 # RUN: llc -mtriple=riscv64-codasip-linux-musl -mattr=+m -mattr=+f \
-# RUN:  -mattr=+d -mcpu=codasip-x730 -enable-post-misched \
+# RUN:  -mattr=+d -mcpu=codasip-x730-spark -enable-post-misched \
 # RUN:  -run-pass=postmisched -debug-only=machine-scheduler \
 # RUN:  -misched-dump-schedule-trace \
 # RUN:  -misched-postra-direction=bidirectional -o - %s 2>&1 \
