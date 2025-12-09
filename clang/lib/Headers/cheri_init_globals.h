@@ -74,7 +74,16 @@ static const __SIZE_TYPE__ global_pointer_permissions_mask =
                      __CHERI_CAP_PERMISSION_PERMIT_EXECUTE__);
 #else
 static const __SIZE_TYPE__ function_pointer_permissions_mask =
+#if __riscv_xlen == 32
+/*
+  It is not possible to disable write AP for a function pointer,
+   as there is no encoding to single it out in CHERI RV32 spec yet.
+*/
+    ~(__SIZE_TYPE__)(0);
+#else
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_WRITE__);
+#endif
+
 static const __SIZE_TYPE__ constant_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_WRITE__ |
 #ifdef __riscv_zcherilevels
