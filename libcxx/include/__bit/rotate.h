@@ -38,15 +38,6 @@ _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 _Tp __rotl(_Tp __x, int __s)
   return (__x >> -__r) | (__x << (__N + __r));
 }
 
-#if __has_feature(capabilities)
-template<>
-_LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 inline
-unsigned __intcap __rotr(unsigned __intcap __t, int __cnt) _NOEXCEPT {
-    // __builtin_cheri_address_set cannot be used in a constant expression (yet), so we return a null-derived integer.
-    return std::__rotr(static_cast<ptraddr_t>(__t), __cnt);
-}
-#endif
-
 template <class _Tp>
 _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 _Tp __rotr(_Tp __x, int __s) _NOEXCEPT {
   static_assert(__libcpp_is_unsigned_integer<_Tp>::value, "__rotr requires an unsigned integer type");
@@ -61,6 +52,16 @@ _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 _Tp __rotr(_Tp __x, int __s)
 
   return (__x << -__r) | (__x >> (__N + __r));
 }
+
+#if __has_feature(capabilities)
+template<>
+_LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX14 inline
+unsigned __intcap __rotr(unsigned __intcap __t, int __cnt) _NOEXCEPT {
+    // __builtin_cheri_address_set cannot be used in a constant expression (yet), so we return a null-derived integer.
+    return std::__rotr(static_cast<ptraddr_t>(__t), __cnt);
+}
+#endif
+
 
 #if _LIBCPP_STD_VER >= 20
 
