@@ -459,9 +459,9 @@ void CheriCapRelocsSection::writeToImpl(uint8_t *buf) {
       os = isec->getOutputSection();
     }
     if (isCode && !isFunc)
-      errorOrWarn("code relocation against non-function symbol " +
-                  realTarget.verboseToString() + "\n>>> referenced by " +
-                  location.toString());
+      ELFSyncStream(ctx, ctx.arg.noinhibitExec ? DiagLevel::Warn : DiagLevel::Err)
+        << "code relocation against non-function symbol " << realTarget.verboseToString() 
+        << "\n>>> referenced by " << location.toString();
     uint64_t targetSize = getTargetSize(location, realTarget);
     uint64_t targetOffset = reloc.capabilityOffset + realTarget.offset;
     uint64_t permissions = 0;

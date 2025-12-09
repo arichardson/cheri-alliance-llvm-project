@@ -1268,9 +1268,10 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
         ctx.in.mipsGot->addEntry(*sec->file, sym, addend, expr);
       return;
     } else if (type == ctx.target->symbolicCodeCapRel) {
-      errorOrWarn("relocation " + toStr(ctx, type) +
-                  " cannot be used against preemptible symbol '" +
-                  toString(ctx, sym) + "'" + getLocation(ctx, *sec, sym, offset));
+      ELFSyncStream(ctx, ctx.arg.noinhibitExec ? DiagLevel::Warn : DiagLevel::Err)
+        << "relocation " << toStr(type)
+        << " cannot be used against preemptible symbol '" << toString(sym)
+        << "'" << getLocation(ctx, *sec, sym, offset);
       return;
     }
   }
