@@ -46,6 +46,10 @@ include "RISCVMacroFusion.td"
 // RISC-V Scheduling Models
 //===----------------------------------------------------------------------===//
 
+include "RISCVSchedCodasipX730.td"
+include "RISCVSchedCodasipA730.td"
+include "RISCVSchedCodasipV730.td"
+include "RISCVSchedCodasipL730.td"
 include "RISCVSchedRocket.td"
 include "RISCVSchedSiFive7.td"
 include "RISCVSchedSiFiveP400.td"

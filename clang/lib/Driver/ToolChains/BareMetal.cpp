@@ -40,6 +40,9 @@ static bool findRISCVMultilibs(const Driver &D,
   Multilib::flags_list Flags;
   std::string Arch = riscv::getRISCVArch(Args, TargetTriple);
   StringRef Abi = tools::riscv::getRISCVABI(Args, TargetTriple);
+  StringRef CPU = "";
+  if (Arg *A = Args.getLastArg(options::OPT_mcpu_EQ))
+    CPU = A->getValue();
 
   if (TargetTriple.isRISCV64()) {
     MultilibBuilder Imac =
@@ -47,18 +50,30 @@ static bool findRISCVMultilibs(const Driver &D,
     MultilibBuilder Imafdc = MultilibBuilder("/rv64imafdc/lp64d")
                                  .flag("-march=rv64imafdc")
                                  .flag("-mabi=lp64d");
+    MultilibBuilder Imafdc_zcherihybrid =
+        MultilibBuilder("/rv64imafdc_zcherihybrid/l64pc128d")
+            .flag("-march=rv64imafdc_zcherihybrid")
+            .flag("-mabi=l64pc128d");
 
     // Multilib reuse
     bool UseImafdc =
-        (Arch == "rv64imafdc") || (Arch == "rv64gc"); // gc => imafdc
+        (Arch == "rv64imafdc") || (Arch == "rv64gc") || (CPU == "codasip-a730");
+    
+    bool UseImafdc_zcherihybrid =
+        (Arch == "rv64imafdc_zcherihybrid") || (CPU == "codasip-x730");
 
     addMultilibFlag((Arch == "rv64imac"), "-march=rv64imac", Flags);
     addMultilibFlag(UseImafdc, "-march=rv64imafdc", Flags);
+    addMultilibFlag(UseImafdc_zcherihybrid, "-march=rv64imafdc_zcherihybrid",
+                    Flags);
     addMultilibFlag(Abi == "lp64", "-mabi=lp64", Flags);
     addMultilibFlag(Abi == "lp64d", "-mabi=lp64d", Flags);
+    addMultilibFlag(Abi == "l64pc128d" || CPU == "codasip-x730",
+                    "-mabi=l64pc128d", Flags);
 
     Result.Multilibs =
-        MultilibSetBuilder().Either(Imac, Imafdc).makeMultilibSet();
+        MultilibSetBuilder().Either(Imac, Imafdc, Imafdc_zcherihybrid)
+            .makeMultilibSet();
     return Result.Multilibs.select(Flags, Result.SelectedMultilibs);
   }
   if (TargetTriple.isRISCV32()) {
@@ -76,23 +91,36 @@ static bool findRISCVMultilibs(const Driver &D,
     MultilibBuilder Imafc = MultilibBuilder("/rv32imafc/ilp32f")
                                 .flag("-march=rv32imafc")
                                 .flag("-mabi=ilp32f");
+    MultilibBuilder Imafc_zcherihybrid =
+        MultilibBuilder("/rv32imafc_zcherihybrid/il32pc64f")
+            .flag("-march=rv32imafc_zcherihybrid")
+            .flag("-mabi=il32pc64f");
 
     // Multilib reuse
     bool UseI = (Arch == "rv32i") || (Arch == "rv32ic");    // ic => i
     bool UseIm = (Arch == "rv32im") || (Arch == "rv32imc"); // imc => im
     bool UseImafc = (Arch == "rv32imafc") || (Arch == "rv32imafdc") ||
-                    (Arch == "rv32gc"); // imafdc,gc => imafc
+                    (Arch == "rv32gc") || (CPU == "codasip-v730");
+    bool UseImafc_zcherihybrid =
+        (Arch == "rv32imafc_zcherihybrid") ||
+        (Arch == "rv32imafdc_zcherihybrid") || (CPU == "codasip-v730");
 
     addMultilibFlag(UseI, "-march=rv32i", Flags);
     addMultilibFlag(UseIm, "-march=rv32im", Flags);
     addMultilibFlag((Arch == "rv32iac"), "-march=rv32iac", Flags);
     addMultilibFlag((Arch == "rv32imac"), "-march=rv32imac", Flags);
     addMultilibFlag(UseImafc, "-march=rv32imafc", Flags);
+    addMultilibFlag(UseImafc_zcherihybrid, "-march=rv32imafc_zcherihybrid",
+                    Flags);
     addMultilibFlag(Abi == "ilp32", "-mabi=ilp32", Flags);
     addMultilibFlag(Abi == "ilp32f", "-mabi=ilp32f", Flags);
+    addMultilibFlag(Abi == "il32pc64f" || CPU == "codasip-v730",
+                    "-mabi=il32pc64f", Flags);
 
     Result.Multilibs =
-        MultilibSetBuilder().Either(I, Im, Iac, Imac, Imafc).makeMultilibSet();
+        MultilibSetBuilder()
+            .Either({I, Im, Iac, Imac, Imafc, Imafc_zcherihybrid})
+            .makeMultilibSet();
     return Result.Multilibs.select(Flags, Result.SelectedMultilibs);
   }
   return false;
@@ -188,6 +216,7 @@ static bool isPPCBareMetal(const llvm::Triple &Triple) {
 }
 
 static void findMultilibsFromYAML(const ToolChain &TC, const Driver &D,
+                                  const llvm::Triple &Triple,
                                   StringRef MultilibPath, const ArgList &Args,
                                   DetectedMultilibs &Result) {
   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> MB =
@@ -202,6 +231,10 @@ static void findMultilibsFromYAML(const ToolChain &TC, const Driver &D,
   Result.Multilibs = ErrorOrMultilibSet.get();
   if (Result.Multilibs.select(Flags, Result.SelectedMultilibs))
     return;
+
+  if (isRISCVBareMetal(Triple) && findRISCVMultilibs(D, Triple, Args, Result))
+    return;
+
   D.Diag(clang::diag::warn_drv_missing_multilib) << llvm::join(Flags, " ");
   std::stringstream ss;
   for (const Multilib &Multilib : Result.Multilibs)
@@ -244,7 +277,7 @@ void BareMetal::findMultilibs(const Driver &D, const llvm::Triple &Triple,
   } else {
     llvm::SmallString<128> MultilibPath(computeBaseSysRoot(D, Triple));
     llvm::sys::path::append(MultilibPath, MultilibFilename);
-    findMultilibsFromYAML(*this, D, MultilibPath, Args, Result);
+    findMultilibsFromYAML(*this, D, Triple, MultilibPath, Args, Result);
     SelectedMultilibs = Result.SelectedMultilibs;
     Multilibs = Result.Multilibs;
   }

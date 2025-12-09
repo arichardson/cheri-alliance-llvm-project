@@ -116,6 +116,35 @@ def WriteFST16        : SchedWrite;    // Floating point sp store
 def WriteFST32        : SchedWrite;    // Floating point sp store
 def WriteFST64        : SchedWrite;    // Floating point dp store
 
+def WriteCHERIInspect     : SchedWrite;
+def WriteCHERIMod         : SchedWrite;
+def WriteCHERITest        : SchedWrite;
+def WriteCHERIMove        : SchedWrite;
+def WriteCHERIAtomicC     : SchedWrite;
+def WriteCHERIAtomicLDB   : SchedWrite;
+def WriteCHERIAtomicLDH   : SchedWrite;
+def WriteCHERIAtomicLDC   : SchedWrite;
+def WriteCHERIAtomicSTB   : SchedWrite;
+def WriteCHERIAtomicSTH   : SchedWrite;
+def WriteCHERIAtomicSTC   : SchedWrite;
+def WriteCHERIComputeMask : SchedWrite;
+def WriteCHERILoadCap     : SchedWrite;
+def WriteCHERIStoreCap    : SchedWrite;
+def ReadCHERIInspect     : SchedRead;
+def ReadCHERIMod         : SchedRead;
+def ReadCHERITest        : SchedRead;
+def ReadCHERIMove        : SchedRead;
+def ReadCHERIAtomicC     : SchedRead;
+def ReadCHERIAtomicLDB   : SchedRead;
+def ReadCHERIAtomicLDH   : SchedRead;
+def ReadCHERIAtomicLDC   : SchedRead;
+def ReadCHERIAtomicSTB   : SchedRead;
+def ReadCHERIAtomicSTH   : SchedRead;
+def ReadCHERIAtomicSTC   : SchedRead;
+def ReadCHERIComputeMask : SchedRead;
+def ReadCHERILoadCap     : SchedRead;
+def ReadCHERIStoreCap    : SchedRead;
+
 // short forward branch for Bullet
 def WriteSFB        : SchedWrite;
 def ReadSFBJmp      : SchedRead;
@@ -394,6 +423,40 @@ def : ReadAdvance<ReadAtomicLDW, 0>;
 def : ReadAdvance<ReadAtomicLDD, 0>;
 def : ReadAdvance<ReadAtomicSTW, 0>;
 def : ReadAdvance<ReadAtomicSTD, 0>;
+} // Unsupported = true
+}
+
+multiclass UnsupportedSchedZCheriPurecap {
+let Unsupported = true in {
+def : WriteRes<WriteCHERIInspect, []>;
+def : WriteRes<WriteCHERIMod, []>;
+def : WriteRes<WriteCHERITest, []>;
+def : WriteRes<WriteCHERIMove, []>;
+def : WriteRes<WriteCHERIAtomicC, []>;
+def : WriteRes<WriteCHERIAtomicLDB, []>;
+def : WriteRes<WriteCHERIAtomicLDH, []>;
+def : WriteRes<WriteCHERIAtomicLDC, []>;
+def : WriteRes<WriteCHERIAtomicSTB, []>;
+def : WriteRes<WriteCHERIAtomicSTH, []>;
+def : WriteRes<WriteCHERIAtomicSTC, []>;
+def : WriteRes<WriteCHERIComputeMask, []>;
+def : WriteRes<WriteCHERILoadCap, []>;
+def : WriteRes<WriteCHERIStoreCap, []>;
+
+def : ReadAdvance<ReadCHERIInspect, 0>;
+def : ReadAdvance<ReadCHERIMod, 0>;
+def : ReadAdvance<ReadCHERITest, 0>;
+def : ReadAdvance<ReadCHERIMove, 0>;
+def : ReadAdvance<ReadCHERIAtomicC, 0>;
+def : ReadAdvance<ReadCHERIAtomicLDB, 0>;
+def : ReadAdvance<ReadCHERIAtomicLDH, 0>;
+def : ReadAdvance<ReadCHERIAtomicLDC, 0>;
+def : ReadAdvance<ReadCHERIAtomicSTB, 0>;
+def : ReadAdvance<ReadCHERIAtomicSTH, 0>;
+def : ReadAdvance<ReadCHERIAtomicSTC, 0>;
+def : ReadAdvance<ReadCHERIComputeMask, 0>;
+def : ReadAdvance<ReadCHERILoadCap, 0>;
+def : ReadAdvance<ReadCHERIStoreCap, 0>;
 } // Unsupported = true
 }
 
