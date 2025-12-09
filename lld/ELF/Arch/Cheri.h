@@ -304,7 +304,7 @@ inline bool isSectionStartSymbol(StringRef name) {
 
 inline void readOnlyCapRelocsError(Ctx &ctx, Symbol &sym, const Twine &sourceMsg) {
   error("attempting to add a capability relocation against " +
-        (sym.getName().empty() ? "local symbol" : "symbol " + toString(ctx, sym)) +
+        (sym.getName().empty() ? "local symbol" : "symbol " + toStr(ctx, sym)) +
         " in a read-only section; pass -Wl,-z,notext if you really want to do "
         "this" +
         sourceMsg);

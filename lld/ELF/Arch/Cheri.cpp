@@ -84,7 +84,7 @@ static PermissionKind getCapabilityPermissionKind(const Symbol &sym) {
     }
     if (os->flags & SHF_EXECINSTR) {
       warn("Non-function __cap_reloc against symbol in section with "
-           "SHF_EXECINSTR (" + os->name + ") for symbol " + toString(ctx, sym));
+           "SHF_EXECINSTR (" + os->name + ") for symbol " + toStr(ctx, sym));
     }
   }
   return kind;
@@ -211,8 +211,8 @@ SymbolAndOffset SymbolAndOffset::findSymbolForCapabilityRelocation() const {
     int64_t oldOffset = targetValue - bestMatch->value;
     int64_t newOffset = targetValue - newMatch->value;
     log("Found better match for capability relocation against " +
-        toString(ctx, *bestMatch) + "+" + Twine(oldOffset) + ": " +
-        toString(ctx, *newMatch) + "+" + Twine(newOffset));
+        toStr(ctx, *bestMatch) + "+" + Twine(oldOffset) + ": " +
+        toStr(ctx, *newMatch) + "+" + Twine(newOffset));
     bestMatch = newMatch;
     bestSize = bestMatch->getSize();
   };
@@ -264,7 +264,7 @@ void CheriCapRelocsSection::addCapReloc(bool isCode, CheriCapRelocLocation loc,
   if (isa<Symbol *>(target.symOrSec) && target.sym()->isUndefined() &&
       !target.sym()->isUndefWeak()) {
     std::string msg =
-        "cap_reloc against undefined symbol: " + toString(ctx, *target.sym()) +
+        "cap_reloc against undefined symbol: " + toStr(ctx, *target.sym()) +
         "\n>>> referenced by " + sourceMsg();
     if (ctx.arg.unresolvedSymbols == UnresolvedPolicy::ReportError)
       error(msg);
@@ -810,7 +810,7 @@ void MipsCheriCapTableSection::assignValuesAndAddCapTableSymbols() {
     }
     for (auto &it : perFunctionEntries)
       assignedEntries +=
-          assignIndices(assignedEntries, it.second, "@" + toString(ctx, *it.first));
+          assignIndices(assignedEntries, it.second, "@" + toStr(ctx, *it.first));
   }
   assert(assignedEntries == nonTlsEntryCount());
 

@@ -59,7 +59,7 @@ std::string elf::toStr(Ctx &ctx, const elf::Symbol &sym) {
   return ret;
 }
 
-std::string verboseToString(const Symbol *b, uint64_t symOffset) {
+std::string elf::verboseToString(const Symbol *b, uint64_t symOffset) {
   std::string msg;
 
   if (b->isLocal())
@@ -102,7 +102,7 @@ std::string verboseToString(const Symbol *b, uint64_t symOffset) {
     symOffset = dr->isSection() ? symOffset : dr->section->getOffset(dr->value);
     isec = dyn_cast<elf::InputSectionBase>(dr->section);
   }
-  std::string name = toString(ctx, *b);
+  std::string name = toStr(ctx, *b);
   if (name.empty()) {
     if (dr && dr->section) {
       if (isec) {

@@ -1270,7 +1270,7 @@ void RelocationScanner::processAux(RelExpr expr, RelType type, uint64_t offset,
     } else if (type == ctx.target->symbolicCodeCapRel) {
       ELFSyncStream(ctx, ctx.arg.noinhibitExec ? DiagLevel::Warn : DiagLevel::Err)
         << "relocation " << toStr(ctx, type)
-        << " cannot be used against preemptible symbol '" << toString(ctx, sym)
+        << " cannot be used against preemptible symbol '" << toStr(ctx, sym)
         << "'" << getLocation(ctx, *sec, sym, offset);
       return;
     }

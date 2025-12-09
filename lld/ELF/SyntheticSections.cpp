@@ -1752,7 +1752,7 @@ void RelocationBaseSection::addSymbolReloc(
   if (isCap && sym.isFunc() && addend != 0)
     warn("capability relocation with non-zero addend (0x" +
          llvm::utohexstr(addend) + ") against preemptible function " +
-         toString(ctx, sym) + "; this may not be supported by the runtime linker" +
+         toStr(ctx, sym) + "; this may not be supported by the runtime linker" +
          getLocationMessage(ctx, isec, sym, offsetInSec));
 
   // .chericap initialises the memory to 0xcacacaca not 0, so if writing

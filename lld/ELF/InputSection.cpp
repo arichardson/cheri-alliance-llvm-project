@@ -316,9 +316,9 @@ std::string InputSectionBase::getLocation(uint64_t offset) const {
 
   std::string filename = toStr(ctx, file);
   if (Defined *d = getEnclosingFunction(offset))
-    return filename + ":(function " + toString(getCtx(), *d) + ": " + secAndOffset;
+    return filename + ":(function " + toStr(getCtx(), *d) + ": " + secAndOffset;
   else if (Defined *d = getEnclosingObject(offset))
-    return filename + ":(object " + toString(getCtx(), *d) + ": " + secAndOffset + ")";
+    return filename + ":(object " + toStr(getCtx(), *d) + ": " + secAndOffset + ")";
 
   return filename + ":(" + secAndOffset;
 }
@@ -1006,7 +1006,7 @@ uint64_t InputSectionBase::getRelocTargetVA(Ctx &ctx, const Relocation &r,
   case R_MIPS_CHERI_CAPTAB_REL:
     if (!ctx.sym.mipsCheriCapabilityTable) {
       error("cannot compute difference between non-existent "
-            "CheriCapabilityTable and symbol " + toString(ctx, *r.sym));
+            "CheriCapabilityTable and symbol " + toStr(ctx, *r.sym));
       return r.sym->getVA(ctx, a);
     }
     return r.sym->getVA(ctx, a) - ctx.sym.mipsCheriCapabilityTable->getVA(ctx);

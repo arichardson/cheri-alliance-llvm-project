@@ -35,7 +35,6 @@ class InputFile;
 
 // Returns a string representation for a symbol for diagnostics.
 std::string toStr(Ctx &, const Symbol &);
-std::string toString(Ctx &, const Symbol &);
 const ELFSyncStream &operator<<(const ELFSyncStream &, const Symbol *);
 std::string verboseToString(const elf::Symbol *b, uint64_t symOffset = 0);
 
