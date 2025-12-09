@@ -34,6 +34,7 @@
 #include "clang/Basic/SourceManager.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/ScopeExit.h"
+#include "llvm/ADT/Statistic.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/IR/Cheri.h"
 #include "llvm/IR/DataLayout.h"
