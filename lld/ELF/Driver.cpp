@@ -2125,7 +2125,7 @@ void LinkerDriver::inferIsCheriAbi() {
   if (ctx.arg.isCheriAbi)
     return;
 
-  for (InputFile *f : files) {
+  for (auto& f : files) {
     if (f->ekind == ELFNoneKind)
       continue;
     ctx.arg.isCheriAbi = isCheriAbi(ctx, *f);
