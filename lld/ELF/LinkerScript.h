@@ -345,7 +345,7 @@ public:
   OutputDesc *getOrCreateOutputSection(StringRef name);
 
   bool hasPhdrsCommands() { return !phdrsCommands.empty(); }
-  bool isAether(const OutputSection *sec) const { return sec == aether; }
+  bool isAether(const OutputSection *sec) const { return sec == aether.get(); }
   uint64_t getDot() { return dot; }
   void discard(InputSectionBase &s);
 
