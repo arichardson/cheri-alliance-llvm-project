@@ -50,7 +50,7 @@ Defined *SymbolTable::ensureSymbolWillBeInDynsym(Symbol* original) {
   for (int i = 2; ctx.symtab->find(uniqueName); i++) {
     uniqueName = ("__cheri_fnptr" + Twine(i) + "_" + original->getName()).str();
   }
-  StringRef newName = saver(ctx).save(uniqueName);
+  StringRef newName = saver().save(uniqueName);
   Symbol* newSym = ctx.symtab->insert(newName);
   newSym->resolve(ctx, cast<Defined>(*original));
   newSym->setName(newName); // resolve() changes the name to original->name

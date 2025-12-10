@@ -862,11 +862,11 @@ template <class ELFT> void Writer<ELFT>::addCapDynRelocsSymbols(Ctx &ctx) {
 
   ctx.sym.relaDynStart = addOptionalRegular(ctx, ctx.arg.isRela ? "__rela_dyn_start"
                                                                 : "__rel_dyn_start",
-                                            ctx.out.elfHeader, 0, STV_HIDDEN,
+                                            ctx.out.elfHeader.get(), 0, STV_HIDDEN,
                                             /*canBeSectionStart=*/true);
   ctx.sym.relaDynEnd =
       addOptionalRegular(ctx, ctx.arg.isRela ? "__rela_dyn_end" : "rel_dyn_end",
-                         ctx.out.elfHeader, 0, STV_HIDDEN,
+                         ctx.out.elfHeader.get(), 0, STV_HIDDEN,
                          /*canBeSectionStart=*/false);
 }
 
@@ -2219,7 +2219,7 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
       // Ditto for LinkerScript's "aether" otherwise we will zero out all
       // symbol assignments outside output sections.
 
-      if (!outSec->isLive() && outSec != ctx.out.elfHeader &&
+      if (!outSec->isLive() && outSec != ctx.out.elfHeader.get() &&
           !ctx.script->isAether(outSec)) {
         // errs() << "Symbol " << toString(*Reg) << " points to garbage collected output section " << OutSec->Name << "\n";
         reg->type = STT_NOTYPE;

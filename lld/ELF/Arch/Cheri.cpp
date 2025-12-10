@@ -608,7 +608,7 @@ void MipsCheriCapTableSection::addEntry(Symbol &sym, RelExpr expr,
   CaptableMap &entries = getCaptableMapForFileAndOffset(isec, offset);
   if (ctx.arg.zCapTableDebug) {
     // Add a local helper symbol to improve disassembly:
-    StringRef helperSymName = saver(ctx).save(
+    StringRef helperSymName = saver().save(
         "$captable_load_" +
         (sym.getName().empty() ? "$anonymous_symbol" : sym.getName()));
     addSyntheticLocal(ctx, helperSymName, STT_NOTYPE, offset, 0, *isec);
@@ -741,9 +741,9 @@ uint64_t MipsCheriCapTableSection::assignIndices(uint64_t startIndex,
     // might not be unique. If there is a global with the same name we always
     // want the global to have the plain @CAPTABLE name
     if (name.empty() /* || Name.startswith(".L") */ || targetSym->isLocal())
-      refName = saver(ctx).save(name + "@CAPTABLE" + symContext + "." + Twine(index));
+      refName = saver().save(name + "@CAPTABLE" + symContext + "." + Twine(index));
     else
-      refName = saver(ctx).save(name + "@CAPTABLE" + symContext);
+      refName = saver().save(name + "@CAPTABLE" + symContext);
     // XXXAR: This should no longer be necessary now that I am using addSyntheticLocal?
 #if 0
     if (ctx.symtab->find(RefName)) {
