@@ -31,88 +31,11 @@ void FixusercopyCheck::registerMatchers(MatchFinder *Finder) {
     hasName("__copy_to_user_inatomic")).bind("decl"))).bind("call"), this);
   Finder->addMatcher(callExpr(callee(functionDecl(
     hasName("__copy_from_user_inatomic_nocache")).bind("decl"))).bind("call"), this);
+  Finder->addMatcher(callExpr(callee(functionDecl(
+    hasName("copy_struct_from_user")).bind("decl"))).bind("structfrom"), this);
+  Finder->addMatcher(callExpr(callee(functionDecl(
+    hasName("copy_struct_to_user")).bind("decl"))).bind("structto"), this);
   // clang-format on
-}
-
-const Type *FixusercopyCheck::getPointeeType(ASTContext *Ctx, const Expr *E) {
-  const Type *Ret = nullptr;
-
-  /*
-   * If (after removing casts) we end up with the address of something
-   * trust the type of that something (unless it is a character array).
-   */
-  const auto *E2 = E;
-  while (const auto *C = dyn_cast<CastExpr>(E2))
-    E2 = C->getSubExpr();
-  if (const auto *U = dyn_cast<UnaryOperator>(E2)) {
-    if (U->getOpcode() == UO_AddrOf) {
-      Ret = U->getSubExpr()->getType().getTypePtr();
-      goto out;
-    }
-  }
-
-  /*
-   * Go through cast expressions of the pointer until we find a
-   * pointer target type that looks like the real thing.
-   */
-  while (1) {
-    Ret = E->getType().getTypePtr();
-    if (!Ret)
-      return nullptr;
-    if (Ret->isArrayType())
-      break;
-    Ret = Ret->getAs<PointerType>();
-    if (!Ret)
-      return nullptr;
-    Ret = Ret->getPointeeType().getTypePtr();
-    if (!Ret)
-      return nullptr;
-    if (auto *R = Ret->getAs<RecordType>())
-      return R;
-    if (auto *R = Ret->getAs<PointerType>())
-      return R;
-
-    if (const auto *C = dyn_cast<CastExpr>(E)) {
-      E = C->getSubExpr();
-      continue;
-    }
-    if (const auto *P = dyn_cast<ParenExpr>(E)) {
-      E = P->getSubExpr();
-      continue;
-    }
-
-    break;
-  }
-
-out:
-  /*
-   * Do not report void or character as the target type.
-   * These likely mean that we didn't find the correct type.
-   */
-  if (!Ret)
-    return nullptr;
-  while (const auto *A = dyn_cast<ArrayType>(Ret)) {
-    if (A->isConstantArrayType())
-      break;
-    Ret = A->getElementType().getTypePtr();
-  }
-
-  const auto *CT = Ctx->getCanonicalType(Ret->getUnqualifiedDesugaredType());
-  if (const auto *BT = dyn_cast<BuiltinType>(CT)) {
-    switch (BT->getKind()) {
-    case BuiltinType::Void:
-    case BuiltinType::Char_S:
-    case BuiltinType::Char_U:
-    case BuiltinType::SChar:
-    case BuiltinType::UChar:
-    case BuiltinType::Char8:
-      return nullptr;
-    default:
-      break;
-    }
-  }
-
-  return Ret;
 }
 
 /*
@@ -235,25 +158,46 @@ bool FixusercopyCheck::isBufferPlusOffset(ASTContext *Ctx, const Expr *E) {
 void FixusercopyCheck::check(const MatchFinder::MatchResult &Result) {
   auto Ctx = Result.Context;
   const auto *Call = Result.Nodes.getNodeAs<CallExpr>("call");
+  const auto *Call2 = Result.Nodes.getNodeAs<CallExpr>("structfrom");
+  const auto *Call3 = Result.Nodes.getNodeAs<CallExpr>("structto");
+  const Expr *A1, *A2, *A3;
 
-  if (!Call)
+  if (!Call && !Call2 && !Call3)
     return;
 
-  if (Call->getNumArgs() < 3)
-    diag(Call->getExprLoc(),
-         "CHERI: ERROR: Too few arguments to user copy function");
+  if (Call) {
+    if (Call->getNumArgs() < 3)
+      diag(Call->getExprLoc(),
+           "CHERI: ERROR: Too few arguments to user copy function");
+    A1 = Call->getArg(0);
+    A2 = Call->getArg(1);
+    A3 = Call->getArg(2);
+  } else if (Call2) {
+    Call = Call2;
+    if (Call->getNumArgs() < 4)
+      diag(Call->getExprLoc(),
+           "CHERI: ERROR: Too few arguments to user copy function");
+    A1 = Call->getArg(0);
+    A2 = Call->getArg(2);
+    A3 = Call->getArg(1);
+  } else if (Call3) {
+    Call = Call3;
+    if (Call->getNumArgs() < 4)
+      diag(Call->getExprLoc(),
+           "CHERI: ERROR: Too few arguments to user copy function");
+    A1 = Call->getArg(0);
+    A2 = Call->getArg(2);
+    A3 = Call->getArg(3);
+  }
 
-  const Expr *A1 = Call->getArg(0);
-  const Expr *A2 = Call->getArg(1);
-  const Expr *A3 = Call->getArg(2);
 
   /* Fix size copy with less than 16-byte is always ok. */
   const auto Size = A3->getIntegerConstantExpr(*Ctx);
   if (Size && !Size->sge(16))
     return;
 
-  const Type *T1 = getPointeeType(Ctx, A1);
-  const Type *T2 = getPointeeType(Ctx, A2);
+  const Type *T1 = Util::getPointeeType(Ctx, A1);
+  const Type *T2 = Util::getPointeeType(Ctx, A2);
   const Type *T3 = nullptr;
   if (const auto *Utt = dyn_cast<UnaryExprOrTypeTraitExpr>(A3)) {
     if (Utt->getKind() == UETT_SizeOf)

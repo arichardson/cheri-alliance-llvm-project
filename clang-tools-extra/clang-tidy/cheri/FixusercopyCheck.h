@@ -20,7 +20,6 @@ class FixusercopyCheck : public ClangTidyCheck {
 public:
   FixusercopyCheck(StringRef Name, ClangTidyContext *Context)
       : ClangTidyCheck(Name, Context) {}
-  const Type *getPointeeType(ASTContext *Ctx, const Expr *E);
   bool checkPtr(ASTContext *Ctx, const Type *T);
   bool checkNonPtr(ASTContext *Ctx, const Type *T);
   bool isBufferPlusOffset(ASTContext *Ctx, const Expr *E);

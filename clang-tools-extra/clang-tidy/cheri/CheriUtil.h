@@ -672,6 +672,93 @@ public:
 
     return false;
   }
+
+  /*
+   * Given an expression that is of pointer type, try to do an educated
+   * guess to find out what type of structure or record this pointer is
+   * pointing to.
+   */
+  static const Type *getPointeeType(ASTContext *Ctx, const Expr *E) {
+    const Type *Ret = nullptr;
+
+    /*
+     * If (after removing casts) we end up with the address of something
+     * trust the type of that something (unless it is a character array).
+     */
+    const auto *E2 = E;
+    while (const auto *C = dyn_cast<CastExpr>(E2))
+      E2 = C->getSubExpr();
+    if (const auto *U = dyn_cast<UnaryOperator>(E2)) {
+      if (U->getOpcode() == UO_AddrOf) {
+        Ret = U->getSubExpr()->getType().getTypePtr();
+        goto out;
+      }
+    }
+
+    /*
+     * Go through cast expressions of the pointer until we find a
+     * pointer target type that looks like the real thing.
+     */
+    while (1) {
+      Ret = E->getType().getTypePtr();
+      if (!Ret)
+        return nullptr;
+      if (Ret->isArrayType())
+        break;
+      Ret = Ret->getAs<PointerType>();
+      if (!Ret)
+        return nullptr;
+      Ret = Ret->getPointeeType().getTypePtr();
+      if (!Ret)
+        return nullptr;
+      if (auto *R = Ret->getAs<RecordType>())
+        return R;
+      if (auto *R = Ret->getAs<PointerType>())
+        return R;
+
+      if (const auto *C = dyn_cast<CastExpr>(E)) {
+        E = C->getSubExpr();
+        continue;
+      }
+      if (const auto *P = dyn_cast<ParenExpr>(E)) {
+        E = P->getSubExpr();
+        continue;
+      }
+
+      break;
+    }
+
+out:
+    /*
+     * Do not report void or character as the target type.
+     * These likely mean that we didn't find the correct type.
+     */
+    if (!Ret)
+      return nullptr;
+    while (const auto *A = dyn_cast<ArrayType>(Ret)) {
+    if (A->isConstantArrayType())
+        break;
+      Ret = A->getElementType().getTypePtr();
+    }
+
+    const auto *CT = Ctx->getCanonicalType(Ret->getUnqualifiedDesugaredType());
+    if (const auto *BT = dyn_cast<BuiltinType>(CT)) {
+      switch (BT->getKind()) {
+      case BuiltinType::Void:
+      case BuiltinType::Char_S:
+      case BuiltinType::Char_U:
+      case BuiltinType::SChar:
+      case BuiltinType::UChar:
+      case BuiltinType::Char8:
+        return nullptr;
+      default:
+        break;
+      }
+    }
+
+    return Ret;
+  }
+
 };
 
 } // namespace clang::tidy::cheri
