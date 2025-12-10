@@ -16,6 +16,13 @@ unsigned long __copy_to_user_inatomic(void __user *to, const void *from,
 unsigned long copy_from_user_with_ptr(void *to, const void __user *from,
                                       unsigned long n);
 
+extern int copy_struct_from_user(void *dst, unsigned long ksize,
+                                 const void __user *src, unsigned long usize);
+extern int copy_struct_to_user(void __user *dst, unsigned long usize,
+                               const void *src, unsigned long ksize,
+                               void *ignored_trailing);
+
+
 struct foo {
   int x;
   union {
@@ -139,18 +146,32 @@ void b(struct bar *dst, struct bar __user *src, void *p, unsigned long len) {
   copy_from_user_with_ptr(dst, src, sizeof(*dst));
 }
 
-void g(struct foo *dst, struct foo __user *src, unsigned long len) {
-  copy_from_user(src, dst, len);
+void g(struct foo *kp, struct foo __user *up, unsigned long len, void *kvp, void __user *uvp) {
+  copy_from_user(kp, up, len);
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
-  copy_to_user(src, dst, len);
+  copy_to_user(kp, up, len);
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
-  __copy_from_user(src, dst, len);
+  __copy_from_user(kp, up, len);
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
-  __copy_to_user(src, dst, len);
+  __copy_to_user(kp, up, len);
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
-  __copy_from_user_inatomic(src, dst, len);
+  __copy_from_user_inatomic(kp, up, len);
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
-  __copy_to_user_inatomic(src, dst, len);
+  __copy_to_user_inatomic(kp, up, len);
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
+
+  copy_struct_from_user(kp, len, uvp, len);
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
+  copy_struct_from_user(kvp, len, up, len);
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
+  copy_struct_from_user(kvp, sizeof(*kp), uvp, len);
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
+//
+  copy_struct_to_user(up, len, kvp, len, 0);
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
+  copy_struct_to_user(uvp, len, kp, len, 0);
+// CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
+  copy_struct_to_user(uvp, len, kvp, sizeof(*kp), 0);
 // CHECK-MESSAGES: :[[@LINE-1]]:3: warning: CHERI: Tags will be stripped during copy. Use `..._with_ptr` instead [cheri-FixUserCopy]
 }
 
