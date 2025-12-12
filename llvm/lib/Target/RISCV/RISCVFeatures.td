@@ -1294,8 +1294,8 @@ defvar RV32 = DefaultMode;
 def RV64           : HwMode<"+64bit", [IsRV64]>;
 
 def FeatureCheri
-    : RISCVExtension<"xcheri", 0 , 0,
-                     "Implements CHERI extension", [], "HasCheri">;
+    : RISCVExtension<0 , 0, "Implements CHERI extension">;
+
 def HasCheri : Predicate<"Subtarget->hasCheri()">,
                          AssemblerPredicate<(all_of FeatureCheri),
                          "CHERI Extension">;
@@ -1308,8 +1308,8 @@ def HasCheriRVC : Predicate<"Subtarget->enableCheriRVCInstrs()">,
 
 // Bakewell Features //
 def FeatureStdExtZCheriPureCap
-    : RISCVExtension<"zcheripurecap", 0, 9,
-                     "'zcheripurecap' (CHERI aware Instructions)", [], "HasStdExtZCheriPureCap">;
+    : RISCVExtension<0, 9,
+                     "'zcheripurecap' (CHERI aware Instructions)">;
 
 def HasZCheriPurecap
     : Predicate<"Subtarget->hasStdExtZCheriPureCap()">,
@@ -1328,10 +1328,8 @@ def NotHasZCheriPurecap
                 "'zcheripurecap' (CHERI aware Instructions) is disabled">;
 
 def FeatureStdExtZCheriHybrid
-    : RISCVExtension<"zcherihybrid", 0, 9,
-                     "'zcherihybrid' (Backwards compatibility for 'zcheripurecap' with RISCV)",
-                     [FeatureStdExtZCheriPureCap],
-                     "HasStdExtZCheriHybrid">;
+    : RISCVExtension<0, 9,
+                     "'zcherihybrid' (Backwards compatibility for 'zcheripurecap' with RISCV)">;
 
 def HasZCheriHybrid
     : Predicate<"Subtarget->hasStdExtZCheriHybrid()">,
@@ -1344,10 +1342,8 @@ def NotHasZCheriHybrid
                 "'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV) is disabled">;
 
 def FeatureStdExtZCheriPTE
-    : RISCVExtension<"zcheripte", 0, 9,
-                     "'zcheripte' (CHERI Page-Based Virtual-Memory)",
-                     [FeatureStdExtZCheriPureCap],
-                     "HasStdExtZCheriPTE">;
+    : RISCVExtension<0, 9,
+                     "'zcheripte' (CHERI Page-Based Virtual-Memory)">;
 
 def HasZCheriPTE
     : Predicate<"Subtarget->hasStdExtZCheriPTE()">,
@@ -1355,15 +1351,12 @@ def HasZCheriPTE
                 "'zcheripte' (Extension for CHERI Page-Based Virtual-Memory Systems)">;
 
 def FeatureStdExtZCheriLevels
-    : RISCVExtension<"zcherilevels", 0, 9,
-                       "'zcherilevels' (Extension for Capability Levels)",
-                       [FeatureStdExtZCheriPureCap],
-                       "HasStdExtZCheriLevels">;
+    : RISCVExtension<0, 9,
+                       "'zcherilevels' (Extension for Capability Levels)">;
 
 def FeatureStdExtZish4add
-    : RISCVExtension<"zish4add", 0, 9,
-                     "'zish4add' (Address Generation Instructions for wide-pointers.)",
-                     [], "HasStdExtZish4add">;
+    : RISCVExtension<0, 9,
+                     "'zish4add' (Address Generation Instructions for wide-pointers.)">;
 
 def HasStdExtZish4add
     : Predicate<"Subtarget->hasStdExtZish4add()">,
