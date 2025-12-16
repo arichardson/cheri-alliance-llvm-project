@@ -67,7 +67,7 @@ ABI computeTargetABI(const Triple &TT, const FeatureBitset &FeatureBits,
               "target-abi)\n";
     TargetABI = ABI_Unknown;
   } else if ((ABIName.starts_with("il32pc") || ABIName.starts_with("l64pc")) &&
-             !(FeatureBits[RISCV::FeatureCheri] || FeatureBits[RISCV::FeatureStdExtZCheriPureCap])) {
+             !(FeatureBits[RISCV::FeatureStdExtXCheri] || FeatureBits[RISCV::FeatureStdExtZCheriPureCap])) {
     errs() << "Pure-capability ABI can't be used for a target that "
               "doesn't support the XCheri instruction set extension (ignoring "
               "target-abi)\n";
@@ -150,7 +150,7 @@ void validate(const Triple &TT, const FeatureBitset &FeatureBits) {
       FeatureBits[RISCV::Feature64Bit])
     report_fatal_error("RV32 and RV64 can't be combined");
   // TODO: Support capability variant of R_RISCV_ADD
-  if (FeatureBits[RISCV::FeatureCheri] && FeatureBits[RISCV::FeatureRelax])
+  if (FeatureBits[RISCV::FeatureStdExtXCheri] && FeatureBits[RISCV::FeatureRelax])
     report_fatal_error("CHERI does not currently support linker relaxation");
 }
 

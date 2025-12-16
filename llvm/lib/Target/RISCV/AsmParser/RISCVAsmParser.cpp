@@ -122,7 +122,7 @@ class RISCVAsmParser : public MCTargetAsmParser {
   ParseStatus parseDirective(AsmToken DirectiveID) override;
 
   bool isCheri() const override {
-    return getSTI().getFeatureBits()[RISCV::FeatureCheri] ||
+    return getSTI().getFeatureBits()[RISCV::FeatureStdExtXCheri] ||
            getSTI().getFeatureBits()[RISCV::FeatureStdExtZCheriPureCap];
   }
 
@@ -3401,7 +3401,7 @@ bool RISCVAsmParser::parseDirectiveOption() {
     if (Parser.parseEOL())
       return true;
 
-    if (!(getSTI().hasFeature(RISCV::FeatureCheri) ||
+    if (!(getSTI().hasFeature(RISCV::FeatureStdExtXCheri) ||
           getSTI().hasFeature(RISCV::FeatureStdExtZCheriPureCap)))
       return Error(Parser.getTok().getLoc(),
                    "option requires 'xcheri' or 'zcheripurecap' extension");
@@ -3415,7 +3415,7 @@ bool RISCVAsmParser::parseDirectiveOption() {
     if (Parser.parseEOL())
       return true;
 
-    if (!(getSTI().hasFeature(RISCV::FeatureCheri) ||
+    if (!(getSTI().hasFeature(RISCV::FeatureStdExtXCheri) ||
           getSTI().hasFeature(RISCV::FeatureStdExtZCheriPureCap)))
       return Error(Parser.getTok().getLoc(),
                    "option requires 'xcheri' or 'zcheripurecap' extension");

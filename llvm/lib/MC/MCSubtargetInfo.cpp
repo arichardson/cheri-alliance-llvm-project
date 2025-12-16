@@ -55,6 +55,14 @@ void ClearImpliedBits(FeatureBitset &Bits, unsigned Value,
     }
   }
 }
+/// Return the length of the longest entry in the table.
+static size_t getLongestEntryLength(ArrayRef<SubtargetFeatureKV> Table) {
+  size_t MaxLen = 0;
+  for (auto &I : Table)
+    MaxLen = std::max(MaxLen, std::strlen(I.Key));
+  return MaxLen;
+}
+
 
 static void ApplyFeatureFlag(FeatureBitset &Bits, StringRef Feature,
                              ArrayRef<SubtargetFeatureKV> FeatureTable) {
@@ -81,15 +89,13 @@ static void ApplyFeatureFlag(FeatureBitset &Bits, StringRef Feature,
   } else {
     errs() << "'" << Feature << "' is not a recognized feature for this target"
            << " (ignoring feature)\n";
-  }
-}
 
-/// Return the length of the longest entry in the table.
-static size_t getLongestEntryLength(ArrayRef<SubtargetFeatureKV> Table) {
-  size_t MaxLen = 0;
-  for (auto &I : Table)
-    MaxLen = std::max(MaxLen, std::strlen(I.Key));
-  return MaxLen;
+  // Print the Feature table.
+  errs() << "Available features for this target:\n\n";
+  for (auto &Feature : FeatureTable)
+    errs() << format("  %-*s - %s.\n", getLongestEntryLength(FeatureTable), Feature.Key, Feature.Desc);
+  errs() << '\n';
+  }
 }
 
 static size_t getLongestEntryLength(ArrayRef<StringRef> Table) {
