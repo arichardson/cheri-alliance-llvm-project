@@ -18346,7 +18346,7 @@ void Sema::ActOnTagFinishDefinition(Scope *S, Decl *TagD,
           NumFields++;
           // Count the bits in a bitfield.
           if (F->isBitField()) {
-            BitEnd += F->getBitWidthValue(Context);
+            BitEnd += F->getBitWidthValue();
             continue;
           }
           // If the last field was a bitfield then round the width up to a char

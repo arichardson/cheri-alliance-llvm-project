@@ -6369,7 +6369,7 @@ Value *CodeGenFunction::EmitCapabilityArithmeticCheck(Value *Input,
   // Note: We reuse the ubsan_handle_pointer_overflow() handler to avoid
   // having to modify the runtime library.
   // TODO: Add a separate handler function?
-  EmitCheck({{Valid, SanitizerKind::CheriUnrepresentable}},
+  EmitCheck({{Valid, SanitizerKind::SO_CheriUnrepresentable}},
             SanitizerHandler::PointerOverflow, StaticArgs, DynamicArgs);
   return Result;
 }
