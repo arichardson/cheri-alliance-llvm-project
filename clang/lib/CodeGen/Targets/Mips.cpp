@@ -136,7 +136,7 @@ public:
 class WindowsMIPSTargetCodeGenInfo : public MIPSTargetCodeGenInfo {
 public:
   WindowsMIPSTargetCodeGenInfo(CodeGenTypes &CGT, bool IsO32)
-      : MIPSTargetCodeGenInfo(CGT, IsO32) {}
+      : MIPSTargetCodeGenInfo(CGT, IsO32, CGT.getCGM()) {}
 
   void getDependentLibraryOption(llvm::StringRef Lib,
                                  llvm::SmallString<24> &Opt) const override {
