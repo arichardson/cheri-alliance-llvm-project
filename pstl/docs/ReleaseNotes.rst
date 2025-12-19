@@ -1,5 +1,5 @@
 =======================================
-PSTL 21.0.0 (In-Progress) Release Notes
+PSTL 20.0.0 (In-Progress) Release Notes
 =======================================
 
 .. contents::
