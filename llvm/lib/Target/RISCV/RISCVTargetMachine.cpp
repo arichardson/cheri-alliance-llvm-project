@@ -582,6 +582,10 @@ void RISCVPassConfig::addPreRegAlloc() {
     addPass(createRISCVMergeBaseOffsetOptPass());
   if (TM->getOptLevel() != CodeGenOptLevel::None)
     addPass(createCheriGetAddressElimPass());
+  if (TM->getOptLevel() != CodeGenOptLevel::None) {
+    addPass(createRISCVCheriCommonLoadAddressPass());
+    addPass(&MachineCSEID);
+  }
 
   addPass(createRISCVInsertReadWriteCSRPass());
   addPass(createRISCVInsertWriteVXRMPass());

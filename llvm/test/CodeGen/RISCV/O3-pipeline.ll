@@ -121,6 +121,10 @@
 ; CHECK-NEXT:       RISC-V Pre-RA pseudo instruction expansion pass
 ; CHECK-NEXT:       RISC-V Merge Base Offset
 ; CHECK-NEXT:       Cheri Get Address Elimination
+; CHECK-NEXT:       MachineDominator Tree Construction
+; CHECK-NEXT:       RISC-V CHERI Common Load Address
+; CHECK-NEXT:       Machine Block Frequency Analysis
+; CHECK-NEXT:       Machine Common Subexpression Elimination
 ; CHECK-NEXT:       RISC-V Insert Read/Write CSR Pass
 ; CHECK-NEXT:       RISC-V Insert Write VXRM Pass
 ; CHECK-NEXT:       Detect Dead Lanes
@@ -130,7 +134,6 @@
 ; CHECK-NEXT:       Live Variable Analysis
 ; CHECK-NEXT:       Eliminate PHI nodes for register allocation
 ; CHECK-NEXT:       Two-Address instruction pass
-; CHECK-NEXT:       MachineDominator Tree Construction
 ; CHECK-NEXT:       Slot index numbering
 ; CHECK-NEXT:       Live Interval Analysis
 ; CHECK-NEXT:       Register Coalescer

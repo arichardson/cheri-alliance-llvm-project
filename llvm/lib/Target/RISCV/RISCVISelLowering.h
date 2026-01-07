@@ -949,7 +949,8 @@ private:
 
   template <class NodeTy>
   SDValue getAddr(NodeTy *N, EVT Ty, SelectionDAG &DAG, bool IsLocal,
-                  bool CanDeriveFromPcc, bool IsExternWeak = false) const;
+                  bool CanDeriveFromPcc, bool IsExternWeak = false,
+                  bool HasExactDefinition = false) const;
   SDValue getStaticTLSAddr(GlobalAddressSDNode *N, EVT Ty, SelectionDAG &DAG,
                            bool NotLocal) const;
   SDValue getDynamicTLSAddr(GlobalAddressSDNode *N, EVT Ty,
