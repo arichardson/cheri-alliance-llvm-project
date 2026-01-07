@@ -127,6 +127,8 @@ public:
         return true;
       if (Name == StringRef("__uintcap_t"))
         return true;
+      if (Name == StringRef("aio_context_t"))
+        return true;
     }
 
     return false;
