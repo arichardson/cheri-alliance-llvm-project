@@ -472,6 +472,7 @@ void Ioctl::doInit() {
   addFunc("ep_eventpoll_ioctl", 2);
   addFunc("ep_ioctl", 2);
   addFunc("epx_c3_ioctl", 2);
+  addFunc("erofs_ioctl", 2);
   addFunc("erst_dbg_ioctl", 2);
   addFunc("esas2r_proc_ioctl", 2);
   addFunc("eurwdt_ioctl", 2);
@@ -479,6 +480,8 @@ void Ioctl::doInit() {
   addFunc("evtchn_ioctl", 2);
   addFunc("exfat_ioctl", 2);
   addFunc("exfat_ioctl_fitrim", 1);
+  addFunc("exfat_ioctl_get_volume_label", 1);
+  addFunc("exfat_ioctl_set_volume_label", 1);
   addFunc("exfat_ioctl_shutdown", 1);
   addFunc("ext2_ioctl", 2);
   addFunc("ext4_ioctl", 2);
@@ -525,7 +528,7 @@ void Ioctl::doInit() {
   addFunc("fat_generic_ioctl", 2);
   addFunc("fat_ioctl_fitrim", 1);
   addFunc("fb_ioctl", 2);
-  addFunc("fcntl_set_rw_hint", 2);
+  addFunc("fcntl_set_rw_hint", 1);
   addFunc("fcp_hwdep_ioctl", 3);
   addFunc("fd_ioctl", 3);
   addFunc("fd_locked_ioctl", 3);
@@ -825,6 +828,7 @@ void Ioctl::doInit() {
   addFunc("ptp_ioctl", 2);
   addFunc("pty_bsd_ioctl", 2);
   addFunc("pty_unix98_ioctl", 2);
+  addFunc("pwm_cdev_ioctl", 2);
   addFunc("qat_vf_precopy_ioctl", 2);
   addFunc("qrtr_ioctl", 2);
   addFunc("radeon_drm_ioctl", 2);
