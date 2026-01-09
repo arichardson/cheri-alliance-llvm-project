@@ -58,7 +58,7 @@ char test() {
 // HYBRID-NEXT:  entry:
 // HYBRID-NEXT:    [[P_ADDR:%.*]] = alloca ptr, align 8
 // HYBRID-NEXT:    store ptr [[P]], ptr [[P_ADDR]], align 8, !tbaa [[TBAA6:![0-9]+]]
-// HYBRID-NEXT:    call void asm sideeffect "lb $$zero, $0", "=*r|m,0,~{memory},~{$1}"(ptr nonnull elementtype(ptr) [[P_ADDR]], ptr [[P]]) #[[ATTR1]], !srcloc !2
+// HYBRID-NEXT:    call void asm sideeffect "lb $$zero, $0", "=*r|m,0,~{memory},~{$1}"(ptr nonnull elementtype(ptr) align 8 dereferenceable(8) [[P_ADDR]], ptr [[P]]) #[[ATTR1]], !srcloc !2
 // HYBRID-NEXT:    [[TMP0:%.*]] = load ptr, ptr [[P_ADDR]], align 8, !tbaa [[TBAA6]]
 // HYBRID-NEXT:    ret ptr [[TMP0]]
 //
@@ -67,7 +67,7 @@ char test() {
 // PURECAP-NEXT:  entry:
 // PURECAP-NEXT:    [[P_ADDR:%.*]] = alloca ptr addrspace(200), align 16, addrspace(200)
 // PURECAP-NEXT:    store ptr addrspace(200) [[P]], ptr addrspace(200) [[P_ADDR]], align 16, !tbaa [[TBAA6:![0-9]+]]
-// PURECAP-NEXT:    call void asm sideeffect "clb $$zero, $$zero, $0", "=*r|m,0,~{memory},~{$1}"(ptr addrspace(200) nonnull elementtype(ptr addrspace(200)) [[P_ADDR]], ptr addrspace(200) [[P]]) #[[ATTR1]], !srcloc !2
+// PURECAP-NEXT:    call void asm sideeffect "clb $$zero, $$zero, $0", "=*r|m,0,~{memory},~{$1}"(ptr addrspace(200) nonnull elementtype(ptr addrspace(200)) align 16 dereferenceable(16) [[P_ADDR]], ptr addrspace(200) [[P]]) #[[ATTR1]], !srcloc !2
 // PURECAP-NEXT:    [[TMP0:%.*]] = load ptr addrspace(200), ptr addrspace(200) [[P_ADDR]], align 16, !tbaa [[TBAA6]]
 // PURECAP-NEXT:    ret ptr addrspace(200) [[TMP0]]
 //
