@@ -1369,67 +1369,67 @@ def HasCheriRVC : Predicate<"Subtarget->enableCheriRVCInstrs()">,
 // Bakewell Features //
 def FeatureStdExtZCheriPureCap
     : RISCVExtension<0, 9,
-                     "'zcheripurecap' (CHERI aware Instructions)", [],
+                     "CHERI aware Instructions", [],
                      "HasStdExtZCheriPureCap">;
 
 def HasZCheriPurecap
     : Predicate<"Subtarget->hasStdExtZCheriPureCap()">,
                 AssemblerPredicate<(all_of FeatureStdExtZCheriPureCap),
-                "'zcheripurecap' (CHERI aware Instructions)">;
+                "'Zcheripurecap' (CHERI aware Instructions)">;
 
 def HasZCheriPurecapOrCheri
     : Predicate<"Subtarget->hasCheri() || Subtarget->hasStdExtZCheriPureCap()">,
                 AssemblerPredicate<(any_of FeatureStdExtXCheri, FeatureStdExtZCheriPureCap),
-                "'zcheripurecap' (CHERI aware Instructions) or "
+                "'Zcheripurecap' (CHERI aware Instructions) or "
                 "Implements CHERI extension">;
 
 def NotHasZCheriPurecap
     : Predicate<"!Subtarget->hasStdExtZCheriPureCap()">,
                 AssemblerPredicate<(all_of (not FeatureStdExtZCheriPureCap)),
-                "'zcheripurecap' (CHERI aware Instructions) is disabled">;
+                "'Zcheripurecap' (CHERI aware Instructions) is disabled">;
 
 def FeatureStdExtZCheriHybrid
     : RISCVExtension<0, 9,
-                     "'zcherihybrid' (Backwards compatibility for 'zcheripurecap' with RISCV)",
+                     "Backwards compatibility for 'zcheripurecap' with RISCV",
                      [FeatureStdExtZCheriPureCap],
                      "HasStdExtZCheriHybrid">;
 
 def HasZCheriHybrid
     : Predicate<"Subtarget->hasStdExtZCheriHybrid()">,
                 AssemblerPredicate<(all_of FeatureStdExtZCheriHybrid),
-                "'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV)">;
+                "'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV)">;
 
 def NotHasZCheriHybrid
     : Predicate<"!Subtarget->hasStdExtZCheriHybrid()">,
                 AssemblerPredicate<(all_of (not FeatureStdExtZCheriHybrid)),
-                "'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV) is disabled">;
+                "'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV) is disabled">;
 
 def FeatureStdExtZCheriPTE
     : RISCVExtension<0, 9,
-                     "'zcheripte' (CHERI Page-Based Virtual-Memory)",
+                     "CHERI Page-Based Virtual-Memory",
                      [FeatureStdExtZCheriPureCap],
                      "HasStdExtZCheriPTE">;
 
 def HasZCheriPTE
     : Predicate<"Subtarget->hasStdExtZCheriPTE()">,
                 AssemblerPredicate<(all_of FeatureStdExtZCheriPTE),
-                "'zcheripte' (Extension for CHERI Page-Based Virtual-Memory Systems)">;
+                "'Zcheripte' (Extension for CHERI Page-Based Virtual-Memory Systems)">;
 
 def FeatureStdExtZCheriLevels
     : RISCVExtension<0, 9,
-                     "'zcherilevels' (Extension for Capability Levels)",
+                     "Extension for Capability Levels",
                      [FeatureStdExtZCheriPureCap],
                      "HasStdExtZCheriLevels">;
 
 def FeatureStdExtZish4add
     : RISCVExtension<0, 9,
-                     "'zish4add' (Address Generation Instructions for wide-pointers.)",
+                     "Address Generation Instructions for wide-pointers.",
                      [], "HasStdExtZish4add">;
 
 def HasStdExtZish4add
     : Predicate<"Subtarget->hasStdExtZish4add()">,
                  AssemblerPredicate<(all_of FeatureStdExtZish4add),
-                 "'zish4add' (Address Generation Instructions for wide-pointers.)">;
+                 "'Zish4add' (Address Generation Instructions for wide-pointers.)">;
 
 def FeatureCapMode
     : SubtargetFeature<"cap-mode", "IsCapMode", "true",
