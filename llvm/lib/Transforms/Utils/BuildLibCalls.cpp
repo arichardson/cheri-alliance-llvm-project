@@ -1661,7 +1661,7 @@ Value *llvm::emitMemRChr(Value *Ptr, Value *Val, Value *Len, IRBuilderBase &B,
 
 Value *llvm::emitMemCmp(Value *Ptr1, Value *Ptr2, Value *Len, IRBuilderBase &B,
                         const DataLayout &DL, const TargetLibraryInfo *TLI) {
-  Type *VoidPtrTy = B.getPtrTy();
+  Type *VoidPtrTy = Ptr1->getType();
   Type *IntTy = getIntTy(B, TLI);
   Type *SizeTTy = getSizeTTy(B, TLI);
   return emitLibCall(LibFunc_memcmp, IntTy,
@@ -1915,7 +1915,7 @@ Value *llvm::emitPutS(Value *Str, IRBuilderBase &B,
   Type *IntTy = getIntTy(B, TLI);
   StringRef PutsName = TLI->getName(LibFunc_puts);
   FunctionCallee PutS =
-      getOrInsertLibFunc(M, *TLI, LibFunc_puts, IntTy, B.getPtrTy());
+      getOrInsertLibFunc(M, *TLI, LibFunc_puts, IntTy, Str->getType());
   inferNonMandatoryLibFuncAttrs(M, PutsName, *TLI);
   CallInst *CI = B.CreateCall(PutS, Str, PutsName);
   if (const Function *F =
@@ -1953,7 +1953,7 @@ Value *llvm::emitFPutS(Value *Str, Value *File, IRBuilderBase &B,
   Type *IntTy = getIntTy(B, TLI);
   StringRef FPutsName = TLI->getName(LibFunc_fputs);
   FunctionCallee F = getOrInsertLibFunc(M, *TLI, LibFunc_fputs, IntTy,
-                                        B.getPtrTy(), File->getType());
+                                        Str->getType(), File->getType());
   if (File->getType()->isPointerTy())
     inferNonMandatoryLibFuncAttrs(M, FPutsName, *TLI);
   CallInst *CI = B.CreateCall(F, {Str, File}, FPutsName);
@@ -1973,7 +1973,7 @@ Value *llvm::emitFWrite(Value *Ptr, Value *Size, Value *File, IRBuilderBase &B,
   Type *SizeTTy = getSizeTTy(B, TLI);
   StringRef FWriteName = TLI->getName(LibFunc_fwrite);
   FunctionCallee F =
-      getOrInsertLibFunc(M, *TLI, LibFunc_fwrite, SizeTTy, B.getPtrTy(),
+      getOrInsertLibFunc(M, *TLI, LibFunc_fwrite, SizeTTy, Ptr->getType(),
                          SizeTTy, SizeTTy, File->getType());
 
   if (File->getType()->isPointerTy())
