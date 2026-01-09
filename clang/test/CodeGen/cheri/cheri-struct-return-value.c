@@ -260,7 +260,7 @@ typedef struct {
 // CHECK-SAME: (ptr addrspace(200) inreg [[IN_COERCE0:%.*]], ptr addrspace(200) inreg [[IN_COERCE1:%.*]]) local_unnamed_addr addrspace(200) #[[ATTR0]] {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[TMP0:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE0]], i64 1
-// CHECK-NEXT:    [[ADD_PTR:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[IN_COERCE1]], i64 4
+// CHECK-NEXT:    [[ADD_PTR:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[IN_COERCE1]], i64 4
 // CHECK-NEXT:    [[DOTFCA_0_INSERT:%.*]] = insertvalue { ptr addrspace(200), ptr addrspace(200) } poison, ptr addrspace(200) [[TMP0]], 0
 // CHECK-NEXT:    [[DOTFCA_1_INSERT:%.*]] = insertvalue { ptr addrspace(200), ptr addrspace(200) } [[DOTFCA_0_INSERT]], ptr addrspace(200) [[ADD_PTR]], 1
 // CHECK-NEXT:    ret { ptr addrspace(200), ptr addrspace(200) } [[DOTFCA_1_INSERT]]
@@ -377,7 +377,7 @@ typedef struct {
 // CHECK-NEXT:    [[I:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 32
 // CHECK-NEXT:    [[ADD5:%.*]] = add nsw i64 [[IN_COERCE2]], 1
 // CHECK-NEXT:    store i64 [[ADD5]], ptr addrspace(200) [[I]], align 16, !tbaa [[TBAA14:![0-9]+]]
-// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 40
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 40
 // CHECK-NEXT:    store i64 0, ptr addrspace(200) [[TMP3]], align 8
 // CHECK-NEXT:    ret void
 //
@@ -406,7 +406,7 @@ typedef struct {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[ADD:%.*]] = add nsw i64 [[IN_COERCE0]], 1
 // CHECK-NEXT:    store i64 [[ADD]], ptr addrspace(200) [[AGG_RESULT]], align 16, !tbaa [[TBAA15:![0-9]+]]
-// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 8
+// CHECK-NEXT:    [[TMP1:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 8
 // CHECK-NEXT:    store i64 0, ptr addrspace(200) [[TMP1]], align 8
 // CHECK-NEXT:    [[C1:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 16
 // CHECK-NEXT:    [[TMP2:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE2]], i64 2
@@ -487,13 +487,13 @@ typedef struct {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[TMP1:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE0]], i64 1
 // CHECK-NEXT:    store ptr addrspace(200) [[TMP1]], ptr addrspace(200) [[AGG_RESULT]], align 16, !tbaa [[TBAA19:![0-9]+]]
-// CHECK-NEXT:    [[ARRAYINIT_ELEMENT:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 16
+// CHECK-NEXT:    [[ARRAYINIT_ELEMENT:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 16
 // CHECK-NEXT:    [[TMP2:%.*]] = getelementptr i8, ptr addrspace(200) [[IN_COERCE1]], i64 2
 // CHECK-NEXT:    store ptr addrspace(200) [[TMP2]], ptr addrspace(200) [[ARRAYINIT_ELEMENT]], align 16, !tbaa [[TBAA19]]
 // CHECK-NEXT:    [[I:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 32
 // CHECK-NEXT:    [[ADD6:%.*]] = add nsw i64 [[IN_COERCE2]], 3
 // CHECK-NEXT:    store i64 [[ADD6]], ptr addrspace(200) [[I]], align 16, !tbaa [[TBAA20:![0-9]+]]
-// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 40
+// CHECK-NEXT:    [[TMP3:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 40
 // CHECK-NEXT:    store i64 0, ptr addrspace(200) [[TMP3]], align 8
 // CHECK-NEXT:    ret void
 //
@@ -522,7 +522,7 @@ typedef struct {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[ADD:%.*]] = add nsw i64 [[IN_COERCE0]], 1
 // CHECK-NEXT:    store i64 [[ADD]], ptr addrspace(200) [[AGG_RESULT]], align 16, !tbaa [[TBAA22:![0-9]+]]
-// CHECK-NEXT:    [[ARRAYINIT_ELEMENT:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[AGG_RESULT]], i64 8
+// CHECK-NEXT:    [[ARRAYINIT_ELEMENT:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 8
 // CHECK-NEXT:    [[ADD4:%.*]] = add nsw i64 [[IN_COERCE1]], 2
 // CHECK-NEXT:    store i64 [[ADD4]], ptr addrspace(200) [[ARRAYINIT_ELEMENT]], align 8, !tbaa [[TBAA22]]
 // CHECK-NEXT:    [[C:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[AGG_RESULT]], i64 16

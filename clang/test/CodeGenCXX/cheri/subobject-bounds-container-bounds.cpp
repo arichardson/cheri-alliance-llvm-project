@@ -16,7 +16,7 @@ extern "C" void call_ref(int &i);
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[BUFFER:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[F:%.*]], i64 4
 // CHECK-NEXT:    [[TMP0:%.*]] = tail call ptr addrspace(200) @llvm.cheri.cap.bounds.set.i64(ptr addrspace(200) nonnull [[BUFFER]], i64 256)
-// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[TMP0]], i64 256
+// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[TMP0]], i64 256
 // CHECK-NEXT:    tail call void @call(ptr addrspace(200) noundef nonnull [[ARRAYIDX]]) #[[ATTR3:[0-9]+]]
 // CHECK-NEXT:    ret void
 //
@@ -29,7 +29,7 @@ extern "C" void test(struct Foo *f) {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[BUFFER:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[F:%.*]], i64 4
 // CHECK-NEXT:    [[TMP0:%.*]] = tail call ptr addrspace(200) @llvm.cheri.cap.bounds.set.i64(ptr addrspace(200) nonnull [[BUFFER]], i64 256)
-// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[TMP0]], i64 256
+// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[TMP0]], i64 256
 // CHECK-NEXT:    [[TMP1:%.*]] = tail call ptr addrspace(200) @llvm.cheri.cap.bounds.set.i64(ptr addrspace(200) nonnull [[ARRAYIDX]], i64 4)
 // CHECK-NEXT:    tail call void @call_ref(ptr addrspace(200) noundef nonnull align 4 dereferenceable(4) [[TMP1]]) #[[ATTR3]]
 // CHECK-NEXT:    ret void
@@ -108,7 +108,7 @@ extern "C" void do_stuff(void *);
 // CHECK-LABEL: @clearcmentry(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[TMP0:%.*]] = tail call ptr addrspace(200) @llvm.cheri.cap.bounds.set.i64(ptr addrspace(200) nonnull @_ZL8cmdtable, i64 496)
-// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[TMP0]], i64 496
+// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[TMP0]], i64 496
 // CHECK-NEXT:    tail call void @do_stuff(ptr addrspace(200) noundef nonnull [[ARRAYIDX]]) #[[ATTR3]]
 // CHECK-NEXT:    ret void
 //
@@ -135,7 +135,7 @@ extern "C" void clearcmentry2() {
 // CHECK-LABEL: @clearcmentry3(
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    [[TMP0:%.*]] = tail call ptr addrspace(200) @llvm.cheri.cap.bounds.set.i64(ptr addrspace(200) nonnull @_ZL8cmdtable, i64 496)
-// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[TMP0]], i64 16
+// CHECK-NEXT:    [[ARRAYIDX:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[TMP0]], i64 16
 // CHECK-NEXT:    tail call void @do_stuff(ptr addrspace(200) noundef nonnull [[ARRAYIDX]]) #[[ATTR3]]
 // CHECK-NEXT:    ret void
 //
