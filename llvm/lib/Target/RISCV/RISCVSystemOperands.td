@@ -31,7 +31,7 @@ class SysReg<string name, bits<12> op> {
   // bits<6> Number = op{5 - 0};
   code FeaturesRequired = [{ {} }];
   bit isRV32Only = 0;
-  bit IsDisabledInCapMode = 0;
+  bit isDisabledInCapMode = 0;
   bit isAltName = 0;
   bit isDeprecatedName = 0;
 }
@@ -41,7 +41,7 @@ def SysRegsList : GenericTable {
   // FIXME: add "ReadWrite", "Mode", "Extra", "Number" fields when needed.
   let Fields = [
     "Name", "Encoding", "FeaturesRequired",
-    "isRV32Only", "isAltName", "isDeprecatedName", "IsDisabledInCapMode"
+    "isRV32Only", "isDisabledInCapMode", "isAltName", "isDeprecatedName"
   ];
 
   let PrimaryKey = [ "Encoding" ];
@@ -98,7 +98,7 @@ foreach i = 3...31 in
 //===----------------------------------------------------------------------===//
 def : SysReg<"sstatus", 0x100>;
 def : SysReg<"sie", 0x104>;
-let IsDisabledInCapMode = 1 in
+let isDisabledInCapMode = 1 in
 def : SysReg<"stvec", 0x105>;
 def : SysReg<"scounteren", 0x106>;
 def : SysReg<"stimecmp", 0x14D>;
@@ -114,10 +114,10 @@ def : SysReg<"senvcfg", 0x10A>;
 //===----------------------------------------------------------------------===//
 // Supervisor Trap Handling
 //===----------------------------------------------------------------------===//
-let IsDisabledInCapMode = 1 in {
+let isDisabledInCapMode = 1 in {
 def : SysReg<"sscratch", 0x140>;
 def : SysReg<"sepc", 0x141>;
-} // IsDisabledInCapMode = 1
+} // isDisabledInCapMode = 1
 def : SysReg<"scause", 0x142>;
 def : SysReg<"stval", 0x143>;
 let isDeprecatedName = 1 in
@@ -203,7 +203,7 @@ def : SysReg<"htimedeltah", 0x615>;
 
 def : SysReg<"vsstatus", 0x200>;
 def : SysReg<"vsie", 0x204>;
-let IsDisabledInCapMode = 1 in {
+let isDisabledInCapMode = 1 in {
 def : SysReg<"vstvec", 0x205>;
 def : SysReg<"vsscratch", 0x240>;
 def : SysReg<"vsepc", 0x241>;
@@ -234,7 +234,7 @@ def : SysReg<"misa", 0x301>;
 def : SysReg<"medeleg", 0x302>;
 def : SysReg<"mideleg", 0x303>;
 def : SysReg<"mie", 0x304>;
-let IsDisabledInCapMode = 1 in
+let isDisabledInCapMode = 1 in
 def : SysReg<"mtvec", 0x305>;
 def : SysReg<"mcounteren", 0x306>;
 let isRV32Only = 1 in
@@ -243,10 +243,10 @@ def : SysReg<"mstatush", 0x310>;
 //===----------------------------------------------------------------------===//
 // Machine Trap Handling
 //===----------------------------------------------------------------------===//
-let IsDisabledInCapMode = 1 in {
+let isDisabledInCapMode = 1 in {
 def : SysReg<"mscratch", 0x340>;
 def : SysReg<"mepc", 0x341>;
-} // IsDisabledInCapMode = 1
+} // isDisabledInCapMode = 1
 def : SysReg<"mcause", 0x342>;
 def : SysReg<"mtval", 0x343>;
 let isDeprecatedName = 1 in
@@ -337,17 +337,17 @@ def : SysReg<"mscontext", 0x7AA>;
 // Debug Mode Registers
 //===----------------------------------------------------------------------===//
 def : SysReg<"dcsr", 0x7B0>;
-let IsDisabledInCapMode = 1 in
+let isDisabledInCapMode = 1 in
 def : SysReg<"dpc", 0x7B1>;
 
 // "dscratch" is an alternative name for "dscratch0" which appeared in earlier
 // drafts of the RISC-V debug spec
-let IsDisabledInCapMode = 1 in {
+let isDisabledInCapMode = 1 in {
 def : SysReg<"dscratch0", 0x7B2>;
 let isAltName = 1 in
 def : SysReg<"dscratch", 0x7B2>;
 def : SysReg<"dscratch1", 0x7B3>;
-} // IsDisabledInCapMode = 1
+} // isDisabledInCapMode = 1
 
 //===----------------------------------------------------------------------===//
 // User Vector CSRs
