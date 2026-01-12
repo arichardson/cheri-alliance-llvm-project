@@ -17,6 +17,8 @@ namespace clang::tidy::cheri {
 
 void FixptrtoulongcastCheck::registerMatchers(MatchFinder *Finder) {
   // clang-format off
+  //
+  // Cast from pointer to something like "unsinged long"
   Finder->addMatcher(
       explicitCastExpr(
           hasDestinationType(
@@ -38,6 +40,35 @@ void FixptrtoulongcastCheck::registerMatchers(MatchFinder *Finder) {
       ).bind("cast"),
       this
   );
+
+  // Cast to pointer after cast to something like "unsigned long"
+  Finder->addMatcher(
+      explicitCastExpr(
+          hasDestinationType(
+              hasUnqualifiedDesugaredType(
+                  pointerType()
+              )
+          ),
+          hasSourceExpression(
+              explicitCastExpr(
+                  hasDestinationType(
+                      hasCanonicalType(
+                          builtinType()
+                      )
+                  ),
+                  hasSourceExpression(
+                      expr(
+                          hasType(
+                              type(
+                              ).bind("from")
+                          )
+                      )
+                  )
+              ).bind("cast")
+          )
+      ).bind("outer"),
+      this
+  );
   // clang-format on
 }
 
@@ -46,6 +77,7 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
   auto *SM = Result.SourceManager;
   const auto *C = Result.Nodes.getNodeAs<ExplicitCastExpr>("cast");
   const auto *From = Result.Nodes.getNodeAs<Type>("from");
+  const auto *Outer = Result.Nodes.getNodeAs<ExplicitCastExpr>("outer");
   const auto *To = C->getType().getTypePtr();
 
   /* Do not touch a forced cast. */
@@ -56,9 +88,24 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
   if (Util::isSafeNonPtrType(Ctx, To))
     return;
 
-  /* Ignore casts where the "pointer" cannot carry provenance. */
-  if (!From->canCarryProvenance(*Ctx))
-    return;
+  if (Outer) {
+    /*
+     * We have an outer cast expression. Accept capability
+     * typedefs, too.
+     */
+    if (!Util::isCapability(Ctx, From))
+      return;
+  } else {
+    /*
+     * If there is no outer cast cast where the source is not a
+     * pointer and casts where the source is a "pointer" but cannot
+     * carry provenance.
+     */
+    if (!From->isPointerType())
+      return;
+    if (!From->canCarryProvenance(*Ctx))
+      return;
+  }
 
   /* Determine what kind of destination type we deal with. */
   bool FixCast = Util::isPlainAddress(Ctx, To);
@@ -71,7 +118,7 @@ void FixptrtoulongcastCheck::check(const MatchFinder::MatchResult &Result) {
     return;
 
   bool IsSigned = To->isSignedIntegerType();
-  bool IsUser = Util::isUserPtr(From);
+  bool IsUser = Util::isUserPtr(From) || Util::isUserIntCapTypedef(From);
   const char *TypeString;
   const char *CastString;
   if (IsSigned) {
