@@ -8,22 +8,22 @@ cgetsealed  a0, ca0          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction 
 cgetoffset  a0, ca0          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 cgetflags   a0, ca0          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 cunseal     ca0, ca0, ca0    # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
-scmode      ca0, ca0, a0     # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV)
+scmode      ca0, ca0, a0     # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV)
 csetoffset  ca0, ca0, a0     # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 ccleartag   ca0, ca0         # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 ccopytype   ca0, ca0, ca0    # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 ccseal      ca0, ca0, ca0    # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 cseal       ca0, ca0, ca0    # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 cinvoke     ca0, ca0         # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
-modesw.cap                   # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV)
-modesw.int                   # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV)
-gcmode      a0, ca0          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV)
+modesw.cap                   # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV)
+modesw.int                   # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV)
+gcmode      a0, ca0          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV)
 cclear      1, 0x42          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 fpclear     1, 0x42          # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 crrl        a0, a0           # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 cloadtags   a0, (ca0)        # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: CHERI Extension
 jalr        a0, 42(a0)       # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: Integer Pointer Mode
-jalr.mode   ca0, 0(ca0)      # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'zcherihybrid' (Backwards compatiblity for 'zcheripurecap' with RISCV), Integer Pointer Mode
+jalr.mode   ca0, 0(ca0)      # CHECK: <stdin>:[[#@LINE]]:1:  error: instruction requires the following: 'Zcherihybrid' (Backwards compatiblity for 'Zcheripurecap' with RISCV), Integer Pointer Mode
 # With scbndsi we sadly don't get the warning for smaller values as the asm
 # parser will try and parse CSetBounds and will succeed - warning instead about
 # missing xcheri and not the out of range value. Once xcheri is removed along
