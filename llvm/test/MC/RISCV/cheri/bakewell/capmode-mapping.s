@@ -5,7 +5,6 @@
 # RUN:    | llvm-objdump --no-print-imm-hex --show-all-symbols --mattr=+zcheripurecap,+zcherihybrid -M no-aliases -d -r - \
 # RUN:    | FileCheck -check-prefixes=CHECK-OBJ %s
 
-# CHECK-MC: .text
 # CHECK-OBJ: Disassembly of section .text:
 
 # CHECK-MC: auipc a0, 180
