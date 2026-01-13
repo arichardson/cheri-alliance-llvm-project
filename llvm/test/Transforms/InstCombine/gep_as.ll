@@ -9,7 +9,7 @@ define i32 @main() {
 ; CHECK-NEXT:    [[CALL:%.*]] = call ptr @malloc(i64 zeroext 168)
 ; CHECK-NEXT:    [[TMP0:%.*]] = addrspacecast ptr [[CALL]] to ptr addrspace(200)
 ; CHECK-NEXT:    call void @test(ptr addrspace(200) [[TMP0]])
-; CHECK-NEXT:    [[ADD_PTR:%.*]] = getelementptr inbounds i8, ptr addrspace(200) [[TMP0]], i64 164
+; CHECK-NEXT:    [[ADD_PTR:%.*]] = getelementptr inbounds nuw i8, ptr addrspace(200) [[TMP0]], i64 164
 ; CHECK-NEXT:    call void @test(ptr addrspace(200) nonnull [[ADD_PTR]])
 ; CHECK-NEXT:    ret i32 0
 ;
@@ -19,7 +19,7 @@ entry:
   %0 = bitcast ptr %call to ptr
   %1 = addrspacecast ptr %0 to ptr addrspace(200)
   call void @test(ptr addrspace(200) %1)
-  %add.ptr = getelementptr inbounds i32, ptr addrspace(200) %1, i64 41
+  %add.ptr = getelementptr inbounds nuw i32, ptr addrspace(200) %1, i64 41
   call void @test(ptr addrspace(200) %add.ptr)
   ret i32 0
 }
