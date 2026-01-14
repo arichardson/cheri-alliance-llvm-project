@@ -461,7 +461,8 @@ class CodasipV730Base<string name, list<SubtargetFeature> extraFeatures>
                                        FeatureStdExtZbc,
                                        FeatureStdExtZcb,
                                        FeatureStdExtSvinval,
-                                       FeatureStdExtZCheriPureCap],
+                                       FeatureStdExtZCheriPureCap,
+                                       FeatureStdExtZCheriHybrid],
                                       extraFeatures)>;
 
 class CodasipA730Base<string name, list<SubtargetFeature> extraFeatures>
@@ -506,7 +507,8 @@ class CodasipX730Base<string name, list<SubtargetFeature> extraFeatures>
                                        FeatureStdExtZbc,
                                        FeatureStdExtZcb,
                                        FeatureStdExtSvinval,
-                                       FeatureStdExtZCheriPureCap],
+                                       FeatureStdExtZCheriPureCap,
+                                       FeatureStdExtZCheriHybrid],
                                       extraFeatures)>;
 
 // NOTE: We could further differentiate these CPU definitions by specifying tune
