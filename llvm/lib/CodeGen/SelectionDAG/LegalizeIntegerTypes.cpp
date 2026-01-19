@@ -2925,7 +2925,7 @@ void DAGTypeLegalizer::ExpandIntegerResult(SDNode *N, unsigned ResNo) {
   case ISD::USHLSAT: ExpandIntRes_SHLSAT(N, Lo, Hi); break;
 
   case ISD::AVGCEILS:
-  case ISD::AVGCEILU: 
+  case ISD::AVGCEILU:
   case ISD::AVGFLOORS:
   case ISD::AVGFLOORU: ExpandIntRes_AVG(N, Lo, Hi); break;
 
@@ -5038,7 +5038,8 @@ void DAGTypeLegalizer::ExpandIntRes_XMULO(SDNode *N,
 
   // Also pass the address of the overflow check.
   Entry.Node = Temp;
-  Entry.Ty = PointerType::getUnqual(PtrTy->getContext());
+  Entry.Ty = PointerType::get(PtrTy->getContext(),
+                              DAG.getDataLayout().getAllocaAddrSpace());
   Entry.IsSExt = true;
   Entry.IsZExt = false;
   Args.push_back(Entry);
