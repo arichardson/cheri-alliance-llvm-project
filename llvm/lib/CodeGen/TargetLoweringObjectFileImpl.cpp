@@ -446,8 +446,8 @@ void TargetLoweringObjectFileELF::emitPersonalityValueImpl(
     MCStreamer &Streamer, const DataLayout &DL, const MCSymbol *Sym,
     const MachineModuleInfo *MMI) const {
   unsigned AS = DL.getProgramAddressSpace();
-  unsigned Size = DL.getPointerSize();
-  if (DL.isFatPointer(AS)) {
+  unsigned Size = DL.getPointerSize(AS);
+  if (DL.isFatPointer(DL.getProgramAddressSpace())) {
     Streamer.emitSymbolCheriCapability(Sym, Size);
   } else {
     Streamer.emitSymbolValue(Sym, Size);
