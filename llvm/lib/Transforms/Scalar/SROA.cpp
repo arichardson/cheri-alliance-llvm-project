@@ -1378,8 +1378,6 @@ private:
       // insertStrictAlignmentSlicesForRange()) as unsplittable.
       for (unsigned I = PrevIdx + 1; I < AS.Slices.size(); I++) {
         Slice &S = AS.Slices[I];
-        if (S.isDead())
-          continue; // could have been killed in the loop above.
         if (S.beginOffset() >= PrevP.beginOffset() &&
             S.endOffset() <= PrevP.endOffset() &&
             S.getUse()->getUser() == &II) {
