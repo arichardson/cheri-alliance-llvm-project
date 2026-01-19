@@ -18,25 +18,25 @@
 
 # CHECK-ASM-AND-OBJ: c.lbu a5, 2(ca4)
 # CHECK-ASM: encoding: [0x3c,0x83]
-# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
+# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
 c.lbu a5, 2(ca4)
 
 # CHECK-ASM-AND-OBJ: c.lhu a5, 2(ca4)
 # CHECK-ASM: encoding: [0x3c,0x87]
-# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
+# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
 c.lhu a5, 2(ca4)
 
 # CHECK-ASM-AND-OBJ: c.lh a5, 2(ca4)
 # CHECK-ASM: encoding: [0x7c,0x87]
-# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
+# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
 c.lh a5, 2(ca4)
 
 # CHECK-ASM-AND-OBJ: c.sb a5, 2(ca4)
 # CHECK-ASM: encoding: [0x3c,0x8b]
-# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
+# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
 c.sb a5, 2(ca4)
 
 # CHECK-ASM-AND-OBJ: c.sh a5, 2(ca4)
 # CHECK-ASM: encoding: [0x3c,0x8f]
-# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
+# CHECK-NO-EXT: error: instruction requires the following: 'Zcb' (Compressed basic bit manipulation instructions), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode{{$}}
 c.sh a5, 2(ca4)
