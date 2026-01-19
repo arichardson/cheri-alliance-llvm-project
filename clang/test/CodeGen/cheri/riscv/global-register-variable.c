@@ -108,13 +108,13 @@ void set_gp_addr(long value) {
 }
 
 #ifdef CHECK_BAD
-register int cnull_bad1 __asm__("cnull"); // expected-error{{bad type for named register variable}}
+register int cnull_bad1 __asm__("cnull"); // expected-error{{unsupported type for named register variable}}
 int get_cnull_bad1(void) { return cnull_bad1; }
-register long cnull_bad2 __asm__("cnull"); // expected-error{{bad type for named register variable}}
+register long cnull_bad2 __asm__("cnull"); // expected-error{{unsupported type for named register variable}}
 long get_cnull_bad2(void) { return cnull_bad2; }
-register float cnull_bad3 __asm__("cnull"); // expected-error{{bad type for named register variable}}
+register float cnull_bad3 __asm__("cnull"); // expected-error{{unsupported type for named register variable}}
 float get_cnull_bad3(void) { return cnull_bad3; }
-register __uintcap_t bad_tp __asm__("tp"); // expected-error{{bad type for named register variable}}
+register __uintcap_t bad_tp __asm__("tp"); // expected-error{{unsupported type for named register variable}}
 __uintcap_t get_tp_bad(void) { return bad_tp; }
 #endif
 // CHECK: !llvm.named.register.tp = !{!0}
