@@ -1514,12 +1514,6 @@ StringRef llvm::getFloatFn(const Module *M, const TargetLibraryInfo *TLI,
 
 //- Emit LibCalls ------------------------------------------------------------//
 
-static PointerType *getPtrTy(Value *V) {
-  auto Ty = V->getType();
-  auto AS = Ty->getPointerAddressSpace();
-  return llvm::PointerType::get(Ty->getContext(), AS);
-}
-
 static IntegerType *getIntTy(IRBuilderBase &B, const TargetLibraryInfo *TLI) {
   return B.getIntNTy(TLI->getIntSize());
 }

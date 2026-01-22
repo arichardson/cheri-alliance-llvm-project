@@ -41,6 +41,7 @@
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/Analysis/AssumptionCache.h"
+#include "llvm/Analysis/CaptureTracking.h"
 #include "llvm/Analysis/ValueTracking.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DataLayout.h"
@@ -5013,7 +5014,7 @@ RValue CodeGenFunction::EmitBuiltinExpr(const GlobalDecl GD, unsigned BuiltinID,
     Value *V = Builder.CreateCall(F, llvm::ConstantInt::get(Int32Ty, Offset));
     unsigned AS = CGM.getTargetCodeGenInfo().getDefaultAS();
     if (AS != 0)
-      V = Builder.CreateAddrSpaceCast(V, Int8Ty->getPointerTo(AS));
+      V = Builder.CreateAddrSpaceCast(V, llvm::PointerType::get(Int8Ty, AS));
     return RValue::get(V);
   }
   case Builtin::BI__builtin_return_address: {
@@ -5064,7 +5065,7 @@ RValue CodeGenFunction::EmitBuiltinExpr(const GlobalDecl GD, unsigned BuiltinID,
     Value *Int = EmitScalarExpr(E->getArg(0));
     Value *Ptr = EmitScalarExpr(E->getArg(1));
     Ptr = Builder.CreatePointerBitCastOrAddrSpaceCast(Ptr,
-        Int8Ty->getPointerTo(0));
+        llvm::PointerType::get(Int8Ty, 0));
 
     llvm::IntegerType *IntTy = cast<llvm::IntegerType>(Int->getType());
     assert((IntTy->getBitWidth() == 32 || IntTy->getBitWidth() == 64) &&

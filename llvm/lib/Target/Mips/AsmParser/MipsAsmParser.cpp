@@ -6910,7 +6910,7 @@ int MipsAsmParser::matchCheriHWRegsRegisterName(StringRef Name) {
     return -1;
 
   int Result = -1;
-  for (int Reg = Mips::CAPHWR0; Reg <= Mips::CAPHWR31; Reg++) {
+  for (unsigned int Reg = Mips::CAPHWR0; Reg <= Mips::CAPHWR31; Reg++) {
     StringRef RegName = MipsInstPrinter::getRegisterName(Reg);
     if (RegName.starts_with("chwr_") && Name == RegName) {
       Result = Reg - Mips::CAPHWR0;

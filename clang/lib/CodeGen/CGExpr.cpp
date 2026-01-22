@@ -3324,7 +3324,7 @@ RValue CodeGenFunction::EmitLoadOfGlobalRegLValue(LValue LV) {
   // For CHERI capabilities we have to use a pointer-type read, all other
   // architectures read an integer type for pointers
   if (CGM.getDataLayout().isFatPointer(OrigTy))
-    Ty = CGM.Int8Ty->getPointerTo(OrigTy->getPointerAddressSpace());
+    Ty = llvm::PointerType::get(CGM.Int8Ty, OrigTy->getPointerAddressSpace());
   else if (OrigTy->isPointerTy())
     Ty = CGM.getTypes().getDataLayout().getIntPtrType(OrigTy);
   llvm::Type *Types[] = { Ty };
@@ -3636,7 +3636,7 @@ void CodeGenFunction::EmitStoreThroughGlobalRegLValue(RValue Src, LValue Dst) {
   llvm::Type *OrigTy = CGM.getTypes().ConvertType(Dst.getType());
   llvm::Type *Ty = OrigTy;
   if (CGM.getDataLayout().isFatPointer(OrigTy))
-    Ty = CGM.Int8Ty->getPointerTo(OrigTy->getPointerAddressSpace());
+    Ty = llvm::PointerType::get(CGM.Int8Ty, OrigTy->getPointerAddressSpace());
   else if (OrigTy->isPointerTy())
     Ty = CGM.getTypes().getDataLayout().getIntPtrType(OrigTy);
   llvm::Type *Types[] = { Ty };

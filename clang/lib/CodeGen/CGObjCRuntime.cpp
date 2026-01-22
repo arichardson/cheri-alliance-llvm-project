@@ -22,6 +22,7 @@
 #include "clang/AST/StmtObjC.h"
 #include "clang/CodeGen/CGFunctionInfo.h"
 #include "clang/CodeGen/CodeGenABITypes.h"
+#include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/IR/Instruction.h"
 #include "llvm/Support/SaveAndRestore.h"
 
@@ -193,7 +194,7 @@ void CGObjCRuntime::EmitTryCatchStmt(CodeGenFunction &CGF,
       unsigned AS = CGF.CGM.getTargetCodeGenInfo().getDefaultAS();
       Handler.TypeInfo =
           llvm::ConstantExpr::getPointerBitCastOrAddrSpaceCast(EHType,
-                  CGM.Int8Ty->getPointerTo(AS));
+                  llvm::PointerType::get(CGM.Int8Ty, AS));
     }
 
     EHCatchScope *Catch = CGF.EHStack.pushCatch(Handlers.size());

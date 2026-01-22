@@ -27845,7 +27845,7 @@ Value *AArch64TargetLowering::emitLoadLinked(IRBuilderBase &Builder,
   if (ValueTy->isPointerTy())
     Addr = Builder.CreatePointerCast(
         Addr,
-        IntEltTy->getPointerTo(Addr->getType()->getPointerAddressSpace()));
+        llvm::PointerType::get(IntEltTy, Addr->getType()->getPointerAddressSpace()));
   Type *Tys[] = {Addr->getType()};
   Intrinsic::ID Int =
       IsAcquire ? Intrinsic::aarch64_ldaxr : Intrinsic::aarch64_ldxr;
@@ -27899,7 +27899,7 @@ Value *AArch64TargetLowering::emitStoreConditional(IRBuilderBase &Builder,
   if (Val->getType()->isPointerTy())
     Addr = Builder.CreatePointerCast(
         Addr,
-        IntValTy->getPointerTo(Addr->getType()->getPointerAddressSpace()));
+        llvm::PointerType::get(IntValTy, Addr->getType()->getPointerAddressSpace()));
   Type *Tys[] = { Addr->getType() };
   Function *Stxr = Intrinsic::getOrInsertDeclaration(M, Int, Tys);
 

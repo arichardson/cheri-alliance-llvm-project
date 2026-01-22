@@ -6670,7 +6670,7 @@ Instruction *InstCombinerImpl::foldICmpUsingKnownBits(ICmpInst &I) {
       Builder.SetInsertPoint(&I);
       auto CapAS = I.getOperand(0)->getType()->getPointerAddressSpace();
       auto I8CapTy =
-          IntegerType::getInt8Ty(I.getContext())->getPointerTo(CapAS);
+          llvm::PointerType::get(IntegerType::getInt8Ty(I.getContext()), CapAS);
       auto Addr1 = Builder.CreateIntrinsic(
           Intrinsic::cheri_cap_address_get,
           DL.getIntPtrType(I.getOperand(0)->getType()),

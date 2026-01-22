@@ -187,8 +187,8 @@ llvm::Type* MipsABIInfo::HandleAggregates(QualType Ty, uint64_t TySize) const {
   if (RT &&
       (RT->isUnionType() && getContext().containsCapabilities(RT->getDecl()))
       && getTarget().SupportsCapabilities())
-    return llvm::Type::getInt8Ty(getVMContext())->getPointerTo(
-                            CGM.getTargetCodeGenInfo().getCHERICapabilityAS());
+    return llvm::PointerType::get(llvm::Type::getInt8Ty(getVMContext()),
+                                  CGM.getTargetCodeGenInfo().getCHERICapabilityAS());
 
   // Unions/vectors are passed in integer registers.
   if (!RT || !RT->isStructureOrClassType()) {

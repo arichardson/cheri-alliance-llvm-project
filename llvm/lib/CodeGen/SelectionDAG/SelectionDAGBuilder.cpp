@@ -9110,8 +9110,6 @@ void SelectionDAGBuilder::LowerCallTo(const CallBase &CB, SDValue Callee,
 
 static SDValue getMemCmpLoad(const Value *PtrVal, MVT LoadVT,
                              SelectionDAGBuilder &Builder) {
-  unsigned AS = PtrVal->getType()->getPointerAddressSpace();
-
   // Check to see if this load can be trivially constant folded, e.g. if the
   // input is from a string literal.
   if (const Constant *LoadInput = dyn_cast<Constant>(PtrVal)) {
@@ -11404,10 +11402,6 @@ TargetLowering::LowerCallTo(TargetLowering::CallLoweringInfo &CLI) const {
 
   SmallVector<SDValue, 4> ReturnValues;
   if (!CanLowerReturn) {
-    // The instruction result is the result of loading from the
-    // hidden sret parameter.
-    MVT PtrVT = getPointerTy(DL, DL.getAllocaAddrSpace());
-
     unsigned NumValues = RetTys.size();
     ReturnValues.resize(NumValues);
     SmallVector<SDValue, 4> Chains(NumValues);

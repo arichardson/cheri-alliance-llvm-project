@@ -29,6 +29,7 @@
 #include "clang/CodeGen/ConstantInitBuilder.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/StringSet.h"
+#include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Intrinsics.h"
 
 using namespace clang;
@@ -553,8 +554,8 @@ public:
         CGM.IntTy,
         CGM.IntTy,
         getImageRelativeType(CGM.Int8PtrTy),
-        getImageRelativeType(getClassHierarchyDescriptorType()->getPointerTo(
-          CGM.getTargetCodeGenInfo().getDefaultAS())),
+        getImageRelativeType(llvm::PointerType::get(getClassHierarchyDescriptorType(), 
+                                                    CGM.getTargetCodeGenInfo().getDefaultAS())),
         getImageRelativeType(CGM.VoidTy),
     };
     llvm::ArrayRef<llvm::Type *> FieldTypesRef(FieldTypes);
@@ -754,7 +755,7 @@ public:
     CTATypeName += llvm::utostr(NumEntries);
     unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
     llvm::Type *CTType =
-        getImageRelativeType(getCatchableTypeType()->getPointerTo(DefaultAS));
+        getImageRelativeType(llvm::PointerType::get(getCatchableTypeType(), DefaultAS));
     llvm::Type *FieldTypes[] = {
         CGM.IntTy,                               // NumEntries
         llvm::ArrayType::get(CTType, NumEntries) // CatchableTypes
@@ -784,7 +785,7 @@ public:
     unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
     llvm::Type *Args[] = {
       CGM.Int8PtrTy,
-      getThrowInfoType()->getPointerTo(DefaultAS)
+      llvm::PointerType::get(getThrowInfoType(), DefaultAS)
     };
     llvm::FunctionType *FTy =
         llvm::FunctionType::get(CGM.VoidTy, Args, /*isVarArg=*/false);
@@ -920,7 +921,7 @@ void MicrosoftCXXABI::emitRethrow(CodeGenFunction &CGF, bool isNoReturn) {
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::Value *Args[] = {
       llvm::ConstantPointerNull::get(CGM.Int8PtrTy),
-      llvm::ConstantPointerNull::get(getThrowInfoType()->getPointerTo(DefaultAS))};
+      llvm::ConstantPointerNull::get(llvm::PointerType::get(getThrowInfoType(), DefaultAS))};
   llvm::FunctionCallee Fn = getThrowFn();
   if (isNoReturn)
     CGF.EmitNoreturnRuntimeCallOrInvoke(Fn, Args);
@@ -1968,12 +1969,12 @@ CGCallee MicrosoftCXXABI::getVirtualFunctionPointer(CodeGenFunction &CGF,
   CGBuilderTy &Builder = CGF.Builder;
 
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
-  Ty = Ty->getPointerTo(DefaultAS);
+  Ty = llvm::PointerType::get(Ty, DefaultAS);
   Address VPtr =
       adjustThisArgumentForVirtualFunctionCall(CGF, GD, This, true);
 
   auto *MethodDecl = cast<CXXMethodDecl>(GD.getDecl());
-  llvm::Value *VTable = CGF.GetVTablePtr(VPtr, Ty->getPointerTo(DefaultAS),
+  llvm::Value *VTable = CGF.GetVTablePtr(VPtr, llvm::PointerType::get(Ty, DefaultAS),
                                          MethodDecl->getParent());
 
   MicrosoftVTableContext &VFTContext = CGM.getMicrosoftVTableContext();
@@ -2136,9 +2137,9 @@ MicrosoftCXXABI::EmitVirtualMemPtrThunk(const CXXMethodDecl *MD,
   // Load the vfptr and then callee from the vftable.  The callee should have
   // adjusted 'this' so that the vfptr is at offset zero.
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
-  llvm::Type *ThunkPtrTy = ThunkTy->getPointerTo(DefaultAS);
+  llvm::Type *ThunkPtrTy = llvm::PointerType::get(ThunkTy, DefaultAS);
   llvm::Value *VTable = CGF.GetVTablePtr(
-      getThisAddress(CGF), ThunkPtrTy->getPointerTo(DefaultAS), MD->getParent());
+      getThisAddress(CGF), llvm::PointerType::get(ThunkPtrTy, DefaultAS), MD->getParent());
 
   llvm::Value *VFuncPtr = CGF.Builder.CreateConstInBoundsGEP1_64(
       ThunkPtrTy, VTable, ML.Index, "vfn");
@@ -2563,7 +2564,7 @@ static llvm::FunctionCallee getInitThreadHeaderFn(CodeGenModule &CGM) {
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::FunctionType *FTy =
       llvm::FunctionType::get(llvm::Type::getVoidTy(CGM.getLLVMContext()),
-                              CGM.IntTy->getPointerTo(DefaultAS), /*isVarArg=*/false);
+                              llvm::PointerType::get(CGM.IntTy, DefaultAS), /*isVarArg=*/false);
   return CGM.CreateRuntimeFunction(
       FTy, "_Init_thread_header",
       llvm::AttributeList::get(CGM.getLLVMContext(),
@@ -2576,7 +2577,7 @@ static llvm::FunctionCallee getInitThreadFooterFn(CodeGenModule &CGM) {
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::FunctionType *FTy =
       llvm::FunctionType::get(llvm::Type::getVoidTy(CGM.getLLVMContext()),
-                              CGM.IntTy->getPointerTo(DefaultAS), /*isVarArg=*/false);
+                              llvm::PointerType::get(CGM.IntTy, DefaultAS), /*isVarArg=*/false);
   return CGM.CreateRuntimeFunction(
       FTy, "_Init_thread_footer",
       llvm::AttributeList::get(CGM.getLLVMContext(),
@@ -2589,7 +2590,7 @@ static llvm::FunctionCallee getInitThreadAbortFn(CodeGenModule &CGM) {
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::FunctionType *FTy =
       llvm::FunctionType::get(llvm::Type::getVoidTy(CGM.getLLVMContext()),
-                              CGM.IntTy->getPointerTo(DefaultAS), /*isVarArg=*/false);
+                              llvm::PointerType::get(CGM.IntTy, DefaultAS), /*isVarArg=*/false);
   return CGM.CreateRuntimeFunction(
       FTy, "_Init_thread_abort",
       llvm::AttributeList::get(CGM.getLLVMContext(),
@@ -3829,7 +3830,7 @@ MSRTTIBuilder::getBaseClassArray(SmallVectorImpl<MSRTTIClass> &Classes) {
   // marked pick-any so it shouldn't matter.
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::Type *PtrType = ABI.getImageRelativeType(
-      ABI.getBaseClassDescriptorType()->getPointerTo(DefaultAS));
+      llvm::PointerType::get(ABI.getBaseClassDescriptorType(), DefaultAS));
   auto *ArrType = llvm::ArrayType::get(PtrType, Classes.size() + 1);
   auto *BCA =
       new llvm::GlobalVariable(Module, ArrType,
@@ -4377,7 +4378,7 @@ llvm::GlobalVariable *MicrosoftCXXABI::getCatchableTypeArray(QualType T) {
   uint32_t NumEntries = CatchableTypes.size();
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::Type *CTType =
-      getImageRelativeType(getCatchableTypeType()->getPointerTo(DefaultAS));
+      getImageRelativeType(llvm::PointerType::get(getCatchableTypeType(), DefaultAS));
   llvm::ArrayType *AT = llvm::ArrayType::get(CTType, NumEntries);
   llvm::StructType *CTAType = getCatchableTypeArrayType(NumEntries);
   llvm::Constant *Fields[] = {

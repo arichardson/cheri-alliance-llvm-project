@@ -387,7 +387,7 @@ CodeGenModule::CodeGenModule(ASTContext &C,
                                      C.getTargetAddressSpace(LangAS::Default));
   if (Target.SupportsCapabilities()) {
     Int8CheriCapTy =
-        Int8Ty->getPointerTo(getTargetCodeGenInfo().getCHERICapabilityAS());
+        llvm::PointerType::get(Int8Ty, getTargetCodeGenInfo().getCHERICapabilityAS());
   } else {
     Int8CheriCapTy = nullptr;
   }
@@ -3139,7 +3139,7 @@ void CodeGenModule::addUsedOrCompilerUsedGlobal(llvm::GlobalValue *GV) {
 
 static void emitUsed(CodeGenModule &CGM, StringRef Name,
                      std::vector<llvm::WeakTrackingVH> &List) {
-  llvm::PointerType *UsedPtrTy = CGM.Int8Ty->getPointerTo(0);
+  llvm::PointerType *UsedPtrTy = llvm::PointerType::get(CGM.Int8Ty, 0);
   // Don't create llvm.used if there is no need.
   if (List.empty())
     return;

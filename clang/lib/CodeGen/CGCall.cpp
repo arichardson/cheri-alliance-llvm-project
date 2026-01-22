@@ -1401,7 +1401,7 @@ void CodeGenFunction::CreateCoercedStore(llvm::Value *Src, Address Dst,
           if (llvm::PointerType* PTy = dyn_cast<llvm::PointerType>(SrcTy)) {
             unsigned CapAS = CGM.getTargetCodeGenInfo().getCHERICapabilityAS();
             if (PTy->getAddressSpace() == CapAS) {
-              Src = Builder.CreateBitCast(Src, DstSTy->getPointerTo(CapAS));
+              Src = Builder.CreateBitCast(Src, llvm::PointerType::get(DstSTy, CapAS));
               Src = Builder.CreateLoad(Address(Src, DstSTy, Dst.getAlignment()));
               Builder.CreateStore(Src, Dst, DstIsVolatile);
               return;

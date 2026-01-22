@@ -7,6 +7,7 @@
 #include "../Writer.h"
 #include "Config.h"
 #include "Relocations.h"
+#include "Symbols.h"
 #include "lld/Common/CommonLinkerContext.h"
 #include "lld/Common/ErrorHandler.h"
 #include "lld/Common/Memory.h"
@@ -175,11 +176,10 @@ SymbolAndOffset::fromSectionWithOffset(Ctx &ctx, InputSectionBase *isec, int64_t
 SymbolAndOffset SymbolAndOffset::findRealSymbol(Ctx &ctx) const {
   // If we only have a section, see if we can resolve section+offset to a
   // symbol (that may have been added later).
-  if (symOrSec.is<InputSectionBase *>()) {
-    return SymbolAndOffset::fromSectionWithOffset(ctx,
-        symOrSec.get<InputSectionBase *>(), offset, this);
+  if (auto *S = dyn_cast<InputSectionBase *>(symOrSec)) {
+    return SymbolAndOffset::fromSectionWithOffset(ctx, S, offset, this);
   }
-  auto s = symOrSec.get<Symbol *>();
+  auto s = cast<Symbol *>(symOrSec);
   if (!s->isSection())
     return *this;
   if (Defined *definedSym = dyn_cast<Defined>(s)) {

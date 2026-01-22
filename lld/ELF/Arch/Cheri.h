@@ -25,9 +25,9 @@ public:
   inline std::string verboseToString(Ctx &ctx) const {
     assert(!symOrSec.isNull());
     SymbolAndOffset resolved = findRealSymbol(ctx);
-    if (resolved.symOrSec.is<Symbol *>())
-      return elf::verboseToString(ctx, resolved.symOrSec.get<Symbol *>(), offset);
-    return resolved.symOrSec.get<InputSectionBase *>()->getObjMsg(offset);
+    if (auto *S = dyn_cast<Symbol *>(resolved.symOrSec))
+      return elf::verboseToString(ctx, S, offset);
+    return cast<InputSectionBase *>(resolved.symOrSec)->getObjMsg(offset);
   }
   // for __cap_relocs against local symbols clang emits section+offset instead
   // of the local symbol so that it still works even if the local symbol table
@@ -35,8 +35,9 @@ public:
   SymbolAndOffset findRealSymbol(Ctx &) const;
   SymbolAndOffset findSymbolForCapabilityRelocation(Ctx &) const;
   Symbol *sym() const {
-    assert(symOrSec.is<Symbol *>());
-    return symOrSec.get<Symbol *>();
+    auto *S = dyn_cast<Symbol *>(symOrSec);
+    assert(S);
+    return S;
   }
   bool operator==(const SymbolAndOffset &other) const {
     return symOrSec == other.symOrSec && offset == other.offset;

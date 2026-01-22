@@ -1718,15 +1718,17 @@ llvm::Function *CGOpenMPRuntime::emitThreadPrivateVarDefinition(
     // parameter is always NULL. Otherwise it fires assertion.
     CopyCtor = llvm::Constant::getNullValue(CGM.UnqualPtrTy);
     if (Ctor == nullptr) {
-      auto *CtorTy = llvm::FunctionType::get(CGM.VoidPtrTy, CGM.VoidPtrTy,
-                                             /*isVarArg=*/false)
-                         ->getPointerTo(DefaultAS);
+      auto *CtorTy = llvm::PointerType::get(
+                        llvm::FunctionType::get(CGM.VoidPtrTy, CGM.VoidPtrTy,
+                                             /*isVarArg=*/false),
+                        DefaultAS);
       Ctor = llvm::Constant::getNullValue(CtorTy);
     }
     if (Dtor == nullptr) {
-      auto *DtorTy = llvm::FunctionType::get(CGM.VoidTy, CGM.VoidPtrTy,
-                                             /*isVarArg=*/false)
-                         ->getPointerTo(DefaultAS);
+      auto *DtorTy = llvm::PointerType::get(
+                        llvm::FunctionType::get(CGM.VoidTy, CGM.VoidPtrTy,
+                                             /*isVarArg=*/false),
+                        DefaultAS);
       Dtor = llvm::Constant::getNullValue(DtorTy);
     }
     if (!CGF) {
@@ -3679,7 +3681,7 @@ CGOpenMPRuntime::emitTaskInit(CodeGenFunction &CGF, SourceLocation Loc,
   unsigned DefaultAS = CGM.getTargetCodeGenInfo().getDefaultAS();
   llvm::Type *KmpTaskTWithPrivatesTy = CGF.ConvertType(KmpTaskTWithPrivatesQTy);
   llvm::Type *KmpTaskTWithPrivatesPtrTy =
-      KmpTaskTWithPrivatesTy->getPointerTo(DefaultAS);
+      llvm::PointerType::get(KmpTaskTWithPrivatesTy, DefaultAS);
   llvm::Value *KmpTaskTWithPrivatesTySize =
       CGF.getTypeSize(KmpTaskTWithPrivatesQTy);
   QualType SharedsPtrTy = C.getPointerType(SharedsTy);
