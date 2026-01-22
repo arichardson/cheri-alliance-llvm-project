@@ -390,17 +390,17 @@ static Value *MakeBinaryAtomicValue(
 
   Address DestAddr = CheckAtomicAlignment(CGF, E);
 
-  llvm::Value *Val = CGF.EmitScalarExpr(E->getArg(1));
+  llvm::IntegerType *IntType = llvm::IntegerType::get(
+      CGF.getLLVMContext(), CGF.getContext().getTypeSize(T));
 
-  QualType ArgTy = E->getArg(1)->getType();
-  if (ArgTy->isBooleanType())
-    Val = CGF.EmitToMemory(Val, E->getArg(1)->getType());
+  llvm::Value *Val = CGF.EmitScalarExpr(E->getArg(1));
+  llvm::Type *ValueType = Val->getType();
+  if (!CGF.CGM.getDataLayout().isFatPointer(ValueType))
+    Val = EmitToInt(CGF, Val, T, IntType);
 
   llvm::Value *Result =
       CGF.Builder.CreateAtomicRMW(Kind, DestAddr, Val, Ordering);
-  if (ArgTy->isBooleanType())
-    Result = CGF.EmitFromMemory(Result, ArgTy);
-  return Result;
+  return EmitFromInt(CGF, Result, T, ValueType);
 }
 
 static Value *EmitNontemporalStore(CodeGenFunction &CGF, const CallExpr *E) {
