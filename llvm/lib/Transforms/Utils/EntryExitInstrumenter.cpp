@@ -53,8 +53,11 @@ static void insertCall(Function &CurFn, StringRef Func,
       // On RISC-V, AArch64, and LoongArch, the `_mcount` function takes
       // `__builtin_return_address(0)` as an argument since
       // `__builtin_return_address(1)` is not available on these platforms.
+      auto ProgASPtr =
+        PointerType::get(C, M.getDataLayout().getProgramAddressSpace());
+
       Instruction *RetAddr = CallInst::Create(
-          Intrinsic::getOrInsertDeclaration(&M, Intrinsic::returnaddress),
+          Intrinsic::getOrInsertDeclaration(&M, Intrinsic::returnaddress, {ProgASPtr}),
           ConstantInt::get(Type::getInt32Ty(C), 0), "", InsertionPt);
       RetAddr->setDebugLoc(DL);
 
