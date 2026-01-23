@@ -2012,7 +2012,7 @@ Value *llvm::emitCalloc(Value *Num, Value *Size, IRBuilderBase &B,
   StringRef CallocName = TLI.getName(LibFunc_calloc);
   const DataLayout &DL = M->getDataLayout();
   Type *SizeTTy = getSizeTTy(B, &TLI);
-  Type *PtrTy = PointerType::get(M->getContext(), DL.getDefaultGlobalsAddressSpace());
+  Type *PtrTy = PointerType::get(M->getContext(), AddrSpace);
   FunctionCallee Calloc = getOrInsertLibFunc(M, TLI, LibFunc_calloc,
                                              PtrTy, SizeTTy, SizeTTy);
   inferNonMandatoryLibFuncAttrs(M, CallocName, TLI);
