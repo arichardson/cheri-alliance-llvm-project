@@ -25,6 +25,7 @@
 ; CHECK:   experimental-xqcicsr             - 'Xqcicsr' (Qualcomm uC CSR Extension).
 ; CHECK:   experimental-xqcilsm             - 'Xqcilsm' (Qualcomm uC Load Store Multiple Extension).
 ; CHECK:   experimental-xqcisls             - 'Xqcisls' (Qualcomm uC Scaled Load Store Extension).
+; CHECK:   experimental-y                   - 'Y' ('Base Y' (CHERI)).
 ; CHECK:   experimental-zalasr              - 'Zalasr' (Load-Acquire and Store-Release Instructions).
 ; CHECK:   experimental-zicfilp             - 'Zicfilp' (Landing pad).
 ; CHECK:   experimental-zicfiss             - 'Zicfiss' (Shadow stack).
