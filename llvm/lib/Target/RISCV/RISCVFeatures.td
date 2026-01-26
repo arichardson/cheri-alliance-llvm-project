@@ -1016,6 +1016,12 @@ def HasStdExtSmctrOrSsctr : Predicate<"Subtarget->hasStdExtSmctrOrSsctr()">,
                                "'Smctr' (Control Transfer Records Machine Level) or "
                                "'Ssctr' (Control Transfer Records Supervisor Level)">;
 
+// "Y" extension (CHERI support)
+
+def FeatureStdExtY : RISCVExperimentalExtension<0, 96, "'Base Y' (CHERI)">;
+def HasStdExtY : Predicate<"Subtarget->hasStdExtY()">,
+                 AssemblerPredicate<(all_of FeatureStdExtY), "'Base Y' (CHERI)">;
+
 //===----------------------------------------------------------------------===//
 // Vendor extensions
 //===----------------------------------------------------------------------===//

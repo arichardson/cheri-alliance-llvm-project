@@ -301,6 +301,8 @@
 ; RUN: llc -mtriple=riscv64 -mattr=+experimental-ssctr  %s -o - | FileCheck --check-prefix=RV64SSCTR %s
 ; RUN: llc -mtriple=riscv64 -mattr=+experimental-sdext  %s -o - | FileCheck --check-prefix=RV64SDEXT %s
 ; RUN: llc -mtriple=riscv64 -mattr=+experimental-sdtrig  %s -o - | FileCheck --check-prefix=RV64SDTRIG %s
+; RUN: llc -mtriple=riscv64 -mattr=+experimental-y %s -o - | FileCheck --check-prefix=RV64Y %s
+
 
 ; Tests for profile features.
 ; RUN: llc -mtriple=riscv32 -mattr=+rvi20u32 %s -o - | FileCheck --check-prefix=RVI20U32 %s
@@ -615,6 +617,7 @@
 ; RV64SSCTR: .attribute 5, "rv64i2p1_sscsrind1p0_ssctr1p0"
 ; RV64SDEXT: .attribute 5, "rv64i2p1_sdext1p0"
 ; RV64SDTRIG: .attribute 5, "rv64i2p1_sdtrig1p0"
+; RV64Y: .attribute 5, "rv64i2p1_y0p96"
 
 ; RVI20U32: .attribute 5, "rv32i2p1"
 ; RVI20U64: .attribute 5, "rv64i2p1"
