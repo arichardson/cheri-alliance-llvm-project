@@ -105,7 +105,7 @@ void copy_group(const char *a) {
 // OPTNONE-NEXT:    ret void
 //
 // CHECK-LABEL: define {{[^@]+}}@copy_group2
-// CHECK-SAME: (ptr addrspace(200) noundef [[A:%.*]], ptr addrspace(200) noundef [[BUFFER:%.*]]) local_unnamed_addr addrspace(200) #[[ATTR2]] {
+// CHECK-SAME: (ptr addrspace(200) noundef [[A:%.*]], ptr addrspace(200) noundef initializes((0, 16)) [[BUFFER:%.*]]) local_unnamed_addr addrspace(200) #[[ATTR2]] {
 // CHECK-NEXT:  entry:
 // CHECK-NEXT:    store ptr addrspace(200) [[A]], ptr addrspace(200) [[BUFFER]], align 1
 // CHECK-NEXT:    tail call void @do_stuff(ptr addrspace(200) noundef nonnull [[BUFFER]]) #[[ATTR5]]
