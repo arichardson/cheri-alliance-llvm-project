@@ -6044,6 +6044,26 @@ SDValue RISCVTargetLowering::lowerVPCttzElements(SDValue Op,
   return DAG.getNode(ISD::TRUNCATE, DL, Op.getValueType(), Res);
 }
 
+// On architectures without a dedicated CClearTag instruction, the tag is
+// cleared by writing to to the high bits of the capability.
+static SDValue emitCClearTagReplacement(SelectionDAG &DAG,
+                                        const RISCVSubtarget &Subtarget,
+                                        const SDLoc &DL, SDValue Cap,
+                                        EVT XLenVT) {
+  if (Subtarget.hasCheri()) {
+    // Use existing CClearTag selection
+    return SDValue();
+  }
+  SDValue CapHigh = DAG.getNode(
+      ISD::INTRINSIC_WO_CHAIN, DL, XLenVT,
+      DAG.getConstant(Intrinsic::cheri_cap_high_get, DL, XLenVT), Cap);
+  SDValue Result = DAG.getNode(
+      ISD::INTRINSIC_WO_CHAIN, DL, Cap.getValueType(),
+      DAG.getConstant(Intrinsic::cheri_cap_high_set, DL, XLenVT), Cap, CapHigh);
+
+  return Result;
+}
+
 // While RVV has alignment restrictions, we should always be able to load as a
 // legal equivalently-sized byte-typed vector instead. This method is
 // responsible for re-expressing a ISD::LOAD via a correctly-aligned type. If
@@ -10126,6 +10146,9 @@ SDValue RISCVTargetLowering::LowerINTRINSIC_WO_CHAIN(SDValue Op,
     return DAG.getNode(RISCVISD::TUPLE_EXTRACT, DL, Op.getValueType(), Vec,
                        Index);
   }
+  case Intrinsic::cheri_cap_tag_clear:
+    return emitCClearTagReplacement(DAG, Subtarget, DL, Op.getOperand(1),
+                                    XLenVT);
   case Intrinsic::thread_pointer: {
     MCPhysReg PhysReg = RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI())
         ? RISCV::C4 : RISCV::X4;
