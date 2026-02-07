@@ -120,8 +120,13 @@ void test(void *__capability cap, char *__capability cap2, __SIZE_TYPE__ i) {
   /* Check that the cheri_otype_t type is defined */
   _Static_assert(__builtin_types_compatible_p(cheri_otype_t *, __typeof__(cheri_type_get(cap)) *), "");
   _Static_assert(__builtin_types_compatible_p(cheri_otype_t *, long *), "");
-  _Static_assert(CHERI_OTYPE_UNSEALED == -1, "RISCV and MIPS expect -2");
-  _Static_assert(CHERI_OTYPE_SENTRY == -2, "RISCV and MIPS expect -2");
+#if defined(__riscv_zcheripurecap)
+  _Static_assert(CHERI_OTYPE_UNSEALED == 0, "Purecap RISCV expects 0");
+  _Static_assert(CHERI_OTYPE_SENTRY == 1, "Purecap RISCV expects 1");
+#else
+  _Static_assert(CHERI_OTYPE_UNSEALED == -1, "Non-purecap RISCV and MIPS expect -1");
+  _Static_assert(CHERI_OTYPE_SENTRY == -2, "Non-purecap RISCV and MIPS expect -2");
+#endif
   use_size_t((unsigned long)cheri_type_get(cap));
   use_bool(cheri_is_sealed(cap));
   use_bool(cheri_is_unsealed(cap));
