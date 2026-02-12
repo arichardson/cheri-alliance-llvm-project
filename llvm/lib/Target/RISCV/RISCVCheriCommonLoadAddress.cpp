@@ -30,7 +30,7 @@ class RISCVCheriCommonLoadAddress : public MachineFunctionPass {
   const RISCVSubtarget *ST = nullptr;
   const RISCVInstrInfo *TII;
   MachineRegisterInfo *MRI;
-  DenseMap<const GlobalValue *, SmallVector<MachineInstr *, 2>> BaseMIs;
+  DenseMap<std::pair<const GlobalValue *, unsigned>, SmallVector<MachineInstr *, 2>> BaseMIs;
   DenseMap<MachineInstr *, SmallVector<MachineInstr *, 2>> DupMIs;
 
 public:
@@ -72,7 +72,8 @@ bool RISCVCheriCommonLoadAddress::searchMBB(MachineBasicBlock &MBB,
       FoundCandidates = true;
       LLVM_DEBUG(dbgs() << "Checking " << MI << " as either base or duplicate\n");
       const GlobalValue *GV = MI.getOperand(1).getGlobal();
-      SmallVector<MachineInstr *, 2> &DefMIs = BaseMIs.getOrInsertDefault(GV);
+      unsigned Flags = MI.getOperand(1).getTargetFlags();
+      SmallVector<MachineInstr *, 2> &DefMIs = BaseMIs.getOrInsertDefault({GV, Flags});
       if (DefMIs.empty()) {
         // We haven't encountered any existing load addresses for this global.
         LLVM_DEBUG(dbgs() << "Considering " << MI << " as a potential base\n");
