@@ -686,7 +686,7 @@ GotSection::GotSection()
   numEntries = target->gotHeaderEntriesNum;
 }
 
-void GotSection::addConstant(const Relocation &r) { relocations.push_back(r); }
+void GotSection::addConstant(const Relocation &r) { addReloc(r); }
 void GotSection::addEntry(const Symbol &sym) {
   // TODO: Separate out TLS IE entries for CHERI so we can pack them more
   // efficiently rather than consuming a whole capability-sized slot for an
