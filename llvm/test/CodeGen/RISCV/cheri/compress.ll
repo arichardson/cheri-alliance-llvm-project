@@ -68,16 +68,19 @@ define i32 @loadstore(i32 addrspace(200)* %intptrarg, i8 addrspace(200)* addrspa
 }
 
 ;; NB: No c.cjalr here, linker relaxations expect the full sequence.
+;; TODO: Depending on the interleaving of data dependency chains by the
+;; scheduler, using ca2 could be avoided altogether. This probably ought to be
+;; revisited at benchmarking time.
 define i32 @call() addrspace(200) #0 {
 ; CHECK-LABEL: <call>:
 ; CHECK-NEXT:    {{[[:<:]]}}c.cincoffset16csp csp, -{{112|144}}
 ; CHECK-NEXT:    {{[[:<:]]}}c.scsp cra, {{104|128}}(csp)
 ; CHECK-NEXT:    {{[[:<:]]}}c.cincoffset4cspn ca0, csp, 64
+; CHECK-NEXT:    {{[[:<:]]}}cincoffset ca1, csp, 0
 ; CHECK-NEXT:    {{[[:<:]]}}csetbounds ca0, ca0, {{32|64}}
+; CHECK-NEXT:    {{[[:<:]]}}csetbounds ca2, ca1, 64
 ; CHECK-NEXT:    {{[[:<:]]}}cincoffset ca1, ca0, {{24|48}}
-; CHECK-NEXT:    {{[[:<:]]}}cincoffset ca0, csp, 0
-; CHECK-NEXT:    {{[[:<:]]}}csetbounds ca0, ca0, 64
-; CHECK-NEXT:    {{[[:<:]]}}cincoffset ca0, ca0, 12
+; CHECK-NEXT:    {{[[:<:]]}}cincoffset ca0, ca2, 12
 ; CHECK-NEXT:    {{[[:<:]]}}auipc cra, 0
 ; CHECK-NEXT:    {{[[:<:]]}}jalr cra, 0(cra)
 ; CHECK-NEXT:    {{[[:<:]]}}c.lcsp cra, {{104|128}}(csp)
@@ -87,11 +90,11 @@ define i32 @call() addrspace(200) #0 {
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset csp, csp, -144
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}sc cra, 128(csp)
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset ca0, csp, 64
+; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset ca1, csp, 0
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}csetbounds ca0, ca0, 64
+; CHECK-NORVC-NEXT:  {{[[:<:]]}}csetbounds ca2, ca1, 64
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset ca1, ca0, 48
-; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset ca0, csp, 0
-; CHECK-NORVC-NEXT:  {{[[:<:]]}}csetbounds ca0, ca0, 64
-; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset ca0, ca0, 12
+; CHECK-NORVC-NEXT:  {{[[:<:]]}}cincoffset ca0, ca2, 12
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}auipc cra, 0
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}jalr cra, 0(cra)
 ; CHECK-NORVC-NEXT:  {{[[:<:]]}}lc cra, 128(csp)
