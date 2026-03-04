@@ -613,7 +613,6 @@ def RP2350_HAZARD3 : RISCVProcessorModel<"rp2350-hazard3",
                                        FeatureStdExtZba,
                                        FeatureStdExtZbb,
                                        FeatureStdExtZbs,
-                                       FeatureStdExtZbc,
                                        FeatureStdExtZcb,
                                        FeatureStdExtSvinval],
                                       extraFeatures)>;
@@ -634,11 +633,11 @@ class CodasipV730Base<string name, list<SubtargetFeature> extraFeatures>
                                        FeatureStdExtZba,
                                        FeatureStdExtZbb,
                                        FeatureStdExtZbs,
-                                       FeatureStdExtZbc,
                                        FeatureStdExtZcb,
                                        FeatureStdExtSvinval,
                                        FeatureStdExtZCheriPureCap,
-                                       FeatureStdExtZCheriHybrid],
+                                       FeatureStdExtZCheriHybrid,
+                                       FeatureStdExtZCheriLevels],
                                       extraFeatures)>;
 
 class CodasipA730Base<string name, list<SubtargetFeature> extraFeatures>
@@ -658,7 +657,6 @@ class CodasipA730Base<string name, list<SubtargetFeature> extraFeatures>
                                        FeatureStdExtZba,
                                        FeatureStdExtZbb,
                                        FeatureStdExtZbs,
-                                       FeatureStdExtZbc,
                                        FeatureStdExtZcb,
                                        FeatureStdExtSvinval],
                                       extraFeatures)>;
@@ -677,14 +675,16 @@ class CodasipX730Base<string name, list<SubtargetFeature> extraFeatures>
                                        FeatureStdExtZicbom,
                                        FeatureStdExtZicbop,
                                        FeatureStdExtZicboz,
+                                       FeatureStdExtZish4add,
                                        FeatureStdExtZba,
                                        FeatureStdExtZbb,
                                        FeatureStdExtZbs,
-                                       FeatureStdExtZbc,
                                        FeatureStdExtZcb,
                                        FeatureStdExtSvinval,
                                        FeatureStdExtZCheriPureCap,
-                                       FeatureStdExtZCheriHybrid],
+                                       FeatureStdExtZCheriHybrid,
+                                       FeatureStdExtZCheriPTE,
+                                       FeatureStdExtZCheriLevels],
                                       extraFeatures)>;
 
 // NOTE: We could further differentiate these CPU definitions by specifying tune
