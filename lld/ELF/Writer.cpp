@@ -2041,7 +2041,8 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
 
       // computeBinding might localize a linker-synthesized hidden symbol
       // (e.g. __global_pointer$) that was considered exported.
-      if (sym->includeInDynsym(ctx) || (sym->isExported && !sym->isLocal())) {
+      if ((ctx.hasDynsym && sym->includeInDynsym(ctx)) ||
+          (sym->isExported && !sym->isLocal())) {
         ctx.partitions[sym->partition - 1].dynSymTab->addSymbol(sym);
         if (auto *file = dyn_cast<SharedFile>(sym->file))
           if (file->isNeeded && !sym->isUndefined())
