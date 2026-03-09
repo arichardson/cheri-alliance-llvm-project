@@ -12637,6 +12637,7 @@ static QualType DecodeTypeFromStr(const char *&Str, const ASTContext &Context,
       Type = Type.withRestrict();
       break;
     case 'm': {
+      const auto *BT = Type->getAs<BuiltinType>();
       Qualifiers Qs = Type.getQualifiers();
       if (const auto *PT = Type->getAs<PointerType>())
         Type = Context.getPointerType(PT->getPointeeType(), PIK_Capability);
@@ -12644,8 +12645,12 @@ static QualType DecodeTypeFromStr(const char *&Str, const ASTContext &Context,
         Type = Context.getLValueReferenceType(LRT->getPointeeTypeAsWritten(),
                                               LRT->isSpelledAsLValue(),
                                               PIK_Capability);
-      else {
-        const auto *BT = Type->getAs<BuiltinType>();
+      else if (BT->getKind() == BuiltinType::SveMFloat8) {
+        Done = true;
+        --Str;
+        break;
+      } else {
+
         assert(BT &&
                (BT->getKind() == BuiltinType::Int ||
                 BT->getKind() == BuiltinType::UInt) &&
