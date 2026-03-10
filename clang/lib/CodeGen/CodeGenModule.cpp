@@ -3139,7 +3139,6 @@ void CodeGenModule::addUsedOrCompilerUsedGlobal(llvm::GlobalValue *GV) {
 
 static void emitUsed(CodeGenModule &CGM, StringRef Name,
                      std::vector<llvm::WeakTrackingVH> &List) {
-  llvm::PointerType *UsedPtrTy = llvm::PointerType::get(CGM.Int8Ty, 0);
   // Don't create llvm.used if there is no need.
   if (List.empty())
     return;
@@ -3148,14 +3147,13 @@ static void emitUsed(CodeGenModule &CGM, StringRef Name,
   SmallVector<llvm::Constant*, 8> UsedArray;
   UsedArray.resize(List.size());
   for (unsigned i = 0, e = List.size(); i != e; ++i) {
-    UsedArray[i] =
-        llvm::ConstantExpr::getPointerBitCastOrAddrSpaceCast(
-            cast<llvm::Constant>(&*List[i]), UsedPtrTy);
+    UsedArray[i] = llvm::ConstantExpr::getPointerBitCastOrAddrSpaceCast(
+        cast<llvm::Constant>(&*List[i]), CGM.Int8PtrTy);
   }
 
   if (UsedArray.empty())
     return;
-  llvm::ArrayType *ATy = llvm::ArrayType::get(UsedPtrTy, UsedArray.size());
+  llvm::ArrayType *ATy = llvm::ArrayType::get(CGM.Int8PtrTy, UsedArray.size());
 
   auto *GV = new llvm::GlobalVariable(
       CGM.getModule(), ATy, false, llvm::GlobalValue::AppendingLinkage,
