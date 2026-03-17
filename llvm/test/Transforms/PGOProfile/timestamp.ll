@@ -6,18 +6,18 @@ target triple = "x86_64-unknown-linux-gnu"
 ; CHECK-LABEL: define void @foo(
 define void @foo() {
 entry:
-  ; CHECK: call void @llvm.instrprof.timestamp({{.*}})
+  ; CHECK: call void @llvm.instrprof.timestamp.p0({{.*}})
   ret void
 }
 
 ; CHECK-LABEL: define void @bar(
 define void @bar() #0 {
 entry:
-  ; CHECK-NOT: call void @llvm.instrprof.timestamp({{.*}})
+  ; CHECK-NOT: call void @llvm.instrprof.timestamp.p0({{.*}})
   call void asm sideeffect "retq;", "~{dirflag},~{fpsr},~{flags}"()
   unreachable
 }
 
-; CHECK-LABEL: declare void @llvm.instrprof.timestamp(
+; CHECK-LABEL: declare void @llvm.instrprof.timestamp.p0(
 
 attributes #0 = { naked }

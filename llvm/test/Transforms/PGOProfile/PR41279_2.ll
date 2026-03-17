@@ -14,16 +14,16 @@ define dso_local void @f() personality ptr @__C_specific_handler {
 ; GEN-LABEL: @f
 ;
 ; GEN: catch.dispatch:
-; GEN-NOT: call void @llvm.instrprof.increment
+; GEN-NOT: call void @llvm.instrprof.increment.p0
 ;
 ; GEN:  _except1:
-; GEN:    call void @llvm.instrprof.increment(ptr @__profn_f, i64 {{[0-9]+}}, i32 3, i32 1)
+; GEN:    call void @llvm.instrprof.increment.p0(ptr @__profn_f, i64 {{[0-9]+}}, i32 3, i32 1)
 ;
 ; GEN: __except6:
-; GEN:   call void @llvm.instrprof.increment(ptr @__profn_f, i64 {{[0-9]+}}, i32 3, i32 2)
+; GEN:   call void @llvm.instrprof.increment.p0(ptr @__profn_f, i64 {{[0-9]+}}, i32 3, i32 2)
 ;
 ; GEN: invoke.cont3:
-; GEN:   call void @llvm.instrprof.increment(ptr @__profn_f, i64 1096621589180411894, i32 3, i32 0)
+; GEN:   call void @llvm.instrprof.increment.p0(ptr @__profn_f, i64 1096621589180411894, i32 3, i32 0)
 entry:
   %__exception_code = alloca i32, align 4
   %__exception_code2 = alloca i32, align 4

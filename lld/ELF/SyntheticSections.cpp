@@ -4823,6 +4823,7 @@ template <class ELFT> void elf::createSyntheticSections() {
 
   Out::programHeaders = make<OutputSection>("", 0, SHF_ALLOC);
   Out::programHeaders->addralign = config->wordsize;
+  addOptionalRegular("__phdr_start", Out::programHeaders, 0, STV_HIDDEN);
 
   if (config->strip != StripPolicy::All) {
     in.strTab = std::make_unique<StringTableSection>(".strtab", false);

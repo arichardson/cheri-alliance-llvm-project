@@ -112,6 +112,10 @@ public:
   void writeBytes(const char *Bytes, int Size) { os->write(Bytes, Size); }
 
 private:
+  unsigned getModuleDlAS() {
+    return M->getDataLayout().getDefaultGlobalsAddressSpace();
+  }
+
   // Create the .gcno files for the Module based on DebugInfo.
   bool
   emitProfileNotes(NamedMDNode *CUNode, bool HasExecOrFork,
@@ -913,7 +917,9 @@ bool GCOVProfiler::emitProfileNotes(
         ArrayType *CounterTy = ArrayType::get(Type::getInt64Ty(*Ctx), Measured);
         GlobalVariable *Counters = new GlobalVariable(
             *M, CounterTy, false, GlobalValue::InternalLinkage,
-            Constant::getNullValue(CounterTy), "__llvm_gcov_ctr");
+            Constant::getNullValue(CounterTy), "__llvm_gcov_ctr", nullptr,
+            llvm::GlobalValue::ThreadLocalMode::NotThreadLocal,
+              getModuleDlAS(), false);
         CountersBySP.emplace_back(Counters, SP);
 
         for (size_t I : llvm::seq<size_t>(0, Measured)) {
@@ -991,7 +997,7 @@ Function *GCOVProfiler::createInternalFunction(FunctionType *FTy,
                                                StringRef Name,
                                                StringRef MangledType /*=""*/) {
   Function *F = Function::createWithDefaultAttr(
-      FTy, GlobalValue::InternalLinkage, 0, Name, M);
+      FTy, GlobalValue::InternalLinkage, getModuleDlAS(), Name, M);
   F->setUnnamedAddr(GlobalValue::UnnamedAddr::Global);
   F->addFnAttr(Attribute::NoUnwind);
   if (Options.NoRedZone)
@@ -1017,7 +1023,7 @@ void GCOVProfiler::emitGlobalConstructor(
   IRBuilder<> Builder(BB);
 
   FTy = FunctionType::get(Type::getVoidTy(*Ctx), false);
-  auto *PFTy = PointerType::get(FTy, 0);
+  auto *PFTy = PointerType::get(FTy, getModuleDlAS());
   FTy = FunctionType::get(Builder.getVoidTy(), {PFTy, PFTy}, false);
 
   // Initialize the environment and register the local writeout, flush and
@@ -1031,7 +1037,7 @@ void GCOVProfiler::emitGlobalConstructor(
 
 FunctionCallee GCOVProfiler::getStartFileFunc(const TargetLibraryInfo *TLI) {
   Type *Args[] = {
-      PointerType::getUnqual(*Ctx), // const char *orig_filename
+      PointerType::get(*Ctx, getModuleDlAS()), // const char *orig_filename
       Type::getInt32Ty(*Ctx),       // uint32_t version
       Type::getInt32Ty(*Ctx),       // uint32_t checksum
   };
@@ -1054,7 +1060,7 @@ FunctionCallee GCOVProfiler::getEmitFunctionFunc(const TargetLibraryInfo *TLI) {
 FunctionCallee GCOVProfiler::getEmitArcsFunc(const TargetLibraryInfo *TLI) {
   Type *Args[] = {
       Type::getInt32Ty(*Ctx),       // uint32_t num_counters
-      PointerType::getUnqual(*Ctx), // uint64_t *counters
+      PointerType::get(*Ctx, getModuleDlAS()), // uint64_t *counters
   };
   FunctionType *FTy = FunctionType::get(Type::getVoidTy(*Ctx), Args, false);
   return M->getOrInsertFunction("llvm_gcda_emit_arcs", FTy,
@@ -1100,12 +1106,12 @@ Function *GCOVProfiler::insertCounterWriteout(
   // Collect the relevant data into a large constant data structure that we can
   // walk to write out everything.
   StructType *StartFileCallArgsTy = StructType::create(
-      {Builder.getPtrTy(), Builder.getInt32Ty(), Builder.getInt32Ty()},
+      {Builder.getPtrTy(getModuleDlAS()), Builder.getInt32Ty(), Builder.getInt32Ty()},
       "start_file_args_ty");
   StructType *EmitFunctionCallArgsTy = StructType::create(
       {Builder.getInt32Ty(), Builder.getInt32Ty(), Builder.getInt32Ty()},
       "emit_function_args_ty");
-  auto *PtrTy = Builder.getPtrTy();
+  auto *PtrTy = Builder.getPtrTy(getModuleDlAS());
   StructType *EmitArcsCallArgsTy =
       StructType::create({Builder.getInt32Ty(), PtrTy}, "emit_arcs_args_ty");
   StructType *FileInfoTy = StructType::create(
@@ -1122,12 +1128,12 @@ Function *GCOVProfiler::insertCounterWriteout(
     // Skip module skeleton (and module) CUs.
     if (CU->getDWOId())
       continue;
-
+    const Twine &Name = "";
     std::string FilenameGcda = mangleName(CU, GCovFileType::GCDA);
     uint32_t CfgChecksum = FileChecksums.empty() ? 0 : FileChecksums[i];
     auto *StartFileCallArgs = ConstantStruct::get(
         StartFileCallArgsTy,
-        {Builder.CreateGlobalStringPtr(FilenameGcda),
+        {Builder.CreateGlobalStringPtr(FilenameGcda, Name, getModuleDlAS(), nullptr),
          Builder.getInt32(endian::read32be(Options.Version)),
          Builder.getInt32(CfgChecksum)});
 
@@ -1161,7 +1167,9 @@ Function *GCOVProfiler::insertCounterWriteout(
         GlobalValue::InternalLinkage,
         ConstantArray::get(EmitFunctionCallArgsArrayTy,
                            EmitFunctionCallArgsArray),
-        Twine("__llvm_internal_gcov_emit_function_args.") + Twine(i));
+        Twine("__llvm_internal_gcov_emit_function_args.") + Twine(i), nullptr,
+        llvm::GlobalValue::ThreadLocalMode::NotThreadLocal,
+        getModuleDlAS(), false);
     auto *EmitArcsCallArgsArrayTy =
         ArrayType::get(EmitArcsCallArgsTy, CountersSize);
     EmitFunctionCallArgsArrayGV->setUnnamedAddr(
@@ -1170,7 +1178,9 @@ Function *GCOVProfiler::insertCounterWriteout(
         *M, EmitArcsCallArgsArrayTy, /*isConstant*/ true,
         GlobalValue::InternalLinkage,
         ConstantArray::get(EmitArcsCallArgsArrayTy, EmitArcsCallArgsArray),
-        Twine("__llvm_internal_gcov_emit_arcs_args.") + Twine(i));
+        Twine("__llvm_internal_gcov_emit_arcs_args.") + Twine(i), nullptr,
+        llvm::GlobalValue::ThreadLocalMode::NotThreadLocal,
+        getModuleDlAS(), false);
     EmitArcsCallArgsArrayGV->setUnnamedAddr(GlobalValue::UnnamedAddr::Global);
 
     FileInfos.push_back(ConstantStruct::get(

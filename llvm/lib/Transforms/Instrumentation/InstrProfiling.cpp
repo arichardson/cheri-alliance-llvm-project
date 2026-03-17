@@ -419,6 +419,8 @@ public:
   }
 
   void doExtraRewritesBeforeFinalDeletion() override {
+    unsigned GlobalsAddrSpace =
+        Store->getParent()->getDataLayout().getDefaultGlobalsAddressSpace();
     for (unsigned i = 0, e = ExitBlocks.size(); i != e; ++i) {
       BasicBlock *ExitBlock = ExitBlocks[i];
       Instruction *InsertPos = InsertPts[i];
@@ -440,7 +442,7 @@ public:
         assert(OrigBiasInst->getOpcode() == Instruction::BinaryOps::Add);
         Value *BiasInst = Builder.Insert(OrigBiasInst->clone());
         Addr = Builder.CreateIntToPtr(BiasInst,
-                                      PointerType::getUnqual(Ty->getContext()));
+            PointerType::get(Ty->getContext(), GlobalsAddrSpace));
       }
       if (AtomicCounterUpdatePromoted)
         // automic update currently can only be promoted across the current
@@ -909,7 +911,10 @@ static bool needsRuntimeHookUnconditionally(const Triple &TT) {
 /// Check if the module contains uses of any profiling intrinsics.
 static bool containsProfilingIntrinsics(Module &M) {
   auto containsIntrinsic = [&](int ID) {
-    if (auto *F = M.getFunction(Intrinsic::getName(ID)))
+    unsigned GlobalsAddrSpace =
+        M.getDataLayout().getDefaultGlobalsAddressSpace();
+    Type *PtrTy = PointerType::get(M.getContext(), GlobalsAddrSpace);
+    if (auto *F = M.getFunction(Intrinsic::getNameNoUnnamedTypes(ID, {PtrTy})))
       return !F->use_empty();
     return false;
   };
@@ -1133,9 +1138,11 @@ Value *InstrLowerer::getCounterAddress(InstrProfCntrInstBase *I) {
 Function *InstrLowerer::createRMWOrFunc() {
   auto &Ctx = M.getContext();
   auto *Int8Ty = Type::getInt8Ty(Ctx);
+  unsigned GlobalsAddrSpace = M.getDataLayout().getDefaultGlobalsAddressSpace();
   Function *Fn = Function::Create(
       FunctionType::get(Type::getVoidTy(Ctx),
-                        {PointerType::getUnqual(Ctx), Int8Ty}, false),
+                        {PointerType::get(Ctx, GlobalsAddrSpace), Int8Ty},
+                        false),
       Function::LinkageTypes::PrivateLinkage, "rmw_or", M);
   Fn->addFnAttr(Attribute::AlwaysInline);
   auto *ArgAddr = Fn->getArg(0);
@@ -1390,10 +1397,12 @@ static inline bool shouldUsePublicSymbol(Function *Fn) {
 }
 
 static inline Constant *getFuncAddrForProfData(Function *Fn) {
-  auto *Int8PtrTy = PointerType::getUnqual(Fn->getContext());
+  unsigned GlobalsAddrSpace =
+      Fn->getParent()->getDataLayout().getDefaultGlobalsAddressSpace();
+  auto *PtrTy = PointerType::get(Fn->getContext(), GlobalsAddrSpace);
   // Store a nullptr in __llvm_profd, if we shouldn't use a real address
   if (!shouldRecordFunctionAddr(Fn))
-    return ConstantPointerNull::get(Int8PtrTy);
+    return ConstantPointerNull::get(PtrTy);
 
   // If we can't use an alias, we must use the public symbol, even though this
   // may require a symbolic relocation.
@@ -1496,14 +1505,16 @@ static inline bool shouldRecordVTableAddr(GlobalVariable *GV) {
 
 // FIXME: Introduce an internal alias like what's done for functions to reduce
 // the number of relocation entries.
-static inline Constant *getVTableAddrForProfData(GlobalVariable *GV) {
-  auto *Int8PtrTy = PointerType::getUnqual(GV->getContext());
+static inline Constant *getVTableAddrForProfData(GlobalVariable *GV,
+                                                 Module &M) {
+  unsigned GlobalsAddrSpace = M.getDataLayout().getDefaultGlobalsAddressSpace();
+  auto *PtrTy = PointerType::get(GV->getContext(), GlobalsAddrSpace);
 
   // Store a nullptr in __profvt_ if a real address shouldn't be used.
   if (!shouldRecordVTableAddr(GV))
-    return ConstantPointerNull::get(Int8PtrTy);
+    return ConstantPointerNull::get(PtrTy);
 
-  return ConstantExpr::getBitCast(GV, Int8PtrTy);
+  return ConstantExpr::getBitCast(GV, PtrTy);
 }
 
 void InstrLowerer::getOrCreateVTableProfData(GlobalVariable *GV) {
@@ -1543,7 +1554,7 @@ void InstrLowerer::getOrCreateVTableProfData(GlobalVariable *GV) {
   auto *DataTy = StructType::get(Ctx, ArrayRef(DataTypes));
 
   // Used by INSTR_PROF_VTABLE_DATA MACRO
-  Constant *VTableAddr = getVTableAddrForProfData(GV);
+  Constant *VTableAddr = getVTableAddrForProfData(GV, M);
   const std::string PGOVTableName = getPGOName(*GV);
   // Record the length of the vtable. This is needed since vtable pointers
   // loaded from C++ objects might be from the middle of a vtable definition.
@@ -1775,10 +1786,12 @@ void InstrLowerer::createDataVariable(InstrProfCntrInstBase *Inc) {
   std::string DataVarName =
       getVarName(Inc, getInstrProfDataVarPrefix(), Renamed);
 
-  auto *Int8PtrTy = PointerType::getUnqual(Ctx);
+  unsigned GlobalsAddrSpace =
+      Fn->getDataLayout().getDefaultGlobalsAddressSpace();
+  auto *PtrTy = PointerType::get(Ctx, GlobalsAddrSpace);
   // Allocate statically the array of pointers to value profile nodes for
   // the current function.
-  Constant *ValuesPtrExpr = ConstantPointerNull::get(Int8PtrTy);
+  Constant *ValuesPtrExpr = ConstantPointerNull::get(PtrTy);
   uint64_t NS = 0;
   for (uint32_t Kind = IPVK_First; Kind <= IPVK_Last; ++Kind)
     NS += PD.NumValueSites[Kind];
@@ -2002,8 +2015,9 @@ void InstrLowerer::emitRegistration() {
     return;
 
   // Construct the function.
+  unsigned GlobalsAddrSpace = M.getDataLayout().getDefaultGlobalsAddressSpace();
   auto *VoidTy = Type::getVoidTy(M.getContext());
-  auto *VoidPtrTy = PointerType::getUnqual(M.getContext());
+  auto *VoidPtrTy = PointerType::get(M.getContext(), GlobalsAddrSpace);
   auto *Int64Ty = Type::getInt64Ty(M.getContext());
   auto *RegisterFTy = FunctionType::get(VoidTy, false);
   auto *RegisterF = Function::Create(RegisterFTy, GlobalValue::InternalLinkage,

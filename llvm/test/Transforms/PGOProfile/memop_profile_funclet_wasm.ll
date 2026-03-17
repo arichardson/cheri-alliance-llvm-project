@@ -20,7 +20,7 @@ catch.start:                                      ; preds = %catch.dispatch
   %4 = call ptr @__cxa_begin_catch(ptr %2) #3 [ "funclet"(token %1) ]
   %tmp = load i32, ptr %p, align 4
   call void @llvm.memcpy.p0.p0.i32(ptr %dst, ptr %src, i32 %tmp, i1 false)
-; GEN: call void @llvm.instrprof.value.profile({{.*}}) [ "funclet"(token %[[CATCHPAD]]) ]
+; GEN: call void @llvm.instrprof.value.profile.p0({{.*}}) [ "funclet"(token %[[CATCHPAD]]) ]
 ; LOWER: call void @__llvm_profile_instrument_memop({{.*}}) [ "funclet"(token %[[CATCHPAD]]) ]
   call void @__cxa_end_catch() [ "funclet"(token %1) ]
   catchret from %1 to label %try.cont

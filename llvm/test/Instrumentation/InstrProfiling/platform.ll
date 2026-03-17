@@ -21,21 +21,21 @@
 ; WINDOWS: @__profc_foo = private global [1 x i64] zeroinitializer, section ".lprfc$M", align 8
 ; AIX: @__profc_foo = private global [1 x i64] zeroinitializer, section "__llvm_prf_cnts", align 8
 
-; MACHO: @__profd_foo = private {{.*}}, section "__DATA,__llvm_prf_data,regular,live_support", align 8
-; ELF: @__profd_foo = private {{.*}}, section "__llvm_prf_data", comdat($__profc_foo), align 8
-; WINDOWS: @__profd_foo = private global {{.*}}, section ".lprfd$M", align 8
-; AIX: @__profd_foo = private {{.*}}, section "__llvm_prf_data", align 8
+; MACHO: @__profd_foo = private {{.*}}, section "__DATA,__llvm_prf_data,regular,live_support", align 16
+; ELF: @__profd_foo = private {{.*}}, section "__llvm_prf_data", comdat($__profc_foo), align 16
+; WINDOWS: @__profd_foo = private global {{.*}}, section ".lprfd$M", align 16
+; AIX: @__profd_foo = private {{.*}}, section "__llvm_prf_data", align 16
 
 ; ELF: @__llvm_prf_nm = private constant [{{.*}} x i8] c"{{.*}}", section "{{.*}}__llvm_prf_names"{{.*}}, align 1
 ; WINDOWS: @__llvm_prf_nm = private constant [{{.*}} x i8] c"{{.*}}", section "{{.*}}lprfn$M", align 1
 ; AIX: @__llvm_prf_nm = private constant [{{.*}} x i8] c"{{.*}}", section "{{.*}}__llvm_prf_names", align 1
 
 define void @foo() {
-  call void @llvm.instrprof.increment(ptr @__profn_foo, i64 0, i32 1, i32 0)
+  call void @llvm.instrprof.increment.p0(ptr @__profn_foo, i64 0, i32 1, i32 0)
   ret void
 }
 
-declare void @llvm.instrprof.increment(ptr, i64, i32, i32)
+declare void @llvm.instrprof.increment.p0(ptr, i64, i32, i32)
 
 ;; Emit registration functions for platforms that don't find the
 ;; symbols by their sections.
