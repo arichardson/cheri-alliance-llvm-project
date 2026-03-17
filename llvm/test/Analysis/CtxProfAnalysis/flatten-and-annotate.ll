@@ -15,11 +15,11 @@
 ; PRELINK-LABEL: @foo
 ; PRELINK-LABEL: yes:
 ; PRELINK-LABEL: no:
-; PRELINK-NEXT:     call void @llvm.instrprof.increment(ptr @foo, i64 [[#]], i32 2, i32 1)
+; PRELINK-NEXT:     call void @llvm.instrprof.increment.p0(ptr @foo, i64 [[#]], i32 2, i32 1)
 
 ; PRELINK-LABEL: @an_entrypoint
 ; PRELINK-LABEL: yes:
-; PRELINK-NEXT:    call void @llvm.instrprof.increment(ptr @an_entrypoint, i64 [[#]], i32 2, i32 1)
+; PRELINK-NEXT:    call void @llvm.instrprof.increment.p0(ptr @an_entrypoint, i64 [[#]], i32 2, i32 1)
 ; PRELINK-NOT: "ProfileSummary"
 
 ; Check that the output has:
@@ -49,14 +49,14 @@
 ; @foo will be called both unconditionally and conditionally, on the "yes" branch
 ; which has a count of 40. So 140 times.
 
-; CHECK:       ![[FOO_EP]] = !{!"function_entry_count", i64 140} 
+; CHECK:       ![[FOO_EP]] = !{!"function_entry_count", i64 140}
 
 ; foo's "no" branch is taken 10+5 times (from the 2 contexts belonging to foo).
 ; Which means its "yes" branch is taken 140 - 15 times.
 
-; CHECK:       ![[FOO_BW]] = !{!"branch_weights", i32 125, i32 15} 
+; CHECK:       ![[FOO_BW]] = !{!"branch_weights", i32 125, i32 15}
 ; CHECK:       ![[AN_ENTRYPOINT_EP]] = !{!"function_entry_count", i64 100}
-; CHECK:       ![[AN_ENTRYPOINT_BW]] = !{!"branch_weights", i32 40, i32 60} 
+; CHECK:       ![[AN_ENTRYPOINT_BW]] = !{!"branch_weights", i32 40, i32 60}
 
 ;--- profile.yaml
 - Guid: 4909520559318251808

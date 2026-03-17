@@ -18,16 +18,16 @@
 ;  - a new callsite to @b
 ; CHECK-LABEL: @entrypoint
 ; CHECK-LABEL: yes:
-; CHECK:         call void @llvm.instrprof.increment(ptr @entrypoint, i64 0, i32 3, i32 1)
+; CHECK:         call void @llvm.instrprof.increment.p0(ptr @entrypoint, i64 0, i32 3, i32 1)
 ; CHECK-NEXT:    br label %loop.i
 ; CHECK-LABEL:  loop.i:
 ; CHECK-NEXT:    %indvar.i = phi i32 [ %indvar.next.i, %loop.i ], [ 0, %yes ]
-; CHECK-NEXT:    call void @llvm.instrprof.increment(ptr @entrypoint, i64 0, i32 2, i32 3)
+; CHECK-NEXT:    call void @llvm.instrprof.increment.p0(ptr @entrypoint, i64 0, i32 2, i32 3)
 ; CHECK-NEXT:    %b.i = add i32 %x, %indvar.i
 ; CHECK-NEXT:    call void @llvm.instrprof.callsite(ptr @entrypoint, i64 0, i32 1, i32 2, ptr @b)
 ; CHECK-NEXT:    %call3.i = call i32 @b() #1
 ; CHECK-LABEL: no:
-; CHECK-NEXT:    call void @llvm.instrprof.increment(ptr @entrypoint, i64 0, i32 3, i32 2)
+; CHECK-NEXT:    call void @llvm.instrprof.increment.p0(ptr @entrypoint, i64 0, i32 3, i32 2)
 ; CHECK-NEXT:    call void @llvm.instrprof.callsite(ptr @entrypoint, i64 0, i32 2, i32 1, ptr @a)
 ; CHECK-NEXT:    %call2 = call i32 @a(i32 %x) #1
 ; CHECK-NEXT:    br label %exit
@@ -52,16 +52,16 @@
 
 ;--- module.ll
 define i32 @entrypoint(i32 %x) !guid !0 {
-  call void @llvm.instrprof.increment(ptr @entrypoint, i64 0, i32 3, i32 0)
+  call void @llvm.instrprof.increment.p0(ptr @entrypoint, i64 0, i32 3, i32 0)
   %t = icmp eq i32 %x, 0
   br i1 %t, label %yes, label %no
 yes:
-  call void @llvm.instrprof.increment(ptr @entrypoint, i64 0, i32 3, i32 1)
+  call void @llvm.instrprof.increment.p0(ptr @entrypoint, i64 0, i32 3, i32 1)
   call void @llvm.instrprof.callsite(ptr @entrypoint, i64 0, i32 2, i32 0, ptr @a)
   %call1 = call i32 @a(i32 %x) alwaysinline
   br label %exit
 no:
-  call void @llvm.instrprof.increment(ptr @entrypoint, i64 0, i32 3, i32 2)
+  call void @llvm.instrprof.increment.p0(ptr @entrypoint, i64 0, i32 3, i32 2)
   call void @llvm.instrprof.callsite(ptr @entrypoint, i64 0, i32 2, i32 1, ptr @a)
   %call2 = call i32 @a(i32 %x) noinline
   br label %exit
@@ -72,11 +72,11 @@ exit:
 
 define i32 @a(i32 %x) !guid !1 {
 entry:
-  call void @llvm.instrprof.increment(ptr @a, i64 0, i32 2, i32 0)
+  call void @llvm.instrprof.increment.p0(ptr @a, i64 0, i32 2, i32 0)
   br label %loop
 loop:
   %indvar = phi i32 [%indvar.next, %loop], [0, %entry]
-  call void @llvm.instrprof.increment(ptr @a, i64 0, i32 2, i32 1)
+  call void @llvm.instrprof.increment.p0(ptr @a, i64 0, i32 2, i32 1)
   %b = add i32 %x, %indvar
   call void @llvm.instrprof.callsite(ptr @a, i64 0, i32 1, i32 0, ptr @b)
   %call3 = call i32 @b() noinline
@@ -88,7 +88,7 @@ exit:
 }
 
 define i32 @b() !guid !2 {
-  call void @llvm.instrprof.increment(ptr @b, i64 0, i32 1, i32 0)
+  call void @llvm.instrprof.increment.p0(ptr @b, i64 0, i32 1, i32 0)
   ret i32 1
 }
 

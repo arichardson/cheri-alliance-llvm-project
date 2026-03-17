@@ -83,9 +83,11 @@ INSTR_PROF_DATA(const IntPtrT, IntPtrTy, BitmapPtr, RelativeBitmapPtr)
  * function name hashes during the conversion from raw to merged profile
  * data.
  */
-INSTR_PROF_DATA(const IntPtrT, llvm::PointerType::getUnqual(Ctx), FunctionPointer, \
+INSTR_PROF_DATA(const IntPtrT, llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace()), FunctionPointer, \
                 FunctionAddr)
-INSTR_PROF_DATA(IntPtrT, llvm::PointerType::getUnqual(Ctx), Values, \
+INSTR_PROF_DATA(IntPtrT, llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace()), Values, \
                 ValuesPtrExpr)
 INSTR_PROF_DATA(const uint32_t, llvm::Type::getInt32Ty(Ctx), NumCounters, \
                 ConstantInt::get(llvm::Type::getInt32Ty(Ctx), NumCounters))
@@ -108,7 +110,8 @@ INSTR_PROF_DATA(const uint32_t, llvm::Type::getInt32Ty(Ctx), NumBitmapBytes, \
 INSTR_PROF_VTABLE_DATA(const uint64_t, llvm::Type::getInt64Ty(Ctx), \
                        VTableNameHash, ConstantInt::get(llvm::Type::getInt64Ty(Ctx), \
                        IndexedInstrProf::ComputeHash(PGOVTableName)))
-INSTR_PROF_VTABLE_DATA(const IntPtrT, llvm::PointerType::getUnqual(Ctx), \
+INSTR_PROF_VTABLE_DATA(const IntPtrT, llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace()), \
                        VTablePointer, VTableAddr)
 INSTR_PROF_VTABLE_DATA(const uint32_t, llvm::Type::getInt32Ty(Ctx), VTableSize, \
                        ConstantInt::get(llvm::Type::getInt32Ty(Ctx), \
@@ -137,8 +140,10 @@ INSTR_PROF_VALUE_NODE(uint64_t, llvm::Type::getInt64Ty(Ctx), Value, \
                       ConstantInt::get(llvm::Type::GetInt64Ty(Ctx), 0))
 INSTR_PROF_VALUE_NODE(uint64_t, llvm::Type::getInt64Ty(Ctx), Count, \
                       ConstantInt::get(llvm::Type::GetInt64Ty(Ctx), 0))
-INSTR_PROF_VALUE_NODE(PtrToNodeT, llvm::PointerType::getUnqual(Ctx), Next, \
-                      ConstantInt::get(llvm::PointerType::getUnqual(Ctx), 0))
+INSTR_PROF_VALUE_NODE(PtrToNodeT, llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace()), Next, \
+                      ConstantInt::get(llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace()), 0))
 #undef INSTR_PROF_VALUE_NODE
 /* INSTR_PROF_VALUE_NODE end. */
 
@@ -185,7 +190,8 @@ INSTR_PROF_RAW_HEADER(uint64_t, ValueKindLast, IPVK_Last)
 #endif
 VALUE_PROF_FUNC_PARAM(uint64_t, TargetValue, Type::getInt64Ty(Ctx)) \
                       INSTR_PROF_COMMA
-VALUE_PROF_FUNC_PARAM(void *, Data, PointerType::getUnqual(Ctx)) INSTR_PROF_COMMA
+VALUE_PROF_FUNC_PARAM(void *, Data, PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace())) INSTR_PROF_COMMA
 VALUE_PROF_FUNC_PARAM(uint32_t, CounterIndex, Type::getInt32Ty(Ctx))
 #undef VALUE_PROF_FUNC_PARAM
 #undef INSTR_PROF_COMMA
@@ -251,9 +257,11 @@ VALUE_PROF_KIND(IPVK_Last, IPVK_VTableTarget, "last")
 #define INSTR_PROF_DATA_DEFINED
 #endif
 #ifdef COVMAP_V1
-COVMAP_FUNC_RECORD(const IntPtrT, llvm::PointerType::getUnqual(Ctx), \
+COVMAP_FUNC_RECORD(const IntPtrT, llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace()), \
                    NamePtr, llvm::ConstantExpr::getBitCast(NamePtr, \
-                   llvm::PointerType::getUnqual(Ctx)))
+                   llvm::PointerType::get(Ctx, \
+    M.getDataLayout().getDefaultGlobalsAddressSpace())))
 COVMAP_FUNC_RECORD(const uint32_t, llvm::Type::getInt32Ty(Ctx), NameSize, \
                    llvm::ConstantInt::get(llvm::Type::getInt32Ty(Ctx), \
                    NameValue.size()))
@@ -875,7 +883,7 @@ serializeValueProfDataFrom(ValueProfRecordClosure *Closure,
   INSTR_PROF_QUOTE(INSTR_PROF_VALUE_PROF_MEMOP_FUNC)
 
 /* InstrProfile per-function control data alignment.  */
-#define INSTR_PROF_DATA_ALIGNMENT 8
+#define INSTR_PROF_DATA_ALIGNMENT 16
 
 /* The data structure that represents a tracked value by the
  * value profiler.

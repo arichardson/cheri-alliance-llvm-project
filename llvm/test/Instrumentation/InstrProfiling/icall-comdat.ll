@@ -19,9 +19,9 @@
 @__profn_bar = private constant [3 x i8] c"bar"
 
 define i32 @foo(ptr ) {
-  call void @llvm.instrprof.increment(ptr @__profn_foo, i64 12884901887, i32 1, i32 0)
+  call void @llvm.instrprof.increment.p0(ptr @__profn_foo, i64 12884901887, i32 1, i32 0)
   %2 = ptrtoint ptr %0 to i64
-  call void @llvm.instrprof.value.profile(ptr @__profn_foo, i64 12884901887, i64 %2, i32 0, i32 0)
+  call void @llvm.instrprof.value.profile.p0(ptr @__profn_foo, i64 12884901887, i64 %2, i32 0, i32 0)
   %3 = tail call i32 %0()
   ret i32 %3
 }
@@ -30,18 +30,18 @@ $bar = comdat any
 
 define i32 @bar(ptr ) comdat {
 entry:
-  call void @llvm.instrprof.increment(ptr @__profn_bar, i64 12884901887, i32 1, i32 0)
+  call void @llvm.instrprof.increment.p0(ptr @__profn_bar, i64 12884901887, i32 1, i32 0)
   %1 = ptrtoint ptr %0 to i64
-  call void @llvm.instrprof.value.profile(ptr @__profn_bar, i64 12884901887, i64 %1, i32 0, i32 0)
+  call void @llvm.instrprof.value.profile.p0(ptr @__profn_bar, i64 12884901887, i64 %1, i32 0, i32 0)
   %2 = tail call i32 %0()
   ret i32 %2
 }
 
 ; Function Attrs: nounwind
-declare void @llvm.instrprof.increment(ptr, i64, i32, i32) #0
+declare void @llvm.instrprof.increment.p0(ptr, i64, i32, i32) #0
 
 ; Function Attrs: nounwind
-declare void @llvm.instrprof.value.profile(ptr, i64, i64, i32, i32) #0
+declare void @llvm.instrprof.value.profile.p0(ptr, i64, i64, i32, i32) #0
 
 attributes #0 = { nounwind }
 
@@ -68,9 +68,9 @@ attributes #0 = { nounwind }
 
 ; ALIGN: @__profc_foo = private global {{.*}} section "__llvm_prf_cnts",{{.*}} align 8
 ; ALIGN: @__profvp_foo = private global {{.*}} section "__llvm_prf_vals",{{.*}} align 8
-; ALIGN: @__profd_foo = private global {{.*}} section "__llvm_prf_data",{{.*}} align 8
+; ALIGN: @__profd_foo = private global {{.*}} section "__llvm_prf_data",{{.*}} align 16
 ; ALIGN: @__profc_bar = private global {{.*}} section "__llvm_prf_cnts",{{.*}} align 8
 ; ALIGN: @__profvp_bar = private global {{.*}} section "__llvm_prf_vals",{{.*}}  align 8
-; ALIGN: @__profd_bar = private global {{.*}} section "__llvm_prf_data",{{.*}} align 8
+; ALIGN: @__profd_bar = private global {{.*}} section "__llvm_prf_data",{{.*}} align 16
 ; ALIGN: @__llvm_prf_vnodes = private global {{.*}} section "__llvm_prf_vnds",{{.*}} align 8
 ; ALIGN: @__llvm_prf_nm = private constant {{.*}} section "__llvm_prf_names",{{.*}} align 1

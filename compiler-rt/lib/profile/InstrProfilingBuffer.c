@@ -43,14 +43,16 @@ COMPILER_RT_VISIBILITY void __llvm_profile_set_page_size(unsigned PS) {
 
 COMPILER_RT_VISIBILITY
 uint64_t __llvm_profile_get_size_for_buffer(void) {
-  const __llvm_profile_data *DataBegin = __llvm_profile_begin_data();
-  const __llvm_profile_data *DataEnd = __llvm_profile_end_data();
-  const char *CountersBegin = __llvm_profile_begin_counters();
-  const char *CountersEnd = __llvm_profile_end_counters();
+  __llvm_profile_data *DataBegin = __llvm_profile_begin_data();
+  __llvm_profile_data *DataEnd = __llvm_profile_end_data();
+
+  char *CountersBegin = __llvm_profile_begin_counters();
+  char *CountersEnd = __llvm_profile_end_counters();
+
   const char *BitmapBegin = __llvm_profile_begin_bitmap();
   const char *BitmapEnd = __llvm_profile_end_bitmap();
-  const char *NamesBegin = __llvm_profile_begin_names();
-  const char *NamesEnd = __llvm_profile_end_names();
+  char *NamesBegin = __llvm_profile_begin_names();
+  char *NamesEnd = __llvm_profile_end_names();
   const VTableProfData *VTableBegin = __llvm_profile_begin_vtables();
   const VTableProfData *VTableEnd = __llvm_profile_end_vtables();
   const char *VNamesBegin = __llvm_profile_begin_vtabnames();
@@ -72,9 +74,24 @@ uint64_t __llvm_profile_get_num_data(const __llvm_profile_data *Begin,
 }
 
 COMPILER_RT_VISIBILITY
+uint64_t __llvm_profile_get_num_raw_data(const __llvm_raw_profile_data *Begin,
+                                         const __llvm_raw_profile_data *End) {
+  intptr_t BeginI = (intptr_t)Begin, EndI = (intptr_t)End;
+  return ((EndI + sizeof(__llvm_raw_profile_data) - 1) - BeginI) /
+         sizeof(__llvm_raw_profile_data);
+}
+
+COMPILER_RT_VISIBILITY
 uint64_t __llvm_profile_get_data_size(const __llvm_profile_data *Begin,
                                       const __llvm_profile_data *End) {
   return __llvm_profile_get_num_data(Begin, End) * sizeof(__llvm_profile_data);
+}
+ 
+COMPILER_RT_VISIBILITY
+uint64_t __llvm_profile_get_raw_data_size(const __llvm_raw_profile_data *Begin,
+                                          const __llvm_raw_profile_data *End) {
+  return __llvm_profile_get_num_raw_data(Begin, End) *
+         sizeof(__llvm_raw_profile_data);
 }
 
 // Counts the number of `VTableProfData` elements within the range of [Begin,
@@ -198,7 +215,14 @@ uint64_t __llvm_profile_get_size_for_buffer_internal(
     const char *VNamesBegin, const char *VNamesEnd) {
   /* Match logic in __llvm_profile_write_buffer(). */
   const uint64_t NamesSize = (NamesEnd - NamesBegin) * sizeof(char);
-  uint64_t DataSize = __llvm_profile_get_data_size(DataBegin, DataEnd);
+
+  /* Yes, we are calculating the size of the final raw buffer, however we have
+   * not yet converted DataBegin->DataEnd to the raw data format. So we still
+   * need to get NumData as if DataBegin->DataEnd are the internal data format,
+   * but it must be multiplied by the size of the raw data format. */
+  uint64_t NumData = __llvm_profile_get_num_data(DataBegin, DataEnd);
+  uint64_t DataSize = NumData * sizeof(__llvm_raw_profile_data);
+
   uint64_t CountersSize =
       __llvm_profile_get_counters_size(CountersBegin, CountersEnd);
   const uint64_t NumBitmapBytes =
@@ -249,8 +273,8 @@ COMPILER_RT_VISIBILITY int __llvm_profile_write_buffer_internal(
   initBufferWriter(&BufferWriter, Buffer);
   // Set virtual table arguments to NULL since they are not supported yet.
   return lprofWriteDataImpl(
-      &BufferWriter, DataBegin, DataEnd, CountersBegin, CountersEnd,
-      BitmapBegin, BitmapEnd, /*VPDataReader=*/0, NamesBegin, NamesEnd,
-      /*VTableBegin=*/NULL, /*VTableEnd=*/NULL, /*VNamesBegin=*/NULL,
+      &BufferWriter, DataBegin, DataEnd, DataBegin, DataEnd, CountersBegin,
+      CountersEnd,  BitmapBegin, BitmapEnd, /*VPDataReader=*/0, NamesBegin,
+      NamesEnd, /*VTableBegin=*/NULL, /*VTableEnd=*/NULL, /*VNamesBegin=*/NULL,
       /*VNamesEnd=*/NULL, /*SkipNameDataWrite=*/0);
 }

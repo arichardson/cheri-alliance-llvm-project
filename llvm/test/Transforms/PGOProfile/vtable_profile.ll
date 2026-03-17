@@ -65,14 +65,14 @@ entry:
   %add.ptr = getelementptr inbounds i8, ptr %call, i64 8
   %vtable = load ptr, ptr %add.ptr
 ; GEN: [[P1:%[0-9]+]] = ptrtoint ptr %vtable to i64
-; GEN: call void @llvm.instrprof.value.profile(ptr @__profn__Z4funci, i64 [[CFGHash:[0-9]+]], i64 [[P1]], i32 2, i32 0)
+; GEN: call void @llvm.instrprof.value.profile.p0(ptr @__profn__Z4funci, i64 [[CFGHash:[0-9]+]], i64 [[P1]], i32 2, i32 0)
 ; LOWER: [[P1:%[0-9]+]] = ptrtoint ptr %vtable to i64
 ; LOWER: call void @__llvm_profile_instrument_target(i64 [[P1]], ptr @__profd__Z4funci, i32 2)
   %vfunc1 = load ptr, ptr %vtable
   %call1 = call i32 %vfunc1(ptr %add.ptr, i32 %a)
   %vtable2 = load ptr, ptr %call
 ; GEN: [[P2:%[0-9]+]] = ptrtoint ptr %vtable2 to i64
-; GEN: call void @llvm.instrprof.value.profile(ptr @__profn__Z4funci, i64 [[CFGHash]], i64 [[P2]], i32 2, i32 1)
+; GEN: call void @llvm.instrprof.value.profile.p0(ptr @__profn__Z4funci, i64 [[CFGHash]], i64 [[P2]], i32 2, i32 1)
 ; LOWER: [[P2:%[0-9]+]] = ptrtoint ptr %vtable2 to i64
 ; LOWER: call void @__llvm_profile_instrument_target(i64 [[P2]], ptr @__profd__Z4funci, i32 3)
   %vfunc2 = load ptr, ptr %vtable2

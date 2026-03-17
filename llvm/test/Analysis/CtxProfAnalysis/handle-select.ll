@@ -11,18 +11,18 @@
 ; RUN: opt -passes=ctx-instr-gen,module-inline,ctx-prof-flatten %t/example.ll -use-ctx-profile=%t/profile.ctxprofdata -S -o - | FileCheck %s --check-prefix=FLATTEN
 
 ; INSTR-LABEL: yes:
-; INSTR-NEXT:   call void @llvm.instrprof.increment(ptr @foo, i64 [[#]], i32 2, i32 1)
+; INSTR-NEXT:   call void @llvm.instrprof.increment.p0(ptr @foo, i64 [[#]], i32 2, i32 1)
 ; INSTR-NEXT:   call void @llvm.instrprof.callsite(ptr @foo, i64 [[#]], i32 2, i32 0, ptr @bar)
 
 ; INSTR-LABEL: no:
 ; INSTR-NEXT:   call void @llvm.instrprof.callsite(ptr @foo, i64 [[#]], i32 2, i32 1, ptr @bar)
 
 ; INSTR-LABEL: define i32 @bar
-; INSTR-NEXT:   call void @llvm.instrprof.increment(ptr @bar, i64 [[#]], i32 2, i32 0)
+; INSTR-NEXT:   call void @llvm.instrprof.increment.p0(ptr @bar, i64 [[#]], i32 2, i32 0)
 ; INSTR-NEXT:   %inc =
 ; INSTR:        %test = icmp eq i32 %t, 0
 ; INSTR-NEXT:   %1  = zext i1 %test to i64
-; INSTR-NEXT:   call void @llvm.instrprof.increment.step(ptr @bar, i64 [[#]], i32 2, i32 1, i64 %1)
+; INSTR-NEXT:   call void @llvm.instrprof.increment.step.p0(ptr @bar, i64 [[#]], i32 2, i32 1, i64 %1)
 ; INSTR-NEXT:   %res = select
 
 ; POST-INL-LABEL: yes:
@@ -78,6 +78,6 @@ define i32 @bar(i32 %t) !guid !1 {
   Callsites:  -
                 - Guid: 5678
                   Counters: [4,3]
-              - 
+              -
                 - Guid: 5678
                   Counters: [6,6]

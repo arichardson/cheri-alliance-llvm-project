@@ -9,16 +9,16 @@
 define i32 @test_simple_for_with_bypass(i32 %n) {
 entry:
 ; CHECK: entry:
-; NOTLOOPENTRIES: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 1)
-; LOOPENTRIES: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 1)
-; FUNCTIONENTRY: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 0)
+; NOTLOOPENTRIES: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 1)
+; LOOPENTRIES: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 1)
+; FUNCTIONENTRY: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 0)
   %mask = and i32 %n, 65535
   %skip = icmp eq i32 %mask, 0
   br i1 %skip, label %end, label %for.entry
 
 for.entry:
 ; CHECK: for.entry:
-; LOOPENTRIES: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 2)
+; LOOPENTRIES: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 2)
   br label %for.cond
 
 for.cond:
@@ -35,16 +35,16 @@ for.body:
 
 for.inc:
 ; CHECK: for.inc:
-; NOTLOOPENTRIES: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 0)
-; LOOPENTRIES: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 0)
-; FUNCTIONENTRY: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 1)
+; NOTLOOPENTRIES: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 0)
+; LOOPENTRIES: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 0)
+; FUNCTIONENTRY: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 1)
   %inc1 = add nsw i32 %i, 1
   br label %for.cond
 
 for.end:
 ; CHECK: for.end:
-; NOTLOOPENTRIES: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 2)
-; FUNCTIONENTRY: call void @llvm.instrprof.increment(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 2)
+; NOTLOOPENTRIES: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 2)
+; FUNCTIONENTRY: call void @llvm.instrprof.increment.p0(ptr @__profn_test_simple_for_with_bypass, i64 {{[0-9]+}}, i32 3, i32 2)
   br label %end
 
 end:
@@ -53,6 +53,6 @@ end:
   ret i32 %final_sum
 }
 
-; CHECK: declare void @llvm.instrprof.increment(ptr, i64, i32, i32) #0
+; CHECK: declare void @llvm.instrprof.increment.p0(ptr, i64, i32, i32) #0
 
 !1 = !{!"branch_weights", i32 100000, i32 80}

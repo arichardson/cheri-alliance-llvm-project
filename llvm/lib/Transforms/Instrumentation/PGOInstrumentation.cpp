@@ -933,6 +933,13 @@ void FunctionInstrumenter::instrument() {
       shouldInstrumentEntryBB(), shouldInstrumentLoopEntries(),
       PGOBlockCoverage);
 
+  unsigned GlobalsAddrSpace =
+      M.getDataLayout().getDefaultGlobalsAddressSpace();
+
+  unsigned CoverIntr = Intrinsic::instrprof_cover;
+  unsigned TimestampIntr = Intrinsic::instrprof_timestamp;
+  unsigned IncrementIntr = Intrinsic::instrprof_increment;
+  unsigned ValProfIntr = Intrinsic::instrprof_value_profile;
   auto *const Name = IsCtxProf ? cast<GlobalValue>(&F) : FuncInfo.FuncNameVar;
   auto *const CFGHash =
       ConstantInt::get(Type::getInt64Ty(M.getContext()), FuncInfo.FunctionHash);
@@ -945,8 +952,8 @@ void FunctionInstrumenter::instrument() {
     IRBuilder<> Builder(&EntryBB, EntryBB.getFirstInsertionPt());
     // llvm.instrprof.cover(i8* <name>, i64 <hash>, i32 <num-counters>,
     //                      i32 <index>)
-    Builder.CreateIntrinsic(
-        Intrinsic::instrprof_cover, {},
+    Type *PtrTy = Builder.getPtrTy(GlobalsAddrSpace);
+    Builder.CreateIntrinsic(CoverIntr, {PtrTy},
         {NormalizedNamePtr, CFGHash, Builder.getInt32(1), Builder.getInt32(0)});
     return;
   }
@@ -998,7 +1005,8 @@ void FunctionInstrumenter::instrument() {
     IRBuilder<> Builder(&EntryBB, EntryBB.getFirstInsertionPt());
     // llvm.instrprof.timestamp(i8* <name>, i64 <hash>, i32 <num-counters>,
     //                          i32 <index>)
-    Builder.CreateIntrinsic(Intrinsic::instrprof_timestamp, {},
+    Type *PtrTy = Builder.getPtrTy(GlobalsAddrSpace);
+    Builder.CreateIntrinsic(TimestampIntr, {PtrTy},
                             {NormalizedNamePtr, CFGHash,
                              Builder.getInt32(NumCounters),
                              Builder.getInt32(I)});
@@ -1011,9 +1019,10 @@ void FunctionInstrumenter::instrument() {
            "Cannot get the Instrumentation point");
     // llvm.instrprof.increment(i8* <name>, i64 <hash>, i32 <num-counters>,
     //                          i32 <index>)
-    Builder.CreateIntrinsic(PGOBlockCoverage ? Intrinsic::instrprof_cover
-                                             : Intrinsic::instrprof_increment,
-                            {},
+    Type *PtrTy = Builder.getPtrTy(GlobalsAddrSpace);
+    Builder.CreateIntrinsic(PGOBlockCoverage ? CoverIntr
+                                             : IncrementIntr,
+                            {PtrTy},
                             {NormalizedNamePtr, CFGHash,
                              Builder.getInt32(NumCounters),
                              Builder.getInt32(I++)});
@@ -1051,6 +1060,7 @@ void FunctionInstrumenter::instrument() {
       IRBuilder<> Builder(Cand.InsertPt);
       assert(Builder.GetInsertPoint() != Cand.InsertPt->getParent()->end() &&
              "Cannot get the Instrumentation point");
+      Type *PtrTy = Builder.getPtrTy(GlobalsAddrSpace);
 
       Value *ToProfile = nullptr;
       if (Cand.V->getType()->isIntegerTy())
@@ -1060,13 +1070,12 @@ void FunctionInstrumenter::instrument() {
       assert(ToProfile && "value profiling Value is of unexpected type");
 
       auto *NormalizedNamePtr = ConstantExpr::getPointerBitCastOrAddrSpaceCast(
-          Name, PointerType::get(M.getContext(), 0));
+          Name, PtrTy);
 
       SmallVector<OperandBundleDef, 1> OpBundles;
       populateEHOperandBundle(Cand, BlockColors, OpBundles);
       Builder.CreateCall(
-          Intrinsic::getOrInsertDeclaration(&M,
-                                            Intrinsic::instrprof_value_profile),
+          Intrinsic::getOrInsertDeclaration(&M, ValProfIntr, {PtrTy}),
           {NormalizedNamePtr, Builder.getInt64(FuncInfo.FunctionHash),
            ToProfile, Builder.getInt32(Kind), Builder.getInt32(SiteIndex++)},
           OpBundles);
@@ -1751,11 +1760,14 @@ void SelectInstVisitor::instrumentOneSelectInst(SelectInst &SI) {
   Module *M = F.getParent();
   IRBuilder<> Builder(&SI);
   Type *Int64Ty = Builder.getInt64Ty();
+  unsigned GlobalsAddrSpace =
+      M->getDataLayout().getDefaultGlobalsAddressSpace();
+  Type *PtrTy = Builder.getPtrTy(GlobalsAddrSpace);
   auto *Step = Builder.CreateZExt(SI.getCondition(), Int64Ty);
   auto *NormalizedFuncNameVarPtr =
       ConstantExpr::getPointerBitCastOrAddrSpaceCast(
           FuncNameVar, PointerType::get(M->getContext(), 0));
-  Builder.CreateIntrinsic(Intrinsic::instrprof_increment_step, {},
+  Builder.CreateIntrinsic(Intrinsic::instrprof_increment_step, {PtrTy},
                           {NormalizedFuncNameVarPtr, Builder.getInt64(FuncHash),
                            Builder.getInt32(TotalNumCtrs),
                            Builder.getInt32(*CurCtrIdx), Step});

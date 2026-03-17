@@ -1214,14 +1214,14 @@ void CodeGenPGO::emitCounterSetOrIncrement(CGBuilderTy &Builder, const Stmt *S,
       Builder.getInt32(NumRegionCounters), Builder.getInt32(Counter), StepV};
 
   if (llvm::EnableSingleByteCoverage)
-    Builder.CreateCall(CGM.getIntrinsic(llvm::Intrinsic::instrprof_cover),
+    Builder.CreateCall(CGM.getIntrinsic(llvm::Intrinsic::instrprof_cover, {CGM.Int8PtrTy}),
                        ArrayRef(Args, 4));
   else if (!StepV)
-    Builder.CreateCall(CGM.getIntrinsic(llvm::Intrinsic::instrprof_increment),
+    Builder.CreateCall(CGM.getIntrinsic(llvm::Intrinsic::instrprof_increment, {CGM.Int8PtrTy}),
                        ArrayRef(Args, 4));
   else
     Builder.CreateCall(
-        CGM.getIntrinsic(llvm::Intrinsic::instrprof_increment_step), Args);
+        CGM.getIntrinsic(llvm::Intrinsic::instrprof_increment_step, {CGM.Int8PtrTy}), Args);
 }
 
 bool CodeGenPGO::canEmitMCDCCoverage(const CGBuilderTy &Builder) {
@@ -1390,8 +1390,8 @@ void CodeGenPGO::valueProfile(CGBuilderTy &Builder, uint32_t ValueKind,
         Builder.getInt32(ValueKind),
         Builder.getInt32(NumValueSites[ValueKind]++)
     };
-    Builder.CreateCall(
-        CGM.getIntrinsic(llvm::Intrinsic::instrprof_value_profile), Args);
+    unsigned ValueProfIntr = llvm::Intrinsic::instrprof_value_profile;
+    Builder.CreateCall(CGM.getIntrinsic(ValueProfIntr, {CGM.Int8PtrTy}), Args);
     Builder.restoreIP(BuilderInsertPoint);
     return;
   }

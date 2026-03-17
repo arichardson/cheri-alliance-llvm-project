@@ -194,11 +194,11 @@ static int WriteBinaryIds(ProfDataWriter *Writer, const ElfW(Nhdr) * Note,
  */
 COMPILER_RT_VISIBILITY int __llvm_write_binary_ids(ProfDataWriter *Writer) {
   extern const ElfW(Ehdr) __ehdr_start __attribute__((visibility("hidden")));
+  extern const ElfW(Ehdr) __phdr_start __attribute__((visibility("hidden")));
   extern ElfW(Dyn) _DYNAMIC[] __attribute__((weak, visibility("hidden")));
 
   const ElfW(Ehdr) *ElfHeader = &__ehdr_start;
-  const ElfW(Phdr) *ProgramHeader =
-      (const ElfW(Phdr) *)((uintptr_t)ElfHeader + ElfHeader->e_phoff);
+  const ElfW(Phdr) *ProgramHeader = &__phdr_start;
 
   /* Compute the added base address in case of position-independent code. */
   uintptr_t Base = 0;

@@ -17,11 +17,11 @@ declare void @bar()
 define void @foo(i32 %a, ptr %fct) {
 ; INSTRUMENT-LABEL: define void @foo(
 ; INSTRUMENT-SAME: i32 [[A:%.*]], ptr [[FCT:%.*]]) {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @foo, i64 728453322856651412, i32 2, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @foo, i64 728453322856651412, i32 2, i32 0)
 ; INSTRUMENT-NEXT:    [[T:%.*]] = icmp eq i32 [[A]], 0
 ; INSTRUMENT-NEXT:    br i1 [[T]], label [[YES:%.*]], label [[NO:%.*]]
 ; INSTRUMENT:       yes:
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @foo, i64 728453322856651412, i32 2, i32 1)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @foo, i64 728453322856651412, i32 2, i32 1)
 ; INSTRUMENT-NEXT:    call void @llvm.instrprof.callsite(ptr @foo, i64 728453322856651412, i32 2, i32 0, ptr [[FCT]])
 ; INSTRUMENT-NEXT:    call void [[FCT]](i32 [[A]])
 ; INSTRUMENT-NEXT:    br label [[EXIT:%.*]]
@@ -79,11 +79,11 @@ exit:
 define void @an_entrypoint(i32 %a) {
 ; INSTRUMENT-LABEL: define void @an_entrypoint(
 ; INSTRUMENT-SAME: i32 [[A:%.*]]) {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @an_entrypoint, i64 784007058953177093, i32 2, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @an_entrypoint, i64 784007058953177093, i32 2, i32 0)
 ; INSTRUMENT-NEXT:    [[T:%.*]] = icmp eq i32 [[A]], 0
 ; INSTRUMENT-NEXT:    br i1 [[T]], label [[YES:%.*]], label [[NO:%.*]]
 ; INSTRUMENT:       yes:
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @an_entrypoint, i64 784007058953177093, i32 2, i32 1)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @an_entrypoint, i64 784007058953177093, i32 2, i32 1)
 ; INSTRUMENT-NEXT:    call void @llvm.instrprof.callsite(ptr @an_entrypoint, i64 784007058953177093, i32 1, i32 0, ptr @foo)
 ; INSTRUMENT-NEXT:    call void @foo(i32 1, ptr null)
 ; INSTRUMENT-NEXT:    ret void
@@ -131,11 +131,11 @@ no:
 define void @another_entrypoint_no_callees(i32 %a) {
 ; INSTRUMENT-LABEL: define void @another_entrypoint_no_callees(
 ; INSTRUMENT-SAME: i32 [[A:%.*]]) {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @another_entrypoint_no_callees, i64 784007058953177093, i32 2, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @another_entrypoint_no_callees, i64 784007058953177093, i32 2, i32 0)
 ; INSTRUMENT-NEXT:    [[T:%.*]] = icmp eq i32 [[A]], 0
 ; INSTRUMENT-NEXT:    br i1 [[T]], label [[YES:%.*]], label [[NO:%.*]]
 ; INSTRUMENT:       yes:
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @another_entrypoint_no_callees, i64 784007058953177093, i32 2, i32 1)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @another_entrypoint_no_callees, i64 784007058953177093, i32 2, i32 1)
 ; INSTRUMENT-NEXT:    ret void
 ; INSTRUMENT:       no:
 ; INSTRUMENT-NEXT:    ret void
@@ -171,7 +171,7 @@ no:
 define void @simple(i32 %a) {
 ; INSTRUMENT-LABEL: define void @simple(
 ; INSTRUMENT-SAME: i32 [[A:%.*]]) {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @simple, i64 742261418966908927, i32 1, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @simple, i64 742261418966908927, i32 1, i32 0)
 ; INSTRUMENT-NEXT:    ret void
 ;
 ; LOWERING-LABEL: define void @simple(
@@ -189,11 +189,11 @@ define void @simple(i32 %a) {
 define i32 @no_callsites(i32 %a) {
 ; INSTRUMENT-LABEL: define i32 @no_callsites(
 ; INSTRUMENT-SAME: i32 [[A:%.*]]) {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @no_callsites, i64 784007058953177093, i32 2, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @no_callsites, i64 784007058953177093, i32 2, i32 0)
 ; INSTRUMENT-NEXT:    [[C:%.*]] = icmp eq i32 [[A]], 0
 ; INSTRUMENT-NEXT:    br i1 [[C]], label [[YES:%.*]], label [[NO:%.*]]
 ; INSTRUMENT:       yes:
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @no_callsites, i64 784007058953177093, i32 2, i32 1)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @no_callsites, i64 784007058953177093, i32 2, i32 1)
 ; INSTRUMENT-NEXT:    ret i32 1
 ; INSTRUMENT:       no:
 ; INSTRUMENT-NEXT:    ret i32 0
@@ -225,7 +225,7 @@ no:
 
 define void @no_counters() {
 ; INSTRUMENT-LABEL: define void @no_counters() {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @no_counters, i64 742261418966908927, i32 1, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @no_counters, i64 742261418966908927, i32 1, i32 0)
 ; INSTRUMENT-NEXT:    call void @llvm.instrprof.callsite(ptr @no_counters, i64 742261418966908927, i32 1, i32 0, ptr @bar)
 ; INSTRUMENT-NEXT:    call void @bar()
 ; INSTRUMENT-NEXT:    ret void
@@ -254,7 +254,7 @@ define void @no_counters() {
 ; Ensure "calls" to inline asm don't get callsite-instrumented.
 define void @inlineasm() {
 ; INSTRUMENT-LABEL: define void @inlineasm() {
-; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment(ptr @inlineasm, i64 742261418966908927, i32 1, i32 0)
+; INSTRUMENT-NEXT:    call void @llvm.instrprof.increment.p0(ptr @inlineasm, i64 742261418966908927, i32 1, i32 0)
 ; INSTRUMENT-NEXT:    call void asm "nop", ""()
 ; INSTRUMENT-NEXT:    ret void
 ;

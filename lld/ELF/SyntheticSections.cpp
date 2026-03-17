@@ -4866,6 +4866,8 @@ template <class ELFT> void elf::createSyntheticSections(Ctx &ctx) {
   ctx.out.programHeaders =
       std::make_unique<OutputSection>(ctx, "", 0, SHF_ALLOC);
   ctx.out.programHeaders->addralign = ctx.arg.wordsize;
+  addOptionalRegular(ctx, "__phdr_start", ctx.out.programHeaders.get(), 0,
+                     STV_HIDDEN);
 
   if (ctx.arg.strip != StripPolicy::All) {
     ctx.in.strTab = std::make_unique<StringTableSection>(ctx, ".strtab", false);

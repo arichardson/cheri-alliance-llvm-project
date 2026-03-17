@@ -2132,6 +2132,10 @@ template <class ELFT> void Writer<ELFT>::finalizeSections() {
         addPhdrForSection(part, SHT_RISCV_ATTRIBUTES, PT_RISCV_ATTRIBUTES,
                           PF_R);
     }
+    // See similar logic for Out::elfHeader; a value of 0 means undef, so we set
+    // it to 1 to make __phdr_start defined. The section number is not
+    // particularly relevant.
+    ctx.out.programHeaders->sectionIndex = 1;
     ctx.out.programHeaders->size =
         sizeof(Elf_Phdr) * ctx.mainPart->phdrs.size();
 

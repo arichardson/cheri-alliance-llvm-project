@@ -11,19 +11,19 @@ target triple = "x86_64-unknown-linux-gnu"
 define void @foo() {
 ; CHECK-LABEL: entry:
 entry:
-  ; ENTRY: call void @llvm.instrprof.cover({{.*}})
+  ; ENTRY: call void @llvm.instrprof.cover.p0({{.*}})
   %c = call i1 @choice()
   br i1 %c, label %if.then, label %if.else
   ; USE: br i1 %c, label %if.then, label %if.else, !prof ![[WEIGHTS0:[0-9]+]]
 
 ; CHECK-LABEL: if.then:
 if.then:
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end
 
 ; CHECK-LABEL: if.else:
 if.else:
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end
 
 ; CHECK-LABEL: if.end:
@@ -36,19 +36,19 @@ if.end:
 define void @bar() {
 ; CHECK-LABEL: entry:
 entry:
-  ; ENTRY: call void @llvm.instrprof.cover({{.*}})
+  ; ENTRY: call void @llvm.instrprof.cover.p0({{.*}})
   %c = call i1 @choice()
   br i1 %c, label %if.then, label %if.end
   ; USE: br i1 %c, label %if.then, label %if.end, !prof ![[WEIGHTS1:[0-9]+]]
 
 ; CHECK-LABEL: if.then:
 if.then:
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end
 
 ; CHECK-LABEL: if.end:
 if.end:
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   ret void
 }
 
@@ -57,7 +57,7 @@ if.end:
 define void @goo() {
 ; CHECK-LABEL: entry:
 entry:
-  ; GEN: call void @llvm.instrprof.cover({{.*}})
+  ; GEN: call void @llvm.instrprof.cover.p0({{.*}})
   ret void
 }
 
@@ -66,10 +66,10 @@ entry:
 define void @loop() {
 ; CHECK-LABEL: entry:
 entry:
-  ; GEN: call void @llvm.instrprof.cover({{.*}})
+  ; GEN: call void @llvm.instrprof.cover.p0({{.*}})
   br label %while
 while:
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %while
 }
 
@@ -78,7 +78,7 @@ while:
 define void @hoo(i32 %a) #0 {
 ; CHECK-LABEL: entry:
 entry:
-  ; ENTRY: call void @llvm.instrprof.cover({{.*}})
+  ; ENTRY: call void @llvm.instrprof.cover.p0({{.*}})
   %a.addr = alloca i32, align 4
   %i = alloca i32, align 4
   store i32 %a, ptr %a.addr, align 4
@@ -90,12 +90,12 @@ entry:
 
 ; CHECK-LABEL: if.then:
 if.then:                                          ; preds = %entry
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end
 
 ; CHECK-LABEL: if.else:
 if.else:                                          ; preds = %entry
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end
 
 ; CHECK-LABEL: if.end:
@@ -121,7 +121,7 @@ for.body:                                         ; preds = %for.cond
 
 ; CHECK-LABEL: if.then4:
 if.then4:                                         ; preds = %for.body
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end10
 
 ; CHECK-LABEL: if.else5:
@@ -134,12 +134,12 @@ if.else5:                                         ; preds = %for.body
 
 ; CHECK-LABEL: if.then8:
 if.then8:                                         ; preds = %if.else5
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %return
 
 ; CHECK-LABEL: if.end9:
 if.end9:                                          ; preds = %if.else5
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %if.end10
 
 ; CHECK-LABEL: if.end10:
@@ -155,7 +155,7 @@ for.inc:                                          ; preds = %if.end10
 
 ; CHECK-LABEL: for.end:
 for.end:                                          ; preds = %for.cond
-  ; BLOCK: call void @llvm.instrprof.cover({{.*}})
+  ; BLOCK: call void @llvm.instrprof.cover.p0({{.*}})
   br label %return
 
 ; CHECK-LABEL: return:
@@ -165,7 +165,7 @@ return:                                           ; preds = %for.end, %if.then8
 
 declare i1 @choice()
 
-; GEN: declare void @llvm.instrprof.cover({{.*}})
+; GEN: declare void @llvm.instrprof.cover.p0({{.*}})
 
 ; USE-DAG: ![[HOT]] = !{!"function_entry_count", i64 10000}
 ; USE-DAG: ![[WEIGHTS0]] = !{!"branch_weights", i32 1, i32 1}
