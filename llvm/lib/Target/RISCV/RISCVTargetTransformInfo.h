@@ -391,7 +391,7 @@ public:
   TTI::AddressingModeKind getPreferredAddressingMode(const Loop *L,
                                                      ScalarEvolution *SE) const;
 
-  bool isLegalBaseRegForLSR(const SCEV *S) const override;
+  bool isLegalBaseRegForLSR(const SCEV *S, int64_t scale) const override;
 
   unsigned getRegisterClassForType(bool Vector, Type *Ty = nullptr) const {
     if (Vector)

@@ -2402,8 +2402,11 @@ RISCVTTIImpl::getPreferredAddressingMode(const Loop *L,
   return BasicTTIImplBase::getPreferredAddressingMode(L, SE);
 }
 
-bool RISCVTTIImpl::isLegalBaseRegForLSR(const SCEV *S) const {
+bool RISCVTTIImpl::isLegalBaseRegForLSR(const SCEV *S, int64_t scale) const {
   if (isCheriPureCapABI(ST->getTargetABI())) {
+    if (scale < 0)
+      return false;
+
     // Disallow any SCEV where the base offset is negative.
     // This is needed because CHERI can't represent pointers before the
     // beginning of an array.
@@ -2414,7 +2417,7 @@ bool RISCVTTIImpl::isLegalBaseRegForLSR(const SCEV *S) const {
     if (const auto *AddRec = dyn_cast<SCEVAddRecExpr>(S)) {
       if (const auto *Cst = dyn_cast<SCEVConstant>(AddRec->getStart()))
         return !Cst->getValue()->isNegative();
-      return isLegalBaseRegForLSR(AddRec->getStart());
+      return isLegalBaseRegForLSR(AddRec->getStart(), 1);
     }
 
     if (const auto *A = dyn_cast<SCEVAddExpr>(S)) {
@@ -2423,7 +2426,7 @@ bool RISCVTTIImpl::isLegalBaseRegForLSR(const SCEV *S) const {
         const auto *OpCst = dyn_cast<SCEVConstant>(Op);
         if (OpCst && OpCst->getValue()->isNegative())
           return false;
-        else if (!isLegalBaseRegForLSR(Op))
+        else if (!isLegalBaseRegForLSR(Op, 1))
           return false;
         AllNonCst &= (OpCst == nullptr);
       }
@@ -2437,7 +2440,7 @@ bool RISCVTTIImpl::isLegalBaseRegForLSR(const SCEV *S) const {
         const auto *OpCst = dyn_cast<SCEVConstant>(Op);
         if (OpCst && OpCst->getValue()->isNegative())
           return false;
-        else if (!isLegalBaseRegForLSR(Op))
+        else if (!isLegalBaseRegForLSR(Op, 1))
           return false;
         AllNonCst &= (OpCst == nullptr);
       }
@@ -2450,7 +2453,7 @@ bool RISCVTTIImpl::isLegalBaseRegForLSR(const SCEV *S) const {
     return true;
   }
 
-  return BasicTTIImplBase::isLegalBaseRegForLSR(S);
+  return BasicTTIImplBase::isLegalBaseRegForLSR(S, scale);
 }
 
 bool RISCVTTIImpl::isLSRCostLess(const TargetTransformInfo::LSRCost &C1,
