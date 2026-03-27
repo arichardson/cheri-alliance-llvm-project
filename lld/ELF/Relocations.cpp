@@ -950,7 +950,7 @@ void elf::addGotEntry(Ctx &ctx, Symbol &sym) {
   // Otherwise, the value is either a link-time constant or the load base
   // plus a constant. For CHERI it always requires run-time initialisation,
   // with the exception of undef weak symbols.
-  if ((ctx.arg.isCheriAbi && sym.isUndefWeak() && !ctx.arg.isStatic) ||
+  if ((ctx.arg.isCheriAbi && sym.isUndefWeak()) ||
       (!ctx.arg.isCheriAbi && (!ctx.arg.isPic || isAbsolute(sym))))
     ctx.in.got->addConstant({expr, type, off, 0, &sym});
   else
