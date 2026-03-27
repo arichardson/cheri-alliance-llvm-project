@@ -832,6 +832,7 @@ Value *LibCallSimplifier::optimizeStrLCpy(CallInst *CI, IRBuilderBase &B) {
 // otherwise.
 Value *LibCallSimplifier::optimizeStringNCpy(CallInst *CI, bool RetEnd,
                                              IRBuilderBase &B) {
+  const DataLayout &DL = CI->getDataLayout();
   Value *Dst = CI->getArgOperand(0);
   Value *Src = CI->getArgOperand(1);
   Value *Size = CI->getArgOperand(2);
@@ -904,7 +905,8 @@ Value *LibCallSimplifier::optimizeStringNCpy(CallInst *CI, bool RetEnd,
     // Create a bigger, nul-padded array with the same length, SrcLen,
     // as the original string.
     SrcStr.resize(N, '\0');
-    Src = B.CreateGlobalString(SrcStr, "str", /*AddressSpace=*/0,
+    Src = B.CreateGlobalString(SrcStr, "str",
+                               DL.getDefaultGlobalsAddressSpace(),
                                /*M=*/nullptr, /*AddNull=*/false);
   }
 
