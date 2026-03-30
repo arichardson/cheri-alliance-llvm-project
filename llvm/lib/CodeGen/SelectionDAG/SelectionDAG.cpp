@@ -2663,7 +2663,8 @@ bool SelectionDAG::expandMultipleResultFPLibCall(
 
   // Pass the output pointers.
   SmallVector<SDValue, 2> ResultPtrs(NumResults);
-  Type *PointerTy = PointerType::getUnqual(Ctx);
+  Type *PointerTy = PointerType::get(Ctx,
+      getDataLayout().getDefaultGlobalsAddressSpace());
   for (auto [ResNo, ST] : llvm::enumerate(ResultStores)) {
     if (ResNo == CallRetResNo)
       continue;
@@ -8958,7 +8959,8 @@ SDValue SelectionDAG::getMemmove(SDValue Chain, const SDLoc &dl, SDValue Dst,
   // Emit a library call.
   TargetLowering::ArgListTy Args;
   TargetLowering::ArgListEntry Entry;
-  Entry.Ty = PointerType::getUnqual(*getContext());
+  Entry.Ty = PointerType::get(*getContext(),
+      getDataLayout().getDefaultGlobalsAddressSpace());
   Entry.Node = Dst; Args.push_back(Entry);
   Entry.Ty = Src.getValueType().getTypeForEVT(*getContext());
   Entry.Node = Src; Args.push_back(Entry);
