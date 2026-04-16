@@ -326,6 +326,26 @@ multiclass CAMO_C_rr_aq_rl<string clenstr, bits<5> funct5, bits<3> funct3,
                                      rdClass, Namespace>;
 }
 
+multiclass CAMO_cas<bits<5> funct5, bit aq, bit rl, bits<3> funct3, string opcodestr,
+              DAGOperand RC, string Namespace> {
+  let hasSideEffects = 0, mayLoad = 1, mayStore = 1, Constraints = "$rd = $rd_wb",
+      DecoderNamespace = Namespace in
+  def "" : RVInstRAtomic<funct5, aq, rl, funct3, OPC_AMO,
+                         (outs RC:$rd_wb), (ins RC:$rd, GPCRMemZeroOffset:$rs1, RC:$rs2),
+                         opcodestr, "$rd, $rs2, $rs1">;
+  def : InstAlias<"c" # opcodestr # "$rd, $rs2, $rs1",
+                  (!cast<Instruction>(NAME) RC:$rd, GPCRMemZeroOffset:$rs1,
+                   RC:$rs2), 0>;
+}
+
+multiclass CAMO_cas_aq_rl<bits<5> funct5, bits<3> funct3, string opcodestr,
+                         DAGOperand RC, string Namespace = "CapModeOnly_"> {
+  defm ""     : CAMO_cas<funct5, 0, 0, funct3, opcodestr, RC, Namespace>;
+  defm _AQ    : CAMO_cas<funct5, 1, 0, funct3, opcodestr # ".aq", RC, Namespace>;
+  defm _RL    : CAMO_cas<funct5, 0, 1, funct3, opcodestr # ".rl", RC, Namespace>;
+  defm _AQ_RL : CAMO_cas<funct5, 1, 1, funct3, opcodestr # ".aqrl", RC, Namespace>;
+}
+
 let hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
 class CCheriStackLoad<bits<3> funct3, string OpcodeStr,
                       RegisterClass cls, DAGOperand opnd>
@@ -923,6 +943,22 @@ defm CLR_C       : CLR_C_r_aq_rl<"128", 0b100, "lr.c">;
 defm CSC_C       : CAMO_C_rr_aq_rl<"128", 0b00011, 0b100, "sc.c", GPR>;
 defm CAMOSWAP_C  : CAMO_C_rr_aq_rl<"128", 0b00001, 0b100, "amoswap.c", GPCR>;
 }
+
+/// Zacas (Atomic Compare-and-Swap)
+
+let Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsCapMode] in {
+defm CAMOCAS_W : CAMO_cas_aq_rl<0b00101, 0b010, "amocas.w", GPR>;
+} // Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsCapMode]
+
+let Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsRV32, IsCapMode] in {
+defm CAMOCAS_D_RV32 : CAMO_cas_aq_rl<0b00101, 0b011, "amocas.d", GPRPairRV32,
+                                     "RISCV32CapModeOnly_">;
+} // Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsRV32, IsCapMode]
+
+let Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsRV64, IsCapMode] in {
+defm CAMOCAS_D_RV64 : CAMO_cas_aq_rl<0b00101, 0b011, "amocas.d", GPR>;
+defm CAMOCAS_Q : CAMO_cas_aq_rl<0b00101, 0b100, "amocas.q", GPRPairRV64>;
+} // Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsRV64, IsCapMode]
 
 /// 'F' (Single-Precision Floating-Point) extension
 
