@@ -960,6 +960,37 @@ defm CAMOCAS_D_RV64 : CAMO_cas_aq_rl<0b00101, 0b011, "amocas.d", GPR>;
 defm CAMOCAS_Q : CAMO_cas_aq_rl<0b00101, 0b100, "amocas.q", GPRPairRV64>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasStdExtZacas, IsRV64, IsCapMode]
 
+/// Zabha (Byte and Halfword Atomic Memory Operations)
+
+let Predicates = [HasZCheriPurecapOrCheri, HasStdExtZabha, IsCapMode] in {
+defm CAMOSWAP_B  : CAMO_rr_aq_rl<0b00001, 0b000, "amoswap.b">;
+defm CAMOADD_B   : CAMO_rr_aq_rl<0b00000, 0b000, "amoadd.b">;
+defm CAMOXOR_B   : CAMO_rr_aq_rl<0b00100, 0b000, "amoxor.b">;
+defm CAMOAND_B   : CAMO_rr_aq_rl<0b01100, 0b000, "amoand.b">;
+defm CAMOOR_B    : CAMO_rr_aq_rl<0b01000, 0b000, "amoor.b">;
+defm CAMOMIN_B   : CAMO_rr_aq_rl<0b10000, 0b000, "amomin.b">;
+defm CAMOMAX_B   : CAMO_rr_aq_rl<0b10100, 0b000, "amomax.b">;
+defm CAMOMINU_B  : CAMO_rr_aq_rl<0b11000, 0b000, "amominu.b">;
+defm CAMOMAXU_B  : CAMO_rr_aq_rl<0b11100, 0b000, "amomaxu.b">;
+
+defm CAMOSWAP_H  : CAMO_rr_aq_rl<0b00001, 0b001, "amoswap.h">;
+defm CAMOADD_H   : CAMO_rr_aq_rl<0b00000, 0b001, "amoadd.h">;
+defm CAMOXOR_H   : CAMO_rr_aq_rl<0b00100, 0b001, "amoxor.h">;
+defm CAMOAND_H   : CAMO_rr_aq_rl<0b01100, 0b001, "amoand.h">;
+defm CAMOOR_H    : CAMO_rr_aq_rl<0b01000, 0b001, "amoor.h">;
+defm CAMOMIN_H   : CAMO_rr_aq_rl<0b10000, 0b001, "amomin.h">;
+defm CAMOMAX_H   : CAMO_rr_aq_rl<0b10100, 0b001, "amomax.h">;
+defm CAMOMINU_H  : CAMO_rr_aq_rl<0b11000, 0b001, "amominu.h">;
+defm CAMOMAXU_H  : CAMO_rr_aq_rl<0b11100, 0b001, "amomaxu.h">;
+} // Predicates = [HasZCheriPurecapOrCheri, HasStdExtZabha, IsCapMode]
+
+// If Zacas extension is also implemented, Zabha further provides AMOCAS.[B|H].
+let Predicates = [HasZCheriPurecapOrCheri, HasStdExtZabha, HasStdExtZacas,
+                  IsCapMode] in {
+defm CAMOCAS_B : CAMO_cas_aq_rl<0b00101, 0b000, "amocas.b", GPR>;
+defm CAMOCAS_H : CAMO_cas_aq_rl<0b00101, 0b001, "amocas.h", GPR>;
+}
+
 /// 'F' (Single-Precision Floating-Point) extension
 
 let Predicates = [HasZCheriPurecapOrCheri, HasStdExtF, IsCapMode] in {
