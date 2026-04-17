@@ -391,8 +391,6 @@ public:
   TTI::AddressingModeKind getPreferredAddressingMode(const Loop *L,
                                                      ScalarEvolution *SE) const;
 
-  bool isLegalBaseRegForLSR(const SCEV *S, int64_t scale) const override;
-
   unsigned getRegisterClassForType(bool Vector, Type *Ty = nullptr) const {
     if (Vector)
       return RISCVRegisterClass::VRRC;
@@ -440,6 +438,8 @@ public:
 
   TTI::MemCmpExpansionOptions enableMemCmpExpansion(bool OptSize,
                                                     bool IsZeroCmp) const;
+
+  bool shouldDropLSRSolutionIfLessProfitable() const;
 };
 
 } // end namespace llvm
