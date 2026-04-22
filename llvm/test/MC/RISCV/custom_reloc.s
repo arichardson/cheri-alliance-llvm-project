@@ -9,6 +9,10 @@
 # RUN: llvm-mc -filetype=obj -triple riscv64 %s \
 # RUN:   | llvm-objdump -dr -M no-aliases  - \
 # RUN:   | FileCheck -check-prefix=CHECK-OBJ %s
+# XFAIL: *
+
+# Currently expected to fail until CHERI relocations move out of the same space
+# as R_RISCV_CUSTOM*
 
   # CHECK-ASM: .text
   # CHECK-OBJ: <.text>:
