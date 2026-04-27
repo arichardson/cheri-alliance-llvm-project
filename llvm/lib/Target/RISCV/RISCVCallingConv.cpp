@@ -415,14 +415,16 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
     }
   }
 
-  if ((ValVT == MVT::f16 && Subtarget.hasStdExtZhinxmin())) {
+  if ((ValVT == MVT::f16 && Subtarget.hasStdExtZhinxmin()) &&
+      !IsPureCapVarArgs) {
     if (MCRegister Reg = State.AllocateReg(getArgGPR16s(ABI))) {
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
     }
   }
 
-  if (ValVT == MVT::f32 && Subtarget.hasStdExtZfinx()) {
+  if (ValVT == MVT::f32 && Subtarget.hasStdExtZfinx() &&
+      !IsPureCapVarArgs) {
     if (MCRegister Reg = State.AllocateReg(getArgGPR32s(ABI))) {
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
@@ -432,7 +434,8 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   ArrayRef<MCPhysReg> ArgGPRs = RISCV::getArgGPRs(ABI);
 
   // Zdinx use GPR without a bitcast when possible.
-  if (LocVT == MVT::f64 && XLen == 64 && Subtarget.hasStdExtZdinx()) {
+  if (LocVT == MVT::f64 && XLen == 64 && Subtarget.hasStdExtZdinx() &&
+      !IsPureCapVarArgs) {
     if (MCRegister Reg = State.AllocateReg(ArgGPRs)) {
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
@@ -440,8 +443,9 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   }
 
   // FP smaller than XLen, uses custom GPR.
-  if (LocVT == MVT::f16 || LocVT == MVT::bf16 ||
-      (LocVT == MVT::f32 && XLen == 64)) {
+  if ((LocVT == MVT::f16 || LocVT == MVT::bf16 ||
+       (LocVT == MVT::f32 && XLen == 64)) &&
+      !IsPureCapVarArgs) {
     if (MCRegister Reg = State.AllocateReg(ArgGPRs)) {
       LocVT = XLenVT;
       State.addLoc(
@@ -451,7 +455,8 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   }
 
   // Bitcast FP to GPR if we can use a GPR register.
-  if ((XLen == 32 && LocVT == MVT::f32) || (XLen == 64 && LocVT == MVT::f64)) {
+  if (((XLen == 32 && LocVT == MVT::f32) || (XLen == 64 && LocVT == MVT::f64)) &&
+      !IsPureCapVarArgs) {
     if (MCRegister Reg = State.AllocateReg(ArgGPRs)) {
       LocVT = XLenVT;
       LocInfo = CCValAssign::BCvt;
