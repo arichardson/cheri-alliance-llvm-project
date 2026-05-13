@@ -16,6 +16,7 @@
 #include <__concepts/arithmetic.h>
 #include <__config>
 #include <__type_traits/is_unsigned_integer.h>
+#include <cstddef>
 #include <limits>
 
 #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)

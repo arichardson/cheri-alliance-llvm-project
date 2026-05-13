@@ -22,6 +22,7 @@
 #include <__utility/pair.h>
 #include <__utility/swap.h>
 #include <cstdint>
+#include <cstddef>
 #include <cstring>
 
 #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)

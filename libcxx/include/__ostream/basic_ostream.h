@@ -25,6 +25,7 @@
 #  include <__type_traits/void_t.h>
 #  include <__utility/declval.h>
 #  include <bitset>
+#  include <cstddef>
 #  include <ios>
 #  include <locale>
 #  include <streambuf>

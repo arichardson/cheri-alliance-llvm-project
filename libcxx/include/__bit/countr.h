@@ -15,6 +15,7 @@
 #include <__bit/rotate.h>
 #include <__concepts/arithmetic.h>
 #include <__config>
+#include <cstddef>
 #include <limits>
 
 #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
