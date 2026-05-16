@@ -4180,10 +4180,13 @@ bool RISCVAsmParser::processInstruction(MCInst &Inst, SMLoc IDLoc,
                                                   RISCV::sub_cap_addr)));
     return false;
   }
-  case RISCV::PseudoYPERMC: {
+  case RISCV::PseudoYPERMC:
+  case RISCV::PseudoYMODEW: {
     // Expand ypermc rd, rs1, rs2 to `not rd, rs2; candperm rd, rs1, rd`.
+    // Expand ymodew rd, rs1, rs2 to `xori rd, rs2, 1; csetflags rd, rs1, rd`.
     // This requires rd != rs1 to prevent clobbering the source capability if
     // rd and rs1 were the same register.
+    bool IsPerm = Inst.getOpcode() == RISCV::PseudoYPERMC;
     if (Inst.getOperand(0).getReg() == Inst.getOperand(1).getReg()) {
       SMLoc ErrorLoc = Operands[1]->getStartLoc();
       return Error(ErrorLoc,
@@ -4200,11 +4203,12 @@ bool RISCVAsmParser::processInstruction(MCInst &Inst, SMLoc IDLoc,
     emitToStreamer(Out, MCInstBuilder(RISCV::XORI)
                             .addReg(DestIntReg)
                             .addReg(MaskReg)
-                            .addImm(-1));
-    emitToStreamer(Out, MCInstBuilder(RISCV::CAndPerm)
-                            .addReg(DestCapReg)
-                            .addReg(SrcCapReg)
-                            .addReg(DestIntReg));
+                            .addImm(IsPerm ? -1 : 1));
+    emitToStreamer(Out,
+                   MCInstBuilder(IsPerm ? RISCV::CAndPerm : RISCV::CSetFlags)
+                       .addReg(DestCapReg)
+                       .addReg(SrcCapReg)
+                       .addReg(DestIntReg));
     return false;
   }
   case RISCV::PseudoTLSDESCCall:
