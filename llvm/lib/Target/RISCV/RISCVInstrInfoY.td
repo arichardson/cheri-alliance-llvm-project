@@ -166,3 +166,24 @@ def YEQ : RVY_rr<0b0000110, "yeq", GPR, YGPR, YGPR>;
 def YSS : RVY_rr<0b0001110, "yss", GPR, YGPR, YGPR>;
 def YAMASK : RVY_r_xx<0b00000, "yamask">;
 } // Predicates = [HasStdExtY]
+
+//===----------------------------------------------------------------------===//
+// Zyhybrid extension
+//===----------------------------------------------------------------------===//
+// YMODESW[YI] is encoded as YMODEW with rd=x0, rs1=x0, rs2=mode
+let hasSideEffects = 1, mayLoad = 0, mayStore = 0 in
+class RVY_modesw<bits<5> mode, string opcodestr>
+      : RVInst<(outs), (ins), opcodestr, "", [], InstFormatR> {
+  let Inst{31-25} = 0b0101011;
+  let Inst{24-20} = mode;
+  let Inst{19-15} = 0b00000;
+  let Inst{14-12} = 0b000;
+  let Inst{11-7}  = 0b00000;
+  let Inst{6-0}   = OPC_OP.Value;
+}
+let Predicates = [HasStdExtZyhybrid] in {
+def YMODER : RVY_r_xy<0b00110, "ymoder">;
+def YMODEW : RVY_rr<0b0101011, "ymodew", YGPRNoX0, YGPR, GPR>;
+def YMODESWY : RVY_modesw<0b00000, "ymodeswy">;
+def YMODESWI : RVY_modesw<0b00001, "ymodeswi">;
+}

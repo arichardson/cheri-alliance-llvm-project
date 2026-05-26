@@ -302,6 +302,7 @@
 ; RUN: llc -mtriple=riscv64 -mattr=+experimental-sdext  %s -o - | FileCheck --check-prefix=RV64SDEXT %s
 ; RUN: llc -mtriple=riscv64 -mattr=+experimental-sdtrig  %s -o - | FileCheck --check-prefix=RV64SDTRIG %s
 ; RUN: llc -mtriple=riscv64 -mattr=+experimental-y %s -o - | FileCheck --check-prefix=RV64Y %s
+; RUN: llc -mtriple=riscv64 -mattr=+experimental-zyhybrid %s -o - | FileCheck --check-prefix=RV64Y-ZYHYBRID %s
 
 
 ; Tests for profile features.
@@ -618,6 +619,7 @@
 ; RV64SDEXT: .attribute 5, "rv64i2p1_sdext1p0"
 ; RV64SDTRIG: .attribute 5, "rv64i2p1_sdtrig1p0"
 ; RV64Y: .attribute 5, "rv64i2p1_y0p98"
+; RV64Y-ZYHYBRID: .attribute 5, "rv64i2p1_y0p98_zyhybrid0p98"
 
 ; RVI20U32: .attribute 5, "rv32i2p1"
 ; RVI20U64: .attribute 5, "rv64i2p1"
