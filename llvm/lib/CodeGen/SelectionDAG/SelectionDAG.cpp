@@ -8261,6 +8261,12 @@ static SDValue getMemcpyLoadsAndStores(
   MachineFrameInfo &MFI = MF.getFrameInfo();
   bool OptSize = shouldLowerMemFuncForSize(MF, DAG);
   FrameIndexSDNode *FI = dyn_cast<FrameIndexSDNode>(Dst);
+  // FrameIndex is the first operand of llvm.cheri.bounded.stack.cap
+  if (!FI && Dst.getOpcode() == ISD::INTRINSIC_WO_CHAIN) {
+    auto IID = cast<ConstantSDNode>(Dst->getOperand(0))->getZExtValue();
+    if (IID == Intrinsic::cheri_bounded_stack_cap)
+      FI = dyn_cast<FrameIndexSDNode>(Dst.getOperand(1));
+  }
   if (FI && !MFI.isFixedObjectIndex(FI->getIndex()))
     DstAlignCanChange = true;
   MaybeAlign SrcAlign = DAG.InferPtrAlign(Src);
@@ -8496,6 +8502,12 @@ static SDValue getMemmoveLoadsAndStores(
   MachineFrameInfo &MFI = MF.getFrameInfo();
   bool OptSize = shouldLowerMemFuncForSize(MF, DAG);
   FrameIndexSDNode *FI = dyn_cast<FrameIndexSDNode>(Dst);
+  // FrameIndex is the first operand of llvm.cheri.bounded.stack.cap
+  if (!FI && Dst.getOpcode() == ISD::INTRINSIC_WO_CHAIN) {
+    auto IID = cast<ConstantSDNode>(Dst->getOperand(0))->getZExtValue();
+    if (IID == Intrinsic::cheri_bounded_stack_cap)
+      FI = dyn_cast<FrameIndexSDNode>(Dst.getOperand(1));
+  }
   if (FI && !MFI.isFixedObjectIndex(FI->getIndex()))
     DstAlignCanChange = true;
   MaybeAlign SrcAlign = DAG.InferPtrAlign(Src);
@@ -8648,6 +8660,12 @@ static SDValue getMemsetStores(SelectionDAG &DAG, const SDLoc &dl,
   MachineFrameInfo &MFI = MF.getFrameInfo();
   bool OptSize = shouldLowerMemFuncForSize(MF, DAG);
   FrameIndexSDNode *FI = dyn_cast<FrameIndexSDNode>(Dst);
+  // FrameIndex is the first operand of llvm.cheri.bounded.stack.cap
+  if (!FI && Dst.getOpcode() == ISD::INTRINSIC_WO_CHAIN) {
+    auto IID = cast<ConstantSDNode>(Dst->getOperand(0))->getZExtValue();
+    if (IID == Intrinsic::cheri_bounded_stack_cap)
+      FI = dyn_cast<FrameIndexSDNode>(Dst.getOperand(1));
+  }
   if (FI && !MFI.isFixedObjectIndex(FI->getIndex()))
     DstAlignCanChange = true;
   bool IsZeroVal = isNullConstant(Src);
