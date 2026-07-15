@@ -139,6 +139,47 @@ MCRegister getCheriBoundedArgReg() { return RISCV::X31_Y; }
 
 } // namespace RISCVABI
 
+namespace RISCVV9CRName {
+
+MCRegister lookup(StringRef Name) {
+  return StringSwitch<MCRegister>(Name)
+      .Cases("c0", "cnull", RISCV::X0_Y)
+      .Cases("c1", "cra", RISCV::X1_Y)
+      .Cases("c2", "csp", RISCV::X2_Y)
+      .Cases("c3", "cgp", RISCV::X3_Y)
+      .Cases("c4", "ctp", RISCV::X4_Y)
+      .Cases("c5", "ct0", RISCV::X5_Y)
+      .Cases("c6", "ct1", RISCV::X6_Y)
+      .Cases("c7", "ct2", RISCV::X7_Y)
+      .Cases("c8", "cs0", "cfp", RISCV::X8_Y)
+      .Cases("c9", "cs1", RISCV::X9_Y)
+      .Cases("c10", "ca0", RISCV::X10_Y)
+      .Cases("c11", "ca1", RISCV::X11_Y)
+      .Cases("c12", "ca2", RISCV::X12_Y)
+      .Cases("c13", "ca3", RISCV::X13_Y)
+      .Cases("c14", "ca4", RISCV::X14_Y)
+      .Cases("c15", "ca5", RISCV::X15_Y)
+      .Cases("c16", "ca6", RISCV::X16_Y)
+      .Cases("c17", "ca7", RISCV::X17_Y)
+      .Cases("c18", "cs2", RISCV::X18_Y)
+      .Cases("c19", "cs3", RISCV::X19_Y)
+      .Cases("c20", "cs4", RISCV::X20_Y)
+      .Cases("c21", "cs5", RISCV::X21_Y)
+      .Cases("c22", "cs6", RISCV::X22_Y)
+      .Cases("c23", "cs7", RISCV::X23_Y)
+      .Cases("c24", "cs8", RISCV::X24_Y)
+      .Cases("c25", "cs9", RISCV::X25_Y)
+      .Cases("c26", "cs10", RISCV::X26_Y)
+      .Cases("c27", "cs11", RISCV::X27_Y)
+      .Cases("c28", "ct3", RISCV::X28_Y)
+      .Cases("c29", "ct4", RISCV::X29_Y)
+      .Cases("c30", "ct5", RISCV::X30_Y)
+      .Cases("c31", "ct6", RISCV::X31_Y)
+      .Default(MCRegister());
+}
+
+} // namespace RISCVV9CRName
+
 namespace RISCVFeatures {
 
 void validate(const Triple &TT, const FeatureBitset &FeatureBits) {

@@ -232,7 +232,9 @@ class RISCVAsmParser : public MCTargetAsmParser {
 
   ParseStatus parseCSRSystemRegister(OperandVector &Operands);
   ParseStatus parseSpecialCapRegister(OperandVector &Operands);
-  ParseStatus parseV9CR(OperandVector &Operands);
+  ParseStatus parseV9CR(OperandVector &Operands, bool AllowDDC = false);
+  ParseStatus parseV9CRC0IsDDC(OperandVector &Operands);
+  ParseStatus parseRVYCompatGPCR(OperandVector &Operands);
   ParseStatus parseFPImm(OperandVector &Operands);
   ParseStatus parseImmediate(OperandVector &Operands);
   ParseStatus parseCSetBndImmOperand(OperandVector &Operands);
@@ -393,6 +395,7 @@ struct RISCVOperand final : public MCParsedAsmOperand {
   struct RegOp {
     MCRegister RegNum;
     bool IsGPRAsFPR;
+    bool IsV9CRegName;
     bool CoercedFromGPR;
   };
 
@@ -553,56 +556,64 @@ public:
   }
 
   bool isV9CR() const {
-    return Kind == KindTy::Register &&
+    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
            RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
   }
 
   bool isV9CRNoC0() const {
-    return Kind == KindTy::Register &&
+    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
            RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID].contains(
                Reg.RegNum);
   }
 
   bool isV9CRC0IsDDC() const {
-    return Kind == KindTy::Register &&
+    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
            RISCVMCRegisterClasses[RISCV::GPCRC0IsDDCRegClassID].contains(
                Reg.RegNum);
   }
 
   bool isV9CRC() const {
-    return Kind == KindTy::Register &&
+    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
            RISCVMCRegisterClasses[RISCV::GPCRCRegClassID].contains(Reg.RegNum);
   }
 
   bool isV9CRTC() const {
-    return Kind == KindTy::Register &&
+    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
            RISCVMCRegisterClasses[RISCV::GPCRTCRegClassID].contains(
                Reg.RegNum);
   }
 
   bool isV9CSP() const {
-    return Kind == KindTy::Register &&
+    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
            RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
   }
 
-  bool isYGPR() const { return isV9CR() && Reg.CoercedFromGPR; }
+  bool isYGPR() const {
+    return Reg.CoercedFromGPR &&
+           RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
+  }
 
   bool isYGPRNoX0() const { return isYGPR() && Reg.RegNum != RISCV::X0_Y; }
 
   bool isYGPRC() const {
-    return isYGPR() &&
+    return Reg.CoercedFromGPR &&
            RISCVMCRegisterClasses[RISCV::GPCRCRegClassID].contains(Reg.RegNum);
   }
 
   bool isYSP() const {
-    return isYGPR() &&
+    return Reg.CoercedFromGPR &&
            RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
   }
 
-  bool isRVYCompatGPCR() const { return isV9CR(); }
+  // For the isRVYCompat*() helpers we don't care if it was parsed as a "c"
+  // register or coerced from and "x" register so we just check membership.
+  bool isRVYCompatGPCR() const {
+    return RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
+  }
 
   bool isRVYCompatGPCRNoC0() const {
-    return isRVYCompatGPCR() && Reg.RegNum != RISCV::X0_Y;
+    return RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID].contains(
+        Reg.RegNum);
   }
 
   bool isRVYCompatGPCRC() const {
@@ -1376,6 +1387,7 @@ public:
     auto Op = std::make_unique<RISCVOperand>(KindTy::Register);
     Op->Reg.RegNum = Reg.id();
     Op->Reg.IsGPRAsFPR = IsGPRAsFPR;
+    Op->Reg.IsV9CRegName = false;
     Op->Reg.CoercedFromGPR = false;
     Op->StartLoc = S;
     Op->EndLoc = E;
@@ -2152,10 +2164,42 @@ ParseStatus RISCVAsmParser::parseRegister(OperandVector &Operands,
 }
 
 /// Parse a "c"-prefixed register name (e.g. c1/ca0/csp)
-ParseStatus RISCVAsmParser::parseV9CR(OperandVector &Operands) {
-  // For now we can continue using the generic parseRegister here, since only
-  // "c"-prefixed names will map to GPCR (and the related register classes) and
-  // all "x"-prefixed names will parse as GPR.
+ParseStatus RISCVAsmParser::parseV9CR(OperandVector &Operands, bool AllowDDC) {
+  if (getLexer().getKind() != AsmToken::Identifier)
+    return ParseStatus::NoMatch;
+
+  StringRef Name = getLexer().getTok().getIdentifier();
+  MCRegister Reg = RISCVV9CRName::lookup(Name);
+  if (!Reg && AllowDDC && Name == "ddc")
+    Reg = RISCV::DDC;
+  if (!Reg)
+    return ParseStatus::NoMatch;
+
+  SMLoc S = getLoc();
+  SMLoc E = SMLoc::getFromPointer(S.getPointer() + Name.size());
+  getLexer().Lex();
+  auto Op = RISCVOperand::createReg(Reg, S, E);
+  Op->Reg.IsV9CRegName = true;
+  Operands.emplace_back(std::move(Op));
+  return ParseStatus::Success;
+}
+
+ParseStatus RISCVAsmParser::parseV9CRC0IsDDC(OperandVector &Operands) {
+  return parseV9CR(Operands, /*AllowDDC=*/true);
+}
+
+/// Parse a capability register operand accepting both the native "c"-prefixed
+/// spelling (c1/ca0/csp) and, for RVY-compatible mnemonics, the plain
+/// "x"-prefixed GPR spelling (x1/a0/sp) coerced to the matching capability
+/// register.
+ParseStatus RISCVAsmParser::parseRVYCompatGPCR(OperandVector &Operands) {
+  // First, try parsing a "c" register.
+  if (parseV9CR(Operands).isSuccess())
+    return ParseStatus::Success;
+
+  // Not a "c"-prefixed name: fall back to generic register parsing so that
+  // "x"-prefixed GPR names are recognised as usual. This is then coerced to the
+  // matching capability register in validateTargetOperandClass.
   return parseRegister(Operands, /*AllowParens=*/false);
 }
 
@@ -3088,7 +3132,12 @@ ParseStatus RISCVAsmParser::parseZeroOffsetMemOp(OperandVector &Operands) {
                                : "expected '(' or optional integer offset"))
     return ParseStatus::Failure;
 
-  if (!parseRegister(Operands).isSuccess())
+  // For now, we also have to parse ISAv9 capability registers here
+  // unconditionally, since the first hard error prevents all other cases from
+  // matching (even if they share a mnemonic). This will eventually be fixed
+  // upstream, but until then, we keep this extra call and let the later operand
+  // type checking code reject capmode mnemnonics in integer mode, etc.
+  if (!parseV9CR(Operands).isSuccess() && !parseRegister(Operands).isSuccess())
     return Error(getLoc(), "expected register");
 
   if (parseToken(AsmToken::RParen, "expected ')'"))

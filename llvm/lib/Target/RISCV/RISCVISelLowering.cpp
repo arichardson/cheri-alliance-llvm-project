@@ -22149,42 +22149,11 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
 
   // Similarly, allow capability register ABI names to be used in constraint.
   if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
-    Register CRegFromAlias = StringSwitch<Register>(Constraint.lower())
-                                 .Case("{cnull}", RISCV::X0_Y)
-                                 .Case("{cra}", RISCV::X1_Y)
-                                 .Case("{csp}", RISCV::X2_Y)
-                                 .Case("{cgp}", RISCV::X3_Y)
-                                 .Case("{ctp}", RISCV::X4_Y)
-                                 .Case("{ct0}", RISCV::X5_Y)
-                                 .Case("{ct1}", RISCV::X6_Y)
-                                 .Case("{ct2}", RISCV::X7_Y)
-                                 .Cases("{cs0}", "{cfp}", RISCV::X8_Y)
-                                 .Case("{cs1}", RISCV::X9_Y)
-                                 .Case("{ca0}", RISCV::X10_Y)
-                                 .Case("{ca1}", RISCV::X11_Y)
-                                 .Case("{ca2}", RISCV::X12_Y)
-                                 .Case("{ca3}", RISCV::X13_Y)
-                                 .Case("{ca4}", RISCV::X14_Y)
-                                 .Case("{ca5}", RISCV::X15_Y)
-                                 .Case("{ca6}", RISCV::X16_Y)
-                                 .Case("{ca7}", RISCV::X17_Y)
-                                 .Case("{cs2}", RISCV::X18_Y)
-                                 .Case("{cs3}", RISCV::X19_Y)
-                                 .Case("{cs4}", RISCV::X20_Y)
-                                 .Case("{cs5}", RISCV::X21_Y)
-                                 .Case("{cs6}", RISCV::X22_Y)
-                                 .Case("{cs7}", RISCV::X23_Y)
-                                 .Case("{cs8}", RISCV::X24_Y)
-                                 .Case("{cs9}", RISCV::X25_Y)
-                                 .Case("{cs10}", RISCV::X26_Y)
-                                 .Case("{cs11}", RISCV::X27_Y)
-                                 .Case("{ct3}", RISCV::X28_Y)
-                                 .Case("{ct4}", RISCV::X29_Y)
-                                 .Case("{ct5}", RISCV::X30_Y)
-                                 .Case("{ct6}", RISCV::X31_Y)
-                                 .Default(RISCV::NoRegister);
-    if (CRegFromAlias != RISCV::NoRegister)
-      return std::make_pair(CRegFromAlias, &RISCV::GPCRRegClass);
+    StringRef Name = Constraint;
+    if (Name.consume_front("{") && Name.consume_back("}")) {
+      if (MCRegister CReg = RISCVV9CRName::lookup(Name.lower()))
+        return std::make_pair(CReg, &RISCV::GPCRRegClass);
+    }
   }
 
   // Since TargetLowering::getRegForInlineAsmConstraint uses the name of the
