@@ -374,7 +374,7 @@ def V9CRNoC0 : RegisterOperand<GPCRNoC0> {
 
 def V9CRC0IsDDCOperand : AsmOperandClass {
   let Name = "V9CRC0IsDDC";
-  let ParserMethod = "parseV9CR";
+  let ParserMethod = "parseV9CRC0IsDDC";
   let RenderMethod = "addRegOperands";
 }
 def V9CRC0IsDDC : RegisterOperand<GPCRC0IsDDC> {
@@ -401,6 +401,7 @@ def YGPRNoX0 : RegisterOperand<GPCRNoC0> {
 
 def RVYCompatGPCROperand : AsmOperandClass {
   let Name = "RVYCompatGPCR";
+  let ParserMethod = "parseRVYCompatGPCR";
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
@@ -410,6 +411,7 @@ def RVYCompatGPCR : RegisterOperand<GPCR> {
 
 def RVYCompatGPCRNoC0Operand : AsmOperandClass {
   let Name = "RVYCompatGPCRNoC0";
+  let ParserMethod = "parseRVYCompatGPCR";
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCRNoC0";
 }
@@ -485,6 +487,7 @@ def YGPRC : RegisterOperand<GPCRC> {
 
 def RVYCompatGPCRCOperand : AsmOperandClass {
   let Name = "RVYCompatGPCRC";
+  let ParserMethod = "parseRVYCompatGPCR";
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
@@ -494,6 +497,7 @@ def RVYCompatGPCRC : RegisterOperand<GPCRC> {
 
 def RVYCompatGPCRTCOperand : AsmOperandClass {
   let Name = "RVYCompatGPCRTC";
+  let ParserMethod = "parseRVYCompatGPCR";
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
@@ -527,6 +531,7 @@ def YSP : RegisterOperand<CSP> {
 
 def RVYCompatCSPOperand : AsmOperandClass {
   let Name = "RVYCompatCSP";
+  let ParserMethod = "parseRVYCompatGPCR";
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatCSP";
 }

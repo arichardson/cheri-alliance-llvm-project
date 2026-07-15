@@ -456,6 +456,13 @@ float getFPImm(unsigned Imm);
 int getLoadFPImm(APFloat FPImm);
 } // namespace RISCVLoadFPImm
 
+namespace RISCVV9CRName {
+/// Lookup capability register by name. Handles numeric and ABI names
+/// ("c2"/"cgp", etc.). Needed to support upstream YGPR where we no longer
+/// include "c2" as the register names (and instead use "x" names)
+MCRegister lookup(StringRef Name);
+} // namespace RISCVV9CRName
+
 namespace RISCVSysReg {
 struct SysReg {
   const char Name[32];
