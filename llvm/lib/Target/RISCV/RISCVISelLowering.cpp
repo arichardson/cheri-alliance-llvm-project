@@ -160,7 +160,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
 
   if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
     CapType = Subtarget.typeForCapabilities();
-    NullCapabilityRegister = RISCV::C0;
+    NullCapabilityRegister = RISCV::X0_Y;
     addRegisterClass(CapType, &RISCV::GPCRRegClass);
     IsCheriPureCap = RISCVABI::isCheriPureCapABI(ABI);
   }
@@ -300,7 +300,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   computeRegisterProperties(STI.getRegisterInfo());
 
   if (RISCVABI::isCheriPureCapABI(ABI))
-    setStackPointerRegisterToSaveRestore(RISCV::C2);
+    setStackPointerRegisterToSaveRestore(RISCV::X2_Y);
   else
     setStackPointerRegisterToSaveRestore(RISCV::X2);
 
@@ -8334,7 +8334,7 @@ SDValue RISCVTargetLowering::getStaticTLSAddr(GlobalAddressSDNode *N,
           {DAG.getEntryNode(), Addr}, Ty, MemOp);
 
       // Add the thread pointer.
-      SDValue TPReg = DAG.getRegister(RISCV::C4, Ty);
+      SDValue TPReg = DAG.getRegister(RISCV::X4_Y, Ty);
       return DAG.getPointerAdd(DL, TPReg, Load);
     }
 
@@ -8353,7 +8353,7 @@ SDValue RISCVTargetLowering::getStaticTLSAddr(GlobalAddressSDNode *N,
 
     SDValue MNHi =
         SDValue(DAG.getMachineNode(RISCV::LUI, DL, XLenVT, AddrHi), 0);
-    SDValue TPReg = DAG.getRegister(RISCV::C4, Ty);
+    SDValue TPReg = DAG.getRegister(RISCV::X4_Y, Ty);
     SDValue MNAdd = SDValue(
         DAG.getMachineNode(RISCV::PseudoCIncOffsetTPRel, DL, Ty, TPReg, MNHi,
                            AddrCIncOffset),
@@ -10151,7 +10151,7 @@ SDValue RISCVTargetLowering::LowerINTRINSIC_WO_CHAIN(SDValue Op,
                                     XLenVT);
   case Intrinsic::thread_pointer: {
     MCPhysReg PhysReg = RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI())
-        ? RISCV::C4 : RISCV::X4;
+        ? RISCV::X4_Y : RISCV::X4;
     EVT PtrVT =
         getPointerTy(DAG.getDataLayout(),
                      DAG.getDataLayout().getDefaultGlobalsAddressSpace());
@@ -21333,7 +21333,7 @@ SDValue RISCVTargetLowering::LowerCall(CallLoweringInfo &CLI,
       RegsToPass.push_back(
           std::make_pair(RISCVABI::getCheriBoundedArgReg(), VarArgs));
     } else {
-      // No varargs passed, set C6 to null
+      // No varargs passed, set the bounded arg register to null
       RegsToPass.push_back(std::make_pair(RISCVABI::getCheriBoundedArgReg(),
                                           DAG.getNullCapability(DL)));
     }
@@ -22150,38 +22150,38 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
   // Similarly, allow capability register ABI names to be used in constraint.
   if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
     Register CRegFromAlias = StringSwitch<Register>(Constraint.lower())
-                                 .Case("{cnull}", RISCV::C0)
-                                 .Case("{cra}", RISCV::C1)
-                                 .Case("{csp}", RISCV::C2)
-                                 .Case("{cgp}", RISCV::C3)
-                                 .Case("{ctp}", RISCV::C4)
-                                 .Case("{ct0}", RISCV::C5)
-                                 .Case("{ct1}", RISCV::C6)
-                                 .Case("{ct2}", RISCV::C7)
-                                 .Cases("{cs0}", "{cfp}", RISCV::C8)
-                                 .Case("{cs1}", RISCV::C9)
-                                 .Case("{ca0}", RISCV::C10)
-                                 .Case("{ca1}", RISCV::C11)
-                                 .Case("{ca2}", RISCV::C12)
-                                 .Case("{ca3}", RISCV::C13)
-                                 .Case("{ca4}", RISCV::C14)
-                                 .Case("{ca5}", RISCV::C15)
-                                 .Case("{ca6}", RISCV::C16)
-                                 .Case("{ca7}", RISCV::C17)
-                                 .Case("{cs2}", RISCV::C18)
-                                 .Case("{cs3}", RISCV::C19)
-                                 .Case("{cs4}", RISCV::C20)
-                                 .Case("{cs5}", RISCV::C21)
-                                 .Case("{cs6}", RISCV::C22)
-                                 .Case("{cs7}", RISCV::C23)
-                                 .Case("{cs8}", RISCV::C24)
-                                 .Case("{cs9}", RISCV::C25)
-                                 .Case("{cs10}", RISCV::C26)
-                                 .Case("{cs11}", RISCV::C27)
-                                 .Case("{ct3}", RISCV::C28)
-                                 .Case("{ct4}", RISCV::C29)
-                                 .Case("{ct5}", RISCV::C30)
-                                 .Case("{ct6}", RISCV::C31)
+                                 .Case("{cnull}", RISCV::X0_Y)
+                                 .Case("{cra}", RISCV::X1_Y)
+                                 .Case("{csp}", RISCV::X2_Y)
+                                 .Case("{cgp}", RISCV::X3_Y)
+                                 .Case("{ctp}", RISCV::X4_Y)
+                                 .Case("{ct0}", RISCV::X5_Y)
+                                 .Case("{ct1}", RISCV::X6_Y)
+                                 .Case("{ct2}", RISCV::X7_Y)
+                                 .Cases("{cs0}", "{cfp}", RISCV::X8_Y)
+                                 .Case("{cs1}", RISCV::X9_Y)
+                                 .Case("{ca0}", RISCV::X10_Y)
+                                 .Case("{ca1}", RISCV::X11_Y)
+                                 .Case("{ca2}", RISCV::X12_Y)
+                                 .Case("{ca3}", RISCV::X13_Y)
+                                 .Case("{ca4}", RISCV::X14_Y)
+                                 .Case("{ca5}", RISCV::X15_Y)
+                                 .Case("{ca6}", RISCV::X16_Y)
+                                 .Case("{ca7}", RISCV::X17_Y)
+                                 .Case("{cs2}", RISCV::X18_Y)
+                                 .Case("{cs3}", RISCV::X19_Y)
+                                 .Case("{cs4}", RISCV::X20_Y)
+                                 .Case("{cs5}", RISCV::X21_Y)
+                                 .Case("{cs6}", RISCV::X22_Y)
+                                 .Case("{cs7}", RISCV::X23_Y)
+                                 .Case("{cs8}", RISCV::X24_Y)
+                                 .Case("{cs9}", RISCV::X25_Y)
+                                 .Case("{cs10}", RISCV::X26_Y)
+                                 .Case("{cs11}", RISCV::X27_Y)
+                                 .Case("{ct3}", RISCV::X28_Y)
+                                 .Case("{ct4}", RISCV::X29_Y)
+                                 .Case("{ct5}", RISCV::X30_Y)
+                                 .Case("{ct6}", RISCV::X31_Y)
                                  .Default(RISCV::NoRegister);
     if (CRegFromAlias != RISCV::NoRegister)
       return std::make_pair(CRegFromAlias, &RISCV::GPCRRegClass);
@@ -22823,7 +22823,7 @@ ISD::NodeType RISCVTargetLowering::getExtendForAtomicCmpSwapArg() const {
 Register RISCVTargetLowering::getExceptionPointerRegister(
     const Constant *PersonalityFn) const {
   return RISCVABI::isCheriPureCapABI(Subtarget.getTargetABI())
-      ? RISCV::C10 : RISCV::X10;
+      ? RISCV::X10_Y : RISCV::X10;
 }
 
 Register RISCVTargetLowering::getExceptionSelectorRegister(

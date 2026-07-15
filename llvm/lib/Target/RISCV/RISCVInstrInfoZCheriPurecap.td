@@ -213,9 +213,9 @@ let Predicates = [IsCapMode, HasZCheriPurecap] in {
 let Predicates = [NotCapMode, HasZCheriHybrid] in {
   def : InstAlias<"jalr $rd, ${imm12}(${rs1})", (JALR_MODE_LEG V9CR:$rd, V9CR:$rs1, immzero:$imm12), 2>;
   def : InstAlias<"jalr $rd, $rs1"            , (JALR_MODE_LEG V9CR:$rd, V9CR:$rs1, 0             ), 2>;
-  def : InstAlias<"jalr $rs1"                 , (JALR_MODE_LEG C1      , V9CR:$rs1, 0             ), 2>;
-  def : InstAlias<"jr $rs1"                   , (JALR_MODE_LEG C0      , V9CR:$rs1, 0             ), 2>;
-  def : InstAlias<"ret.mode"                  , (JALR_MODE_LEG C0      , C1       , 0             ), 2>;
+  def : InstAlias<"jalr $rs1"                 , (JALR_MODE_LEG X1_Y      , V9CR:$rs1, 0             ), 2>;
+  def : InstAlias<"jr $rs1"                   , (JALR_MODE_LEG X0_Y      , V9CR:$rs1, 0             ), 2>;
+  def : InstAlias<"ret.mode"                  , (JALR_MODE_LEG X0_Y      , X1_Y       , 0             ), 2>;
 } // Predicates = [NotCapMode, HasZCheriHybrid]
 
 
@@ -237,26 +237,26 @@ def CHERI_CSRRCI: CheriCSR_ii<0b111, "csrrci">;
 def : InstAlias<"csrr $cd, $csr",
                 (CHERI_CSRRS V9CR: $cd, cheri_csr_sysreg:$csr,           X0)>;
 def : InstAlias<"csrw $csr, $cs",
-                (CHERI_CSRRW        C0, cheri_csr_sysreg:$csr,     V9CR:$cs)>;
+                (CHERI_CSRRW        X0_Y, cheri_csr_sysreg:$csr,     V9CR:$cs)>;
 def : InstAlias<"csrs $csr, $cs",
-                (CHERI_CSRRS        C0, cheri_csr_sysreg:$csr,      GPR:$cs)>;
+                (CHERI_CSRRS      X0_Y, cheri_csr_sysreg:$csr,      GPR:$cs)>;
 def : InstAlias<"csrc $csr, $cs",
-                (CHERI_CSRRC        C0, cheri_csr_sysreg:$csr,      GPR:$cs)>;
+                (CHERI_CSRRC      X0_Y, cheri_csr_sysreg:$csr,      GPR:$cs)>;
 
 def : InstAlias<"csrwi $csr, $imm",
-                (CHERI_CSRRWI       C0, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
+                (CHERI_CSRRWI     X0_Y, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 def : InstAlias<"csrsi $csr, $imm",
-                (CHERI_CSRRSI       C0, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
+                (CHERI_CSRRSI     X0_Y, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 def : InstAlias<"csrci $csr, $imm",
-                (CHERI_CSRRCI       C0, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
+                (CHERI_CSRRCI     X0_Y, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 
 let EmitPriority = 0 in {
 def : InstAlias<"csrw $csr, $imm",
-                (CHERI_CSRRWI       C0, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
+                (CHERI_CSRRWI     X0_Y, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 def : InstAlias<"csrs $csr, $imm",
-                (CHERI_CSRRSI       C0, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
+                (CHERI_CSRRSI     X0_Y, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 def : InstAlias<"csrc $csr, $imm",
-                (CHERI_CSRRCI       C0, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
+                (CHERI_CSRRCI     X0_Y, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 
 def : InstAlias<"csrrw $cd, $csr, $imm",
                 (CHERI_CSRRWI V9CR:$cd, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
@@ -443,8 +443,8 @@ def : PatGpcrGpr<int_cheri_cap_flags_set, SCMODE>;
 
 /// Pointer-Arithmetic Instructions
 let Predicates = [IsPureCapABI, HasZCheriPurecap] in {
-def : Pat<(inttoptr (XLenVT GPR:$rs2)), (CADD C0, GPR:$rs2)>;
-def : Pat<(inttoptr simm12:$imm12), (CADDI C0, simm12:$imm12)>;
+def : Pat<(inttoptr (XLenVT GPR:$rs2)), (CADD X0_Y, GPR:$rs2)>;
+def : Pat<(inttoptr simm12:$imm12), (CADDI X0_Y, simm12:$imm12)>;
 def : Pat<(XLenVT (ptrtoint V9CR:$rs1)), (PseudoCGetAddr V9CR:$rs1)>;
 }
 
@@ -527,8 +527,8 @@ def : CompressPat<(CSC V9CRC:$rs2, GPCRCMem:$rs1, uimm8_lsb000:$imm),
 
 // Quadrant 1
 let Predicates = [HasZCheriPurecap, HasCheriRVC, HasStdExtC, IsCapMode] in {
-def : CompressPat<(CADDI C2, C2, simm10_lsb0000nonzero:$imm),
-                  (C_CIncOffsetImm16CSP C2, simm10_lsb0000nonzero:$imm)>;
+def : CompressPat<(CADDI X2_Y, X2_Y, simm10_lsb0000nonzero:$imm),
+                  (C_CIncOffsetImm16CSP X2_Y, simm10_lsb0000nonzero:$imm)>;
 } // Predicates = [HasZCheriPurecap, HasCheriRVC, HasStdExtC, IsCapMode]
 
 // Quadrant 2

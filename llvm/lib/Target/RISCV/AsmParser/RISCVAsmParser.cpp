@@ -587,7 +587,7 @@ public:
 
   bool isYGPR() const { return isV9CR() && Reg.CoercedFromGPR; }
 
-  bool isYGPRNoX0() const { return isYGPR() && Reg.RegNum != RISCV::C0; }
+  bool isYGPRNoX0() const { return isYGPR() && Reg.RegNum != RISCV::X0_Y; }
 
   bool isYGPRC() const {
     return isYGPR() &&
@@ -602,7 +602,7 @@ public:
   bool isRVYCompatGPCR() const { return isV9CR(); }
 
   bool isRVYCompatGPCRNoC0() const {
-    return isRVYCompatGPCR() && Reg.RegNum != RISCV::C0;
+    return isRVYCompatGPCR() && Reg.RegNum != RISCV::X0_Y;
   }
 
   bool isRVYCompatGPCRC() const {
@@ -1599,7 +1599,7 @@ static MCRegister convertFPR64ToFPR32(MCRegister Reg) {
 
 static MCRegister convertGPRToGPCR(MCRegister Reg) {
   assert(Reg >= RISCV::X0 && Reg <= RISCV::X31 && "Invalid register");
-  return Reg - RISCV::X0 + RISCV::C0;
+  return Reg - RISCV::X0 + RISCV::X0_Y;
 }
 
 static MCRegister convertVRToVRMx(const MCRegisterInfo &RI, MCRegister Reg,
@@ -4355,7 +4355,7 @@ bool RISCVAsmParser::checkPseudoCIncOffsetTPRel(MCInst &Inst,
   assert(Inst.getOpcode() == RISCV::PseudoCIncOffsetTPRel &&
          "Invalid instruction");
   assert(Inst.getOperand(1).isReg() && "Unexpected first operand kind");
-  if (Inst.getOperand(1).getReg() != RISCV::C4) {
+  if (Inst.getOperand(1).getReg() != RISCV::X4_Y) {
     SMLoc ErrorLoc = ((RISCVOperand &)*Operands[2]).getStartLoc();
     return Error(ErrorLoc, "the first input operand must be ctp/c4 when using "
                            "%tprel_add modifier");

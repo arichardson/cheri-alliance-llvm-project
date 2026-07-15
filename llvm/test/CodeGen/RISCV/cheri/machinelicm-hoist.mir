@@ -48,8 +48,8 @@ registers:
   - { id: 2, class: gpcr, preferred-register: '' }
 liveins:
   - { reg: '$x10', virtual-reg: '%0' }
-  - { reg: '$c11', virtual-reg: '%1' }
-  - { reg: '$c11', virtual-reg: '%2' }
+  - { reg: '$x11_y', virtual-reg: '%1' }
+  - { reg: '$x11_y', virtual-reg: '%2' }
 frameInfo:
   isFrameAddressTaken: false
   isReturnAddressTaken: false
@@ -78,12 +78,12 @@ body:             |
   ; TAG-CLEAR-LABEL: name: hoist_csetbounds
   ; TAG-CLEAR: bb.0.entry:
   ; TAG-CLEAR-NEXT:   successors: %bb.2(0x80000000)
-  ; TAG-CLEAR-NEXT:   liveins: $x10, $c11, $c12
+  ; TAG-CLEAR-NEXT:   liveins: $x10, $x11_y, $x12_y
   ; TAG-CLEAR-NEXT: {{  $}}
   ; TAG-CLEAR-NEXT:   [[COPY:%[0-9]+]]:gpr = COPY $x10
-  ; TAG-CLEAR-NEXT:   [[COPY1:%[0-9]+]]:gpcr = COPY $c11
-  ; TAG-CLEAR-NEXT:   [[COPY2:%[0-9]+]]:gpcr = COPY $c12
-  ; TAG-CLEAR-NEXT:   [[COPY3:%[0-9]+]]:gpcrc0isddc = COPY $c12
+  ; TAG-CLEAR-NEXT:   [[COPY1:%[0-9]+]]:gpcr = COPY $x11_y
+  ; TAG-CLEAR-NEXT:   [[COPY2:%[0-9]+]]:gpcr = COPY $x12_y
+  ; TAG-CLEAR-NEXT:   [[COPY3:%[0-9]+]]:gpcrc0isddc = COPY $x12_y
   ; TAG-CLEAR-NEXT:   [[CIncOffsetImm:%[0-9]+]]:gpcr = CIncOffsetImm [[COPY1]], 4
   ; TAG-CLEAR-NEXT:   [[COPY4:%[0-9]+]]:gpcrc0isddc = COPY [[CIncOffsetImm]]
   ; TAG-CLEAR-NEXT:   [[CAndPerm:%[0-9]+]]:gpcr = CAndPerm [[COPY1]], [[COPY]]
@@ -149,22 +149,22 @@ body:             |
   ; TAG-CLEAR-NEXT:   [[CBuildCap2:%[0-9]+]]:gpcr = CBuildCap [[COPY5]], [[COPY2]]
   ; TAG-CLEAR-NEXT:   [[CCopyType2:%[0-9]+]]:gpcr = CCopyType [[CAndPerm]], [[COPY2]]
   ; TAG-CLEAR-NEXT:   [[CCSeal2:%[0-9]+]]:gpcr = CCSeal [[CAndPerm]], [[COPY2]]
-  ; TAG-CLEAR-NEXT:   [[CSeal3:%[0-9]+]]:gpcr = CSeal $c0, [[COPY2]]
-  ; TAG-CLEAR-NEXT:   [[CUnseal3:%[0-9]+]]:gpcr = CUnseal $c0, [[COPY2]]
-  ; TAG-CLEAR-NEXT:   [[CAndPerm3:%[0-9]+]]:gpcr = CAndPerm $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CSetFlags3:%[0-9]+]]:gpcr = CSetFlags $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CSetOffset3:%[0-9]+]]:gpcr = CSetOffset $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CSetAddr3:%[0-9]+]]:gpcr = CSetAddr $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CIncOffset3:%[0-9]+]]:gpcr = CIncOffset $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CIncOffsetImm4:%[0-9]+]]:gpcr = CIncOffsetImm $c0, 10
-  ; TAG-CLEAR-NEXT:   [[CSetBounds3:%[0-9]+]]:gpcr = CSetBounds $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CSetBoundsExact3:%[0-9]+]]:gpcr = CSetBoundsExact $c0, [[COPY]]
-  ; TAG-CLEAR-NEXT:   [[CSetBoundsImm3:%[0-9]+]]:gpcr = CSetBoundsImm $c0, 10
-  ; TAG-CLEAR-NEXT:   [[CClearTag3:%[0-9]+]]:gpcr = CClearTag $c0
-  ; TAG-CLEAR-NEXT:   [[CCopyType3:%[0-9]+]]:gpcr = CCopyType $c0, [[COPY2]]
-  ; TAG-CLEAR-NEXT:   [[CCSeal3:%[0-9]+]]:gpcr = CCSeal $c0, [[COPY2]]
-  ; TAG-CLEAR-NEXT:   [[CSealEntry2:%[0-9]+]]:gpcr = CSealEntry $c0
-  ; TAG-CLEAR-NEXT:   [[CSetHigh2:%[0-9]+]]:gpcr = CSetHigh $c0, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CSeal3:%[0-9]+]]:gpcr = CSeal $x0_y, [[COPY2]]
+  ; TAG-CLEAR-NEXT:   [[CUnseal3:%[0-9]+]]:gpcr = CUnseal $x0_y, [[COPY2]]
+  ; TAG-CLEAR-NEXT:   [[CAndPerm3:%[0-9]+]]:gpcr = CAndPerm $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CSetFlags3:%[0-9]+]]:gpcr = CSetFlags $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CSetOffset3:%[0-9]+]]:gpcr = CSetOffset $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CSetAddr3:%[0-9]+]]:gpcr = CSetAddr $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CIncOffset3:%[0-9]+]]:gpcr = CIncOffset $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CIncOffsetImm4:%[0-9]+]]:gpcr = CIncOffsetImm $x0_y, 10
+  ; TAG-CLEAR-NEXT:   [[CSetBounds3:%[0-9]+]]:gpcr = CSetBounds $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CSetBoundsExact3:%[0-9]+]]:gpcr = CSetBoundsExact $x0_y, [[COPY]]
+  ; TAG-CLEAR-NEXT:   [[CSetBoundsImm3:%[0-9]+]]:gpcr = CSetBoundsImm $x0_y, 10
+  ; TAG-CLEAR-NEXT:   [[CClearTag3:%[0-9]+]]:gpcr = CClearTag $x0_y
+  ; TAG-CLEAR-NEXT:   [[CCopyType3:%[0-9]+]]:gpcr = CCopyType $x0_y, [[COPY2]]
+  ; TAG-CLEAR-NEXT:   [[CCSeal3:%[0-9]+]]:gpcr = CCSeal $x0_y, [[COPY2]]
+  ; TAG-CLEAR-NEXT:   [[CSealEntry2:%[0-9]+]]:gpcr = CSealEntry $x0_y
+  ; TAG-CLEAR-NEXT:   [[CSetHigh2:%[0-9]+]]:gpcr = CSetHigh $x0_y, [[COPY]]
   ; TAG-CLEAR-NEXT:   PseudoBR %bb.2
   ; TAG-CLEAR-NEXT: {{  $}}
   ; TAG-CLEAR-NEXT: bb.1.for.cond.cleanup:
@@ -190,12 +190,12 @@ body:             |
   ; TAG-CLEAR-NEXT:   PseudoBR %bb.1
   bb.0.entry:
     successors: %bb.2(0x80000000)
-    liveins: $x10, $c11, $c12
+    liveins: $x10, $x11_y, $x12_y
 
     %0:gpr = COPY $x10
-    %1:gpcr = COPY $c11
-    %2:gpcr = COPY $c12
-    %3:gpcrc0isddc = COPY $c12
+    %1:gpcr = COPY $x11_y
+    %2:gpcr = COPY $x12_y
+    %3:gpcrc0isddc = COPY $x12_y
     %4:gpcr = CIncOffsetImm %1, 4
     %5:gpcrc0isddc = COPY %4
     %6:gpcr = CAndPerm %1, %0
@@ -215,8 +215,6 @@ body:             |
 
   bb.3.if.then:
     successors: %bb.4(0x80000000)
-    ; Note: Please keep these in order of the ISA spec definitions
-    ; All of the getters can be hoisted:
     %10:gpr = CGetPerm %2
     %11:gpr = CGetType %2
     %12:gpr = CGetBase %2
@@ -248,18 +246,14 @@ body:             |
     ; Pointer-arithmetic instructions
     %63:gpcr = CMove %1 ; never traps
 
-    ; Assertion Instructions
     %70:gpr = CTestSubset %3, %2 ; never traps
-    ; Note: loads not tested here (yet)
 
     ; Special Capabilty Register Access Instructions
     %80:gpcr = CSpecialRW 0, %1
 
-    ; Fast Register-Clearing Instructions
     CClear 1, 1
     FPClear 1, 1
 
-    ; Adjusting to Compressed Capability Precision
     %90:gpr = CRRL %0
     %91:gpr = CRAM %0
 
@@ -303,22 +297,22 @@ body:             |
     %246:gpcr = CSetHigh %4, %0
 
     ; Now try using the mutators on constant NULL:
-    %330:gpcr = CSeal $c0, %2
-    %331:gpcr = CUnseal $c0, %2
-    %332:gpcr = CAndPerm $c0, %0
-    %333:gpcr = CSetFlags $c0, %0
-    %334:gpcr = CSetOffset $c0, %0
-    %335:gpcr = CSetAddr $c0, %0
-    %336:gpcr = CIncOffset $c0, %0
-    %337:gpcr = CIncOffsetImm $c0, 10
-    %338:gpcr = CSetBounds $c0, %0
-    %339:gpcr = CSetBoundsExact $c0, %0
-    %340:gpcr = CSetBoundsImm $c0, 10
-    %341:gpcr = CClearTag $c0
-    %344:gpcr = CCopyType $c0, %2
-    %345:gpcr = CCSeal $c0, %2
-    %346:gpcr = CSealEntry $c0
-    %347:gpcr = CSetHigh $c0, %0
+    %330:gpcr = CSeal $x0_y, %2
+    %331:gpcr = CUnseal $x0_y, %2
+    %332:gpcr = CAndPerm $x0_y, %0
+    %333:gpcr = CSetFlags $x0_y, %0
+    %334:gpcr = CSetOffset $x0_y, %0
+    %335:gpcr = CSetAddr $x0_y, %0
+    %336:gpcr = CIncOffset $x0_y, %0
+    %337:gpcr = CIncOffsetImm $x0_y, 10
+    %338:gpcr = CSetBounds $x0_y, %0
+    %339:gpcr = CSetBoundsExact $x0_y, %0
+    %340:gpcr = CSetBoundsImm $x0_y, 10
+    %341:gpcr = CClearTag $x0_y
+    %344:gpcr = CCopyType $x0_y, %2
+    %345:gpcr = CCSeal $x0_y, %2
+    %346:gpcr = CSealEntry $x0_y
+    %347:gpcr = CSetHigh $x0_y, %0
 
   bb.4.for.inc:
     successors: %bb.2(0x7c000000), %bb.1(0x04000000)
