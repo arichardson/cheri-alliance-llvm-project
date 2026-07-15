@@ -563,9 +563,9 @@ def CInvoke : RVInstCheriTwoSrc<0x7e, 0x1, 0, OPC_CHERI, (outs),
                                 (ins V9CR:$rs1, V9CR:$rs2),
                                 "cinvoke", "$rs1, $rs2">;
 
-def : InstAlias<"jalr.cap $cs1", (JALR_CAP C1, V9CR:$cs1), 1>;
-def : InstAlias<"jr.cap $cs1",   (JALR_CAP C0, V9CR:$cs1), 1>;
-def : InstAlias<"ret.cap",       (JALR_CAP C0,        C1), 2>;
+def : InstAlias<"jalr.cap $cs1", (JALR_CAP X1_Y, V9CR:$cs1), 1>;
+def : InstAlias<"jr.cap $cs1",   (JALR_CAP X0_Y, V9CR:$cs1), 1>;
+def : InstAlias<"ret.cap",       (JALR_CAP X0_Y,        X1_Y), 2>;
 
 def : InstAlias<"jalr.pcc $cs1", (JALR_PCC X1, GPR:$cs1), 1>;
 def : InstAlias<"jr.pcc $cs1",   (JALR_PCC X0, GPR:$cs1), 1>;
@@ -600,9 +600,9 @@ def CSpecialRW : RVInstCheriSCR<0x1, 0, OPC_CHERI, (outs V9CR:$rd),
                                 "cspecialrw", "$rd, $imm5, $rs1">;
 
 def : InstAlias<"cspecialr $cd, $scr",
-                (CSpecialRW V9CR:$cd, special_capreg:$scr,           C0)>;
+                (CSpecialRW V9CR:$cd, special_capreg:$scr,           X0_Y)>;
 def : InstAlias<"cspecialw $scr, $cs",
-                (CSpecialRW       C0, special_capreg:$scr, V9CRNoC0:$cs)>;
+                (CSpecialRW       X0_Y, special_capreg:$scr, V9CRNoC0:$cs)>;
 }
 
 //===----------------------------------------------------------------------===//
@@ -923,10 +923,10 @@ multiclass CoercingStoreAlias<string opcodestr, Instruction inst, RegisterClass 
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode] in {
 // "cj" is the non-canonical form, but we provide this for completeness.
-def : InstAlias<"j $offset",    (CJAL C0, simm21_lsb0_jal:$offset), 1>;
-def : InstAlias<"cj $offset",   (CJAL C0, simm21_lsb0_jal:$offset), 0>;
-def : InstAlias<"jal $offset",  (CJAL C1, simm21_lsb0_jal:$offset), 1>;
-def : InstAlias<"cjal $offset", (CJAL C1, simm21_lsb0_jal:$offset), 0>;
+def : InstAlias<"j $offset",    (CJAL X0_Y, simm21_lsb0_jal:$offset), 1>;
+def : InstAlias<"cj $offset",   (CJAL X0_Y, simm21_lsb0_jal:$offset), 0>;
+def : InstAlias<"jal $offset",  (CJAL X1_Y, simm21_lsb0_jal:$offset), 1>;
+def : InstAlias<"cjal $offset", (CJAL X1_Y, simm21_lsb0_jal:$offset), 0>;
 def : InstAlias<"jal $rd, $offset",
                 (CJAL RVYCompatGPCR:$rd, simm21_lsb0_jal:$offset), 0>;
 def : InstAlias<"cjal $rd, $offset",
@@ -938,24 +938,24 @@ def : InstAlias<"cjalr $rd, ${offset}(${rs1})",
 
 // Non-zero offset aliases of "cjalr" are the lowest weight, followed by the
 // two-register form, then the one-register forms and finally "cret".
-def : InstAlias<"jr $rs",                 (CJALR                C0,  RVYCompatGPCR:$rs, 0), 3>;
-def : InstAlias<"cjr $rs",                (CJALR                C0,           V9CR:$rs, 0), 0>;
-def : InstAlias<"jr ${offset}(${rs})",    (CJALR                C0,  RVYCompatGPCR:$rs, simm12:$offset), 1>;
-def : InstAlias<"cjr ${offset}(${rs})",   (CJALR                C0,           V9CR:$rs, simm12:$offset), 0>;
-def : InstAlias<"jalr $rs",               (CJALR                C1,  RVYCompatGPCR:$rs, 0), 3>;
-def : InstAlias<"cjalr $rs",              (CJALR                C1,           V9CR:$rs, 0), 0>;
-def : InstAlias<"jalr ${offset}(${rs})",  (CJALR                C1,  RVYCompatGPCR:$rs, simm12:$offset), 1>;
-def : InstAlias<"cjalr ${offset}(${rs})", (CJALR                C1,           V9CR:$rs, simm12:$offset), 0>;
+def : InstAlias<"jr $rs",                 (CJALR                X0_Y,  RVYCompatGPCR:$rs, 0), 3>;
+def : InstAlias<"cjr $rs",                (CJALR                X0_Y,           V9CR:$rs, 0), 0>;
+def : InstAlias<"jr ${offset}(${rs})",    (CJALR                X0_Y,  RVYCompatGPCR:$rs, simm12:$offset), 1>;
+def : InstAlias<"cjr ${offset}(${rs})",   (CJALR                X0_Y,           V9CR:$rs, simm12:$offset), 0>;
+def : InstAlias<"jalr $rs",               (CJALR                X1_Y,  RVYCompatGPCR:$rs, 0), 3>;
+def : InstAlias<"cjalr $rs",              (CJALR                X1_Y,           V9CR:$rs, 0), 0>;
+def : InstAlias<"jalr ${offset}(${rs})",  (CJALR                X1_Y,  RVYCompatGPCR:$rs, simm12:$offset), 1>;
+def : InstAlias<"cjalr ${offset}(${rs})", (CJALR                X1_Y,           V9CR:$rs, simm12:$offset), 0>;
 def : InstAlias<"jalr $rd, $rs",          (CJALR RVYCompatGPCR:$rd,  RVYCompatGPCR:$rs, 0), 2>;
 def : InstAlias<"cjalr $rd, $rs",         (CJALR          V9CR:$rd,           V9CR:$rs, 0), 0>;
-def : InstAlias<"ret",                    (CJALR                C0,                 C1, 0), 4>;
-def : InstAlias<"cret",                   (CJALR                C0,                 C1, 0), 0>;
+def : InstAlias<"ret",                    (CJALR                X0_Y,                 X1_Y, 0), 4>;
+def : InstAlias<"cret",                   (CJALR                X0_Y,                 X1_Y, 0), 0>;
 
 // Non-canonical forms for jump targets also accepted by the assembler.
-def : InstAlias<"jr $rs, $offset",         (CJALR                C0, RVYCompatGPCR:$rs, simm12:$offset), 0>;
-def : InstAlias<"cjr $rs, $offset",        (CJALR                C0,          V9CR:$rs, simm12:$offset), 0>;
-def : InstAlias<"jalr $rs, $offset",       (CJALR                C1, RVYCompatGPCR:$rs, simm12:$offset), 0>;
-def : InstAlias<"cjalr $rs, $offset",      (CJALR                C1,          V9CR:$rs, simm12:$offset), 0>;
+def : InstAlias<"jr $rs, $offset",         (CJALR                X0_Y, RVYCompatGPCR:$rs, simm12:$offset), 0>;
+def : InstAlias<"cjr $rs, $offset",        (CJALR                X0_Y,          V9CR:$rs, simm12:$offset), 0>;
+def : InstAlias<"jalr $rs, $offset",       (CJALR                X1_Y, RVYCompatGPCR:$rs, simm12:$offset), 0>;
+def : InstAlias<"cjalr $rs, $offset",      (CJALR                X1_Y,          V9CR:$rs, simm12:$offset), 0>;
 def : InstAlias<"jalr $rd, $rs, $offset",  (CJALR RVYCompatGPCR:$rd, RVYCompatGPCR:$rs, simm12:$offset), 0>;
 def : InstAlias<"cjalr $rd, $rs, $offset", (CJALR          V9CR:$rd,          V9CR:$rs, simm12:$offset), 0>;
 // Allow both `auipc c1`/`auipc x1` for RVY 0.9.3 and RVY 1.0 compatibility.
@@ -1213,7 +1213,7 @@ defm : CoercingStoreAlias<"fsd", CFSD, FPR64>;
 let DecoderNamespace = "CapModeOnly_" in {
 let Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode] in {
 
-let hasSideEffects = 0, mayLoad = 0, mayStore = 0, Uses = [C2] in
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0, Uses = [X2_Y] in
 def C_CIncOffsetImm4CSPN : RVInst16CIW<0b000, 0b00, (outs V9CRC:$rd),
                                        (ins V9CSP:$rs1, uimm10_lsb00nonzero:$imm),
                                        "c.cincoffset4cspn", "$rd, $rs1, $imm"> {
@@ -1301,7 +1301,7 @@ def C_CSD : CCheriStore_rri<0b111, "c.sd", GPRC, uimm8_lsb000> {
 }
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0, isCall = 1,
-    DecoderNamespace = "RISCV32CapModeOnly_", Defs = [C1],
+    DecoderNamespace = "RISCV32CapModeOnly_", Defs = [X1_Y],
     Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsRV32, IsCapMode]  in
 def C_CJAL : RVInst16CJ<0b001, 0b01, (outs), (ins simm12_lsb0:$offset),
                         "c.jal", "$offset">;
@@ -1361,7 +1361,7 @@ def C_CJR : RVInst16CR<0b1000, 0b10, (outs), (ins V9CRNoC0:$rs1),
 }
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0,
-    isCall = 1, Defs = [C1], rs2 = 0 in
+    isCall = 1, Defs = [X1_Y], rs2 = 0 in
 def C_CJALR : RVInst16CR<0b1001, 0b10, (outs), (ins V9CRNoC0:$rs1),
                          "c.jalr", "$rs1">;
 
@@ -1595,14 +1595,14 @@ def : Pat<(XLenVT (int_cheri_cap_diff V9CR:$cs1, V9CR:$cs2)),
                (XLenVT (EXTRACT_SUBREG V9CR:$cs2, sub_cap_addr)))>;
 
 let Predicates = [IsPureCapABI, NotHasZCheriPurecap] in {
-def : Pat<(inttoptr (XLenVT GPR:$rs2)), (CIncOffset C0, GPR:$rs2)>;
-def : Pat<(inttoptr simm12:$imm12), (CIncOffsetImm C0, simm12:$imm12)>;
+def : Pat<(inttoptr (XLenVT GPR:$rs2)), (CIncOffset X0_Y, GPR:$rs2)>;
+def : Pat<(inttoptr simm12:$imm12), (CIncOffsetImm X0_Y, simm12:$imm12)>;
 def : Pat<(XLenVT (ptrtoint V9CR:$rs1)), (PseudoCGetAddr V9CR:$rs1)>;
 }
 
 /// Null Capability Patterns
 
-def : Pat<(inttoptr (XLenVT 0)), (CLenVT (COPY C0))>;
+def : Pat<(inttoptr (XLenVT 0)), (CLenVT (COPY X0_Y))>;
 def : Pat<(ptrtoint (CLenVT (inttoptr (XLenVT 0)))),
           (XLenVT (COPY (XLenVT X0)))>;
 
@@ -1722,15 +1722,15 @@ def : PatGpcrGpcr<riscv_cap_equal_exact, CSEQX, XLenVT>;
 /// Special Capability Register Access Instructions
 
 let Predicates = [HasCheri] in
-def : Pat<(int_cheri_ddc_get), (CSpecialRW SCR_DDC.Encoding, C0)>;
+def : Pat<(int_cheri_ddc_get), (CSpecialRW SCR_DDC.Encoding, X0_Y)>;
 let Predicates = [HasZCheriPurecapOrCheri, IsPureCapABI] in
-def : Pat<(int_cheri_stack_cap_get), (CLenVT (COPY C2))>;
+def : Pat<(int_cheri_stack_cap_get), (CLenVT (COPY X2_Y))>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode] in
 def : Pat<(int_cheri_pcc_get), (AUIPCC 0)>;
 
 let Predicates = [HasCheri, NotCapMode] in
-def : Pat<(int_cheri_pcc_get), (CSpecialRW SCR_PCC.Encoding, C0)>;
+def : Pat<(int_cheri_pcc_get), (CSpecialRW SCR_PCC.Encoding, X0_Y)>;
 
 /// Fast Register-Clearing Instructions
 
@@ -2115,12 +2115,12 @@ def PseudoCheriCmpXchg64 : PseudoCheriCmpXchg { let Size = 16; }
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsPureCapABI] in {
 let isBarrier = 1, isBranch = 1, isTerminator = 1 in
 def PseudoCBR : Pseudo<(outs), (ins simm21_lsb0_jal:$imm20), [(br bb:$imm20)]>,
-                PseudoInstExpansion<(CJAL C0, simm21_lsb0_jal:$imm20)>;
+                PseudoInstExpansion<(CJAL X0_Y, simm21_lsb0_jal:$imm20)>;
 
-let isCall = 1, Defs = [C1] in
+let isCall = 1, Defs = [X1_Y] in
 let isBarrier = 1, isBranch = 1, isIndirectBranch = 1, isTerminator = 1 in
 def PseudoCBRIND : Pseudo<(outs), (ins V9CR:$rs1, simm12:$imm12), []>,
-                   PseudoInstExpansion<(CJALR C0, V9CR:$rs1, simm12:$imm12)>;
+                   PseudoInstExpansion<(CJALR X0_Y, V9CR:$rs1, simm12:$imm12)>;
 
 def : Pat<(brind V9CR:$rs1), (PseudoCBRIND V9CR:$rs1, 0)>;
 def : Pat<(brind (cptradd V9CR:$rs1, simm12:$imm12)),
@@ -2140,7 +2140,7 @@ def : InstAlias<"ccall $rd, $func",
                   0>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode],
-    isCall = 1, Defs = [C1], isCodeGenOnly = 0, Size = 8 in
+    isCall = 1, Defs = [X1_Y], isCodeGenOnly = 0, Size = 8 in
 def PseudoCCALL : Pseudo<(outs), (ins cap_call_symbol:$func), []> {
   let AsmString = "call\t$func";
 }
@@ -2157,18 +2157,18 @@ def : Pat<(riscv_cap_call texternalsym:$func),
 } // Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsPureCapABI]
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsPureCapABI],
-    isCall = 1, Defs = [C1] in
+    isCall = 1, Defs = [X1_Y] in
 def PseudoCCALLIndirect : Pseudo<(outs), (ins V9CR:$rs1),
                                  [(riscv_cap_call V9CR:$rs1)]>,
-                          PseudoInstExpansion<(CJALR C1, V9CR:$rs1, 0)>;
+                          PseudoInstExpansion<(CJALR X1_Y, V9CR:$rs1, 0)>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsPureCapABI],
     isBarrier = 1, isReturn = 1, isTerminator = 1 in
 def PseudoCRET : Pseudo<(outs), (ins), [(riscv_ret_glue)]>,
-                 PseudoInstExpansion<(CJALR C0, C1, 0)>;
+                 PseudoInstExpansion<(CJALR X0_Y, X1_Y, 0)>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode],
-    isCall = 1, isTerminator = 1, isReturn = 1, isBarrier = 1, Uses = [C2],
+    isCall = 1, isTerminator = 1, isReturn = 1, isBarrier = 1, Uses = [X2_Y],
     isCodeGenOnly = 0, Size = 8 in
 def PseudoCTAIL : Pseudo<(outs), (ins cap_call_symbol:$dst), []> {
   let AsmString = "tail\t$dst";
@@ -2179,10 +2179,10 @@ def : InstAlias<"ctail $dst",
                   0>, Requires<[HasCheri]>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsPureCapABI],
-    isCall = 1, isTerminator = 1, isReturn = 1, isBarrier = 1, Uses = [C2] in
+    isCall = 1, isTerminator = 1, isReturn = 1, isBarrier = 1, Uses = [X2_Y] in
 def PseudoCTAILIndirect : Pseudo<(outs), (ins V9CRTC:$rs1),
                                  [(riscv_cap_tail V9CRTC:$rs1)]>,
-                          PseudoInstExpansion<(CJALR C0, V9CR:$rs1, 0)>;
+                          PseudoInstExpansion<(CJALR X0_Y, V9CR:$rs1, 0)>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsPureCapABI] in {
 def : Pat<(riscv_cap_tail tglobaladdr:$dst),
@@ -2230,12 +2230,12 @@ defm : CheriStPat<store, CSD, GPR>;
 
 // Pessimistically assume the stack pointer will be clobbered
 let Predicates = [HasZCheriPurecapOrCheri, IsPureCapABI] in {
-let Defs = [C2], Uses = [C2] in {
+let Defs = [X2_Y], Uses = [X2_Y] in {
 def ADJCALLSTACKDOWNCAP : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2),
                                  [(callseq_start timm:$amt1, timm:$amt2)]>;
 def ADJCALLSTACKUPCAP   : Pseudo<(outs), (ins i32imm:$amt1, i32imm:$amt2),
                                  [(callseq_end timm:$amt1, timm:$amt2)]>;
-} // Defs = [C2], Uses = [C2]
+} // Defs = [X2_Y], Uses = [X2_Y]
 } // Predicates = [HasZCheriPurecapOrCheri, IsPureCapABI]
 
 /// 'A' (Atomic Instructions) extension
@@ -2463,17 +2463,17 @@ def : CompressPat<(CSD GPRC:$rs2, RVYCompatGPCRCMem:$rs1, uimm8_lsb000:$imm),
 
 // Quadrant 1
 let Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsRV32, IsCapMode] in {
-def : CompressPat<(CJAL C1, simm12_lsb0:$offset),
+def : CompressPat<(CJAL X1_Y, simm12_lsb0:$offset),
                   (C_CJAL simm12_lsb0:$offset)>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsRV32, IsCapMode]
 
 let Predicates = [HasCheri, HasCheriRVC, HasStdExtC, IsCapMode] in {
-def : CompressPat<(CIncOffsetImm C2, C2, simm10_lsb0000nonzero:$imm),
-                  (C_CIncOffsetImm16CSP C2, simm10_lsb0000nonzero:$imm)>;
+def : CompressPat<(CIncOffsetImm X2_Y, X2_Y, simm10_lsb0000nonzero:$imm),
+                  (C_CIncOffsetImm16CSP X2_Y, simm10_lsb0000nonzero:$imm)>;
 } // Predicates = [HasCheri, HasCheriRVC, HasStdExtC, IsCapMode]
 
 let Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode] in {
-def : CompressPat<(CJAL C0, simm12_lsb0:$offset),
+def : CompressPat<(CJAL X0_Y, simm12_lsb0:$offset),
                   (C_J simm12_lsb0:$offset)>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode]
 
@@ -2504,12 +2504,12 @@ def : CompressPat<(CLD GPRNoX0:$rd, RVYCompatCSPMem:$rs1, uimm9_lsb000:$imm),
 } // Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsRV64, IsCapMode]
 
 let Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode] in {
-def : CompressPat<(CJALR C0, V9CRNoC0:$rs1, 0),
+def : CompressPat<(CJALR X0_Y, V9CRNoC0:$rs1, 0),
                   (C_CJR V9CRNoC0:$rs1)>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode]
 
 let Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode] in {
-def : CompressPat<(CJALR C1, V9CRNoC0:$rs1, 0),
+def : CompressPat<(CJALR X1_Y, V9CRNoC0:$rs1, 0),
                   (C_CJALR V9CRNoC0:$rs1)>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasCheriRVC, HasStdExtC, IsCapMode]
 

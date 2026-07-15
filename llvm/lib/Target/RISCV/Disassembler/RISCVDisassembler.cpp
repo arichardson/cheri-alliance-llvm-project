@@ -94,7 +94,7 @@ static DecodeStatus DecodeGPCRRegisterClass(MCInst &Inst, uint64_t RegNo,
   if (RegNo >= 32 || (IsRV32E && RegNo >= 16))
     return MCDisassembler::Fail;
 
-  MCRegister Reg = RISCV::C0 + RegNo;
+  MCRegister Reg = RISCV::X0_Y + RegNo;
   Inst.addOperand(MCOperand::createReg(Reg));
   return MCDisassembler::Success;
 }
@@ -249,7 +249,7 @@ static DecodeStatus DecodeGPCRCRegisterClass(MCInst &Inst, uint64_t RegNo,
   if (RegNo >= 8)
     return MCDisassembler::Fail;
 
-  MCRegister Reg = RISCV::C8 + RegNo;
+  MCRegister Reg = RISCV::X8_Y + RegNo;
   Inst.addOperand(MCOperand::createReg(Reg));
   return MCDisassembler::Success;
 }
@@ -652,7 +652,7 @@ void RISCVDisassembler::addSPOperands(MCInst &MI) const {
     if (MCID.operands()[i].RegClass == RISCV::SPRegClassID)
       MI.insert(MI.begin() + i, MCOperand::createReg(RISCV::X2));
     if (MCID.operands()[i].RegClass == RISCV::CSPRegClassID)
-      MI.insert(MI.begin() + i, MCOperand::createReg(RISCV::C2));
+      MI.insert(MI.begin() + i, MCOperand::createReg(RISCV::X2_Y));
   }
 }
 

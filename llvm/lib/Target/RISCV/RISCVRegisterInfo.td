@@ -226,45 +226,45 @@ let RegAltNameIndices = [ABIRegAltName] in {
 
   // TODO: Review costs
   let isConstant = true in
-  def C0  : RISCVCapReg<X0, "c0", ["cnull"]>, DwarfRegAlias<X0>;
+  def X0_Y  : RISCVCapReg<X0, "c0", ["cnull"]>, DwarfRegAlias<X0>;
   let CostPerUse = [0, 1] in {
-  def C1  : RISCVCapReg<X1, "c1", ["cra"]>, DwarfRegAlias<X1>;
-  def C2  : RISCVCapReg<X2, "c2", ["csp"]>, DwarfRegAlias<X2>;
-  def C3  : RISCVCapReg<X3, "c3", ["cgp"]>, DwarfRegAlias<X3>;
-  def C4  : RISCVCapReg<X4, "c4", ["ctp"]>, DwarfRegAlias<X4>;
-  def C5  : RISCVCapReg<X5, "c5", ["ct0"]>, DwarfRegAlias<X5>;
-  def C6  : RISCVCapReg<X6, "c6", ["ct1"]>, DwarfRegAlias<X6>;
-  def C7  : RISCVCapReg<X7, "c7", ["ct2"]>, DwarfRegAlias<X7>;
+  def X1_Y  : RISCVCapReg<X1, "c1", ["cra"]>, DwarfRegAlias<X1>;
+  def X2_Y  : RISCVCapReg<X2, "c2", ["csp"]>, DwarfRegAlias<X2>;
+  def X3_Y  : RISCVCapReg<X3, "c3", ["cgp"]>, DwarfRegAlias<X3>;
+  def X4_Y  : RISCVCapReg<X4, "c4", ["ctp"]>, DwarfRegAlias<X4>;
+  def X5_Y  : RISCVCapReg<X5, "c5", ["ct0"]>, DwarfRegAlias<X5>;
+  def X6_Y  : RISCVCapReg<X6, "c6", ["ct1"]>, DwarfRegAlias<X6>;
+  def X7_Y  : RISCVCapReg<X7, "c7", ["ct2"]>, DwarfRegAlias<X7>;
   }
-  def C8  : RISCVCapReg<X8, "c8", ["cs0", "cfp"]>, DwarfRegAlias<X8>;
-  def C9  : RISCVCapReg<X9, "c9", ["cs1"]>, DwarfRegAlias<X9>;
-  def C10 : RISCVCapReg<X10,"c10", ["ca0"]>, DwarfRegAlias<X10>;
-  def C11 : RISCVCapReg<X11,"c11", ["ca1"]>, DwarfRegAlias<X11>;
-  def C12 : RISCVCapReg<X12,"c12", ["ca2"]>, DwarfRegAlias<X12>;
-  def C13 : RISCVCapReg<X13,"c13", ["ca3"]>, DwarfRegAlias<X13>;
-  def C14 : RISCVCapReg<X14,"c14", ["ca4"]>, DwarfRegAlias<X14>;
-  def C15 : RISCVCapReg<X15,"c15", ["ca5"]>, DwarfRegAlias<X15>;
+  def X8_Y  : RISCVCapReg<X8, "c8", ["cs0", "cfp"]>, DwarfRegAlias<X8>;
+  def X9_Y  : RISCVCapReg<X9, "c9", ["cs1"]>, DwarfRegAlias<X9>;
+  def X10_Y : RISCVCapReg<X10,"c10", ["ca0"]>, DwarfRegAlias<X10>;
+  def X11_Y : RISCVCapReg<X11,"c11", ["ca1"]>, DwarfRegAlias<X11>;
+  def X12_Y : RISCVCapReg<X12,"c12", ["ca2"]>, DwarfRegAlias<X12>;
+  def X13_Y : RISCVCapReg<X13,"c13", ["ca3"]>, DwarfRegAlias<X13>;
+  def X14_Y : RISCVCapReg<X14,"c14", ["ca4"]>, DwarfRegAlias<X14>;
+  def X15_Y : RISCVCapReg<X15,"c15", ["ca5"]>, DwarfRegAlias<X15>;
   let CostPerUse = [0, 1] in {
-  def C16 : RISCVCapReg<X16,"c16", ["ca6"]>, DwarfRegAlias<X16>;
-  def C17 : RISCVCapReg<X17,"c17", ["ca7"]>, DwarfRegAlias<X17>;
-  def C18 : RISCVCapReg<X18,"c18", ["cs2"]>, DwarfRegAlias<X18>;
-  def C19 : RISCVCapReg<X19,"c19", ["cs3"]>, DwarfRegAlias<X19>;
-  def C20 : RISCVCapReg<X20,"c20", ["cs4"]>, DwarfRegAlias<X20>;
-  def C21 : RISCVCapReg<X21,"c21", ["cs5"]>, DwarfRegAlias<X21>;
-  def C22 : RISCVCapReg<X22,"c22", ["cs6"]>, DwarfRegAlias<X22>;
-  def C23 : RISCVCapReg<X23,"c23", ["cs7"]>, DwarfRegAlias<X23>;
-  def C24 : RISCVCapReg<X24,"c24", ["cs8"]>, DwarfRegAlias<X24>;
-  def C25 : RISCVCapReg<X25,"c25", ["cs9"]>, DwarfRegAlias<X25>;
-  def C26 : RISCVCapReg<X26,"c26", ["cs10"]>, DwarfRegAlias<X26>;
-  def C27 : RISCVCapReg<X27,"c27", ["cs11"]>, DwarfRegAlias<X27>;
-  def C28 : RISCVCapReg<X28,"c28", ["ct3"]>, DwarfRegAlias<X28>;
-  def C29 : RISCVCapReg<X29,"c29", ["ct4"]>, DwarfRegAlias<X29>;
-  def C30 : RISCVCapReg<X30,"c30", ["ct5"]>, DwarfRegAlias<X30>;
-  def C31 : RISCVCapReg<X31,"c31", ["ct6"]>, DwarfRegAlias<X31>;
+  def X16_Y : RISCVCapReg<X16,"c16", ["ca6"]>, DwarfRegAlias<X16>;
+  def X17_Y : RISCVCapReg<X17,"c17", ["ca7"]>, DwarfRegAlias<X17>;
+  def X18_Y : RISCVCapReg<X18,"c18", ["cs2"]>, DwarfRegAlias<X18>;
+  def X19_Y : RISCVCapReg<X19,"c19", ["cs3"]>, DwarfRegAlias<X19>;
+  def X20_Y : RISCVCapReg<X20,"c20", ["cs4"]>, DwarfRegAlias<X20>;
+  def X21_Y : RISCVCapReg<X21,"c21", ["cs5"]>, DwarfRegAlias<X21>;
+  def X22_Y : RISCVCapReg<X22,"c22", ["cs6"]>, DwarfRegAlias<X22>;
+  def X23_Y : RISCVCapReg<X23,"c23", ["cs7"]>, DwarfRegAlias<X23>;
+  def X24_Y : RISCVCapReg<X24,"c24", ["cs8"]>, DwarfRegAlias<X24>;
+  def X25_Y : RISCVCapReg<X25,"c25", ["cs9"]>, DwarfRegAlias<X25>;
+  def X26_Y : RISCVCapReg<X26,"c26", ["cs10"]>, DwarfRegAlias<X26>;
+  def X27_Y : RISCVCapReg<X27,"c27", ["cs11"]>, DwarfRegAlias<X27>;
+  def X28_Y : RISCVCapReg<X28,"c28", ["ct3"]>, DwarfRegAlias<X28>;
+  def X29_Y : RISCVCapReg<X29,"c29", ["ct4"]>, DwarfRegAlias<X29>;
+  def X30_Y : RISCVCapReg<X30,"c30", ["ct5"]>, DwarfRegAlias<X30>;
+  def X31_Y : RISCVCapReg<X31,"c31", ["ct6"]>, DwarfRegAlias<X31>;
   }
 
-  // This is the encoding of DDC when C0 means DDC, and not the encoding of DDC
-  // as a special capability register.
+  // This is the encoding of DDC when X0_Y means DDC, and not the encoding of
+  // DDC as a special capability register.
   def DDC : RISCVCapRegPseudo<0, "ddc", ["ddc"]>;
 }
 
@@ -314,23 +314,23 @@ def GPR : GPRRegisterClass<(add (sequence "X%u", 10, 17),
                                 (sequence "X%u", 0, 4))>;
 
 def GPCR : RegisterClass<"RISCV", [CLenVT], 64, (add
-    (sequence "C%u", 10, 17),
-    (sequence "C%u", 5, 7),
-    (sequence "C%u", 28, 31),
-    (sequence "C%u", 8, 9),
-    (sequence "C%u", 18, 27),
-    (sequence "C%u", 0, 4)
+    (sequence "X%u_Y", 10, 17),
+    (sequence "X%u_Y", 5, 7),
+    (sequence "X%u_Y", 28, 31),
+    (sequence "X%u_Y", 8, 9),
+    (sequence "X%u_Y", 18, 27),
+    (sequence "X%u_Y", 0, 4)
   )> {
   let RegInfos = CLenRI;
 }
 
 def GPCRC0IsDDC : RegisterClass<"RISCV", [CLenVT], 64, (add
-    (sequence "C%u", 10, 17),
-    (sequence "C%u", 5, 7),
-    (sequence "C%u", 28, 31),
-    (sequence "C%u", 8, 9),
-    (sequence "C%u", 18, 27),
-    (sequence "C%u", 1, 4),
+    (sequence "X%u_Y", 10, 17),
+    (sequence "X%u_Y", 5, 7),
+    (sequence "X%u_Y", 28, 31),
+    (sequence "X%u_Y", 8, 9),
+    (sequence "X%u_Y", 18, 27),
+    (sequence "X%u_Y", 1, 4),
     DDC
   )> {
   let RegInfos = CLenRI;
@@ -342,7 +342,7 @@ def GPRX5 : GPRRegisterClass<(add X5)>;
 
 def GPRNoX0 : GPRRegisterClass<(sub GPR, X0)>;
 
-def GPCRNoC0 : RegisterClass<"RISCV", [CLenVT], 64, (sub GPCR, C0)> {
+def GPCRNoC0 : RegisterClass<"RISCV", [CLenVT], 64, (sub GPCR, X0_Y)> {
   let RegInfos = CLenRI;
 }
 
@@ -433,8 +433,8 @@ def GPRC : GPRRegisterClass<(add (sequence "X%u", 10, 15),
                                  (sequence "X%u", 8, 9))>;
 
 def GPCRC : RegisterClass<"RISCV", [CLenVT], 64, (add
-    (sequence "C%u", 10, 15),
-    (sequence "C%u", 8, 9)
+    (sequence "X%u_Y", 10, 15),
+    (sequence "X%u_Y", 8, 9)
   )> {
   let RegInfos = CLenRI;
 }
@@ -449,9 +449,9 @@ def GPRTC : GPRRegisterClass<(add (sequence "X%u", 6, 7),
 def GPRTCNonX7 : GPRRegisterClass<(sub GPRTC, X7)>;
 
 def GPCRTC : RegisterClass<"RISCV", [CLenVT], 64, (add
-    (sequence "C%u", 5, 7),
-    (sequence "C%u", 10, 17),
-    (sequence "C%u", 28, 31)
+    (sequence "X%u_Y", 5, 7),
+    (sequence "X%u_Y", 10, 17),
+    (sequence "X%u_Y", 28, 31)
   )> {
   let RegInfos = CLenRI;
 }
@@ -503,7 +503,7 @@ def RVYCompatGPCRTC : RegisterOperand<GPCRTC> {
 
 def SP : GPRRegisterClass<(add X2)>;
 
-def CSP : RegisterClass<"RISCV", [CLenVT], 64, (add C2)> {
+def CSP : RegisterClass<"RISCV", [CLenVT], 64, (add X2_Y)> {
   let RegInfos = CLenRI;
 }
 

@@ -126,16 +126,16 @@ ABI getTargetABI(StringRef ABIName) {
 // callee saved register to save the value. RV32E only has X8 and X9 as callee
 // saved registers and X8 will be used as fp. So we choose X9 as bp.
 MCRegister getBPReg(ABI TargetABI) {
-  return isCheriPureCapABI(TargetABI) ? RISCV::C9 : RISCV::X9;
+  return isCheriPureCapABI(TargetABI) ? RISCV::X9_Y : RISCV::X9;
 }
 
 // Returns the register holding shadow call stack pointer.
 MCRegister getSCSPReg(ABI TargetABI) {
-  return isCheriPureCapABI(TargetABI) ? RISCV::C3 : RISCV::X3;
+  return isCheriPureCapABI(TargetABI) ? RISCV::X3_Y : RISCV::X3;
 }
 
 // Returns the register used for bounded mem/var args
-MCRegister getCheriBoundedArgReg() { return RISCV::C31; }
+MCRegister getCheriBoundedArgReg() { return RISCV::X31_Y; }
 
 } // namespace RISCVABI
 
