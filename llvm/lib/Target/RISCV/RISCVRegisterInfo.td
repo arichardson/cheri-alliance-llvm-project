@@ -226,41 +226,41 @@ let RegAltNameIndices = [ABIRegAltName] in {
 
   // TODO: Review costs
   let isConstant = true in
-  def C0  : RISCVCapReg<X0, "c0", ["cnull"]>, DwarfRegNum<[0]>;
+  def C0  : RISCVCapReg<X0, "c0", ["cnull"]>, DwarfRegAlias<X0>;
   let CostPerUse = [0, 1] in {
-  def C1  : RISCVCapReg<X1, "c1", ["cra"]>, DwarfRegNum<[1]>;
-  def C2  : RISCVCapReg<X2, "c2", ["csp"]>, DwarfRegNum<[2]>;
-  def C3  : RISCVCapReg<X3, "c3", ["cgp"]>, DwarfRegNum<[3]>;
-  def C4  : RISCVCapReg<X4, "c4", ["ctp"]>, DwarfRegNum<[4]>;
-  def C5  : RISCVCapReg<X5, "c5", ["ct0"]>, DwarfRegNum<[5]>;
-  def C6  : RISCVCapReg<X6, "c6", ["ct1"]>, DwarfRegNum<[6]>;
-  def C7  : RISCVCapReg<X7, "c7", ["ct2"]>, DwarfRegNum<[7]>;
+  def C1  : RISCVCapReg<X1, "c1", ["cra"]>, DwarfRegAlias<X1>;
+  def C2  : RISCVCapReg<X2, "c2", ["csp"]>, DwarfRegAlias<X2>;
+  def C3  : RISCVCapReg<X3, "c3", ["cgp"]>, DwarfRegAlias<X3>;
+  def C4  : RISCVCapReg<X4, "c4", ["ctp"]>, DwarfRegAlias<X4>;
+  def C5  : RISCVCapReg<X5, "c5", ["ct0"]>, DwarfRegAlias<X5>;
+  def C6  : RISCVCapReg<X6, "c6", ["ct1"]>, DwarfRegAlias<X6>;
+  def C7  : RISCVCapReg<X7, "c7", ["ct2"]>, DwarfRegAlias<X7>;
   }
-  def C8  : RISCVCapReg<X8, "c8", ["cs0", "cfp"]>, DwarfRegNum<[8]>;
-  def C9  : RISCVCapReg<X9, "c9", ["cs1"]>, DwarfRegNum<[9]>;
-  def C10 : RISCVCapReg<X10,"c10", ["ca0"]>, DwarfRegNum<[10]>;
-  def C11 : RISCVCapReg<X11,"c11", ["ca1"]>, DwarfRegNum<[11]>;
-  def C12 : RISCVCapReg<X12,"c12", ["ca2"]>, DwarfRegNum<[12]>;
-  def C13 : RISCVCapReg<X13,"c13", ["ca3"]>, DwarfRegNum<[13]>;
-  def C14 : RISCVCapReg<X14,"c14", ["ca4"]>, DwarfRegNum<[14]>;
-  def C15 : RISCVCapReg<X15,"c15", ["ca5"]>, DwarfRegNum<[15]>;
+  def C8  : RISCVCapReg<X8, "c8", ["cs0", "cfp"]>, DwarfRegAlias<X8>;
+  def C9  : RISCVCapReg<X9, "c9", ["cs1"]>, DwarfRegAlias<X9>;
+  def C10 : RISCVCapReg<X10,"c10", ["ca0"]>, DwarfRegAlias<X10>;
+  def C11 : RISCVCapReg<X11,"c11", ["ca1"]>, DwarfRegAlias<X11>;
+  def C12 : RISCVCapReg<X12,"c12", ["ca2"]>, DwarfRegAlias<X12>;
+  def C13 : RISCVCapReg<X13,"c13", ["ca3"]>, DwarfRegAlias<X13>;
+  def C14 : RISCVCapReg<X14,"c14", ["ca4"]>, DwarfRegAlias<X14>;
+  def C15 : RISCVCapReg<X15,"c15", ["ca5"]>, DwarfRegAlias<X15>;
   let CostPerUse = [0, 1] in {
-  def C16 : RISCVCapReg<X16,"c16", ["ca6"]>, DwarfRegNum<[16]>;
-  def C17 : RISCVCapReg<X17,"c17", ["ca7"]>, DwarfRegNum<[17]>;
-  def C18 : RISCVCapReg<X18,"c18", ["cs2"]>, DwarfRegNum<[18]>;
-  def C19 : RISCVCapReg<X19,"c19", ["cs3"]>, DwarfRegNum<[19]>;
-  def C20 : RISCVCapReg<X20,"c20", ["cs4"]>, DwarfRegNum<[20]>;
-  def C21 : RISCVCapReg<X21,"c21", ["cs5"]>, DwarfRegNum<[21]>;
-  def C22 : RISCVCapReg<X22,"c22", ["cs6"]>, DwarfRegNum<[22]>;
-  def C23 : RISCVCapReg<X23,"c23", ["cs7"]>, DwarfRegNum<[23]>;
-  def C24 : RISCVCapReg<X24,"c24", ["cs8"]>, DwarfRegNum<[24]>;
-  def C25 : RISCVCapReg<X25,"c25", ["cs9"]>, DwarfRegNum<[25]>;
-  def C26 : RISCVCapReg<X26,"c26", ["cs10"]>, DwarfRegNum<[26]>;
-  def C27 : RISCVCapReg<X27,"c27", ["cs11"]>, DwarfRegNum<[27]>;
-  def C28 : RISCVCapReg<X28,"c28", ["ct3"]>, DwarfRegNum<[28]>;
-  def C29 : RISCVCapReg<X29,"c29", ["ct4"]>, DwarfRegNum<[29]>;
-  def C30 : RISCVCapReg<X30,"c30", ["ct5"]>, DwarfRegNum<[30]>;
-  def C31 : RISCVCapReg<X31,"c31", ["ct6"]>, DwarfRegNum<[31]>;
+  def C16 : RISCVCapReg<X16,"c16", ["ca6"]>, DwarfRegAlias<X16>;
+  def C17 : RISCVCapReg<X17,"c17", ["ca7"]>, DwarfRegAlias<X17>;
+  def C18 : RISCVCapReg<X18,"c18", ["cs2"]>, DwarfRegAlias<X18>;
+  def C19 : RISCVCapReg<X19,"c19", ["cs3"]>, DwarfRegAlias<X19>;
+  def C20 : RISCVCapReg<X20,"c20", ["cs4"]>, DwarfRegAlias<X20>;
+  def C21 : RISCVCapReg<X21,"c21", ["cs5"]>, DwarfRegAlias<X21>;
+  def C22 : RISCVCapReg<X22,"c22", ["cs6"]>, DwarfRegAlias<X22>;
+  def C23 : RISCVCapReg<X23,"c23", ["cs7"]>, DwarfRegAlias<X23>;
+  def C24 : RISCVCapReg<X24,"c24", ["cs8"]>, DwarfRegAlias<X24>;
+  def C25 : RISCVCapReg<X25,"c25", ["cs9"]>, DwarfRegAlias<X25>;
+  def C26 : RISCVCapReg<X26,"c26", ["cs10"]>, DwarfRegAlias<X26>;
+  def C27 : RISCVCapReg<X27,"c27", ["cs11"]>, DwarfRegAlias<X27>;
+  def C28 : RISCVCapReg<X28,"c28", ["ct3"]>, DwarfRegAlias<X28>;
+  def C29 : RISCVCapReg<X29,"c29", ["ct4"]>, DwarfRegAlias<X29>;
+  def C30 : RISCVCapReg<X30,"c30", ["ct5"]>, DwarfRegAlias<X30>;
+  def C31 : RISCVCapReg<X31,"c31", ["ct6"]>, DwarfRegAlias<X31>;
   }
 
   // This is the encoding of DDC when C0 means DDC, and not the encoding of DDC
