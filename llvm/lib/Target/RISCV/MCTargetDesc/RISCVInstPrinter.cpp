@@ -228,6 +228,16 @@ void RISCVInstPrinter::printZeroOffsetMemOp(const MCInst *MI, unsigned OpNo,
   O << ")";
 }
 
+/// Like printZeroOffsetMemOp, but for the V9CR-family zero-offset memory
+/// operands (canonical "c"-prefixed mnemonics like lr.c/sc.c)
+void RISCVInstPrinter::printV9CRZeroOffsetMemOp(const MCInst *MI, unsigned OpNo,
+                                                const MCSubtargetInfo &STI,
+                                                raw_ostream &O) {
+  O << "(";
+  printV9CR(MI, OpNo, STI, O);
+  O << ")";
+}
+
 void RISCVInstPrinter::printVTypeI(const MCInst *MI, unsigned OpNo,
                                    const MCSubtargetInfo &STI, raw_ostream &O) {
   unsigned Imm = MI->getOperand(OpNo).getImm();

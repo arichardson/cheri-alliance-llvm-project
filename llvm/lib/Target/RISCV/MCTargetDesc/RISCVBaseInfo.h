@@ -461,6 +461,9 @@ namespace RISCVV9CRName {
 /// ("c2"/"cgp", etc.). Needed to support upstream YGPR where we no longer
 /// include "c2" as the register names (and instead use "x" names)
 MCRegister lookup(StringRef Name);
+
+/// Returns the "c"-prefixed name for a register (numeric or ABI)
+const char *get(MCRegister Reg, bool ABI);
 } // namespace RISCVV9CRName
 
 namespace RISCVSysReg {

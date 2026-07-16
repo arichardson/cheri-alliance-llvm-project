@@ -64,7 +64,7 @@ def CheriZeroOffsetMemOpOperand : AsmOperandClass {
 
 def V9CRMemZeroOffset : MemOperand<GPCR> {
   let ParserMatchClass = CheriZeroOffsetMemOpOperand;
-  let PrintMethod = "printZeroOffsetMemOp";
+  let PrintMethod = "printV9CRZeroOffsetMemOp";
 }
 
 def YGPRZeroOffsetMemOpOperand : AsmOperandClass {
@@ -90,28 +90,38 @@ def RVYCompatZeroOffsetMemOpOperand : AsmOperandClass {
 
 def RVYCompatMemZeroOffset : MemOperand<GPCR> {
   let ParserMatchClass = RVYCompatZeroOffsetMemOpOperand;
-  let PrintMethod = "printZeroOffsetMemOp";
+  let PrintMethod = "printV9CRZeroOffsetMemOp";
 }
 
+// These mirror the V9CR-family RegisterOperands in RISCVRegisterInfo.td: the
+// base register of a capability memory operand needs the same "c"-prefixed
+// printing as a bare V9CR operand (see printV9CR / V9CRRegisterOperand for
+// why this can't just be the register's default name).
 def GPCRMem : MemOperand<GPCR> {
   let ParserMatchClass = V9CROperand;
+  let PrintMethod = "printV9CR";
 }
 def RVYCompatGPCRMem : MemOperand<GPCR> {
   let ParserMatchClass = RVYCompatGPCROperand;
+  let PrintMethod = "printV9CR";
 }
 
 def CSPMem : MemOperand<CSP> {
   let ParserMatchClass = V9CSPOperand;
+  let PrintMethod = "printV9CR";
 }
 def RVYCompatCSPMem : MemOperand<CSP> {
   let ParserMatchClass = RVYCompatCSPOperand;
+  let PrintMethod = "printV9CR";
 }
 
 def GPCRCMem : MemOperand<GPCRC> {
   let ParserMatchClass = V9CRCOperand;
+  let PrintMethod = "printV9CR";
 }
 def RVYCompatGPCRCMem : MemOperand<GPCRC> {
   let ParserMatchClass = RVYCompatGPCRCOperand;
+  let PrintMethod = "printV9CR";
 }
 
 // A 9-bit unsigned immediate where the least significant four bits are zero.
