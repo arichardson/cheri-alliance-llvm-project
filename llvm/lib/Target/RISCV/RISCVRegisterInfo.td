@@ -353,14 +353,24 @@ def GPCRNoC0 : RegisterClass<"RISCV", [CLenVT], 64, (sub GPCR, X0_Y)> {
 //
 // TODO: Set DiagnosticType on all these operands. Omitted from this commit to
 // keep the diff as small as possible.
+
+// Base class for the V9CR-family operands below: these always print their
+// "c"-prefixed name (this fork's existing xcheri/zcheripurecap syntax),
+// independent of the underlying register's AsmName/AltNames -- unlike YGPR
+// (real RVY 1.0 syntax), which prints "x"-prefixed via the default
+// PrintMethod. See RISCVInstPrinter::printV9CR for why this can't just be
+// the register's default name.
+class V9CRRegisterOperand<RegisterClass RC> : RegisterOperand<RC, "printV9CR">;
+
 def V9CROperand : AsmOperandClass {
   let Name = "V9CR";
   let ParserMethod = "parseV9CR";
   let PredicateMethod = "isV9CR";
   let RenderMethod = "addRegOperands";
 }
-def V9CR : RegisterOperand<GPCR> {
+def V9CR : V9CRRegisterOperand<GPCR> {
   let ParserMatchClass = V9CROperand;
+  let DecoderMethod = "DecodeGPCRRegisterClass";
 }
 
 def V9CRNoC0Operand : AsmOperandClass {
@@ -368,8 +378,9 @@ def V9CRNoC0Operand : AsmOperandClass {
   let ParserMethod = "parseV9CR";
   let RenderMethod = "addRegOperands";
 }
-def V9CRNoC0 : RegisterOperand<GPCRNoC0> {
+def V9CRNoC0 : V9CRRegisterOperand<GPCRNoC0> {
   let ParserMatchClass = V9CRNoC0Operand;
+  let DecoderMethod = "DecodeGPCRNoC0RegisterClass";
 }
 
 def V9CRC0IsDDCOperand : AsmOperandClass {
@@ -377,8 +388,9 @@ def V9CRC0IsDDCOperand : AsmOperandClass {
   let ParserMethod = "parseV9CRC0IsDDC";
   let RenderMethod = "addRegOperands";
 }
-def V9CRC0IsDDC : RegisterOperand<GPCRC0IsDDC> {
+def V9CRC0IsDDC : V9CRRegisterOperand<GPCRC0IsDDC> {
   let ParserMatchClass = V9CRC0IsDDCOperand;
+  let DecoderMethod = "DecodeGPCRC0IsDDCRegisterClass";
 }
 
 def YGPROperand : AsmOperandClass {
@@ -405,7 +417,7 @@ def RVYCompatGPCROperand : AsmOperandClass {
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
-def RVYCompatGPCR : RegisterOperand<GPCR> {
+def RVYCompatGPCR : V9CRRegisterOperand<GPCR> {
   let ParserMatchClass = RVYCompatGPCROperand;
 }
 
@@ -415,7 +427,7 @@ def RVYCompatGPCRNoC0Operand : AsmOperandClass {
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCRNoC0";
 }
-def RVYCompatGPCRNoC0 : RegisterOperand<GPCRNoC0> {
+def RVYCompatGPCRNoC0 : V9CRRegisterOperand<GPCRNoC0> {
   let ParserMatchClass = RVYCompatGPCRNoC0Operand;
 }
 
@@ -463,8 +475,9 @@ def V9CRCOperand : AsmOperandClass {
   let ParserMethod = "parseV9CR";
   let RenderMethod = "addRegOperands";
 }
-def V9CRC : RegisterOperand<GPCRC> {
+def V9CRC : V9CRRegisterOperand<GPCRC> {
   let ParserMatchClass = V9CRCOperand;
+  let DecoderMethod = "DecodeGPCRCRegisterClass";
 }
 
 def V9CRTCOperand : AsmOperandClass {
@@ -472,8 +485,9 @@ def V9CRTCOperand : AsmOperandClass {
   let ParserMethod = "parseV9CR";
   let RenderMethod = "addRegOperands";
 }
-def V9CRTC : RegisterOperand<GPCRTC> {
+def V9CRTC : V9CRRegisterOperand<GPCRTC> {
   let ParserMatchClass = V9CRTCOperand;
+  let DecoderMethod = "DecodeGPCRTCRegisterClass";
 }
 
 def YGPRCOperand : AsmOperandClass {
@@ -491,7 +505,7 @@ def RVYCompatGPCRCOperand : AsmOperandClass {
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
-def RVYCompatGPCRC : RegisterOperand<GPCRC> {
+def RVYCompatGPCRC : V9CRRegisterOperand<GPCRC> {
   let ParserMatchClass = RVYCompatGPCRCOperand;
 }
 
@@ -501,7 +515,7 @@ def RVYCompatGPCRTCOperand : AsmOperandClass {
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
-def RVYCompatGPCRTC : RegisterOperand<GPCRTC> {
+def RVYCompatGPCRTC : V9CRRegisterOperand<GPCRTC> {
   let ParserMatchClass = RVYCompatGPCRTCOperand;
 }
 
@@ -516,7 +530,7 @@ def V9CSPOperand : AsmOperandClass {
   let ParserMethod = "parseV9CR";
   let RenderMethod = "addRegOperands";
 }
-def V9CSP : RegisterOperand<CSP> {
+def V9CSP : V9CRRegisterOperand<CSP> {
   let ParserMatchClass = V9CSPOperand;
 }
 
@@ -535,7 +549,7 @@ def RVYCompatCSPOperand : AsmOperandClass {
   let RenderMethod = "addRegOperands";
   let DiagnosticType = "InvalidRVYCompatCSP";
 }
-def RVYCompatCSP : RegisterOperand<CSP> {
+def RVYCompatCSP : V9CRRegisterOperand<CSP> {
   let ParserMatchClass = RVYCompatCSPOperand;
 }
 
