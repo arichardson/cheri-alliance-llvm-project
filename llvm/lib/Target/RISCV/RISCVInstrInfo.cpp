@@ -502,11 +502,11 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
                 getKillRegState(KillSrc) | getRenamableRegState(RenamableSrc))
         .addImm(0);
     return;
-  } else if (RISCV::GPCRRegClass.contains(DstReg)) {
+  } else if (RISCV::YGPRRegClass.contains(DstReg)) {
     // GPCR -> GPCR can use CMove
     const bool HasZCheriPureCap =
         Subtarget.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
-    if (RISCV::GPCRRegClass.contains(SrcReg)) {
+    if (RISCV::YGPRRegClass.contains(SrcReg)) {
       BuildMI(MBB, MBBI, DL, get(HasZCheriPureCap ? RISCV::CMV : RISCV::CMove),
               DstReg)
           .addReg(SrcReg, getKillRegState(KillSrc))
@@ -655,7 +655,7 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
       Opcode = TRI->getRegSizeInBits(RISCV::GPRRegClass) == 32 ? RISCV::CSW
                                                                : RISCV::CSD;
       IsScalableVector = false;
-    } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
+    } else if (RISCV::YGPRRegClass.hasSubClassEq(RC)) {
       Opcode = ST.hasStdExtZCheriPureCap()
                    ? RISCV::CSC
                    : (ST.isRV64() ? RISCV::CSC_128 : RISCV::CSC_64);
@@ -674,7 +674,7 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
       Opcode = TRI->getRegSizeInBits(RISCV::GPRRegClass) == 32 ?
                RISCV::SW : RISCV::SD;
       IsScalableVector = false;
-    } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
+    } else if (RISCV::YGPRRegClass.hasSubClassEq(RC)) {
       Opcode = ST.hasStdExtZCheriPureCap()
                    ? RISCV::SC
                    : (ST.isRV64() ? RISCV::SC_128 : RISCV::SC_64);
@@ -776,7 +776,7 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
       Opcode = TRI->getRegSizeInBits(RISCV::GPRRegClass) == 32 ? RISCV::CLW
                                                                : RISCV::CLD;
       IsScalableVector = false;
-    } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
+    } else if (RISCV::YGPRRegClass.hasSubClassEq(RC)) {
       Opcode = ST.hasStdExtZCheriPureCap()
                    ? RISCV::CLC
                    : (ST.isRV64() ? RISCV::CLC_128 : RISCV::CLC_64);
@@ -795,7 +795,7 @@ void RISCVInstrInfo::loadRegFromStackSlot(MachineBasicBlock &MBB,
       Opcode = TRI->getRegSizeInBits(RISCV::GPRRegClass) == 32 ?
                RISCV::LW : RISCV::LD;
       IsScalableVector = false;
-    } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
+    } else if (RISCV::YGPRRegClass.hasSubClassEq(RC)) {
       Opcode = ST.hasStdExtZCheriPureCap()
                    ? RISCV::LC
                    : (ST.isRV64() ? RISCV::LC_128 : RISCV::LC_64);
@@ -1291,7 +1291,7 @@ void RISCVInstrInfo::insertIndirectBranch(MachineBasicBlock &MBB,
   const TargetRegisterClass *RC;
   unsigned PseudoOpcode;
   if (RISCVABI::isCheriPureCapABI(ST.getTargetABI())) {
-    RC = &RISCV::GPCRRegClass;
+    RC = &RISCV::YGPRRegClass;
     PseudoOpcode = RISCV::PseudoCJump;
   } else {
     RC = &RISCV::GPRJALRRegClass;

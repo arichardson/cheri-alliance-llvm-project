@@ -21,9 +21,9 @@ failedISel:      false
 tracksRegLiveness: true
 hasWinCFI:       false
 registers:
-  - { id: 0, class: gpcr, preferred-register: '' }
-  - { id: 1, class: gpcr, preferred-register: '' }
-  - { id: 2, class: gpcr, preferred-register: '' }
+  - { id: 0, class: ygpr, preferred-register: '' }
+  - { id: 1, class: ygpr, preferred-register: '' }
+  - { id: 2, class: ygpr, preferred-register: '' }
 liveins:         []
 frameInfo:
   isFrameAddressTaken: false
@@ -53,10 +53,10 @@ body:             |
   bb.0 (%ir-block.0):
     ; CHECK-LABEL: name: test_remat
     ; CHECK: ADJCALLSTACKDOWNCAP 0, 0, implicit-def dead $x2_y, implicit $x2_y
-    ; CHECK-NEXT: dead %5:gpcr = PseudoCLGC @external_fn
+    ; CHECK-NEXT: dead %5:ygpr = PseudoCLGC @external_fn
     ; CHECK-NEXT: $x23_y = COPY $x2_y
-    ; CHECK-NEXT: [[COPY:%[0-9]+]]:gpcr = COPY $x23_y
-    ; CHECK-NEXT: [[CIncOffsetImm:%[0-9]+]]:gpcr = CIncOffsetImm [[COPY]], 321
+    ; CHECK-NEXT: [[COPY:%[0-9]+]]:ygpr = COPY $x23_y
+    ; CHECK-NEXT: [[CIncOffsetImm:%[0-9]+]]:ygpr = CIncOffsetImm [[COPY]], 321
     ; CHECK-NEXT: $x10_y = CIncOffsetImm $x0_y, 123
     ; CHECK-NEXT: $x11_y = CMove $x0_y
     ; CHECK-NEXT: $x12_y = COPY [[CIncOffsetImm]]
@@ -76,13 +76,13 @@ body:             |
     ; CHECK-NEXT: ADJCALLSTACKUPCAP 0, 0, implicit-def dead $x2_y, implicit $x2_y
     ; CHECK-NEXT: PseudoCRET
     ADJCALLSTACKDOWNCAP 0, 0, implicit-def dead $x2_y, implicit $x2_y
-    %0:gpcr = COPY $x0_y
-    %1:gpcr = CIncOffsetImm %0, 123
-    %2:gpcr = PseudoCLGC @external_fn
-    %2:gpcr = CMove killed %0
+    %0:ygpr = COPY $x0_y
+    %1:ygpr = CIncOffsetImm %0, 123
+    %2:ygpr = PseudoCLGC @external_fn
+    %2:ygpr = CMove killed %0
     $x23_y = COPY $x2_y
-    %3:gpcr = COPY $x23_y
-    %4:gpcr = CIncOffsetImm %3, 321
+    %3:ygpr = COPY $x23_y
+    %4:ygpr = CIncOffsetImm %3, 321
     $x10_y = COPY %1
     $x11_y = COPY %2
     $x12_y = COPY %4

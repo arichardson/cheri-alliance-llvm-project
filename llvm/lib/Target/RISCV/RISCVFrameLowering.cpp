@@ -1677,7 +1677,7 @@ void RISCVFrameLowering::processFunctionBeforeFrameFinalized(
   MachineFrameInfo &MFI = MF.getFrameInfo();
   const TargetRegisterClass *RC;
   if (RISCVABI::isCheriPureCapABI(STI.getTargetABI()))
-    RC = &RISCV::GPCRRegClass;
+    RC = &RISCV::YGPRRegClass;
   else
     RC = &RISCV::GPRRegClass;
   auto *RVFI = MF.getInfo<RISCVMachineFunctionInfo>();

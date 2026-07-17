@@ -62,7 +62,7 @@ def CheriZeroOffsetMemOpOperand : AsmOperandClass {
   let ParserMethod = "parseZeroOffsetMemOp";
 }
 
-def V9CRMemZeroOffset : MemOperand<GPCR> {
+def V9CRMemZeroOffset : MemOperand<YGPR> {
   let ParserMatchClass = CheriZeroOffsetMemOpOperand;
   let PrintMethod = "printV9CRZeroOffsetMemOp";
 }
@@ -75,20 +75,20 @@ def YGPRZeroOffsetMemOpOperand : AsmOperandClass {
   let DiagnosticType = "InvalidYGPR";
 }
 
-def YGPRMemZeroOffset : MemOperand<GPCR> {
+def YGPRMemZeroOffset : MemOperand<YGPR> {
   let ParserMatchClass = YGPRZeroOffsetMemOpOperand;
-  let PrintMethod = "printZeroOffsetMemOp";
+  let PrintMethod = "printV9CRZeroOffsetMemOp";
 }
 
 def RVYCompatZeroOffsetMemOpOperand : AsmOperandClass {
   let Name = "RVYCompatZeroOffsetMemOpOperand";
   let RenderMethod = "addRegOperands";
-  let PredicateMethod = "isRVYCompatGPCR";
+  let PredicateMethod = "isRVYOrV9Reg";
   let ParserMethod = "parseZeroOffsetMemOp";
   let DiagnosticType = "InvalidRVYCompatGPCR";
 }
 
-def RVYCompatMemZeroOffset : MemOperand<GPCR> {
+def RVYCompatMemZeroOffset : MemOperand<YGPR> {
   let ParserMatchClass = RVYCompatZeroOffsetMemOpOperand;
   let PrintMethod = "printV9CRZeroOffsetMemOp";
 }
@@ -97,29 +97,29 @@ def RVYCompatMemZeroOffset : MemOperand<GPCR> {
 // base register of a capability memory operand needs the same "c"-prefixed
 // printing as a bare V9CR operand (see printV9CR / V9CRRegisterOperand for
 // why this can't just be the register's default name).
-def GPCRMem : MemOperand<GPCR> {
+def GPCRMem : MemOperand<YGPR> {
   let ParserMatchClass = V9CROperand;
   let PrintMethod = "printV9CR";
 }
-def RVYCompatGPCRMem : MemOperand<GPCR> {
+def RVYCompatGPCRMem : MemOperand<YGPR> {
   let ParserMatchClass = RVYCompatGPCROperand;
   let PrintMethod = "printV9CR";
 }
 
-def CSPMem : MemOperand<CSP> {
+def CSPMem : MemOperand<YSP> {
   let ParserMatchClass = V9CSPOperand;
   let PrintMethod = "printV9CR";
 }
-def RVYCompatCSPMem : MemOperand<CSP> {
+def RVYCompatCSPMem : MemOperand<YSP> {
   let ParserMatchClass = RVYCompatCSPOperand;
   let PrintMethod = "printV9CR";
 }
 
-def GPCRCMem : MemOperand<GPCRC> {
+def GPCRCMem : MemOperand<YGPRC> {
   let ParserMatchClass = V9CRCOperand;
   let PrintMethod = "printV9CR";
 }
-def RVYCompatGPCRCMem : MemOperand<GPCRC> {
+def RVYCompatGPCRCMem : MemOperand<YGPRC> {
   let ParserMatchClass = RVYCompatGPCRCOperand;
   let PrintMethod = "printV9CR";
 }

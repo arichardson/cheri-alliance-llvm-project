@@ -161,7 +161,7 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   if (Subtarget.hasStdExtZCheriPureCapOrCheri()) {
     CapType = Subtarget.typeForCapabilities();
     NullCapabilityRegister = RISCV::X0_Y;
-    addRegisterClass(CapType, &RISCV::GPCRRegClass);
+    addRegisterClass(CapType, &RISCV::YGPRRegClass);
     IsCheriPureCap = RISCVABI::isCheriPureCapABI(ABI);
   }
 
@@ -20846,7 +20846,8 @@ SDValue RISCVTargetLowering::LowerFormalArguments(
                             (HasMemArgs && UseBoundedMemArgsCallee));
   SDValue ArgRegArgs;
   if (UseCheriArgRegister){
-    Register VReg = MF.addLiveIn(RISCVABI::getCheriBoundedArgReg(), &RISCV::GPCRRegClass);
+    Register VReg =
+        MF.addLiveIn(RISCVABI::getCheriBoundedArgReg(), &RISCV::YGPRRegClass);
     ArgRegArgs = DAG.getCopyFromReg(Chain, DL, VReg, PtrVT);
   }
 
@@ -22020,7 +22021,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
       return std::make_pair(0U, &RISCV::GPRNoX0RegClass);
     case 'C':
       if (Subtarget.hasStdExtZCheriPureCapOrCheri() && VT == Subtarget.typeForCapabilities())
-        return std::make_pair(0U, &RISCV::GPCRRegClass);
+        return std::make_pair(0U, &RISCV::YGPRRegClass);
       break;
     case 'f':
       if (VT == MVT::f16) {
@@ -22153,7 +22154,7 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
     StringRef Name = Constraint;
     if (Name.consume_front("{") && Name.consume_back("}")) {
       if (MCRegister CReg = RISCVV9CRName::lookup(Name.lower()))
-        return std::make_pair(CReg, &RISCV::GPCRRegClass);
+        return std::make_pair(CReg, &RISCV::YGPRRegClass);
     }
   }
 

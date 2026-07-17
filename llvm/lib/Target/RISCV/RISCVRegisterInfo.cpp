@@ -572,7 +572,7 @@ bool RISCVRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
         MI.getOpcode() == RISCV::CADDI)
       DestReg = MI.getOperand(0).getReg();
     else if (RISCVABI::isCheriPureCapABI(MF.getSubtarget<RISCVSubtarget>().getTargetABI()))
-      DestReg = MRI.createVirtualRegister(&RISCV::GPCRRegClass);
+      DestReg = MRI.createVirtualRegister(&RISCV::YGPRRegClass);
     else
       DestReg = MRI.createVirtualRegister(&RISCV::GPRRegClass);
     adjustReg(*II->getParent(), II, DL, DestReg, FrameReg, Offset,
@@ -731,7 +731,7 @@ Register RISCVRegisterInfo::materializeFrameBaseRegister(MachineBasicBlock *MBB,
       ST.hasFeature(RISCV::FeatureStdExtZCheriPureCap);
   if (RISCVABI::isCheriPureCapABI(ST.getTargetABI())) {
     Opc = HasZCheriPurecap ? RISCV::CADDI : RISCV::CIncOffsetImm;
-    BaseReg = MFI.createVirtualRegister(&RISCV::GPCRRegClass);
+    BaseReg = MFI.createVirtualRegister(&RISCV::YGPRRegClass);
   } else {
     Opc = RISCV::ADDI;
     BaseReg = MFI.createVirtualRegister(&RISCV::GPRRegClass);
