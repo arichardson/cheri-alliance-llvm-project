@@ -396,7 +396,6 @@ struct RISCVOperand final : public MCParsedAsmOperand {
     MCRegister RegNum;
     bool IsGPRAsFPR;
     bool IsV9CRegName;
-    bool CoercedFromGPR;
   };
 
   struct ImmOp {
@@ -531,7 +530,7 @@ public:
            (RISCVMCRegisterClasses[RISCV::GPRRegClassID].contains(Reg.RegNum) ||
             RISCVMCRegisterClasses[RISCV::FPR64RegClassID].contains(Reg.RegNum) ||
             RISCVMCRegisterClasses[RISCV::VRRegClassID].contains(Reg.RegNum) ||
-            RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum));
+            RISCVMCRegisterClasses[RISCV::YGPRRegClassID].contains(Reg.RegNum));
   }
   bool isAnyRegC() const {
     return Kind == KindTy::Register &&
@@ -555,77 +554,51 @@ public:
            RISCVMCRegisterClasses[RISCV::GPRRegClassID].contains(Reg.RegNum);
   }
 
-  bool isV9CR() const {
-    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
-           RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
-  }
-
-  bool isV9CRNoC0() const {
-    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
-           RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID].contains(
-               Reg.RegNum);
-  }
-
-  bool isV9CRC0IsDDC() const {
-    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
-           RISCVMCRegisterClasses[RISCV::GPCRC0IsDDCRegClassID].contains(
-               Reg.RegNum);
-  }
-
-  bool isV9CRC() const {
-    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
-           RISCVMCRegisterClasses[RISCV::GPCRCRegClassID].contains(Reg.RegNum);
-  }
-
-  bool isV9CRTC() const {
-    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
-           RISCVMCRegisterClasses[RISCV::GPCRTCRegClassID].contains(
-               Reg.RegNum);
-  }
-
-  bool isV9CSP() const {
-    return Kind == KindTy::Register && /* TODO: Reg.IsV9CRegName && */
-           RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
-  }
-
-  bool isYGPR() const {
-    return Reg.CoercedFromGPR &&
-           RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
-  }
-
-  bool isYGPRNoX0() const { return isYGPR() && Reg.RegNum != RISCV::X0_Y; }
-
-  bool isYGPRC() const {
-    return Reg.CoercedFromGPR &&
-           RISCVMCRegisterClasses[RISCV::GPCRCRegClassID].contains(Reg.RegNum);
-  }
-
-  bool isYSP() const {
-    return Reg.CoercedFromGPR &&
-           RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
-  }
+  // Class membership alone can't distinguish an explicit "c"-prefixed spelling
+  // (e.g. "ca0") from one coerced from a plain GPR spelling (e.g. "a0"),
+  // since both resolve to the same physical register, so for the V9 versions
+  // we require Reg.IsV9CRegName (to avoid coersion from x registers) and
+  // mandate it for for RVY mnemonics to ensure we do not accept "c" registers.
 
   // For the isRVYCompat*() helpers we don't care if it was parsed as a "c"
   // register or coerced from and "x" register so we just check membership.
-  bool isRVYCompatGPCR() const {
-    return RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
+  bool isRVYOrV9Reg() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::YGPRRegClassID].contains(Reg.RegNum);
   }
-
-  bool isRVYCompatGPCRNoC0() const {
-    return RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID].contains(
-        Reg.RegNum);
+  bool isRVYOrV9RegNoX0() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::YGPRNoX0RegClassID].contains(
+               Reg.RegNum);
   }
-
-  bool isRVYCompatGPCRC() const {
-    return RISCVMCRegisterClasses[RISCV::GPCRCRegClassID].contains(Reg.RegNum);
+  bool isRVYOrV9RegC() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::YGPRCRegClassID].contains(Reg.RegNum);
   }
-
-  bool isRVYCompatGPCRTC() const {
-    return RISCVMCRegisterClasses[RISCV::GPCRTCRegClassID].contains(Reg.RegNum);
+  bool isRVYOrV9RegTC() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::YGPRTCRegClassID].contains(Reg.RegNum);
   }
+  bool isRVYOrV9SP() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::YSPRegClassID].contains(Reg.RegNum);
+  }
+  bool isYGPR() const { return isRVYOrV9Reg() && !Reg.IsV9CRegName; }
+  bool isYGPRNoX0() const { return isRVYOrV9RegNoX0() && !Reg.IsV9CRegName; }
+  bool isYGPRC() const { return isRVYOrV9RegC() && !Reg.IsV9CRegName; }
+  bool isYGPRTC() const { return isRVYOrV9RegTC() && !Reg.IsV9CRegName; }
+  bool isYSP() const { return isRVYOrV9SP() && !Reg.IsV9CRegName; }
 
-  bool isRVYCompatCSP() const {
-    return RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
+  bool isV9CR() const { return isRVYOrV9Reg() && Reg.IsV9CRegName; }
+  bool isV9CRNoC0() const { return isRVYOrV9RegNoX0() && Reg.IsV9CRegName; }
+  bool isV9CRC() const { return isRVYOrV9RegC() && Reg.IsV9CRegName; }
+  bool isV9CRTC() const { return isRVYOrV9RegTC() && Reg.IsV9CRegName; }
+  bool isV9CSP() const { return isRVYOrV9SP() && Reg.IsV9CRegName; }
+  bool isV9CRC0IsDDC() const {
+    // This class is only used for ISAv9 CBuildCap, so no shared helper
+    return Kind == KindTy::Register && Reg.IsV9CRegName &&
+           RISCVMCRegisterClasses[RISCV::ISAv9OnlyYGPRX0IsDDCRegClassID]
+               .contains(Reg.RegNum);
   }
 
   bool isGPRPair() const {
@@ -1382,13 +1355,15 @@ public:
     return Op;
   }
 
-  static std::unique_ptr<RISCVOperand>
-  createReg(MCRegister Reg, SMLoc S, SMLoc E, bool IsGPRAsFPR = false) {
+  static std::unique_ptr<RISCVOperand> createReg(MCRegister Reg, SMLoc S,
+                                                 SMLoc E,
+                                                 bool IsGPRAsFPR = false,
+                                                 bool IsV9CRegName = false) {
     auto Op = std::make_unique<RISCVOperand>(KindTy::Register);
     Op->Reg.RegNum = Reg.id();
     Op->Reg.IsGPRAsFPR = IsGPRAsFPR;
     Op->Reg.IsV9CRegName = false;
-    Op->Reg.CoercedFromGPR = false;
+    Op->Reg.IsV9CRegName = IsV9CRegName;
     Op->StartLoc = S;
     Op->EndLoc = E;
     return Op;
@@ -1682,44 +1657,46 @@ unsigned RISCVAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
     return Match_Success;
   }
   // In RVY mode, capability registers can be referenced using unprefixed GPR
-  // register names (e.g. a0 instead of ca0). We coerce GPRs to GPCRs when
-  // the InstAlias uses the YGPR* (only allowing X registers) or RVYCompat*
-  // operand types (allowing both C and X registers).
+  // register names (e.g. a0 instead of ca0). We coerce GPRs to their
+  // capability twin when the InstAlias uses a bare YGPR*-typed operand or an
+  // RVYCompat* operand type -- both accept an already-resolved capability
+  // register directly via normal class-membership matching; this coercion
+  // path only kicks in for operands that parsed as a plain GPR.
   const MCRegisterClass *RC = nullptr;
   bool CoerceInAllModes = false;
   switch (Kind) {
   case MCK_YGPR:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRRegClassID];
     CoerceInAllModes = true;
     break;
   case MCK_RVYCompatGPCR:
   case MCK_RVYCompatZeroOffsetMemOpOperand:
   case MCK_YGPRZeroOffsetMemOpOperand:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRRegClassID];
     break;
   case MCK_YGPRNoX0:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRNoX0RegClassID];
     CoerceInAllModes = true;
     break;
   case MCK_RVYCompatGPCRNoC0:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRNoX0RegClassID];
     break;
   case MCK_YGPRC:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRCRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRCRegClassID];
     CoerceInAllModes = true;
     break;
   case MCK_RVYCompatGPCRC:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRCRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRCRegClassID];
     break;
   case MCK_RVYCompatGPCRTC:
-    RC = &RISCVMCRegisterClasses[RISCV::GPCRTCRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YGPRTCRegClassID];
     break;
   case MCK_YSP:
-    RC = &RISCVMCRegisterClasses[RISCV::CSPRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YSPRegClassID];
     CoerceInAllModes = true;
     break;
   case MCK_RVYCompatCSP:
-    RC = &RISCVMCRegisterClasses[RISCV::CSPRegClassID];
+    RC = &RISCVMCRegisterClasses[RISCV::YSPRegClassID];
     break;
   }
   if (RC) {
@@ -1732,7 +1709,6 @@ unsigned RISCVAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
       if (!RC->contains(CapReg))
         return getDiagKindFromRegisterClass((MatchClassKind)Kind);
       Op.Reg.RegNum = CapReg;
-      Op.Reg.CoercedFromGPR = true;
       return Match_Success;
     }
   }
@@ -2059,7 +2035,6 @@ bool RISCVAsmParser::matchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
   }
   case Match_InvalidRVYCompatGPCR:
   case Match_InvalidYGPR:
-  case Match_InvalidYGPRC:
     return Error(Operands[ErrorInfo]->getStartLoc(), "operand must be a GPR");
   case Match_InvalidRVYCompatGPCRNoC0:
   case Match_InvalidYGPRNoX0:
@@ -2141,6 +2116,16 @@ ParseStatus RISCVAsmParser::parseRegister(OperandVector &Operands,
   case AsmToken::Identifier:
     StringRef Name = getLexer().getTok().getIdentifier();
     MCRegister Reg = matchRegisterNameHelper(Name);
+    // We also recognize ISAv9 capability register names here: this is the
+    // generic register-operand fallback shared by every mnemonic/operand
+    // that doesn't have its own ParserMethod (e.g. the "(${rs1})"
+    // implicit-zero-offset memory operand "clb a2, (ca0)", but also
+    // bare comma-separated operands like ".insn r 0x33, 0, 6, ca0, ca1, a2").
+    bool IsV9CRegName = false;
+    if (!Reg.isValid()) {
+      Reg = RISCVV9CRName::lookup(Name);
+      IsV9CRegName = Reg.isValid();
+    }
 
     if (!Reg) {
       if (HadParens)
@@ -2152,7 +2137,8 @@ ParseStatus RISCVAsmParser::parseRegister(OperandVector &Operands,
     SMLoc S = getLoc();
     SMLoc E = SMLoc::getFromPointer(S.getPointer() + Name.size());
     getLexer().Lex();
-    Operands.push_back(RISCVOperand::createReg(Reg, S, E));
+    Operands.push_back(
+        RISCVOperand::createReg(Reg, S, E, /*IsGPRAsFPR=*/false, IsV9CRegName));
   }
 
   if (HadParens) {
@@ -2178,8 +2164,8 @@ ParseStatus RISCVAsmParser::parseV9CR(OperandVector &Operands, bool AllowDDC) {
   SMLoc S = getLoc();
   SMLoc E = SMLoc::getFromPointer(S.getPointer() + Name.size());
   getLexer().Lex();
-  auto Op = RISCVOperand::createReg(Reg, S, E);
-  Op->Reg.IsV9CRegName = true;
+  auto Op =
+      RISCVOperand::createReg(Reg, S, E, false, /*IsV9CRegName=*/true);
   Operands.emplace_back(std::move(Op));
   return ParseStatus::Success;
 }
