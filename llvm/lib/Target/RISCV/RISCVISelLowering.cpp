@@ -23574,6 +23574,8 @@ RISCVTargetLowering::getRegisterByName(const char *RegName, LLT VT,
   if (Reg == RISCV::NoRegister)
     Reg = MatchRegisterName(RegName);
   if (Reg == RISCV::NoRegister)
+    Reg = RISCVV9CRName::lookup(RegName);
+  if (Reg == RISCV::NoRegister)
     report_fatal_error(
         Twine("Invalid register name \"" + StringRef(RegName) + "\"."));
   BitVector ReservedRegs = Subtarget.getRegisterInfo()->getReservedRegs(MF);
