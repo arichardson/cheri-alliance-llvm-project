@@ -232,6 +232,7 @@ class RISCVAsmParser : public MCTargetAsmParser {
 
   ParseStatus parseCSRSystemRegister(OperandVector &Operands);
   ParseStatus parseSpecialCapRegister(OperandVector &Operands);
+  ParseStatus parseV9CR(OperandVector &Operands);
   ParseStatus parseFPImm(OperandVector &Operands);
   ParseStatus parseImmediate(OperandVector &Operands);
   ParseStatus parseCSetBndImmOperand(OperandVector &Operands);
@@ -551,12 +552,39 @@ public:
            RISCVMCRegisterClasses[RISCV::GPRRegClassID].contains(Reg.RegNum);
   }
 
-  bool isGPCR() const {
+  bool isV9CR() const {
     return Kind == KindTy::Register &&
            RISCVMCRegisterClasses[RISCV::GPCRRegClassID].contains(Reg.RegNum);
   }
 
-  bool isYGPR() const { return isGPCR() && Reg.CoercedFromGPR; }
+  bool isV9CRNoC0() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::GPCRNoC0RegClassID].contains(
+               Reg.RegNum);
+  }
+
+  bool isV9CRC0IsDDC() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::GPCRC0IsDDCRegClassID].contains(
+               Reg.RegNum);
+  }
+
+  bool isV9CRC() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::GPCRCRegClassID].contains(Reg.RegNum);
+  }
+
+  bool isV9CRTC() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::GPCRTCRegClassID].contains(Reg.RegNum);
+  }
+
+  bool isV9CSP() const {
+    return Kind == KindTy::Register &&
+           RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
+  }
+
+  bool isYGPR() const { return isV9CR() && Reg.CoercedFromGPR; }
 
   bool isYGPRNoX0() const { return isYGPR() && Reg.RegNum != RISCV::C0; }
 
@@ -570,7 +598,7 @@ public:
            RISCVMCRegisterClasses[RISCV::CSPRegClassID].contains(Reg.RegNum);
   }
 
-  bool isRVYCompatGPCR() const { return isGPCR(); }
+  bool isRVYCompatGPCR() const { return isV9CR(); }
 
   bool isRVYCompatGPCRNoC0() const {
     return isRVYCompatGPCR() && Reg.RegNum != RISCV::C0;
@@ -2120,6 +2148,14 @@ ParseStatus RISCVAsmParser::parseRegister(OperandVector &Operands,
   }
 
   return ParseStatus::Success;
+}
+
+/// Parse a "c"-prefixed register name (e.g. c1/ca0/csp)
+ParseStatus RISCVAsmParser::parseV9CR(OperandVector &Operands) {
+  // For now we can continue using the generic parseRegister here, since only
+  // "c"-prefixed names will map to GPCR (and the related register classes) and
+  // all "x"-prefixed names will parse as GPR.
+  return parseRegister(Operands, /*AllowParens=*/false);
 }
 
 ParseStatus RISCVAsmParser::parseInsnDirectiveOpcode(OperandVector &Operands) {

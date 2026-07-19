@@ -346,6 +346,41 @@ def GPCRNoC0 : RegisterClass<"RISCV", [CLenVT], 64, (sub GPCR, C0)> {
   let RegInfos = CLenRI;
 }
 
+// Note: Upstream uses a YGPR register class (for RVY), to distinguish
+// the ISAv9 (and pre-RVY 0.9.5) assembly syntax where all CHERI registers
+// need a "c"-prefixed register instead of the plain "x" register, we use
+// Custom RegisterOperands to prepare for pulling in those changes.
+//
+// TODO: Set DiagnosticType on all these operands. Omitted from this commit to
+// keep the diff as small as possible.
+def V9CROperand : AsmOperandClass {
+  let Name = "V9CR";
+  let ParserMethod = "parseV9CR";
+  let PredicateMethod = "isV9CR";
+  let RenderMethod = "addRegOperands";
+}
+def V9CR : RegisterOperand<GPCR> {
+  let ParserMatchClass = V9CROperand;
+}
+
+def V9CRNoC0Operand : AsmOperandClass {
+  let Name = "V9CRNoC0";
+  let ParserMethod = "parseV9CR";
+  let RenderMethod = "addRegOperands";
+}
+def V9CRNoC0 : RegisterOperand<GPCRNoC0> {
+  let ParserMatchClass = V9CRNoC0Operand;
+}
+
+def V9CRC0IsDDCOperand : AsmOperandClass {
+  let Name = "V9CRC0IsDDC";
+  let ParserMethod = "parseV9CR";
+  let RenderMethod = "addRegOperands";
+}
+def V9CRC0IsDDC : RegisterOperand<GPCRC0IsDDC> {
+  let ParserMatchClass = V9CRC0IsDDCOperand;
+}
+
 def YGPROperand : AsmOperandClass {
   let Name = "YGPR";
   let RenderMethod = "addRegOperands";
@@ -421,6 +456,24 @@ def GPCRTC : RegisterClass<"RISCV", [CLenVT], 64, (add
   let RegInfos = CLenRI;
 }
 
+def V9CRCOperand : AsmOperandClass {
+  let Name = "V9CRC";
+  let ParserMethod = "parseV9CR";
+  let RenderMethod = "addRegOperands";
+}
+def V9CRC : RegisterOperand<GPCRC> {
+  let ParserMatchClass = V9CRCOperand;
+}
+
+def V9CRTCOperand : AsmOperandClass {
+  let Name = "V9CRTC";
+  let ParserMethod = "parseV9CR";
+  let RenderMethod = "addRegOperands";
+}
+def V9CRTC : RegisterOperand<GPCRTC> {
+  let ParserMatchClass = V9CRTCOperand;
+}
+
 def YGPRCOperand : AsmOperandClass {
   let Name = "YGPRC";
   let RenderMethod = "addRegOperands";
@@ -452,6 +505,15 @@ def SP : GPRRegisterClass<(add X2)>;
 
 def CSP : RegisterClass<"RISCV", [CLenVT], 64, (add C2)> {
   let RegInfos = CLenRI;
+}
+
+def V9CSPOperand : AsmOperandClass {
+  let Name = "V9CSP";
+  let ParserMethod = "parseV9CR";
+  let RenderMethod = "addRegOperands";
+}
+def V9CSP : RegisterOperand<CSP> {
+  let ParserMatchClass = V9CSPOperand;
 }
 
 def YSPOperand : AsmOperandClass {
