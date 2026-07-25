@@ -11,14 +11,14 @@
 //===----------------------------------------------------------------------===//
 
 // Target-dependent type requirements.
-def SDT_RISCVCapCall        : SDTypeProfile<0, -1, [SDTCisVT<0, CLenVT>]>;
+def SDT_RISCVCapCall        : SDTypeProfile<0, -1, [SDTCisVT<0, YLenVT>]>;
 
 def SDT_RISCVCheriBoolUnary : SDTypeProfile<1, 1, [
-  SDTCisInt<0>, SDTCisVT<1, CLenVT>
+  SDTCisInt<0>, SDTCisVT<1, YLenVT>
 ]>;
 
 def SDT_RISCVCheriBoolBinary : SDTypeProfile<1, 2, [
-  SDTCisInt<0>, SDTCisVT<1, CLenVT>, SDTCisVT<2, CLenVT>
+  SDTCisInt<0>, SDTCisVT<1, YLenVT>, SDTCisVT<2, YLenVT>
 ]>;
 
 // Target-dependent nodes.
@@ -47,11 +47,11 @@ def riscv_clc_tls_gd      : SDNode<"RISCVISD::CLC_TLS_GD", SDT_RISCVSymLoad>;
 // Operand and SDNode transformation definitions.
 //===----------------------------------------------------------------------===//
 
-def cap_call_symbol : Operand<CLenVT> {
+def cap_call_symbol : Operand<YLenVT> {
   let ParserMatchClass = CallSymbol;
 }
 
-def pseudo_cap_jump_symbol : Operand<CLenVT> {
+def pseudo_cap_jump_symbol : Operand<YLenVT> {
   let ParserMatchClass = PseudoJumpSymbol;
 }
 
@@ -1531,7 +1531,7 @@ def CheriSplitStoreF64Pseudo
 class PatGpcr<SDPatternOperator OpNode, RVInstCheriSrcDst Inst, ValueType RetVt=XLenVT>
     : Pat<(RetVt (OpNode V9CR:$rs1)), (Inst V9CR:$rs1)>;
 
-class PatGpcrGpcr<SDPatternOperator OpNode, RVInst Inst, ValueType RetVt=CLenVT>
+class PatGpcrGpcr<SDPatternOperator OpNode, RVInst Inst, ValueType RetVt=YLenVT>
     : Pat<(RetVt (OpNode V9CR:$rs1, V9CR:$rs2)), (Inst V9CR:$rs1, V9CR:$rs2)>;
 
 class PatGpcrGpr<SDPatternOperator OpNode, RVInst Inst>
@@ -1578,11 +1578,11 @@ let Predicates = [HasCheri] in {
   def : PatGpcrGpr<int_cheri_cap_bounds_set, CSetBounds>;
   def : PatGpcrGpr<int_cheri_cap_bounds_set_exact, CSetBoundsExact>;
   def : PatGpcrUimm12<int_cheri_cap_bounds_set, CSetBoundsImm>;
-  def : PatGpcr<int_cheri_cap_tag_clear, CClearTag, CLenVT>;
+  def : PatGpcr<int_cheri_cap_tag_clear, CClearTag, YLenVT>;
   def : PatGpcrGpcr<int_cheri_cap_build, CBuildCap>;
   def : PatGpcrGpcr<int_cheri_cap_type_copy, CCopyType>;
   def : PatGpcrGpcr<int_cheri_cap_conditional_seal, CCSeal>;
-  def : PatGpcr<int_cheri_cap_seal_entry, CSealEntry, CLenVT>;
+  def : PatGpcr<int_cheri_cap_seal_entry, CSealEntry, YLenVT>;
 } // HasCheri
 
 // TODO: Make this rematerialisable like MIPS
@@ -1612,8 +1612,8 @@ def : Pat<(XLenVT (ptrtoint V9CR:$rs1)), (PseudoCGetAddr V9CR:$rs1)>;
 
 /// Null Capability Patterns
 
-def : Pat<(inttoptr (XLenVT 0)), (CLenVT (COPY X0_Y))>;
-def : Pat<(ptrtoint (CLenVT (inttoptr (XLenVT 0)))),
+def : Pat<(inttoptr (XLenVT 0)), (YLenVT (COPY X0_Y))>;
+def : Pat<(ptrtoint (YLenVT (inttoptr (XLenVT 0)))),
           (XLenVT (COPY (XLenVT X0)))>;
 
 /// Pointer-Comparison Instructions
@@ -1690,7 +1690,7 @@ def  : CheriSetCCPatGpcrGpcr<setgt, (SLT node:$rs2, node:$rs1)>;
 def  : CheriSetCCPatGpcrGpcr<setge, (XORI (SLT node:$rs1, node:$rs2), 1)>;
 def  : CheriSetCCPatGpcrGpcr<setle, (XORI (SLT node:$rs2, node:$rs1), 1)>;
 
-defm Select_GPCR : SelectCC_GPR_rrirr<V9CR, CLenVT>;
+defm Select_GPCR : SelectCC_GPR_rrirr<V9CR, YLenVT>;
 
 /// Control-Flow Instructions
 
@@ -1734,7 +1734,7 @@ def : PatGpcrGpcr<riscv_cap_equal_exact, CSEQX, XLenVT>;
 let Predicates = [HasCheri] in
 def : Pat<(int_cheri_ddc_get), (CSpecialRW SCR_DDC.Encoding, X0_Y)>;
 let Predicates = [HasZCheriPurecapOrCheri, IsPureCapABI] in
-def : Pat<(int_cheri_stack_cap_get), (CLenVT (COPY X2_Y))>;
+def : Pat<(int_cheri_stack_cap_get), (YLenVT (COPY X2_Y))>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode] in
 def : Pat<(int_cheri_pcc_get), (AUIPCC 0)>;
@@ -1785,7 +1785,7 @@ defm : CheriExplicitLdPat<zextloadi16, LHU_DDC, GPR>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsRV32] in {
 defm : CheriExplicitLdPat<load, LW_DDC, GPR>;
-defm : CheriExplicitLdPat<load, LC_DDC_64, GPR, XLenVT, CLenVT>;
+defm : CheriExplicitLdPat<load, LC_DDC_64, GPR, XLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsRV64] in {
@@ -1793,7 +1793,7 @@ defm : CheriExplicitLdPat<sextloadi32, LW_DDC, GPR>;
 defm : CheriExplicitLdPat<extloadi32, LW_DDC, GPR>;
 defm : CheriExplicitLdPat<load, LD_DDC, GPR>;
 defm : CheriExplicitLdPat<zextloadi32, LWU_DDC, GPR>;
-defm : CheriExplicitLdPat<load, LC_DDC_128, GPR, XLenVT, CLenVT>;
+defm : CheriExplicitLdPat<load, LC_DDC_128, GPR, XLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, HasStdExtF] in
@@ -1816,13 +1816,13 @@ defm : CheriExplicitStPat<truncstorei16, SH_DDC, GPR, GPR>;
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsRV32] in {
 defm : CheriExplicitStPat<store, SW_DDC, GPR, GPR>;
-defm : CheriExplicitStPat<store, SC_DDC_64, V9CR, GPR, CLenVT, XLenVT>;
+defm : CheriExplicitStPat<store, SC_DDC_64, V9CR, GPR, YLenVT, XLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, IsRV64] in {
 defm : CheriExplicitStPat<truncstorei32, SW_DDC, GPR, GPR>;
 defm : CheriExplicitStPat<store, SD_DDC, GPR, GPR>;
-defm : CheriExplicitStPat<store, SC_DDC_128, V9CR, GPR, CLenVT, XLenVT>;
+defm : CheriExplicitStPat<store, SC_DDC_128, V9CR, GPR, YLenVT, XLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, IsCapMode, HasStdExtF] in
@@ -1840,25 +1840,25 @@ def : Pat<(store FPR64:$rs2, (XLenVT GPR:$rs1)),
 /// Capability loads
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode] in {
-defm : CheriExplicitLdPat<sextloadi8, LB_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<extloadi8, LB_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<sextloadi16, LH_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<extloadi16, LH_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<zextloadi8, LBU_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<zextloadi16, LHU_CAP, V9CR, CLenVT, XLenVT>;
+defm : CheriExplicitLdPat<sextloadi8, LB_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<extloadi8, LB_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<sextloadi16, LH_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<extloadi16, LH_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<zextloadi8, LBU_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<zextloadi16, LHU_CAP, V9CR, YLenVT, XLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode, IsRV32] in {
-defm : CheriExplicitLdPat<load, LW_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<load, LC_CAP_64, V9CR, CLenVT, CLenVT>;
+defm : CheriExplicitLdPat<load, LW_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<load, LC_CAP_64, V9CR, YLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode, IsRV64] in {
-defm : CheriExplicitLdPat<sextloadi32, LW_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<extloadi32, LW_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<load, LD_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<zextloadi32, LWU_CAP, V9CR, CLenVT, XLenVT>;
-defm : CheriExplicitLdPat<load, LC_CAP_128, V9CR, CLenVT, CLenVT>;
+defm : CheriExplicitLdPat<sextloadi32, LW_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<extloadi32, LW_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<load, LD_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<zextloadi32, LWU_CAP, V9CR, YLenVT, XLenVT>;
+defm : CheriExplicitLdPat<load, LC_CAP_128, V9CR, YLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode, HasStdExtF] in
@@ -1875,19 +1875,19 @@ def : Pat<(load V9CR:$rs1), (FMV_D_X (LD_CAP V9CR:$rs1))>;
 /// Capability stores
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode] in {
-defm : CheriExplicitStPat<truncstorei8, SB_CAP, GPR, V9CR, XLenVT, CLenVT>;
-defm : CheriExplicitStPat<truncstorei16, SH_CAP, GPR, V9CR, XLenVT, CLenVT>;
+defm : CheriExplicitStPat<truncstorei8, SB_CAP, GPR, V9CR, XLenVT, YLenVT>;
+defm : CheriExplicitStPat<truncstorei16, SH_CAP, GPR, V9CR, XLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode, IsRV32] in {
-defm : CheriExplicitStPat<store, SW_CAP, GPR, V9CR, XLenVT, CLenVT>;
-defm : CheriExplicitStPat<store, SC_CAP_64, V9CR, V9CR, CLenVT, CLenVT>;
+defm : CheriExplicitStPat<store, SW_CAP, GPR, V9CR, XLenVT, YLenVT>;
+defm : CheriExplicitStPat<store, SC_CAP_64, V9CR, V9CR, YLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode, IsRV64] in {
-defm : CheriExplicitStPat<truncstorei32, SW_CAP, GPR, V9CR, XLenVT, CLenVT>;
-defm : CheriExplicitStPat<store, SD_CAP, GPR, V9CR, XLenVT, CLenVT>;
-defm : CheriExplicitStPat<store, SC_CAP_128, V9CR, V9CR, CLenVT, CLenVT>;
+defm : CheriExplicitStPat<truncstorei32, SW_CAP, GPR, V9CR, XLenVT, YLenVT>;
+defm : CheriExplicitStPat<store, SD_CAP, GPR, V9CR, XLenVT, YLenVT>;
+defm : CheriExplicitStPat<store, SC_CAP_128, V9CR, V9CR, YLenVT, YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, NotCapMode, HasStdExtF] in
@@ -1968,7 +1968,7 @@ defm : PseudoAMOPat<"atomic_load_min_cap", PseudoAtomicLoadMinCap, V9CR>;
 defm : PseudoAMOPat<"atomic_load_umax_cap", PseudoAtomicLoadUMaxCap, V9CR>;
 defm : PseudoAMOPat<"atomic_load_umin_cap", PseudoAtomicLoadUMinCap, V9CR>;
 defm : PseudoAMOPat<"atomic_load_nand_cap", PseudoAtomicLoadNandCap, V9CR>;
-defm : PseudoCmpXchgPat<"atomic_cmp_swap_cap", PseudoCmpXchgCap, CLenVT, V9CR>;
+defm : PseudoCmpXchgPat<"atomic_cmp_swap_cap", PseudoCmpXchgCap, YLenVT, V9CR>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasStdExtA, NotCapMode]
 
 /// Capability Mode Instructions
@@ -2061,15 +2061,15 @@ multiclass PseudoCheriCmpXchgPat<string Op, Pseudo CmpXchgInst,
 multiclass CheriAMOCapPat<string CLenStr, string AtomicOp, string BaseInst> {
   defvar optUnderScore = !if(!eq(CLenStr, ""), "", "_");
   def : PatGpcrGpcr<!cast<PatFrag>(AtomicOp#"_monotonic"),
-                    !cast<RVInst>(BaseInst#optUnderScore#CLenStr), CLenVT>;
+                    !cast<RVInst>(BaseInst#optUnderScore#CLenStr), YLenVT>;
   def : PatGpcrGpcr<!cast<PatFrag>(AtomicOp#"_acquire"),
-                    !cast<RVInst>(BaseInst#"_AQ"#optUnderScore#CLenStr), CLenVT>;
+                    !cast<RVInst>(BaseInst#"_AQ"#optUnderScore#CLenStr), YLenVT>;
   def : PatGpcrGpcr<!cast<PatFrag>(AtomicOp#"_release"),
-                    !cast<RVInst>(BaseInst#"_RL"#optUnderScore#CLenStr), CLenVT>;
+                    !cast<RVInst>(BaseInst#"_RL"#optUnderScore#CLenStr), YLenVT>;
   def : PatGpcrGpcr<!cast<PatFrag>(AtomicOp#"_acq_rel"),
-                    !cast<RVInst>(BaseInst#"_AQ_RL"#optUnderScore#CLenStr), CLenVT>;
+                    !cast<RVInst>(BaseInst#"_AQ_RL"#optUnderScore#CLenStr), YLenVT>;
   def : PatGpcrGpcr<!cast<PatFrag>(AtomicOp#"_seq_cst"),
-                    !cast<RVInst>(BaseInst#"_AQ_RL"#optUnderScore#CLenStr), CLenVT>;
+                    !cast<RVInst>(BaseInst#"_AQ_RL"#optUnderScore#CLenStr), YLenVT>;
 }
 
 let Predicates = [HasZCheriPurecapOrCheri, HasStdExtA] in {
@@ -2306,16 +2306,16 @@ defm : PseudoCheriAMOPat<"atomic_load_nand_i16", PseudoCheriAtomicLoadNand16>;
 
 defm : PseudoCheriAMOPat<"atomic_load_nand_i32", PseudoCheriAtomicLoadNand32>;
 
-defm : PseudoCheriAMOPat<"atomic_load_add_cap", PseudoCheriAtomicLoadAddCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_sub_cap", PseudoCheriAtomicLoadSubCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_and_cap", PseudoCheriAtomicLoadAndCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_or_cap", PseudoCheriAtomicLoadOrCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_xor_cap", PseudoCheriAtomicLoadXorCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_max_cap", PseudoCheriAtomicLoadMaxCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_min_cap", PseudoCheriAtomicLoadMinCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_umax_cap", PseudoCheriAtomicLoadUMaxCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_umin_cap", PseudoCheriAtomicLoadUMinCap, V9CR, CLenVT>;
-defm : PseudoCheriAMOPat<"atomic_load_nand_cap", PseudoCheriAtomicLoadNandCap, V9CR, CLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_add_cap", PseudoCheriAtomicLoadAddCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_sub_cap", PseudoCheriAtomicLoadSubCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_and_cap", PseudoCheriAtomicLoadAndCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_or_cap", PseudoCheriAtomicLoadOrCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_xor_cap", PseudoCheriAtomicLoadXorCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_max_cap", PseudoCheriAtomicLoadMaxCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_min_cap", PseudoCheriAtomicLoadMinCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_umax_cap", PseudoCheriAtomicLoadUMaxCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_umin_cap", PseudoCheriAtomicLoadUMinCap, V9CR, YLenVT>;
+defm : PseudoCheriAMOPat<"atomic_load_nand_cap", PseudoCheriAtomicLoadNandCap, V9CR, YLenVT>;
 
 /// Compare and exchange
 
@@ -2323,7 +2323,7 @@ defm : PseudoCheriCmpXchgPat<"atomic_cmp_swap_i8", PseudoCheriCmpXchg8>;
 defm : PseudoCheriCmpXchgPat<"atomic_cmp_swap_i16", PseudoCheriCmpXchg16>;
 defm : PseudoCheriCmpXchgPat<"atomic_cmp_swap_i32", PseudoCheriCmpXchg32>;
 
-defm : PseudoCheriCmpXchgPat<"atomic_cmp_swap_cap", PseudoCheriCmpXchgCap, V9CR, CLenVT>;
+defm : PseudoCheriCmpXchgPat<"atomic_cmp_swap_cap", PseudoCheriCmpXchgCap, V9CR, YLenVT>;
 
 } // Predicates = [HasZCheriPurecapOrCheri, HasStdExtA, IsCapMode]
 
@@ -2360,14 +2360,14 @@ defm : PseudoCheriCmpXchgPat<"atomic_cmp_swap_i64", PseudoCheriCmpXchg64>;
 } // Predicates = [HasZCheriPurecapOrCheri, HasStdExtA, IsRV64, IsCapMode]
 
 let Predicates = [HasCheri, HasStdExtA, IsRV32, IsCapMode] in {
-defm : CheriLdPat<atomic_load_cap, CLC_64, CLenVT>;
-defm : CheriAtomicStPat<atomic_store_cap, CSC_64, V9CR, CLenVT>;
+defm : CheriLdPat<atomic_load_cap, CLC_64, YLenVT>;
+defm : CheriAtomicStPat<atomic_store_cap, CSC_64, V9CR, YLenVT>;
 defm : CheriAMOCapPat<"64", "atomic_swap_cap", "CAMOSWAP_C">;
 } // Predicates = [HasCheri, HasStdExtA, IsRV32, IsCapMode]
 
 let Predicates = [HasCheri, HasStdExtA, IsRV64, IsCapMode] in {
-defm : CheriLdPat<atomic_load_cap, CLC_128, CLenVT>;
-defm : CheriAtomicStPat<atomic_store_cap, CSC_128, V9CR, CLenVT>;
+defm : CheriLdPat<atomic_load_cap, CLC_128, YLenVT>;
+defm : CheriAtomicStPat<atomic_store_cap, CSC_128, V9CR, YLenVT>;
 defm : CheriAMOCapPat<"128", "atomic_swap_cap", "CAMOSWAP_C">;
 } // Predicates = [HasCheri, HasStdExtA, IsRV64, IsCapMode]
 
@@ -2402,13 +2402,13 @@ defm : CheriStPat<store, CFSD, FPR64, f64>;
 /// 'XCheri' extension
 
 let Predicates = [HasCheri, IsRV32, IsCapMode] in {
-defm : CheriLdPat<load, CLC_64, CLenVT>;
-defm : CheriStPat<store, CSC_64, V9CR, CLenVT>;
+defm : CheriLdPat<load, CLC_64, YLenVT>;
+defm : CheriStPat<store, CSC_64, V9CR, YLenVT>;
 } // Predicates = [HasCheri, IsRV32, IsCapMode]
 
 let Predicates = [HasCheri, IsRV64, IsCapMode] in {
-defm : CheriLdPat<load, CLC_128, CLenVT>;
-defm : CheriStPat<store, CSC_128, V9CR, CLenVT>;
+defm : CheriLdPat<load, CLC_128, YLenVT>;
+defm : CheriStPat<store, CSC_128, V9CR, YLenVT>;
 } // Predicates = [HasCheri, IsRV64, IsCapMode]
 
 //===----------------------------------------------------------------------===//

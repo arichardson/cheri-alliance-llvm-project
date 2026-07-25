@@ -280,11 +280,9 @@ def XLenPairFVT : ValueTypeByHwMode<[RV32],
 def XLenRI : RegInfoByHwMode<
       [RV32,              RV64],
       [RegInfo<32,32,32>, RegInfo<64,64,64>]>;
-def CLenVT : ValueTypeByHwMode<[RV32, RV64],
-                               [c64, c128]>;
-def CLenRI : RegInfoByHwMode<
-      [RV32,              RV64],
-      [RegInfo<64,64,64>, RegInfo<128,128,128>]>;
+def YLenVT : ValueTypeByHwMode<[RV32, RV64], [c64, c128]>;
+def YLenRI : RegInfoByHwMode<[RV32, RV64], [RegInfo<64, 64, 64>,
+                                            RegInfo<128, 128, 128>]>;
 
 class RISCVRegisterClass<list<ValueType> regTypes, int align, dag regList>
     : RegisterClass<"RISCV", regTypes, align, regList> {
@@ -328,7 +326,7 @@ class YGPRAsmOperand<string name> : AsmOperandClass {
 def YGPROperand : YGPRAsmOperand<"YGPR"> {
   let DiagnosticType = "InvalidYGPR";
 }
-def YGPR : RegisterClass<"RISCV", [CLenVT], 64, (add
+def YGPR : RegisterClass<"RISCV", [YLenVT], 64, (add
     (sequence "X%u_Y", 10, 17),
     (sequence "X%u_Y", 5, 7),
     (sequence "X%u_Y", 28, 31),
@@ -336,12 +334,12 @@ def YGPR : RegisterClass<"RISCV", [CLenVT], 64, (add
     (sequence "X%u_Y", 18, 27),
     (sequence "X%u_Y", 0, 4)
   )> {
-  let RegInfos = CLenRI;
+  let RegInfos = YLenRI;
   let ParserMatchClass = YGPROperand;
 }
 
 // def YGPRX0IsDDCOperand : YGPRAsmOperand<"YGPRX0IsDDC">;
-def ISAv9OnlyYGPRX0IsDDC : RegisterClass<"RISCV", [CLenVT], 64, (add
+def ISAv9OnlyYGPRX0IsDDC : RegisterClass<"RISCV", [YLenVT], 64, (add
     (sequence "X%u_Y", 10, 17),
     (sequence "X%u_Y", 5, 7),
     (sequence "X%u_Y", 28, 31),
@@ -350,7 +348,7 @@ def ISAv9OnlyYGPRX0IsDDC : RegisterClass<"RISCV", [CLenVT], 64, (add
     (sequence "X%u_Y", 1, 4),
     DDC
   )> {
-  let RegInfos = CLenRI;
+  let RegInfos = YLenRI;
   // let ParserMatchClass = YGPRX0IsDDCOperand;
 }
 
@@ -363,8 +361,8 @@ def GPRNoX0 : GPRRegisterClass<(sub GPR, X0)>;
 def YGPRNoX0Operand : YGPRAsmOperand<"YGPRNoX0"> {
   let DiagnosticType = "InvalidYGPRNoX0";
 }
-def YGPRNoX0 : RegisterClass<"RISCV", [CLenVT], 64, (sub YGPR, X0_Y)> {
-  let RegInfos = CLenRI;
+def YGPRNoX0 : RegisterClass<"RISCV", [YLenVT], 64, (sub YGPR, X0_Y)> {
+  let RegInfos = YLenRI;
   let ParserMatchClass = YGPRNoX0Operand;
 }
 
@@ -445,11 +443,11 @@ def GPRC : GPRRegisterClass<(add (sequence "X%u", 10, 15),
 def YGPRCOperand : YGPRAsmOperand<"YGPRC"> {
   let DiagnosticType = "InvalidYGPR";
 }
-def YGPRC : RegisterClass<"RISCV", [CLenVT], 64, (add
+def YGPRC : RegisterClass<"RISCV", [YLenVT], 64, (add
     (sequence "X%u_Y", 10, 15),
     (sequence "X%u_Y", 8, 9)
   )> {
-  let RegInfos = CLenRI;
+  let RegInfos = YLenRI;
   let ParserMatchClass = YGPRCOperand;
 }
 
@@ -465,12 +463,12 @@ def GPRTCNonX7 : GPRRegisterClass<(sub GPRTC, X7)>;
 def YGPRTCOperand : YGPRAsmOperand<"YGPRTC"> {
   let DiagnosticType = "InvalidYGPR";
 }
-def YGPRTC : RegisterClass<"RISCV", [CLenVT], 64, (add
+def YGPRTC : RegisterClass<"RISCV", [YLenVT], 64, (add
     (sequence "X%u_Y", 5, 7),
     (sequence "X%u_Y", 10, 17),
     (sequence "X%u_Y", 28, 31)
   )> {
-  let RegInfos = CLenRI;
+  let RegInfos = YLenRI;
   let ParserMatchClass = YGPRTCOperand;
 }
 
@@ -519,8 +517,8 @@ def SP : GPRRegisterClass<(add X2)>;
 def YSPOperand : YGPRAsmOperand<"YSP"> {
   let DiagnosticType = "InvalidYSP";
 }
-def YSP : RegisterClass<"RISCV", [CLenVT], 64, (add X2_Y)> {
-  let RegInfos = CLenRI;
+def YSP : RegisterClass<"RISCV", [YLenVT], 64, (add X2_Y)> {
+  let RegInfos = YLenRI;
   let ParserMatchClass = YSPOperand;
 }
 
