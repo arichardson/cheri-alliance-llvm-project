@@ -51,11 +51,9 @@ def sub_cap_addr : SubRegIndex<32> {
   let SubRegRanges =
       SubRegRangeByHwMode<[RV32, RV64], [SubRegRange<32>, SubRegRange<64>]>;
 }
-class RISCVCapReg<RISCVRegWithSubRegs subreg, string n, list<string> alt = []> : Register<n> {
-  let HWEncoding{4-0} = subreg.HWEncoding{4-0};
-  let SubRegs = [subreg];
+class RISCVCapReg<RISCVRegWithSubRegs subreg, string n, list<string> alt = []>
+    : RISCVRegWithSubRegs<subreg.HWEncoding{4 -0}, n, [subreg], alt> {
   let SubRegIndices = [sub_cap_addr];
-  let AltNames = alt;
 }
 
 class RISCVCapRegPseudo<bits<5> Enc, string n, list<string> alt = []> : Register<n> {
@@ -223,6 +221,7 @@ let RegAltNameIndices = [ABIRegAltName] in {
   }
   }
 
+  // CHERI capability registers (Y extension)
   // TODO: Review costs
   let isConstant = true in
   def X0_Y : RISCVCapReg<X0, "x0", ["zero", "null"]>, DwarfRegAlias<X0>;
@@ -322,14 +321,13 @@ class YGPRAsmOperand<string name> : AsmOperandClass {
 def YGPROperand : YGPRAsmOperand<"YGPR"> {
   let DiagnosticType = "InvalidYGPR";
 }
-def YGPR : RegisterClass<"RISCV", [YLenVT], 64, (add
-    (sequence "X%u_Y", 10, 17),
-    (sequence "X%u_Y", 5, 7),
-    (sequence "X%u_Y", 28, 31),
-    (sequence "X%u_Y", 8, 9),
-    (sequence "X%u_Y", 18, 27),
-    (sequence "X%u_Y", 0, 4)
-  )> {
+def YGPR : RegisterClass<"RISCV", [YLenVT], 64,
+                         (add (sequence "X%u_Y", 10, 17),
+                              (sequence "X%u_Y", 5, 7),
+                              (sequence "X%u_Y", 28, 31),
+                              (sequence "X%u_Y", 8, 9),
+                              (sequence "X%u_Y", 18, 27),
+                              (sequence "X%u_Y", 0, 4))> {
   let RegInfos = YLenRI;
   let ParserMatchClass = YGPROperand;
 }
