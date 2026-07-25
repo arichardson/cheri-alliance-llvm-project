@@ -45,13 +45,12 @@ class RISCVReg64<RISCVReg32 subreg>
   let SubRegIndices = [sub_32];
 }
 
-// I don't think the size matters here as it's only used if there are multiple
-// sub-registers involved to calculate coverings and other relationships, but
-// we have a simple nesting here with no inference required. Since XLen is
-// based on runtime flags and SubRegIndex wants an integer literal it's awkward
-// to express this properly without introducing separate 32/64-bit registers,
-// classes etc.
-def sub_cap_addr : SubRegIndex<-1, -1>;
+// A subreg index for the address part of capability registers (this is just the
+// default XLEN-wide X<N> register).
+def sub_cap_addr : SubRegIndex<32> {
+  let SubRegRanges =
+      SubRegRangeByHwMode<[RV32, RV64], [SubRegRange<32>, SubRegRange<64>]>;
+}
 class RISCVCapReg<RISCVRegWithSubRegs subreg, string n, list<string> alt = []> : Register<n> {
   let HWEncoding{4-0} = subreg.HWEncoding{4-0};
   let SubRegs = [subreg];
