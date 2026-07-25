@@ -64,6 +64,14 @@ EVT llvm::getApproximateEVTForLLT(LLT Ty, LLVMContext &Ctx) {
 }
 
 LLT llvm::getLLTForMVT(MVT Ty) {
+  // Map CHERI capabilities to a pointer LLT instead of a same-sized scalar.
+  // Maintaining this information is essential for e.g. inline asm parsing
+  // where we just get a LLT for the register type.
+  // FIXME: hardcoded AS200 for capabilities (same as isCheriPointer()).
+  // TODO: pass DataLayout here to avoid this?
+  if (Ty.isCapability())
+    return LLT::pointer(200, Ty.getSizeInBits());
+
   if (!Ty.isVector())
     return LLT::scalar(Ty.getSizeInBits());
 
