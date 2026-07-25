@@ -418,7 +418,7 @@ def : PatGpcrGpr<int_cheri_cap_perms_and, ACPERM>;
 def : PatGpcrGpr<int_cheri_cap_high_set, SCHI>;
 def : PatGpcrGpr<int_cheri_cap_copy_to_high, SCHI>;
 def : PatZpGpcr<int_cheri_cap_seal_entry, SENTRY>;
-def : PatGpcrGpcr<int_cheri_cap_build, CBLD, CLenVT>;
+def : PatGpcrGpcr<int_cheri_cap_build, CBLD, YLenVT>;
 def : PatGpcrGpr<int_cheri_cap_bounds_set, SCBNDSR>;
 def : PatGpcrGpr<int_cheri_cap_bounds_set_exact, SCBNDS>;
 def : Pat<(int_cheri_cap_bounds_set_exact V9CR:$rs1, csetbnd_imm:$imm),
@@ -479,20 +479,20 @@ def : Pat<(load V9CR:$rs1),
                               (LW_CAP (CADDI V9CR:$rs1, 4)))>;
 
 let Predicates = [HasZCheriPurecap, NotCapMode] in {
-def  : LdPat<load, LC, CLenVT>;
-def  : StPat<store, SC, V9CR, CLenVT>;
-def  : LdPat<atomic_load_cap, LC, CLenVT>;
-def  : StPat<atomic_store_cap, SC, V9CR, CLenVT>;
+def  : LdPat<load, LC, YLenVT>;
+def  : StPat<store, SC, V9CR, YLenVT>;
+def  : LdPat<atomic_load_cap, LC, YLenVT>;
+def  : StPat<atomic_store_cap, SC, V9CR, YLenVT>;
 defm : AMOCapPat<"", "atomic_swap_cap", "AMOSWAP_C">;
 }
 let Predicates = [HasZCheriPurecap, HasStdExtA, IsCapMode] in {
-defm : CheriLdPat<atomic_load_cap, CLC, CLenVT>;
-defm : CheriAtomicStPat<atomic_store_cap, CSC, V9CR, CLenVT>;
+defm : CheriLdPat<atomic_load_cap, CLC, YLenVT>;
+defm : CheriAtomicStPat<atomic_store_cap, CSC, V9CR, YLenVT>;
 defm : CheriAMOCapPat<"","atomic_swap_cap", "CAMOSWAP_C">;
 }
 let Predicates = [HasZCheriPurecap, IsCapMode] in {
-defm : CheriLdPat<load, CLC, CLenVT>;
-defm : CheriStPat<store, CSC, V9CR, CLenVT>;
+defm : CheriLdPat<load, CLC, YLenVT>;
+defm : CheriStPat<store, CSC, V9CR, YLenVT>;
 }
 
 //===----------------------------------------------------------------------===//
@@ -641,13 +641,13 @@ def CapRegImmLsb00000 : ComplexPattern<cPTR, 2, "SelectCapRegImmLsb00000">;
 
 // Patterns
 let Predicates = [HasStdExtZicbop, IsCapMode] in {
-  def : Pat<(prefetch (CapRegImmLsb00000 (CLenVT V9CR:$rs1), simm12_lsb00000:$imm12),
+  def : Pat<(prefetch (CapRegImmLsb00000 (YLenVT V9CR:$rs1), simm12_lsb00000:$imm12),
                        timm, timm, (i32 0)),
             (CPREFETCH_I V9CR:$rs1, simm12_lsb00000:$imm12)>;
-  def : Pat<(prefetch (CapRegImmLsb00000 (CLenVT V9CR:$rs1), simm12_lsb00000:$imm12),
+  def : Pat<(prefetch (CapRegImmLsb00000 (YLenVT V9CR:$rs1), simm12_lsb00000:$imm12),
                       (i32 0), timm, (i32 1)),
             (CPREFETCH_R V9CR:$rs1, simm12_lsb00000:$imm12)>;
-  def : Pat<(prefetch (CapRegImmLsb00000 (CLenVT V9CR:$rs1), simm12_lsb00000:$imm12),
+  def : Pat<(prefetch (CapRegImmLsb00000 (YLenVT V9CR:$rs1), simm12_lsb00000:$imm12),
                       (i32 1), timm, (i32 1)),
             (CPREFETCH_W V9CR:$rs1, simm12_lsb00000:$imm12)>;
 }
