@@ -861,6 +861,17 @@ public:
            VK == RISCVMCExpr::VK_RISCV_None;
   }
 
+  bool isUImm7EqXLen() const {
+    if (!isImm())
+      return false;
+
+    int64_t Imm;
+    RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
+    bool IsConstantImm = evaluateConstantImm(getImm(), Imm, VK);
+    return IsConstantImm && VK == RISCVMCExpr::VK_RISCV_None &&
+           Imm == (this->Imm.IsRV64 ? 64 : 32);
+  }
+
   bool isUImm8GE32() const {
     int64_t Imm;
     RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
@@ -909,6 +920,17 @@ public:
     bool IsConstantImm = evaluateConstantImm(getImm(), Imm, VK);
     return IsConstantImm && Imm >= INT64_C(2) && Imm <= INT64_C(14) &&
            VK == RISCVMCExpr::VK_RISCV_None;
+  }
+
+  bool isYBNDSWImm() const {
+    if (!isImm())
+      return false;
+
+    int64_t Imm;
+    RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
+    bool IsConstantImm = evaluateConstantImm(getImm(), Imm, VK);
+    return IsConstantImm && VK == RISCVMCExpr::VK_RISCV_None &&
+           RISCV::isValidYBNDSWImm(Imm);
   }
 
   bool isCSetBndImm() const {
@@ -1585,6 +1607,11 @@ static MCRegister convertGPRToGPCR(MCRegister Reg) {
   return Reg - RISCV::X0 + RISCV::X0_Y;
 }
 
+static MCRegister convertGPRToYGPR(MCRegister Reg) {
+  assert(Reg >= RISCV::X0 && Reg <= RISCV::X31 && "Invalid register");
+  return Reg - RISCV::X0 + RISCV::X0_Y;
+}
+
 static MCRegister convertVRToVRMx(const MCRegisterInfo &RI, MCRegister Reg,
                                   unsigned Kind) {
   unsigned RegClassID;
@@ -2014,6 +2041,17 @@ bool RISCVAsmParser::matchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
         ErrorLoc,
         "stack adjustment is invalid for this instruction and register list; "
         "refer to Zc spec for a detailed range of stack adjustment");
+  }
+  case Match_InvalidYBNDSWImm: {
+    const SMLoc ErrorLoc = ((RISCVOperand &)*Operands[ErrorInfo]).getStartLoc();
+    return Error(ErrorLoc, "immediate must be an integer in the range "
+                           "[1, 255], a multiple of 8 in the range [256, 504], "
+                           "or a multiple of 16 in the range [512, 4096]");
+  }
+  case Match_InvalidUImm7EqXLen: {
+    const SMLoc ErrorLoc = ((RISCVOperand &)*Operands[ErrorInfo]).getStartLoc();
+    return Error(ErrorLoc, "immediate must be an integer equal to XLEN (" +
+                               Twine(isRV64() ? "64" : "32") + ")");
   }
   case Match_InvalidRnumArg: {
     return generateImmOutOfRangeError(Operands, ErrorInfo, 0, 10);
