@@ -2199,6 +2199,9 @@ include "RISCVInstrInfoXMips.td"
 include "RISCVInstrInfoXCheri.td"
 include "RISCVInstrInfoZCheriPurecap.td"
 
+// CHERI
+include "RISCVInstrInfoY.td"
+
 //===----------------------------------------------------------------------===//
 // Global ISel
 //===----------------------------------------------------------------------===//
