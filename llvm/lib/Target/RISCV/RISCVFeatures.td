@@ -1397,6 +1397,19 @@ def HasZCheriPurecapOrCheri
                 "'Zcheripurecap' (CHERI aware Instructions) or "
                 "Implements CHERI extension">;
 
+// The standard loads/stores take a capability base register in capability
+// mode, and this is the same encoding for xcheri, Zcheripurecap and RVY.
+// Upstream selects the base operand type with RegClassByHwMode; this fork
+// does not have that mechanism, so the cap-mode definitions are simply shared
+// between all three by including Y in this predicate.
+def HasZCheriPurecapOrCheriOrY
+    : Predicate<"Subtarget->hasCheri() || Subtarget->hasStdExtZCheriPureCap() || "
+                "Subtarget->hasStdExtY()">,
+                AssemblerPredicate<(any_of FeatureStdExtXCheri, FeatureStdExtZCheriPureCap,
+                                    FeatureStdExtY),
+                "'Zcheripurecap' (CHERI aware Instructions), 'Base Y' (CHERI) or "
+                "Implements CHERI extension">;
+
 def NotHasZCheriPurecap
     : Predicate<"!Subtarget->hasStdExtZCheriPureCap()">,
                 AssemblerPredicate<(all_of (not FeatureStdExtZCheriPureCap)),

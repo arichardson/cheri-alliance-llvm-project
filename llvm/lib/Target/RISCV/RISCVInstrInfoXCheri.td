@@ -973,7 +973,7 @@ def : InstAlias<"auipc $rd, $imm20", (AUIPCC RVYCompatGPCR:$rd, uimm20_auipc:$im
 } // Predicates = [HasZCheriPurecapOrCheri, IsCapMode]
 
 
-let Predicates = [HasZCheriPurecapOrCheri, IsCapMode] in {
+let Predicates = [HasZCheriPurecapOrCheriOrY, IsCapMode] in {
 defm CLB  : CheriLoad_ri<0b000, "lb">;
 defm CLH  : CheriLoad_ri<0b001, "lh">;
 defm CLW  : CheriLoad_ri<0b010, "lw">;
@@ -983,13 +983,13 @@ defm CLHU : CheriLoad_ri<0b101, "lhu">;
 defm CSB : CheriStore_ri<0b000, "sb">;
 defm CSH : CheriStore_ri<0b001, "sh">;
 defm CSW : CheriStore_ri<0b010, "sw">;
-} // Predicates = [HasZCheriPurecapOrCheri, IsCapMode]
+} // Predicates = [HasZCheriPurecapOrCheriOrY, IsCapMode]
 
-let Predicates = [HasZCheriPurecapOrCheri, IsRV64, IsCapMode] in {
+let Predicates = [HasZCheriPurecapOrCheriOrY, IsRV64, IsCapMode] in {
 defm CLWU   : CheriLoad_ri<0b110, "lwu">;
 defm CLD    : CheriLoad_ri<0b011, "ld">;
 defm CSD    : CheriStore_ri<0b011, "sd">;
-} // Predicates = [HasZCheriPurecapOrCheri, IsRV64, IsCapMode]
+} // Predicates = [HasZCheriPurecapOrCheriOrY, IsRV64, IsCapMode]
 
 let Predicates = [HasCheri, IsRV32, IsCapMode] in {
 let DecoderNamespace = "RISCV32CapModeOnly_",

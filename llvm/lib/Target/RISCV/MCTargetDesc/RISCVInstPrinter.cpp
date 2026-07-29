@@ -351,6 +351,13 @@ void RISCVInstPrinter::printV9CR(const MCInst *MI, unsigned OpNo,
                                  const MCSubtargetInfo &STI, raw_ostream &O) {
   const MCOperand &MO = MI->getOperand(OpNo);
   assert(MO.isReg() && "printV9CR only supports register operands");
+  // The cap-mode loads/stores are shared between xcheri/Zcheripurecap and RVY
+  // (same encodings), but RVY spells capability registers with the plain
+  // "x"/ABI GPR names, so pick the spelling based on the subtarget.
+  if (STI.hasFeature(RISCV::FeatureStdExtY)) {
+    printRegName(O, MO.getReg());
+    return;
+  }
   const char *Name = getV9CRRegisterName(MO.getReg());
   assert(Name && "printV9CR called on a non-V9CR register operand");
   markup(O, Markup::Register) << Name;
