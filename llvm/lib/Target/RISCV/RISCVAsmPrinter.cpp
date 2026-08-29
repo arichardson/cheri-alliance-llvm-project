@@ -29,6 +29,7 @@
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineJumpTableInfo.h"
 #include "llvm/CodeGen/MachineModuleInfo.h"
+#include "llvm/IR/InlineAsm.h"
 #include "llvm/IR/Module.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCContext.h"
@@ -381,6 +382,33 @@ void RISCVAsmPrinter::emitInstruction(const MachineInstr *MI) {
     EmitToStreamer(*OutStreamer, OutInst);
 }
 
+// Capability registers print as "ca0" for xcheri/ISAv9 mnemonics but as plain
+// "a0" for RVY mnemonics; RVY only ever accepts the plain spelling. Inline
+// asm has no operand type to key off, so use the asm template's mnemonic
+// instead. RVY mnemonics mark themselves with a "y", either as a prefix
+// (yadd, ly, sy, ...) or, for the atomic aliases, as a ".y" suffix
+// (amoswap.y, amoswap.y.aq, ...).
+static bool inlineAsmUsesRVYRegNames(const MachineInstr *MI) {
+  const MachineOperand &AsmStr = MI->getOperand(InlineAsm::MIOp_AsmString);
+  if (!AsmStr.isSymbol())
+    return false;
+  StringRef Mnemonic = StringRef(AsmStr.getSymbolName()).ltrim(" \t\n");
+  Mnemonic = Mnemonic.substr(0, Mnemonic.find_first_of(" \t\n"));
+  Mnemonic.consume_front("c.");
+  if (Mnemonic.starts_with("y") || Mnemonic.starts_with("ly") ||
+      Mnemonic.starts_with("sy"))
+    return true;
+  return Mnemonic.ends_with(".y") || Mnemonic.contains(".y.");
+}
+
+// Name to substitute into an inline asm template for Reg.
+static const char *getInlineAsmRegName(const MachineInstr *MI, MCRegister Reg) {
+  if (!inlineAsmUsesRVYRegNames(MI))
+    if (const char *CapName = RISCVInstPrinter::getV9CRRegisterName(Reg))
+      return CapName;
+  return RISCVInstPrinter::getRegisterName(Reg);
+}
+
 bool RISCVAsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,
                                       const char *ExtraCode, raw_ostream &OS) {
   // First try the generic code, which knows about modifiers like 'c' and 'n'.
@@ -420,7 +448,7 @@ bool RISCVAsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,
     OS << MO.getImm();
     return false;
   case MachineOperand::MO_Register:
-    OS << RISCVInstPrinter::getRegisterName(MO.getReg());
+    OS << getInlineAsmRegName(MI, MO.getReg());
     return false;
   case MachineOperand::MO_GlobalAddress:
     PrintSymbolOperand(MO, OS);
@@ -472,7 +500,7 @@ bool RISCVAsmPrinter::PrintAsmMemoryOperand(const MachineInstr *MI,
     MMI->getContext().registerInlineAsmLabel(Sym);
   }
 
-  OS << "(" << RISCVInstPrinter::getRegisterName(AddrReg.getReg()) << ")";
+  OS << "(" << getInlineAsmRegName(MI, AddrReg.getReg()) << ")";
   return false;
 }
 

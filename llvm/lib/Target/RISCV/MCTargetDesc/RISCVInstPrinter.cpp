@@ -345,6 +345,21 @@ const char *RISCVInstPrinter::getRegisterName(MCRegister Reg) {
                                            : RISCV::ABIRegAltName);
 }
 
+// V9CR-family operands print with a "c" prefix regardless of the register's
+// AsmName, so this can't reuse the generic getRegisterName(Reg) hook above.
+void RISCVInstPrinter::printV9CR(const MCInst *MI, unsigned OpNo,
+                                 const MCSubtargetInfo &STI, raw_ostream &O) {
+  const MCOperand &MO = MI->getOperand(OpNo);
+  assert(MO.isReg() && "printV9CR only supports register operands");
+  const char *Name = getV9CRRegisterName(MO.getReg());
+  assert(Name && "printV9CR called on a non-V9CR register operand");
+  markup(O, Markup::Register) << Name;
+}
+
+const char *RISCVInstPrinter::getV9CRRegisterName(MCRegister Reg) {
+  return RISCVV9CRName::get(Reg, /*ABI=*/!ArchRegNames);
+}
+
 void RISCVInstPrinter::printCSetBndImm(const MCInst *MI, unsigned OpNo,
                                       const MCSubtargetInfo &STI,
                                       raw_ostream &O) {

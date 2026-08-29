@@ -84,6 +84,10 @@ public:
                                const MCSubtargetInfo &STI, raw_ostream &O);
   static const char *getRegisterName(MCRegister Reg);
   static const char *getRegisterName(MCRegister Reg, unsigned AltIdx);
+
+  // Returns the "c"-prefixed name for a YGPR-class register, or nullptr if
+  // Reg isn't one. Like printV9CR, but usable without an MCInst operand.
+  static const char *getV9CRRegisterName(MCRegister Reg);
 };
 } // namespace llvm
 
