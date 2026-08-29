@@ -35,6 +35,7 @@
 #include "llvm/CodeGen/SelectionDAGAddressAnalysis.h"
 #include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
 #include "llvm/CodeGen/ValueTypes.h"
+#include "llvm/IR/Cheri.h"
 #include "llvm/IR/DiagnosticInfo.h"
 #include "llvm/IR/DiagnosticPrinter.h"
 #include "llvm/IR/IRBuilder.h"
@@ -23578,7 +23579,25 @@ RISCVTargetLowering::getRegisterByName(const char *RegName, LLT VT,
   if (Reg == RISCV::NoRegister)
     report_fatal_error(
         Twine("Invalid register name \"" + StringRef(RegName) + "\"."));
-  BitVector ReservedRegs = Subtarget.getRegisterInfo()->getReservedRegs(MF);
+
+  // A capability register shares its architectural and ABI name with the GPR
+  // holding its address (X1_Y is "x1"/"ra", just like X1), so the name alone
+  // does not say which register file was meant. Use the requested type to
+  // disambiguate.
+  const RISCVRegisterInfo *TRI = Subtarget.getRegisterInfo();
+  if (VT.isValid()) {
+    if (VT.isPointer() &&
+        isCheriPointer(VT.getAddressSpace(), &MF.getDataLayout())) {
+      if (MCRegister CapReg = TRI->getMatchingSuperReg(
+              Reg, RISCV::sub_cap_addr, &RISCV::YGPRRegClass))
+        Reg = CapReg;
+    } else if (RISCV::YGPRRegClass.contains(Reg)) {
+      if (MCRegister AddrReg = TRI->getSubReg(Reg, RISCV::sub_cap_addr))
+        Reg = AddrReg;
+    }
+  }
+
+  BitVector ReservedRegs = TRI->getReservedRegs(MF);
   if (!ReservedRegs.test(Reg) && !Subtarget.isRegisterReservedByUser(Reg))
     report_fatal_error(Twine("Trying to obtain non-reserved register \"" +
                              StringRef(RegName) + "\"."));
