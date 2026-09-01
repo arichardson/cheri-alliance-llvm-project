@@ -68,16 +68,15 @@ RISCVRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
     return CSR_NoRegs_SaveList;
   if (MF->getFunction().hasFnAttribute("interrupt")) {
     if (Subtarget.hasStdExtD())
-      return Subtarget.hasStdExtZCheriPureCapOrCheri()
-                 ? CSR_XLEN_CLEN_F64_Interrupt_SaveList
-                 : CSR_XLEN_F64_Interrupt_SaveList;
+      return Subtarget.hasAnyCheriExt() ? CSR_XLEN_CLEN_F64_Interrupt_SaveList
+                                        : CSR_XLEN_F64_Interrupt_SaveList;
     if (Subtarget.hasStdExtF()) {
-      if (Subtarget.hasStdExtZCheriPureCapOrCheri())
+      if (Subtarget.hasAnyCheriExt())
         return CSR_XLEN_CLEN_F32_Interrupt_SaveList;
       return Subtarget.hasStdExtE() ? CSR_XLEN_F32_Interrupt_RVE_SaveList
                                : CSR_XLEN_F32_Interrupt_SaveList;
     }
-    if (Subtarget.hasStdExtZCheriPureCapOrCheri())
+    if (Subtarget.hasAnyCheriExt())
       return CSR_XLEN_CLEN_Interrupt_SaveList;
     return Subtarget.hasStdExtE() ? CSR_Interrupt_RVE_SaveList
                              : CSR_Interrupt_SaveList;

@@ -338,9 +338,8 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   unsigned XLen = Subtarget.getXLen();
   MVT XLenVT = Subtarget.getXLenVT();
 
-  MVT CLenVT = Subtarget.hasStdExtZCheriPureCapOrCheri()
-	           ? Subtarget.typeForCapabilities()
-                   : MVT();
+  MVT CLenVT =
+      Subtarget.hasAnyCheriExt() ? Subtarget.typeForCapabilities() : MVT();
   bool IsPureCap = RISCVABI::isCheriPureCapABI(ABI);
   MVT PtrVT = IsPureCap ? CLenVT : XLenVT;
   bool IsPureCapVarArgs = !IsFixed && IsPureCap;
