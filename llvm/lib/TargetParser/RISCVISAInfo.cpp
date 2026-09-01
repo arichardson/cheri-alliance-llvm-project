@@ -798,6 +798,17 @@ Error RISCVISAInfo::checkDependency() {
     if (Exts.count(Ext.str()) && (XLen != 32))
       return getError("'" + Twine(Ext) + "'" + " is only supported for 'rv32'");
 
+  // Xcheri, Zcheripurecap and Y are three independent ways of adding CHERI
+  // support, so at most one of them can be enabled.
+  if (Exts.count("xcheri") != 0 && Exts.count("zcheripurecap") != 0)
+    return getIncompatibleError("xcheri", "zcheripurecap");
+
+  if (Exts.count("zcheripurecap") != 0 && Exts.count("y") != 0)
+    return getIncompatibleError("zcheripurecap", "y");
+
+  if (Exts.count("xcheri") != 0 && Exts.count("y") != 0)
+    return getIncompatibleError("xcheri", "y");
+
   if (Exts.count("y") != 0) {
     static constexpr StringLiteral ZcdOverlaps[] = {
         {"zcmt"}, {"zcmp"}, {"xqccmp"}, {"xqccmt"}, {"xqciac"}, {"xqcicm"},

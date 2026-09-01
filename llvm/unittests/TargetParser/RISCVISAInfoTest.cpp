@@ -784,6 +784,22 @@ TEST(ParseArchString, RejectsConflictingExtensions) {
       toString(
           RISCVISAInfo::parseArchString("rv64y0p98_zce", true).takeError()),
       "'zcmt' is incompatible with rv64y base");
+
+  // At most one of the three CHERI extensions can be enabled.
+  for (StringRef Input : {"rv64i_xcheri0p0_zcheripurecap0p9",
+                          "rv32i_xcheri0p0_zcheripurecap0p9"}) {
+    EXPECT_EQ(toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
+              "'xcheri' and 'zcheripurecap' extensions are incompatible");
+  }
+  for (StringRef Input :
+       {"rv64y0p98_zcheripurecap0p9", "rv32y0p98_zcheripurecap0p9"}) {
+    EXPECT_EQ(toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
+              "'zcheripurecap' and 'y' extensions are incompatible");
+  }
+  for (StringRef Input : {"rv64y0p98_xcheri0p0", "rv32y0p98_xcheri0p0"}) {
+    EXPECT_EQ(toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
+              "'xcheri' and 'y' extensions are incompatible");
+  }
 }
 
 TEST(ParseArchString, MissingDepency) {
