@@ -1602,11 +1602,6 @@ static MCRegister convertFPR64ToFPR32(MCRegister Reg) {
   return Reg - RISCV::F0_D + RISCV::F0_F;
 }
 
-static MCRegister convertGPRToGPCR(MCRegister Reg) {
-  assert(Reg >= RISCV::X0 && Reg <= RISCV::X31 && "Invalid register");
-  return Reg - RISCV::X0 + RISCV::X0_Y;
-}
-
 static MCRegister convertGPRToYGPR(MCRegister Reg) {
   assert(Reg >= RISCV::X0 && Reg <= RISCV::X31 && "Invalid register");
   return Reg - RISCV::X0 + RISCV::X0_Y;
@@ -1726,7 +1721,7 @@ unsigned RISCVAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
     bool ShouldCoerceGPR =
         CoerceInAllModes || getSTI().hasFeature(RISCV::FeatureCapMode);
     if (Op.isGPR() && ShouldCoerceGPR) {
-      MCRegister CapReg = convertGPRToGPCR(Reg);
+      MCRegister CapReg = convertGPRToYGPR(Reg);
       if (!RC->contains(CapReg))
         return getDiagKindFromRegisterClass((MatchClassKind)Kind);
       Op.Reg.RegNum = CapReg;
@@ -4382,7 +4377,7 @@ void RISCVAsmParser::emitCapLoadTLSIEAddress(MCInst &Inst, SMLoc IDLoc,
   //   TmpLabel: AUIPCC cdest, %tls_ie_pcrel_hi(symbol)
   //             CLx rdest, %pcrel_lo(TmpLabel)(cdest)
   MCOperand DestReg = Inst.getOperand(0);
-  MCOperand TmpReg = MCOperand::createReg(convertGPRToGPCR(DestReg.getReg()));
+  MCOperand TmpReg = MCOperand::createReg(convertGPRToYGPR(DestReg.getReg()));
   const MCExpr *Symbol = Inst.getOperand(1).getExpr();
   unsigned SecondOpcode = isRV64() ? RISCV::CLD : RISCV::CLW;
   emitAuipccInstPair(DestReg, TmpReg, Symbol, RISCVMCExpr::VK_RISCV_TLS_GOT_HI,
